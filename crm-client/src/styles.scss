@@ -1,0 +1,37 @@
+// /* You can add global styles to this file, and also import other style files */
+// @import "tailwindcss/base" layer(tailwindcss);
+// @import "tailwindcss/components" layer(tailwindcss);
+// @import "tailwindcss/utilities" layer(tailwindcss);
+
+// // @import "primeng/resources/themes/arya-blue/theme.css";
+// @import "primeng/resources/primeng.min.css";
+// @import "primeicons/primeicons.css";
+
+@layer tailwind-base, primeng, tailwind-utilities;
+@layer tailwind-base {
+  @tailwind base;
+}
+
+@layer tailwind-utilities {
+  @tailwind components;
+  @tailwind utilities;
+}
+@import "primeng/resources/primeng.min.css";
+@import "primeicons/primeicons.css";
+@import "primeflex/primeflex.scss";
+
+html {
+  font-size: 1rem;
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--surface-ground);
+  color: var(--text-color);
+  padding: 0;
+  margin: 0;
+  min-height: 100%;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

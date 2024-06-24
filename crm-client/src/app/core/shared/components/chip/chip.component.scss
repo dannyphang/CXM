@@ -1,0 +1,9 @@
+:host ::ng-deep {
+  .chip-box {
+    border: 1px solid var(--primary-color);
+  }
+
+  .p-icon {
+    color: var(--primary-color);
+  }
+}

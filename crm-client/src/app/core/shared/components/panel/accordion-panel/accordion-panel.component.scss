@@ -1,0 +1,9 @@
+:host ::ng-deep {
+  .acc-panel-box {
+    border: 1px solid var(--primary-color);
+  }
+
+  .p-accordion-toggle-icon .p-icon {
+    color: var(--primary-color);
+  }
+}
