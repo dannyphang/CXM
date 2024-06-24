@@ -28,6 +28,8 @@ import { TerminalComponent } from './terminal/terminal.component';
 import { TabMenuComponent } from './tab-menu/tab-menu.component';
 import { SidePanelComponent } from './panel/side-panel/side-panel.component';
 import { TagComponent } from './tag/tag.component';
+import { ContactCompanyPageComponent } from './contact-company-page/contact-company-page.component';
+import { BreadcrumbComponent } from './breadcrumb/breadcrumb.component';
 
 const components = [
   BaseInputComponent,
@@ -53,6 +55,8 @@ const components = [
   TabMenuComponent,
   SidePanelComponent,
   TagComponent,
+  ContactCompanyPageComponent,
+  BreadcrumbComponent
 ];
 
 @NgModule({

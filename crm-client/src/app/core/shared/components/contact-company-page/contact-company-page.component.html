@@ -1,0 +1,24 @@
+<div class="page-container tw-m-[15px]">
+  <div class="tw-flex">
+    <div class="tw-justify-between tw-w-full tw-grid tw-items-center">
+      <app-base-label
+        [label]="'Company'"
+        *ngIf="module === 'COMPANY'"
+      ></app-base-label>
+      <app-base-label
+        [label]="'Contact'"
+        *ngIf="module === 'CONTACT'"
+      ></app-base-label>
+    </div>
+    <div class="action-div tw-flex">
+      <p-button [icon]="'pi pi-search'" rounded="true" [text]="true"></p-button>
+      <p-button [icon]="'pi pi-search'" rounded="true" [text]="true"></p-button>
+    </div>
+  </div>
+
+  <p-tabView class="">
+    <p-tabPanel header="Contact" [selected]="true" [closable]="true">
+    </p-tabPanel>
+    <p-tabPanel header="Contact" [closable]="true"> </p-tabPanel>
+  </p-tabView>
+</div>
