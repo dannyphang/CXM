@@ -1,7 +1,7 @@
 import { Router } from "express";
 import express from "express";
 const router = Router();
-import db from "../../firebase.js";
+import db from "../firebase.js";
 import { collection, getDocs, doc, getDoc } from "firebase/firestore";
 
 router.use(express.json());

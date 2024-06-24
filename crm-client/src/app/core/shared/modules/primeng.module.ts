@@ -26,6 +26,7 @@ import { TabMenuModule } from 'primeng/tabmenu';
 import { TagModule } from 'primeng/tag';
 import { AutoFocusModule } from 'primeng/autofocus';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
+import { TableModule } from 'primeng/table';
 
 import { MessageService } from 'primeng/api';
 
@@ -57,7 +58,8 @@ const PRIMENG_MODULES = [
     TabMenuModule,
     TagModule,
     AutoFocusModule,
-    BreadcrumbModule
+    BreadcrumbModule,
+    TableModule,
 ]
 
 @NgModule({

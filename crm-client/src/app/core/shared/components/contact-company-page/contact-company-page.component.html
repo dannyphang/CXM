@@ -11,13 +11,30 @@
       ></app-base-label>
     </div>
     <div class="action-div tw-flex">
-      <p-button [icon]="'pi pi-search'" rounded="true" [text]="true"></p-button>
-      <p-button [icon]="'pi pi-search'" rounded="true" [text]="true"></p-button>
+      <p-button
+        [icon]="'pi pi-upload'"
+        rounded="true"
+        [text]="true"
+        [pTooltip]="'Export'"
+      ></p-button>
+      <p-button
+        [icon]="'pi pi-download'"
+        rounded="true"
+        [text]="true"
+        [pTooltip]="'Import'"
+      ></p-button>
+      <p-button
+        [icon]="'pi pi-plus'"
+        rounded="true"
+        [text]="true"
+        [pTooltip]="'Create'"
+      ></p-button>
     </div>
   </div>
 
   <p-tabView class="">
     <p-tabPanel header="Contact" [selected]="true" [closable]="true">
+      <p-table></p-table>
     </p-tabPanel>
     <p-tabPanel header="Contact" [closable]="true"> </p-tabPanel>
   </p-tabView>

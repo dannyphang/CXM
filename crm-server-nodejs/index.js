@@ -1,6 +1,6 @@
 //import { createServer } from "http";
 import express from "express";
-import ContactRouter from "./api/routes/contact.js";
+import ContactRouter from "./api/contact.js";
 import cors from "cors";
 
 const app = express();
