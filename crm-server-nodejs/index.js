@@ -1,6 +1,7 @@
 //import { createServer } from "http";
 import express from "express";
 import ContactRouter from "./api/contact.js";
+import commonRouter from "./api/common.js";
 import cors from "cors";
 
 const app = express();
@@ -23,6 +24,7 @@ app.all("/*", function (req, res, next) {
 app.use(cors());
 
 app.use("/contact", ContactRouter);
+app.use("/common", commonRouter);
 
 app.listen(port, () => {
   console.log(`server is running at port: ${port}...`);

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ContactService } from '../../core/services/contact.service';
+import { CommonService } from '../../core/services/common.service';
 
 @Component({
   selector: 'app-contact',
@@ -8,18 +8,24 @@ import { ContactService } from '../../core/services/contact.service';
 })
 export class ContactComponent {
   constructor(
-    private contactService: ContactService
+    private commonService: CommonService
   ) {
   }
 
   getContactBtn() {
-    this.contactService.getAllContact().subscribe((res) => {
+    this.commonService.getAllContact().subscribe((res) => {
       console.log(res);
     });
   }
 
   getContactByIdBtn() {
-    this.contactService.getContactById("6H5x7Fo1qfk7dgin2zLW").subscribe((res) => {
+    this.commonService.getContactById("6H5x7Fo1qfk7dgin2zLW").subscribe((res) => {
+      console.log(res);
+    });
+  }
+
+  getAllPropertiesBtn() {
+    this.commonService.getAllPropertiesByModule("CONT").subscribe((res) => {
       console.log(res);
     });
   }
