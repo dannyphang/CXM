@@ -22,24 +22,39 @@ export class CommonService {
         return this.http.get<PropertiesDto[]>(apiConfig.baseUrl + '/common/properties').pipe();
     }
 
-    getAllPropertiesByModule(module: string): Observable<PropertiesDto[]> {
+    getAllPropertiesByModule(module: string): Observable<any[]> {
         let headers = {
             'moduleCode': module
         }
-        return this.http.get<PropertiesDto[]>((apiConfig.baseUrl + '/common/properties'), { headers }).pipe();
+        return this.http.get<any[]>((apiConfig.baseUrl + '/common/properties/module'), { headers }).pipe();
     }
 
     createProperties(properties: PropertiesDto): Observable<PropertiesDto> {
         return this.http.post<PropertiesDto>(apiConfig.baseUrl + '/common/properties', properties).pipe();
     }
 }
+export class ModulePropertiesDto {
+    uid: string;
+    moduleId: string;
+    moduleNumber: string;
+    moduleSubCode: string;
+    moduleType: string;
+    moduleValue: string;
+    moduleCode: string;
+    statusId: number;
+    propertiesList: PropertiesDto[];
+    createdDate: Date;
+    createdBy: string;
+    modifiedDate: Date;
+    modifiedBy: string;
+}
 
 export class PropertiesDto {
     propertyId: string;
     uid: string;
-    name: string;
-    code: string;
-    type: string;
+    propertyName: string;
+    propertyCode: string;
+    propertyType: string;
     isSystem: boolean;
     isMandatory: boolean;
     isEditable: boolean;
@@ -51,4 +66,23 @@ export class PropertiesDto {
     createdBy: string;
     modifiedDate: Date;
     modifiedBy: string;
+    propertyLookupList: PropertyLookupDto[];
+}
+
+export class PropertyLookupDto {
+    uid: string;
+    propertyLookupId: string;
+    propertyId: string;
+    propertyLookupLabel: string;
+    propertyLookupCode: string;
+    moduleCode: string;
+    isDefault: boolean;
+    isSystem: boolean;
+    isVisiable: boolean;
+    statusId: number;
+    createdDate: Date;
+    createdBy: string;
+    modifiedDate: Date;
+    modifiedBy: string;
+
 }

@@ -6,5 +6,5 @@ import { Component, Input } from '@angular/core';
   styleUrl: './contact-company-page.component.scss'
 })
 export class ContactCompanyPageComponent {
-  @Input() module: 'CONTACT' | 'COMPANY' = 'CONTACT';
+  @Input() module: 'CONT' | 'COMP' = 'CONT';
 }

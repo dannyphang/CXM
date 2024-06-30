@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { CommonService } from '../../core/services/common.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-contact',
@@ -7,8 +8,12 @@ import { CommonService } from '../../core/services/common.service';
   styleUrl: './contact.component.scss'
 })
 export class ContactComponent {
+  profileId: string = "6H5x7Fo1qfk7dgin2zLW";
+  module: 'CONT' | 'COMP' = 'CONT';
+
   constructor(
-    private commonService: CommonService
+    private commonService: CommonService,
+    private router: Router,
   ) {
   }
 
@@ -28,5 +33,9 @@ export class ContactComponent {
     this.commonService.getAllPropertiesByModule("CONT").subscribe((res) => {
       console.log(res);
     });
+  }
+
+  toProfile() {
+    this.router.navigate(['contact/profile/' + this.profileId])
   }
 }

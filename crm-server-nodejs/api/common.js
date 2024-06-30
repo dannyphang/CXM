@@ -36,24 +36,55 @@ router.get("/" + propertiesCollection, async (req, res) => {
   }
 });
 
-// get all properties with lookup
+// get all properties with lookup by module
 router.get("/" + propertiesCollection + "/module", async (req, res) => {
-  const moduleCode = req.body.moduleCode;
+  const moduleCode = req.headers.modulecode;
 
   try {
-    const q = query(
+    const propertiesQuery = query(
       collection(db, propertiesCollection),
       where("moduleCode", "==", moduleCode)
     );
+    const moduleQuery = query(
+      collection(db, moduleCodeCollection),
+      where("moduleSubCode", "==", moduleCode)
+    );
+    const propertiesLookupQuery = query(
+      collection(db, propertiesLookupCollection),
+      where("moduleCode", "==", moduleCode)
+    );
 
-    const snapshot = await getDocs(q);
-    const list = snapshot.docs.map((doc) => doc.data());
+    const snapshot = await getDocs(propertiesQuery);
+    const snapshotModule = await getDocs(moduleQuery);
+    const snapshotPL = await getDocs(propertiesLookupQuery);
+    const propertyList = snapshot.docs.map((doc) => doc.data());
+    const moduleList = snapshotModule.docs.map((doc) => doc.data());
+    const propertyLookupList = snapshotPL.docs.map((doc) => doc.data());
 
-    list.sort((a, b) => {
-      return a.propertyId - b.propertyId;
+    propertyList.sort((a, b) => {
+      return a.order - b.order;
     });
 
-    res.status(200).json(list);
+    for (let i = 0; i < propertyList.length; i++) {
+      propertyList[i].propertyLookupList = [];
+
+      for (let j = 0; j < propertyLookupList.length; j++) {
+        if (propertyList[i].propertyId === propertyLookupList[j].propertyId) {
+          propertyList[i].propertyLookupList.push(propertyLookupList[j]);
+        }
+      }
+    }
+
+    moduleList.forEach((module) => {
+      module.propertiesList = [];
+      for (let i = 0; i < propertyList.length; i++) {
+        if (module.moduleCode === propertyList[i].moduleCat) {
+          module.propertiesList.push(propertyList[i]);
+        }
+      }
+    });
+
+    res.status(200).json(moduleList);
   } catch (error) {
     console.log("error", error);
     res.status(400).json(error);
@@ -69,8 +100,8 @@ router.post("/" + propertiesCollection, async (req, res) => {
 
     list.forEach((prop) => {
       prop.uid = doc(collection(db, propertiesCollection)).id;
-      prop.CreatedDate = new Date();
-      prop.ModifiedDate = new Date();
+      prop.createdDate = new Date();
+      prop.modifiedDate = new Date();
 
       createDoc.push(prop);
 
@@ -149,8 +180,8 @@ router.post("/" + moduleCodeCollection, async (req, res) => {
 
     list.forEach((prop) => {
       prop.uid = doc(collection(db, moduleCodeCollection)).id;
-      prop.CreatedDate = new Date();
-      prop.ModifiedDate = new Date();
+      prop.createdDate = new Date();
+      prop.modifiedDate = new Date();
 
       createDoc.push(prop);
 

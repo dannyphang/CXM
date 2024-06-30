@@ -283,3 +283,22 @@ export interface BaseTabMenuItem extends MenuItem {
     moduleCode?: string | object;
     actionType?: string | string[];
 }
+
+export interface ProtertiesDto {
+    propertyId: string;
+    uid: string;
+    name: string;
+    code: string;
+    type: string;
+    isSystem: boolean;
+    isMandatory: boolean;
+    isEditable: boolean;
+    isVisiable: boolean;
+    moduleCode: string;
+    order: number;
+    statusID: number;
+    createdDate: Date;
+    createdBy: string;
+    modifiedDate: Date;
+    modifiedBy: string;
+}

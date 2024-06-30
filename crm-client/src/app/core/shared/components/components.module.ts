@@ -30,6 +30,8 @@ import { SidePanelComponent } from './panel/side-panel/side-panel.component';
 import { TagComponent } from './tag/tag.component';
 import { ContactCompanyPageComponent } from './contact-company-page/contact-company-page.component';
 import { BreadcrumbComponent } from './breadcrumb/breadcrumb.component';
+import { SettingPageComponent } from './setting-page/setting-page.component';
+import { PropertyComponent } from './property/property.component';
 
 const components = [
   BaseInputComponent,
@@ -56,7 +58,9 @@ const components = [
   SidePanelComponent,
   TagComponent,
   ContactCompanyPageComponent,
-  BreadcrumbComponent
+  BreadcrumbComponent,
+  SettingPageComponent,
+  PropertyComponent
 ];
 
 @NgModule({

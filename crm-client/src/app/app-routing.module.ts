@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { LayoutComponent } from './layout/layout.component';
-import { SettingComponent } from './module/contact/profile/setting/setting.component';
 
 const routes: Routes = [
   {
@@ -17,7 +16,6 @@ const routes: Routes = [
         path: 'contact',
         loadChildren: () => import('./module/contact/contact.module').then(m => m.ContactModule),
         data: { breadcrumb: 'Contact', title: 'Contact' },
-
       },
       {
         path: 'company',
@@ -28,12 +26,12 @@ const routes: Routes = [
   },
   {
     path: '',
-    redirectTo: '/home',
+    redirectTo: '/contact',
     pathMatch: 'full'
   },
   {
     path: '**',
-    redirectTo: '/home',
+    redirectTo: '/contact',
     pathMatch: 'full'
   }
 ];
