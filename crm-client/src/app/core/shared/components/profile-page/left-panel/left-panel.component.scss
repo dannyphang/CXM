@@ -1,0 +1,6 @@
+.left-top-area {
+  display: grid;
+  grid-template-areas: "avatar-div info-div";
+  grid-template-columns: 1fr 2fr;
+  column-gap: 15px;
+}

@@ -1,3 +1,61 @@
+<div class="tw-p-[15px]">
+  <div class="left-top-area">
+    <div class="avatar-div"></div>
+    <div class="info-div"></div>
+  </div>
+
+  <div class="action-btn-div tw-flex tw-w-full tw-justify-between">
+    <p-button
+      icon="pi pi-file-edit"
+      [rounded]="true"
+      [text]="true"
+      outlined="true"
+      [styleClass]="'tw-bg-[var(--primary-color-text)]'"
+      pTooltip="Create a note"
+    />
+    <p-button
+      icon="pi pi-envelope"
+      [rounded]="true"
+      [text]="true"
+      outlined="true"
+      [styleClass]="'tw-bg-[var(--primary-color-text)]'"
+      pTooltip="Create an email"
+    />
+    <p-button
+      icon="pi pi-phone"
+      [rounded]="true"
+      [text]="true"
+      outlined="true"
+      [styleClass]="'tw-bg-[var(--primary-color-text)]'"
+      pTooltip="Make a phone call"
+    />
+    <p-button
+      icon="pi pi-list-check"
+      [rounded]="true"
+      [text]="true"
+      outlined="true"
+      [styleClass]="'tw-bg-[var(--primary-color-text)]'"
+      pTooltip="Create a task"
+    />
+    <p-button
+      icon="pi pi-calendar-plus"
+      [rounded]="true"
+      [text]="true"
+      outlined="true"
+      [styleClass]="'tw-bg-[var(--primary-color-text)]'"
+      pTooltip="Schedule a meeting"
+    />
+    <p-button
+      icon="pi pi-ellipsis-h"
+      [rounded]="true"
+      [text]="true"
+      outlined="true"
+      [styleClass]="'tw-bg-[var(--primary-color-text)]'"
+      pTooltip="More"
+    />
+  </div>
+</div>
+
 <div class="tw-border tw-rounded-[15px]">
   <div class="panel-div" *ngFor="let propertyGroup of propertiesList">
     <app-accordion-panel
