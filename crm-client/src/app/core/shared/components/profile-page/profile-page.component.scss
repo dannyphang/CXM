@@ -1,0 +1,5 @@
+.profile-page-div {
+  grid-template-areas: "left-panel-area middle-panel-area";
+  grid-template-columns: 40% 1fr;
+  column-gap: 15px;
+}

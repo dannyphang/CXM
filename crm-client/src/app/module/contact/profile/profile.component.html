@@ -1,1 +1,17 @@
-<!-- <p-button (onClick)="goToSetting()">to Setting</p-button> -->
+<div class="tw-w-screen tw-h-screen tw-fixed">
+  <p-progressSpinner
+    aria-label="Loading"
+    *ngIf="isBlocked"
+    class="tw-flex tw-flex-wrap tw-justify-center tw-items-center"
+  ></p-progressSpinner>
+</div>
+<p-blockUI [blocked]="isBlocked"></p-blockUI>
+<p-button (onClick)="goToSetting()">to Setting</p-button>
+<p-button (onClick)="btn()">get properties</p-button>
+
+<div class="tw-w-[70%] tw-m-auto tw-border">
+  <app-profile-page
+    [module]="module"
+    [propertiesList]="propertiesList"
+  ></app-profile-page>
+</div>

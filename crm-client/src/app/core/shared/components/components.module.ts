@@ -32,6 +32,10 @@ import { ContactCompanyPageComponent } from './contact-company-page/contact-comp
 import { BreadcrumbComponent } from './breadcrumb/breadcrumb.component';
 import { SettingPageComponent } from './setting-page/setting-page.component';
 import { PropertyComponent } from './property/property.component';
+import { ProfilePageComponent } from './profile-page/profile-page.component';
+import { LeftPanelComponent } from './profile-page/left-panel/left-panel.component';
+import { MiddlePanelComponent } from './profile-page/middle-panel/middle-panel.component';
+import { RightPanelComponent } from './profile-page/right-panel/right-panel.component';
 
 const components = [
   BaseInputComponent,
@@ -60,7 +64,11 @@ const components = [
   ContactCompanyPageComponent,
   BreadcrumbComponent,
   SettingPageComponent,
-  PropertyComponent
+  PropertyComponent,
+  ProfilePageComponent,
+  LeftPanelComponent,
+  MiddlePanelComponent,
+  RightPanelComponent
 ];
 
 @NgModule({

@@ -8,7 +8,10 @@
     [iconLabelTooltip]="iconLabelTooltip"
   >
   </app-base-label>
-  <div class="flex" [ngClass]="{ 'flex-column': direction === 'column' }">
+  <div
+    class="flex flex-wrap"
+    [ngClass]="{ 'flex-column': direction === 'column' }"
+  >
     <div
       [class]="'input-container mr-4 ' + inputContainerClass"
       [ngClass]="{ 'mr-4': direction === 'row' }"

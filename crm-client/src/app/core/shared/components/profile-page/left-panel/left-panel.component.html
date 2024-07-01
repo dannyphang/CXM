@@ -1,0 +1,22 @@
+<div class="tw-border tw-rounded-[15px]">
+  <div class="panel-div" *ngFor="let propertyGroup of propertiesList">
+    <app-accordion-panel
+      *ngIf="
+        propertyGroup.moduleCode == 'CONT_INFO' ||
+        propertyGroup.moduleCode == 'COMP_INFO'
+      "
+    >
+      <div acc-panel-header>
+        {{ propertyGroup.moduleName }}
+      </div>
+      <div acc-panel-body>
+        <div *ngFor="let property of propertyGroup.propertiesList">
+          <app-property
+            [property]="property"
+            *ngIf="property.isVisible"
+          ></app-property>
+        </div>
+      </div>
+    </app-accordion-panel>
+  </div>
+</div>

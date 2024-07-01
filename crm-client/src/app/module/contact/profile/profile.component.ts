@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component, Input, OnInit } from '@angular/core';
+import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
 import { CommonService, ModulePropertiesDto } from '../../../core/services/common.service';
 
 @Component({
@@ -8,8 +8,10 @@ import { CommonService, ModulePropertiesDto } from '../../../core/services/commo
   styleUrl: './profile.component.scss'
 })
 export class ProfileComponent implements OnInit {
+  @Input() module: 'CONT' | 'COMP' = 'CONT';
   profileId: any;
   propertiesList: ModulePropertiesDto[] = [];
+  isBlocked: boolean = true;
 
   constructor(
     private router: Router,
@@ -22,20 +24,29 @@ export class ProfileComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.commonService.getAllPropertiesByModule('CONT').subscribe((res) => {
-
-    });
+    // this.commonService.getAllPropertiesByModule('CONT').subscribe((res) => {
+    //   this.propertiesList = res;
+    //   this.isBlocked = false;
+    // });
+    this.isBlocked = false;
   }
 
   goToSetting() {
+    const navigationExtras: NavigationExtras = {
+      state: {
+        data: this.propertiesList
+      }
+    };
+
     // navigate to setting page
-    this.router.navigate(['contact/profile/' + this.profileId + '/setting'])
+    this.router.navigate(['contact/profile/' + this.profileId + '/setting'], navigationExtras);
   }
 
   btn() {
+    this.isBlocked = true;
     this.commonService.getAllPropertiesByModule('CONT').subscribe((res) => {
       this.propertiesList = res;
-      console.log(this.propertiesList);
+      this.isBlocked = false;
     });
   }
 }
