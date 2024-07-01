@@ -50,6 +50,29 @@ export enum CONTROL_TYPE {
     // autocomplete = 'autocomplete'
 }
 
+export enum CONTROL_TYPE_CODE {
+    Textbox = 'TXT_S',
+    Textarea = 'TXT_M',
+    Dropdown = 'SEL_S',
+    Multiselect = 'SEL_M',
+    Radio = 'RAD',
+    Checkbox = 'CBX_S',
+    MultiCheckbox = 'CBX_M',
+    Number = 'NUM',
+    Date = 'DATE',
+    DateTime = 'DATETIME',
+    Time = 'TIME',
+    Url = 'URL',
+    Email = 'EMAIL',
+    Phone = 'PHN',
+    User = 'USR',
+    Country = 'COUNTRY',
+    State = 'STATE',
+    City = 'CITY',
+    Postcode = 'POSTCODE',
+    Year = 'YEAR',
+}
+
 export const NUMBER_INPUT_FORMAT = {
     currency: new RegExp(/^RM \d{2}.\d{2}/gi),
 };
@@ -104,6 +127,7 @@ export interface BaseDatepickerFormConfig extends BaseFormConfig {
     dateFormat?: string;
     view?: string;
     showTime?: boolean;
+    timeOnly?: boolean;
 }
 
 export interface BaseTextAreaFormConfig extends BaseFormConfig, BaseInputTextConfig {

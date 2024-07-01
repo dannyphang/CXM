@@ -43,15 +43,18 @@ router.get("/" + propertiesCollection + "/module", async (req, res) => {
   try {
     const propertiesQuery = query(
       collection(db, propertiesCollection),
-      where("moduleCode", "==", moduleCode)
+      where("moduleCode", "==", moduleCode),
+      where("statusId", "==", 1)
     );
     const moduleQuery = query(
       collection(db, moduleCodeCollection),
-      where("moduleSubCode", "==", moduleCode)
+      where("moduleSubCode", "==", moduleCode),
+      where("statusId", "==", 1)
     );
     const propertiesLookupQuery = query(
       collection(db, propertiesLookupCollection),
-      where("moduleCode", "==", moduleCode)
+      where("moduleCode", "==", moduleCode),
+      where("statusId", "==", 1)
     );
 
     const snapshot = await getDocs(propertiesQuery);

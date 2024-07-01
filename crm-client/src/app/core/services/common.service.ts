@@ -36,6 +36,7 @@ export class CommonService {
 export class ModulePropertiesDto {
     uid: string;
     moduleId: string;
+    moduleName: string;
     moduleNumber: string;
     moduleSubCode: string;
     moduleType: string;
@@ -47,6 +48,7 @@ export class ModulePropertiesDto {
     createdBy: string;
     modifiedDate: Date;
     modifiedBy: string;
+    isHide: boolean;
 }
 
 export class PropertiesDto {
@@ -58,7 +60,7 @@ export class PropertiesDto {
     isSystem: boolean;
     isMandatory: boolean;
     isEditable: boolean;
-    isVisiable: boolean;
+    isVisible: boolean;
     moduleCode: string;
     order: number;
     statusID: number;
@@ -67,6 +69,7 @@ export class PropertiesDto {
     modifiedDate: Date;
     modifiedBy: string;
     propertyLookupList: PropertyLookupDto[];
+    isHide: boolean;
 }
 
 export class PropertyLookupDto {

@@ -1,6 +1,158 @@
-<app-accordion-panel *ngFor="let pl of propertiesList">
-  <div acc-panel-header>
-    <p>{{ pl.moduleValue }}</p>
+<div class="tw-mb-[15px]">
+  <div *ngIf="property.isEditable">
+    <div *ngIf="property.propertyType == 'TXT_S'">
+      <app-base-input
+        [id]="property.propertyId"
+        [required]="property.isMandatory"
+        [label]="property.propertyName"
+      ></app-base-input>
+    </div>
+
+    <div *ngIf="property.propertyType == 'TXT_M'">
+      <app-base-textarea
+        [id]="property.propertyId"
+        [required]="property.isMandatory"
+        [label]="property.propertyName"
+      ></app-base-textarea>
+    </div>
+
+    <div *ngIf="property.propertyType == 'NUM'">
+      <app-base-input
+        [id]="property.propertyId"
+        [required]="property.isMandatory"
+        [onlyNumber]="true"
+        [mode]="'number'"
+        [label]="property.propertyName"
+      ></app-base-input>
+    </div>
+
+    <div *ngIf="property.propertyType == 'EML'">
+      <app-base-input
+        [id]="property.propertyId"
+        [required]="property.isMandatory"
+        [mode]="'email'"
+        [label]="property.propertyName"
+      ></app-base-input>
+    </div>
+
+    <div *ngIf="property.propertyType == 'PHN'">
+      <app-base-input
+        [id]="property.propertyId"
+        [required]="property.isMandatory"
+        [mode]="'phone'"
+        [label]="property.propertyName"
+      ></app-base-input>
+    </div>
+
+    <div *ngIf="property.propertyType == 'URL'">
+      <app-base-input
+        [id]="property.propertyId"
+        [required]="property.isMandatory"
+        [mode]="'url'"
+        [label]="property.propertyName"
+      ></app-base-input>
+    </div>
+
+    <div *ngIf="property.propertyType == 'RAD'">
+      <app-base-radio
+        [id]="property.propertyId"
+        [required]="property.isMandatory"
+        [label]="property.propertyName"
+        [options]="propertyLookUpList"
+      ></app-base-radio>
+    </div>
+
+    <div *ngIf="property.propertyType == 'CBX_S'">
+      <app-base-checkbox
+        [id]="property.propertyId"
+        [required]="property.isMandatory"
+        [label]="property.propertyName"
+        [options]="propertyLookUpList"
+      ></app-base-checkbox>
+    </div>
+
+    <div *ngIf="property.propertyType == 'CBX_M'">
+      <app-base-checkbox
+        [required]="property.isMandatory"
+        [label]="property.propertyName"
+        [options]="propertyLookUpList"
+        [id]="property.propertyId"
+      ></app-base-checkbox>
+    </div>
+
+    <div *ngIf="property.propertyType == 'SEL_S'">
+      <app-base-dropdown
+        [required]="property.isMandatory"
+        [label]="property.propertyName"
+        [searchable]="true"
+        [showClear]="true"
+        [id]="property.propertyId"
+        [dataSourceAction]="getDataSourceAction()"
+      >
+      </app-base-dropdown>
+    </div>
+
+    <div *ngIf="property.propertyType == 'SEL_M'">
+      <app-base-multiselect
+        [required]="property.isMandatory"
+        [label]="property.propertyName"
+        [id]="property.propertyId"
+        [dataSourceAction]="getDataSourceAction()"
+      >
+      </app-base-multiselect>
+    </div>
+
+    <div *ngIf="property.propertyType == 'DATETIME'">
+      <app-base-datepicker
+        [required]="property.isMandatory"
+        [label]="property.propertyName"
+        [id]="property.propertyId"
+        [showTime]="true"
+      ></app-base-datepicker>
+    </div>
+
+    <div *ngIf="property.propertyType == 'DATE'">
+      <app-base-datepicker
+        [required]="property.isMandatory"
+        [label]="property.propertyName"
+        [id]="property.propertyId"
+        [maxDate]="maxDate()"
+      ></app-base-datepicker>
+    </div>
+
+    <div *ngIf="property.propertyType == 'TIME'">
+      <app-base-datepicker
+        [required]="property.isMandatory"
+        [label]="property.propertyName"
+        [id]="property.propertyId"
+        [timeOnly]="true"
+      ></app-base-datepicker>
+    </div>
+
+    <div *ngIf="property.propertyType == 'YEAR'">
+      <app-base-datepicker
+        [required]="property.isMandatory"
+        [label]="property.propertyName"
+        [id]="property.propertyId"
+        [view]="'year'"
+      ></app-base-datepicker>
+    </div>
+
+    <div *ngIf="property.propertyType == 'USR'">
+      <app-base-dropdown
+        [required]="property.isMandatory"
+        [label]="property.propertyName"
+        [searchable]="true"
+        [showClear]="true"
+        [id]="property.propertyId"
+        [dataSourceAction]="getDataSourceAction()"
+      >
+      </app-base-dropdown>
+    </div>
   </div>
-  <div acc-panel-body></div>
-</app-accordion-panel>
+
+  <div *ngIf="!property.isEditable" class="tw-grid">
+    <app-base-label [label]="property.propertyName"></app-base-label>
+    <app-base-label [label]="propertyValue"></app-base-label>
+  </div>
+</div>

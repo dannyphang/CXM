@@ -7,7 +7,6 @@ import { PrimeNgModule } from '../../../core/shared/modules/primeng.module';
 import { MaterialModule } from '../../../core/shared/modules/material.module';
 import { ComponentsModule } from '../../../core/shared/components/components.module';
 import { CommonSharedModule } from '../../../core/shared/modules/common-shared.module';
-import { ProfileComponent } from './profile.component';
 
 
 @NgModule({

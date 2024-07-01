@@ -9,7 +9,7 @@ import { BaseFieldControlComponent } from '../base-field-control/base-field-cont
 export class BaseInputComponent
   extends BaseFieldControlComponent
   implements OnInit {
-  @Input() mode: 'text' | 'number' | 'password' | 'switch' | 'label-text' =
+  @Input() mode: 'text' | 'number' | 'password' | 'switch' | 'label-text' | 'email' | 'url' | 'phone' =
     'text';
   @Input() iconUrl!: string;
   @Input() leftIconUrl!: string;

@@ -7,7 +7,7 @@ import { CommonService, ModulePropertiesDto } from '../../../../core/services/co
   styleUrl: './setting.component.scss'
 })
 export class ContactSettingComponent {
-  @Input() module: string = 'CONT';
+  @Input() module: 'CONT' | 'COMP' = 'CONT';
 
   propertiesList: ModulePropertiesDto[] = [];
 

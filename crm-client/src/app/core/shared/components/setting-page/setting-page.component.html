@@ -1,1 +1,32 @@
-<p>setting-page works!</p>
+<div class="tw-grid tw-p-[15px]">
+  <div
+    class="search-div tw-mt-[15px] tw-mb-0 tw-flex tw-flex-wrap tw-items-center"
+  >
+    <app-base-input
+      [placeholder]="'Search Properties...'"
+      [autoFocus]="true"
+      [fieldControl]="searchControl"
+      class="tw-w-[70%]"
+    ></app-base-input>
+
+    <app-base-checkbox
+      [options]="hideEmptySearchCheckbox"
+      class="tw-mx-[15px]"
+    ></app-base-checkbox>
+  </div>
+  <div class="panel-div" *ngFor="let propertyGroup of propertyList">
+    <app-accordion-panel *ngIf="!propertyGroup.isHide">
+      <div acc-panel-header>
+        {{ propertyGroup.moduleName }}
+      </div>
+      <div acc-panel-body>
+        <div *ngFor="let property of propertyGroup.propertiesList">
+          <app-property
+            [property]="property"
+            *ngIf="!property.isHide"
+          ></app-property>
+        </div>
+      </div>
+    </app-accordion-panel>
+  </div>
+</div>
