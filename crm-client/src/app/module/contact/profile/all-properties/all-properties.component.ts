@@ -3,11 +3,11 @@ import { CommonService, ModulePropertiesDto } from '../../../../core/services/co
 import { Router } from '@angular/router';
 
 @Component({
-  selector: 'app-setting',
-  templateUrl: './setting.component.html',
-  styleUrl: './setting.component.scss'
+  selector: 'app-all-properties',
+  templateUrl: './all-properties.component.html',
+  styleUrl: './all-properties.component.scss'
 })
-export class ContactSettingComponent implements OnChanges {
+export class ContactAllPropertiesComponent implements OnChanges {
   @Input() module: 'CONT' | 'COMP' = 'CONT';
 
   propertiesList: ModulePropertiesDto[] = [];
@@ -23,7 +23,6 @@ export class ContactSettingComponent implements OnChanges {
   }
 
   ngOnInit() {
-    const currentState = this.router.getCurrentNavigation();
     console.log(window.history.state)
     if (window.history.state.data) {
       this.propertiesList = window.history.state.data;

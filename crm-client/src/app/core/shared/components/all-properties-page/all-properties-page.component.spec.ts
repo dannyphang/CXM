@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { SettingPageComponent } from './setting-page.component';
+import { AllPropertiesPageComponent } from './all-properties-page.component';
 
 describe('SettingPageComponent', () => {
-  let component: SettingPageComponent;
-  let fixture: ComponentFixture<SettingPageComponent>;
+  let component: AllPropertiesPageComponent;
+  let fixture: ComponentFixture<AllPropertiesPageComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [SettingPageComponent]
+      imports: [AllPropertiesPageComponent]
     })
-    .compileComponents();
-    
-    fixture = TestBed.createComponent(SettingPageComponent);
+      .compileComponents();
+
+    fixture = TestBed.createComponent(AllPropertiesPageComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

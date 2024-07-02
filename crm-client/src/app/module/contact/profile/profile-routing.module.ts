@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { ProfileComponent } from './profile.component';
-import { ContactSettingComponent } from './setting/setting.component';
+import { ContactAllPropertiesComponent } from './all-properties/all-properties.component';
 
 const routes: Routes = [
   {
@@ -9,16 +9,16 @@ const routes: Routes = [
     component: ProfileComponent,
     children: [
       {
-        path: 'setting',
+        path: 'allProperties',
         pathMatch: 'full',
-        redirectTo: 'setting',
+        redirectTo: 'allProperties',
       }
     ]
   },
   {
-    path: 'setting',
-    component: ContactSettingComponent,
-    data: { breadcrumb: 'Setting', title: 'Setting' }
+    path: 'allProperties',
+    component: ContactAllPropertiesComponent,
+    data: { breadcrumb: 'All Properties', title: 'All Properties' }
   }
 ];
 

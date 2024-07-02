@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
 import { ProfileRoutingModule } from './profile-routing.module';
-import { ContactSettingComponent } from './setting/setting.component';
+import { ContactAllPropertiesComponent } from './all-properties/all-properties.component';
 import { PrimeNgModule } from '../../../core/shared/modules/primeng.module';
 import { MaterialModule } from '../../../core/shared/modules/material.module';
 import { ComponentsModule } from '../../../core/shared/components/components.module';
@@ -11,7 +11,7 @@ import { CommonSharedModule } from '../../../core/shared/modules/common-shared.m
 
 @NgModule({
   declarations: [
-    ContactSettingComponent
+    ContactAllPropertiesComponent
   ],
   imports: [
     CommonModule,

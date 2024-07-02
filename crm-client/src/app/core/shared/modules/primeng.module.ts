@@ -28,6 +28,8 @@ import { AutoFocusModule } from 'primeng/autofocus';
 import { BreadcrumbModule } from 'primeng/breadcrumb';
 import { TableModule } from 'primeng/table';
 import { BlockUIModule } from 'primeng/blockui';
+import { AvatarModule } from 'primeng/avatar';
+import { TieredMenuModule } from 'primeng/tieredmenu';
 
 import { MessageService } from 'primeng/api';
 
@@ -62,7 +64,8 @@ const PRIMENG_MODULES = [
     BreadcrumbModule,
     TableModule,
     BlockUIModule,
-
+    AvatarModule,
+    TieredMenuModule
 ]
 
 @NgModule({

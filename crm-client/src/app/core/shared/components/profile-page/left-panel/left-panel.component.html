@@ -1,10 +1,43 @@
-<div class="tw-p-[15px]">
-  <div class="left-top-area">
-    <div class="avatar-div"></div>
-    <div class="info-div"></div>
+<div class="tw-bg-[var(--primary-color-text)]">
+  <div
+    class="left-top-area tw-p-[15px] tw-border-x tw-border-t tw-border-b-0 tw-border-[var(--primary-color)] tw-border-solid"
+  >
+    <div class="avatar-div">
+      <p-avatar
+        icon="pi pi-user"
+        styleClass="tw-w-[80px] tw-h-[80px]"
+        shape="circle"
+      />
+    </div>
+    <div class="info-div tw-w-full">
+      <app-base-label
+        [label]="'NameNameNameNameName'"
+        [labelStyle]="'tw-text-ellipsis tw-overflow-hidden'"
+      ></app-base-label>
+      <div class="email-div tw-flex tw-flex-wrap tw-items-center">
+        email&#64;email.com
+        <p-button
+          icon="pi pi-copy"
+          [text]="true"
+          [rounded]="true"
+          (click)="profileActionMenu.toggle($event)"
+        />
+      </div>
+    </div>
+    <div class="action-div">
+      <p-button
+        icon="pi pi-ellipsis-v"
+        [text]="true"
+        [rounded]="true"
+        (click)="profileActionMenu.toggle($event)"
+      />
+      <p-tieredMenu #profileActionMenu [model]="actionMenu" [popup]="true" />
+    </div>
   </div>
 
-  <div class="action-btn-div tw-flex tw-w-full tw-justify-between">
+  <div
+    class="action-btn-div tw-flex tw-flex-wrap tw-w-full tw-justify-between tw-p-[15px] tw-border-solid tw-border-[var(--primary-color)] tw-border-x tw-border-t-0 tw-border-b"
+  >
     <p-button
       icon="pi pi-file-edit"
       [rounded]="true"
@@ -56,19 +89,20 @@
   </div>
 </div>
 
-<div class="tw-border tw-rounded-[15px]">
-  <div class="panel-div" *ngFor="let propertyGroup of propertiesList">
-    <app-accordion-panel
-      *ngIf="
-        propertyGroup.moduleCode == 'CONT_INFO' ||
-        propertyGroup.moduleCode == 'COMP_INFO'
-      "
-    >
+<div class="tw-border" *ngFor="let propertyGroup of propertiesList">
+  <div
+    *ngIf="
+      propertyGroup.moduleCode == 'CONT_INFO' ||
+      propertyGroup.moduleCode == 'COMP_INFO'
+    "
+    class="panel-div"
+  >
+    <app-accordion-panel class="profile-panel-div">
       <div acc-panel-header>
         {{ propertyGroup.moduleName }}
       </div>
-      <div acc-panel-body>
-        <div *ngFor="let property of propertyGroup.propertiesList">
+      <div acc-panel-body class="panel-content-div">
+        <div *ngFor="let property of propertyGroup.propertiesList" class="">
           <app-property
             [property]="property"
             *ngIf="property.isVisible"

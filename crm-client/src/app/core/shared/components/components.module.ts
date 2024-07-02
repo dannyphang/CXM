@@ -30,7 +30,7 @@ import { SidePanelComponent } from './panel/side-panel/side-panel.component';
 import { TagComponent } from './tag/tag.component';
 import { ContactCompanyPageComponent } from './contact-company-page/contact-company-page.component';
 import { BreadcrumbComponent } from './breadcrumb/breadcrumb.component';
-import { SettingPageComponent } from './setting-page/setting-page.component';
+import { AllPropertiesPageComponent } from './all-properties-page/all-properties-page.component';
 import { PropertyComponent } from './property/property.component';
 import { ProfilePageComponent } from './profile-page/profile-page.component';
 import { LeftPanelComponent } from './profile-page/left-panel/left-panel.component';
@@ -63,7 +63,7 @@ const components = [
   TagComponent,
   ContactCompanyPageComponent,
   BreadcrumbComponent,
-  SettingPageComponent,
+  AllPropertiesPageComponent,
   PropertyComponent,
   ProfilePageComponent,
   LeftPanelComponent,

@@ -1,12 +1,12 @@
-<div
-  class="tw-grid profile-page-div tw-bg-[var(--primary-color-text)] tw-rounded-[15px]"
->
+<div class="tw-flex">
   <app-left-panel
-    class="left-panel-area"
+    class="left-panel-area tw-w-[30%] tw-mr-[15px]"
     [propertiesList]="propertiesList"
+    [profileId]="profileId"
   ></app-left-panel>
 
   <app-middle-panel class="middle-panel-area"></app-middle-panel>
-
   <!-- <app-right-panel class="right-panel-area"></app-right-panel> -->
 </div>
+
+<!-- tw-grid profile-page-div tw-bg-[var(--primary-color-text)] tw-m-[15px] -->

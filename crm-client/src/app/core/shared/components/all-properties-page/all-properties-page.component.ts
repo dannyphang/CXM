@@ -3,11 +3,11 @@ import { ModulePropertiesDto } from '../../../services/common.service';
 import { FormControl } from '@angular/forms';
 
 @Component({
-  selector: 'app-setting-page',
-  templateUrl: './setting-page.component.html',
-  styleUrl: './setting-page.component.scss'
+  selector: 'app-all-properties-page',
+  templateUrl: './all-properties-page.component.html',
+  styleUrl: './all-properties-page.component.scss'
 })
-export class SettingPageComponent implements OnChanges {
+export class AllPropertiesPageComponent implements OnChanges {
   @Input() module: 'CONT' | 'COMP' = 'CONT';
   @Input() propertyList: ModulePropertiesDto[] = [];
   searchControl: FormControl = new FormControl('');

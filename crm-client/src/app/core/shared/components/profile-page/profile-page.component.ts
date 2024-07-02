@@ -9,6 +9,7 @@ import { CommonService, ModulePropertiesDto } from '../../../services/common.ser
 export class ProfilePageComponent implements OnChanges {
   @Input() module: 'CONT' | 'COMP' = 'CONT';
   @Input() propertiesList: ModulePropertiesDto[] = [];
+  @Input() profileId: string = '';
 
   constructor(
     private commonService: CommonService,

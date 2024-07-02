@@ -1,6 +1,32 @@
 .left-top-area {
   display: grid;
-  grid-template-areas: "avatar-div info-div";
-  grid-template-columns: 1fr 2fr;
+  grid-template-areas: "avatar-div info-div action-div";
+  grid-template-columns: min-content 1fr min-content;
   column-gap: 15px;
+}
+
+:host ::ng-deep {
+  .avatar-div {
+    .p-avatar-icon {
+      font-size: 30px;
+    }
+  }
+  .profile-panel-div {
+    .p-accordion-header {
+      border: 1px solid var(--primary-color);
+      border-top-width: 0px;
+    }
+
+    .p-accordion-content {
+      border: 1px solid var(--primary-color);
+      border-top-width: 0px;
+      padding: 0px !important;
+    }
+  }
+}
+
+.panel-content-div {
+  padding: 15px;
+  overflow-y: auto;
+  height: calc(100vh - 300px);
 }

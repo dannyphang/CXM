@@ -11,7 +11,8 @@ export class ProfileComponent implements OnInit {
   @Input() module: 'CONT' | 'COMP' = 'CONT';
   profileId: any;
   propertiesList: ModulePropertiesDto[] = [];
-  isBlocked: boolean = true;
+  isLoadingProperties: boolean = true;
+  isLoadingContact: boolean = true;
 
   constructor(
     private router: Router,
@@ -24,11 +25,10 @@ export class ProfileComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // this.commonService.getAllPropertiesByModule('CONT').subscribe((res) => {
-    //   this.propertiesList = res;
-    //   this.isBlocked = false;
-    // });
-    this.isBlocked = false;
+    this.commonService.getAllPropertiesByModule('CONT').subscribe((res) => {
+      this.propertiesList = res;
+      this.isLoadingProperties = false;
+    });
   }
 
   goToSetting() {
@@ -43,10 +43,10 @@ export class ProfileComponent implements OnInit {
   }
 
   btn() {
-    this.isBlocked = true;
-    this.commonService.getAllPropertiesByModule('CONT').subscribe((res) => {
-      this.propertiesList = res;
-      this.isBlocked = false;
-    });
+    // this.isBlocked = true;
+    // this.commonService.getAllPropertiesByModule('CONT').subscribe((res) => {
+    //   this.propertiesList = res;
+    //   this.isBlocked = false;
+    // });
   }
 }
