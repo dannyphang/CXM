@@ -34,7 +34,28 @@
 
   <p-tabView class="">
     <p-tabPanel header="Contact" [selected]="true" [closable]="true">
-      <p-table></p-table>
+      <p-table
+        [columns]="tableConfig"
+        [value]="contactList"
+        [(selection)]="selectedContact"
+      >
+        <ng-template pTemplate="header" let-columns>
+          <tr>
+            <th><p-tableHeaderCheckbox /></th>
+            <th *ngFor="let item of columns">
+              {{ item.header }}
+            </th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-contact let-columns="columns">
+          <tr>
+            <td><p-tableCheckbox [value]="contact" /></td>
+            <td *ngFor="let col of columns">
+              {{ contact[col.code] }}
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
     </p-tabPanel>
     <p-tabPanel header="Contact" [closable]="true"> </p-tabPanel>
   </p-tabView>

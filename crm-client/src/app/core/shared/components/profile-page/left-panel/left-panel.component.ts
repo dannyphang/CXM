@@ -1,6 +1,7 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { ModulePropertiesDto } from '../../../../services/common.service';
 import { NavigationExtras, Router } from '@angular/router';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-left-panel',
@@ -30,6 +31,7 @@ export class LeftPanelComponent implements OnChanges {
 
   constructor(
     private router: Router,
+    private messageService: MessageService
   ) {
 
   }
@@ -39,4 +41,11 @@ export class LeftPanelComponent implements OnChanges {
       this.propertiesList = changes['propertiesList'].currentValue;
     }
   }
+
+  copyEmailToClipboard(copiedText: string) {
+    navigator.clipboard.writeText(copiedText);
+    this.messageService.add({ severity: 'success', summary: 'Copy text', detail: 'Successful copied text' });
+  }
+
+
 }

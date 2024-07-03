@@ -17,7 +17,7 @@ import { BrowserModule } from '@angular/platform-browser';
         RouterModule,
         MaterialModule,
         HttpClientModule,
-        // BrowserModule
+        // BrowserModule, 
     ],
     providers: [],
 })

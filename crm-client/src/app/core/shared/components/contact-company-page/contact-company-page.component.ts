@@ -1,4 +1,6 @@
 import { Component, Input } from '@angular/core';
+import { CONTROL_TYPE_CODE, TableConfig } from '../../../services/components.service';
+import { CommonService, ContactDto, ModulePropertiesDto, PropertiesDto } from '../../../services/common.service';
 
 @Component({
   selector: 'app-contact-company-page',
@@ -7,4 +9,55 @@ import { Component, Input } from '@angular/core';
 })
 export class ContactCompanyPageComponent {
   @Input() module: 'CONT' | 'COMP' = 'CONT';
+  @Input() contactList: ContactDto[] = [];
+  @Input() modulePropertyList: ModulePropertiesDto[] = [];
+  propertiesList: PropertiesDto[] = [];
+  tableConfig: TableConfig[] = [];
+  selectedContact: ContactDto;
+  constructor(
+    private commonService: CommonService
+  ) {
+
+  }
+
+  ngOnInit() {
+    this.commonService.getAllContact().subscribe((res) => {
+      this.contactList = res;
+    })
+
+    this.commonService.getAllPropertiesByModule(this.module).subscribe((res) => {
+      res.forEach((item) => {
+        item.propertiesList.forEach((prop) => {
+          this.propertiesList.push(prop);
+          if (!prop.isDefaultProperty) {
+            let config: TableConfig = {
+              header: prop.propertyName,
+              code: this.bindCode(prop.propertyCode),
+            };
+            this.tableConfig.push(config);
+          }
+        });
+      });
+
+    })
+  }
+
+  bindCode(code: string) {
+    let returnCode = '';
+
+    switch (code) {
+      case 'contact_owner': return 'contactOwnerUid';
+      case 'first_name': return 'contactFirstName';
+      case 'last_name': return 'contactLastName';
+      case 'email': return 'contactEmail';
+      case 'phone_number': return 'contactPhone';
+      case 'lead_status': return 'contactLeadStatusId';
+      case 'created_date': return 'createdDate';
+      case 'created_by': return 'createdBy';
+      case 'last_modified_date': return 'modifiedDate';
+      case 'last_modified_by': return 'modifiedBy';
+    }
+
+    return returnCode
+  }
 }

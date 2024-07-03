@@ -2,7 +2,7 @@ import { Router } from "express";
 import express from "express";
 const router = Router();
 import db from "../firebase.js";
-import { collection, getDocs, doc, getDoc } from "firebase/firestore";
+import { collection, getDocs, doc, getDoc, setDoc } from "firebase/firestore";
 
 router.use(express.json());
 
@@ -15,7 +15,7 @@ router.get("/", async (req, res) => {
     const contactList = snapshot.docs.map((doc) => doc.data());
     // sort item list by date
     contactList.sort((a, b) => {
-      return new Date(a.CreatedDate) - new Date(b.CreatedDate);
+      return new Date(a.createdDate) - new Date(b.createdDate);
     });
     res.status(200).json(contactList);
   } catch (error) {
@@ -32,6 +32,29 @@ router.get("/:id", async (req, res) => {
     const contactList = snapshot.data();
 
     res.status(200).json(contactList);
+  } catch (error) {
+    console.log("error", error);
+    res.status(400).json(error);
+  }
+});
+
+// create new contact
+router.post("/", async (req, res) => {
+  const contactList = JSON.parse(JSON.stringify(req.body));
+
+  try {
+    let createdContactList = [];
+    contactList.forEach((contact) => {
+      contact.uid = doc(collection(db, collectionName)).id;
+      contact.createdDate = new Date();
+      contact.modifiedDate = new Date();
+
+      createdContactList.push(contact);
+
+      new setDoc(doc(db, collectionName, contact.uid), contact);
+    });
+
+    res.status(200).json(createdContactList);
   } catch (error) {
     console.log("error", error);
     res.status(400).json(error);

@@ -326,3 +326,9 @@ export interface ProtertiesDto {
     modifiedDate: Date;
     modifiedBy: string;
 }
+
+export interface TableConfig {
+    header?: string;
+    code: string;
+    icon?: string;
+}

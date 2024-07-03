@@ -1,3 +1,4 @@
+<app-toast></app-toast>
 <div class="tw-bg-[var(--primary-color-text)]">
   <div
     class="left-top-area tw-p-[15px] tw-border-x tw-border-t tw-border-b-0 tw-border-[var(--primary-color)] tw-border-solid"
@@ -9,18 +10,23 @@
         shape="circle"
       />
     </div>
-    <div class="info-div tw-w-full">
+    <div class="info-div tw-overflow-hidden tw-content-center">
       <app-base-label
         [label]="'NameNameNameNameName'"
-        [labelStyle]="'tw-text-ellipsis tw-overflow-hidden'"
+        [labelStyle]="'tw-text-ellipsis tw-overflow-hidden profile-name-label'"
       ></app-base-label>
-      <div class="email-div tw-flex tw-flex-wrap tw-items-center">
-        email&#64;email.com
+      <div class="email-div tw-flex">
+        <div
+          class="email-text tw-text-ellipsis tw-overflow-hidden tw-content-center"
+        >
+          email&#64;email.com
+        </div>
         <p-button
           icon="pi pi-copy"
           [text]="true"
           [rounded]="true"
-          (click)="profileActionMenu.toggle($event)"
+          (click)="copyEmailToClipboard('copied text')"
+          pTooltip="Copy email to clipboard"
         />
       </div>
     </div>

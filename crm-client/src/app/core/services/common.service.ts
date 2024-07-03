@@ -10,23 +10,23 @@ export class CommonService {
     ) {
     }
 
-    getAllContact(): Observable<any[]> {
-        return this.http.get<any[]>(apiConfig.baseUrl + '/contact').pipe();
+    getAllContact(): Observable<ContactDto[]> {
+        return this.http.get<ContactDto[]>(apiConfig.baseUrl + '/contact').pipe();
     }
 
-    getContactById(id: string): Observable<any> {
-        return this.http.get<any>(apiConfig.baseUrl + '/contact/' + id).pipe();
+    getContactById(id: string): Observable<ContactDto> {
+        return this.http.get<ContactDto>(apiConfig.baseUrl + '/contact/' + id).pipe();
     }
 
     getAllProperties(): Observable<PropertiesDto[]> {
         return this.http.get<PropertiesDto[]>(apiConfig.baseUrl + '/common/properties').pipe();
     }
 
-    getAllPropertiesByModule(module: string): Observable<any[]> {
+    getAllPropertiesByModule(module: string): Observable<ModulePropertiesDto[]> {
         let headers = {
             'moduleCode': module
         }
-        return this.http.get<any[]>((apiConfig.baseUrl + '/common/properties/module'), { headers }).pipe();
+        return this.http.get<ModulePropertiesDto[]>((apiConfig.baseUrl + '/common/properties/module'), { headers }).pipe();
     }
 
     createProperties(properties: PropertiesDto): Observable<PropertiesDto> {
@@ -57,6 +57,7 @@ export class PropertiesDto {
     propertyName: string;
     propertyCode: string;
     propertyType: string;
+    isDefaultProperty: boolean;
     isSystem: boolean;
     isMandatory: boolean;
     isEditable: boolean;
@@ -87,5 +88,21 @@ export class PropertyLookupDto {
     createdBy: string;
     modifiedDate: Date;
     modifiedBy: string;
+}
 
+export class ContactDto {
+    uid: string;
+    contactId: string;
+    contactFirstName: string;
+    contactLastName: string;
+    contactEmail: string;
+    contactPhone: string;
+    contactOwnerUid: string;
+    contactLeadStatusId: string;
+    contactProperties: string;
+    statusId: number;
+    createdDate: Date;
+    createdBy: string;
+    modifiedDate: Date;
+    modifiedBy: string;
 }
