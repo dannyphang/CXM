@@ -13,7 +13,8 @@ export class ContactCompanyPageComponent {
   @Input() modulePropertyList: ModulePropertiesDto[] = [];
   propertiesList: PropertiesDto[] = [];
   tableConfig: TableConfig[] = [];
-  selectedContact: ContactDto;
+  selectedContact: ContactDto[] = [];
+
   constructor(
     private commonService: CommonService
   ) {
@@ -38,7 +39,6 @@ export class ContactCompanyPageComponent {
           }
         });
       });
-
     })
   }
 
@@ -60,4 +60,29 @@ export class ContactCompanyPageComponent {
 
     return returnCode
   }
+
+  exportFile(data: any) {
+    console.log(data)
+    // import("xlsx").then(xlsx => {
+    //   const worksheet = xlsx.utils.json_to_sheet(this.products);
+    //   const workbook = { Sheets: { 'data': worksheet }, SheetNames: ['data'] };
+    //   const excelBuffer: any = xlsx.write(workbook, { bookType: 'xlsx', type: 'array' });
+    //   this.saveAsExcelFile(excelBuffer, "products");
+    // });
+  }
+
+  saveAsExcelFile(buffer: any, fileName: string): void {
+    // https://www.primefaces.org/primeng-v14-lts/table/export
+    // let EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+    // let EXCEL_EXTENSION = '.xlsx';
+    // const data: Blob = new Blob([buffer], {
+    //     type: EXCEL_TYPE
+    // });
+    // FileSaver.saveAs(data, fileName + '_export_' + new Date().getTime() + EXCEL_EXTENSION);
+  }
+
+  importFile() {
+    console.log(this.selectedContact)
+  }
+
 }

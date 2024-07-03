@@ -16,12 +16,14 @@
         rounded="true"
         [text]="true"
         [pTooltip]="'Export'"
+        (onClick)="exportFile(dt.processedData)"
       ></p-button>
       <p-button
         [icon]="'pi pi-download'"
         rounded="true"
         [text]="true"
         [pTooltip]="'Import'"
+        (onClick)="importFile()"
       ></p-button>
       <p-button
         [icon]="'pi pi-plus'"
@@ -35,15 +37,18 @@
   <p-tabView class="">
     <p-tabPanel header="Contact" [selected]="true" [closable]="true">
       <p-table
+        #dt
         [columns]="tableConfig"
         [value]="contactList"
         [(selection)]="selectedContact"
+        [resizableColumns]="true"
+        styleClass="p-datatable-gridlines p-datatable-striped"
       >
         <ng-template pTemplate="header" let-columns>
           <tr>
             <th><p-tableHeaderCheckbox /></th>
-            <th *ngFor="let item of columns">
-              {{ item.header }}
+            <th *ngFor="let item of columns" pSortableColumn="{{ item.code }}">
+              {{ item.header }} <p-sortIcon field="{{ item.code }}" />
             </th>
           </tr>
         </ng-template>
@@ -57,6 +62,5 @@
         </ng-template>
       </p-table>
     </p-tabPanel>
-    <p-tabPanel header="Contact" [closable]="true"> </p-tabPanel>
   </p-tabView>
 </div>
