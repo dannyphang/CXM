@@ -1,7 +1,8 @@
-import { Component, Input, input } from '@angular/core';
+import { Component, EventEmitter, Input, input, Output } from '@angular/core';
 import { ModulePropertiesDto, PropertiesDto, PropertyLookupDto } from '../../../services/common.service';
 import { CONTROL_TYPE_CODE } from '../../../services/components.service';
 import { Observable, of } from 'rxjs';
+import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-property',
@@ -11,6 +12,8 @@ import { Observable, of } from 'rxjs';
 export class PropertyComponent {
   @Input() property: PropertiesDto = new PropertiesDto();
   @Input() propertyValue: any = null ? '' : '--';
+  @Output() propertyValueChange: EventEmitter<any> = new EventEmitter<any>();
+  @Input() fieldControl: FormControl = new FormControl();
   propertyLookUpList: any[] = [];
   constructor(
 

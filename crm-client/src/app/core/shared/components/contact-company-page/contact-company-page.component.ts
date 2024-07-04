@@ -1,8 +1,9 @@
 import { Component, Input } from '@angular/core';
 import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, TableConfig } from '../../../services/components.service';
-import { CommonService, ContactDto, ModulePropertiesDto, PropertiesDto } from '../../../services/common.service';
+import { CommonService, ContactDto, ModulePropertiesDto, PropertiesDto, PropertyDataDto } from '../../../services/common.service';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-contact-company-page',
@@ -18,6 +19,7 @@ export class ContactCompanyPageComponent {
   selectedContact: ContactDto[] = [];
   displayCreateDialog: boolean = false;
   createFormConfig: any[] = [];
+  createFormGroup: FormGroup = new FormGroup({});
 
   constructor(
     private commonService: CommonService,
@@ -34,7 +36,6 @@ export class ContactCompanyPageComponent {
     this.commonService.getAllPropertiesByModule(this.module).subscribe((res) => {
       res.forEach((item) => {
         item.propertiesList.forEach((prop) => {
-
           this.propertiesList.push(prop);
 
           if (!prop.isDefaultProperty) {
@@ -45,20 +46,37 @@ export class ContactCompanyPageComponent {
             this.tableConfig.push(config);
           }
 
-          if (prop.isMandatory) {
-            // let config: FormConfig = {
-            //   label: prop.propertyName,
-            //   type: CONTROL_TYPE[CONTROL_TYPE_CODE[prop.propertyType]],
-            //   dataSourceAction: (): Observable<any> => {
-            //     return prop.propertyLookupList;
-            //   }, 
-
-            // };
+          if (prop.isMandatory && prop.isEditable) {
             this.createFormConfig.push(prop);
+
+            let control = new FormControl('', [Validators.required]);
+            this.createFormGroup.addControl(prop.propertyCode, control);
           }
         });
       });
     })
+  }
+
+  returnControlTypeEmptyValue(type: string): any {
+    if (type === CONTROL_TYPE_CODE.Textbox || type === CONTROL_TYPE_CODE.Textarea || type === CONTROL_TYPE_CODE.Email || type === CONTROL_TYPE_CODE.Phone || type === CONTROL_TYPE_CODE.Url) {
+      return '';
+    }
+    else if (type === CONTROL_TYPE_CODE.Checkbox) {
+      return false;
+    }
+    else if (type === CONTROL_TYPE_CODE.Date) {
+      return new Date();
+    }
+    else if (type === CONTROL_TYPE_CODE.Number) {
+      return 0;
+    }
+    else if (type === CONTROL_TYPE_CODE.Dropdown || type === CONTROL_TYPE_CODE.Multiselect) {
+      return [];
+    }
+    else if (type === CONTROL_TYPE_CODE.Radio) {
+      return false;
+    }
+    return {};
   }
 
   bindCode(code: string) {
@@ -110,12 +128,36 @@ export class ContactCompanyPageComponent {
   }
 
   toCreate() {
-    this.initFormConfig();
-
     this.displayCreateDialog = true;
   }
 
-  initFormConfig() {
+  create() {
+    console.log(this.createFormGroup.value);
+    let contactPropertyJson: string = JSON.stringify([]);
+    let contactProperty: PropertyDataDto[] = JSON.parse(contactPropertyJson);
 
+    this.createFormConfig.forEach((item: any) => {
+      contactProperty = this.propertyValueUpdate(item, this.createFormGroup.value[item.propertyCode], contactProperty)
+    });
+
+    console.log(contactProperty)
+  }
+
+  propertyValueUpdate(property: PropertiesDto, value: any, contactProperty: PropertyDataDto[]) {
+    if (!property.isDefaultProperty) {
+      if (this.module === 'CONT') {
+
+      }
+    }
+    else {
+      // store to properties
+      contactProperty.push({
+        uid: property.uid,
+        propertyCode: property.propertyCode,
+        value: value
+      })
+    }
+
+    return contactProperty;
   }
 }

@@ -18,6 +18,13 @@ export class CommonService {
         return this.http.get<ContactDto>(apiConfig.baseUrl + '/contact/' + id).pipe();
     }
 
+    createContact(contactList: ContactDto[]): Observable<ContactDto[]> {
+        let headers = {
+            'contactList': contactList
+        }
+        return this.http.post<ContactDto[]>(apiConfig.baseUrl + '/contact', { headers }).pipe();
+    }
+
     getAllProperties(): Observable<PropertiesDto[]> {
         return this.http.get<PropertiesDto[]>(apiConfig.baseUrl + '/common/properties').pipe();
     }
@@ -91,18 +98,24 @@ export class PropertyLookupDto {
 }
 
 export class ContactDto {
-    uid: string;
-    contactId: string;
+    uid?: string;
+    contactId?: string;
     contactFirstName: string;
     contactLastName: string;
     contactEmail: string;
     contactPhone: string;
-    contactOwnerUid: string;
-    contactLeadStatusId: string;
-    contactProperties: string;
+    contactOwnerUid?: string;
+    contactLeadStatusId?: string;
+    contactProperties?: string;
     statusId: number;
-    createdDate: Date;
-    createdBy: string;
-    modifiedDate: Date;
-    modifiedBy: string;
+    createdDate?: Date;
+    createdBy?: string;
+    modifiedDate?: Date;
+    modifiedBy?: string;
+}
+
+export class PropertyDataDto {
+    uid: string;
+    propertyCode: string;
+    value: string;
 }

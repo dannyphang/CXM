@@ -41,8 +41,26 @@
     [style]="{ width: '70%' }"
   >
     <div *ngFor="let property of createFormConfig">
-      <app-property [property]="property"></app-property>
+      <app-property
+        [property]="property"
+        [fieldControl]="createFormGroup.controls[property.propertyCode].value"
+      ></app-property>
     </div>
+
+    <ng-template pTemplate="footer">
+      <p-button
+        label="Cancel"
+        [text]="true"
+        severity="secondary"
+        (click)="displayCreateDialog = false"
+      />
+      <p-button
+        label="Save"
+        [outlined]="true"
+        severity="secondary"
+        (click)="create()"
+      />
+    </ng-template>
   </p-dialog>
 
   <p-tabView class="">

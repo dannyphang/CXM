@@ -63,7 +63,7 @@ export enum CONTROL_TYPE_CODE {
     DateTime = 'DATETIME',
     Time = 'TIME',
     Url = 'URL',
-    Email = 'EMAIL',
+    Email = 'EML',
     Phone = 'PHN',
     User = 'USR',
     Country = 'COUNTRY',
