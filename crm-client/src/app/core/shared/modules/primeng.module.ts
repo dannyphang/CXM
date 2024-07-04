@@ -30,6 +30,7 @@ import { TableModule } from 'primeng/table';
 import { BlockUIModule } from 'primeng/blockui';
 import { AvatarModule } from 'primeng/avatar';
 import { TieredMenuModule } from 'primeng/tieredmenu';
+import { DialogModule } from 'primeng/dialog';
 
 import { MessageService } from 'primeng/api';
 
@@ -65,7 +66,8 @@ const PRIMENG_MODULES = [
     TableModule,
     BlockUIModule,
     AvatarModule,
-    TieredMenuModule
+    TieredMenuModule,
+    DialogModule
 ]
 
 @NgModule({

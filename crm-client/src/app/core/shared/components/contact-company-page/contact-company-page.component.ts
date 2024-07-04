@@ -1,7 +1,8 @@
 import { Component, Input } from '@angular/core';
-import { CONTROL_TYPE_CODE, TableConfig } from '../../../services/components.service';
+import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, TableConfig } from '../../../services/components.service';
 import { CommonService, ContactDto, ModulePropertiesDto, PropertiesDto } from '../../../services/common.service';
 import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'app-contact-company-page',
@@ -15,6 +16,8 @@ export class ContactCompanyPageComponent {
   propertiesList: PropertiesDto[] = [];
   tableConfig: TableConfig[] = [];
   selectedContact: ContactDto[] = [];
+  displayCreateDialog: boolean = false;
+  createFormConfig: any[] = [];
 
   constructor(
     private commonService: CommonService,
@@ -31,13 +34,27 @@ export class ContactCompanyPageComponent {
     this.commonService.getAllPropertiesByModule(this.module).subscribe((res) => {
       res.forEach((item) => {
         item.propertiesList.forEach((prop) => {
+
           this.propertiesList.push(prop);
+
           if (!prop.isDefaultProperty) {
             let config: TableConfig = {
               header: prop.propertyName,
               code: this.bindCode(prop.propertyCode),
             };
             this.tableConfig.push(config);
+          }
+
+          if (prop.isMandatory) {
+            // let config: FormConfig = {
+            //   label: prop.propertyName,
+            //   type: CONTROL_TYPE[CONTROL_TYPE_CODE[prop.propertyType]],
+            //   dataSourceAction: (): Observable<any> => {
+            //     return prop.propertyLookupList;
+            //   }, 
+
+            // };
+            this.createFormConfig.push(prop);
           }
         });
       });
@@ -90,5 +107,15 @@ export class ContactCompanyPageComponent {
 
   toProfile(contact: ContactDto) {
     this.router.navigate(['contact/profile/' + contact.uid]);
+  }
+
+  toCreate() {
+    this.initFormConfig();
+
+    this.displayCreateDialog = true;
+  }
+
+  initFormConfig() {
+
   }
 }

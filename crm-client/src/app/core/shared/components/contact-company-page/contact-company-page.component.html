@@ -30,9 +30,20 @@
         rounded="true"
         [text]="true"
         [pTooltip]="'Create'"
+        (onClick)="toCreate()"
       ></p-button>
     </div>
   </div>
+
+  <p-dialog
+    header="Create Contact"
+    [(visible)]="displayCreateDialog"
+    [style]="{ width: '70%' }"
+  >
+    <div *ngFor="let property of createFormConfig">
+      <app-property [property]="property"></app-property>
+    </div>
+  </p-dialog>
 
   <p-tabView class="">
     <p-tabPanel header="Contact" [selected]="true" [closable]="true">
