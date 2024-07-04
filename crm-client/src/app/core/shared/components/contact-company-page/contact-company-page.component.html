@@ -56,7 +56,28 @@
           <tr>
             <td><p-tableCheckbox [value]="contact" /></td>
             <td *ngFor="let col of columns">
-              {{ contact[col.code] }}
+              <div
+                *ngIf="
+                  col.code === 'contactFirstName' ||
+                  col.code === 'contactLastName'
+                "
+              >
+                <p-button
+                  [label]="contact[col.code]"
+                  [text]="true"
+                  [pTooltip]="contact[col.code]"
+                  (onClick)="toProfile(contact)"
+                ></p-button>
+              </div>
+              <div
+                *ngIf="
+                  col.code !== 'contactFirstName' &&
+                  col.code !== 'contactLastName'
+                "
+                [pTooltip]="contact[col.code]"
+              >
+                {{ contact[col.code] }}
+              </div>
             </td>
           </tr>
         </ng-template>

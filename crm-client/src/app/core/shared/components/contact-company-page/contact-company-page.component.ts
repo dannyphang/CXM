@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CONTROL_TYPE_CODE, TableConfig } from '../../../services/components.service';
 import { CommonService, ContactDto, ModulePropertiesDto, PropertiesDto } from '../../../services/common.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-contact-company-page',
@@ -16,7 +17,8 @@ export class ContactCompanyPageComponent {
   selectedContact: ContactDto[] = [];
 
   constructor(
-    private commonService: CommonService
+    private commonService: CommonService,
+    private router: Router,
   ) {
 
   }
@@ -85,4 +87,8 @@ export class ContactCompanyPageComponent {
     console.log(this.selectedContact)
   }
 
+
+  toProfile(contact: ContactDto) {
+    this.router.navigate(['contact/profile/' + contact.uid]);
+  }
 }
