@@ -13,7 +13,7 @@ export class PropertyComponent {
   @Input() property: PropertiesDto = new PropertiesDto();
   @Input() propertyValue: any = null ? '' : '--';
   @Output() propertyValueChange: EventEmitter<any> = new EventEmitter<any>();
-  @Input() fieldControl: FormControl = new FormControl();
+  @Input() fieldControl: FormControl = new FormControl('');
   propertyLookUpList: any[] = [];
   constructor(
 

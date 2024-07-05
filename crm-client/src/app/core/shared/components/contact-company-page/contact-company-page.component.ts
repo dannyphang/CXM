@@ -2,8 +2,8 @@ import { Component, Input } from '@angular/core';
 import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, TableConfig } from '../../../services/components.service';
 import { CommonService, ContactDto, ModulePropertiesDto, PropertiesDto, PropertyDataDto } from '../../../services/common.service';
 import { Router } from '@angular/router';
-import { Observable } from 'rxjs';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { Observable, of } from 'rxjs';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 
 @Component({
   selector: 'app-contact-company-page',
@@ -14,24 +14,34 @@ export class ContactCompanyPageComponent {
   @Input() module: 'CONT' | 'COMP' = 'CONT';
   @Input() contactList: ContactDto[] = [];
   @Input() modulePropertyList: ModulePropertiesDto[] = [];
+
   propertiesList: PropertiesDto[] = [];
   tableConfig: TableConfig[] = [];
   selectedContact: ContactDto[] = [];
   displayCreateDialog: boolean = false;
-  createFormConfig: any[] = [];
-  createFormGroup: FormGroup = new FormGroup({});
+  createFormPropertyList: PropertiesDto[] = [];
+  createFormConfig: FormConfig[] = [];
+  createFormGroup: FormGroup;
 
   constructor(
     private commonService: CommonService,
     private router: Router,
+    private formBuilder: FormBuilder
   ) {
 
   }
 
-  ngOnInit() {
+  async ngOnInit() {
+    this.initCreateFormConfig();
+  }
+
+  initCreateFormConfig() {
     this.commonService.getAllContact().subscribe((res) => {
       this.contactList = res;
     })
+    let createPropCount = 0;
+    let formsConfig: FormConfig[] = [];
+    this.createFormGroup = this.formBuilder.group({});
 
     this.commonService.getAllPropertiesByModule(this.module).subscribe((res) => {
       res.forEach((item) => {
@@ -47,19 +57,81 @@ export class ContactCompanyPageComponent {
           }
 
           if (prop.isMandatory && prop.isEditable) {
-            this.createFormConfig.push(prop);
+            this.createFormPropertyList.push(prop);
 
-            let control = new FormControl('', [Validators.required]);
+            let control = new FormControl(this.returnControlTypeEmptyValue(prop), Validators.required);
             this.createFormGroup.addControl(prop.propertyCode, control);
+
+            let forms: FormConfig = {
+              type: CONTROL_TYPE.Textbox,
+              label: prop.propertyName,
+              fieldControl: this.createFormGroup.controls[prop.propertyCode],
+              layoutDefine: {
+                row: createPropCount,
+                column: 0,
+              }
+            };
+
+            if (prop.propertyType === CONTROL_TYPE_CODE.Textbox || prop.propertyType === CONTROL_TYPE_CODE.Textarea || prop.propertyType === CONTROL_TYPE_CODE.Email || prop.propertyType === CONTROL_TYPE_CODE.Phone || prop.propertyType === CONTROL_TYPE_CODE.Url || prop.propertyType === CONTROL_TYPE_CODE.Number) {
+              //console.log(this.createFormGroup.controls[prop.propertyCode].value)
+              forms = {
+                type: CONTROL_TYPE.Textbox,
+                label: prop.propertyName,
+                fieldControl: null,
+                layoutDefine: {
+                  row: createPropCount,
+                  column: 0,
+                }
+              }
+            }
+            else if (prop.propertyType === CONTROL_TYPE_CODE.Checkbox || prop.propertyType === CONTROL_TYPE_CODE.MultiCheckbox || prop.propertyType === CONTROL_TYPE_CODE.Multiselect || prop.propertyType === CONTROL_TYPE_CODE.Dropdown || prop.propertyType === CONTROL_TYPE_CODE.Radio) {
+              let propertyLookupList: any[] = [];
+              prop.propertyLookupList.forEach((item) => {
+                propertyLookupList.push({ label: item.propertyLookupLabel, value: item.uid });
+              });
+              console.log(propertyLookupList)
+              forms = {
+                // type: prop.propertyType === CONTROL_TYPE_CODE.Checkbox || prop.propertyType === CONTROL_TYPE_CODE.MultiCheckbox ? CONTROL_TYPE.Checkbox : prop.propertyType === CONTROL_TYPE_CODE.Multiselect ? CONTROL_TYPE.Multiselect : prop.propertyType === CONTROL_TYPE_CODE.Dropdown ? CONTROL_TYPE.Dropdown : CONTROL_TYPE.Radio,
+                type: CONTROL_TYPE.Dropdown,
+                label: prop.propertyName,
+                fieldControl: null,
+                layoutDefine: {
+                  row: createPropCount,
+                  column: 0,
+                },
+                options: propertyLookupList,
+              }
+            }
+            else if (prop.propertyType === CONTROL_TYPE_CODE.DateTime || prop.propertyType === CONTROL_TYPE_CODE.Date || prop.propertyType === CONTROL_TYPE_CODE.Time) {
+              forms = {
+                type: CONTROL_TYPE.Calendar,
+                label: prop.propertyName,
+                fieldControl: null,
+                layoutDefine: {
+                  row: createPropCount,
+                  column: 0,
+                }
+              }
+            }
+
+            formsConfig.push(forms);
+            // this.createFormConfig.push(forms);
+            createPropCount++;
           }
         });
       });
+
+      console.log(formsConfig)
+      this.createFormConfig = JSON.parse(JSON.stringify(formsConfig));
+      console.log(this.createFormGroup.controls)
     })
   }
 
-  returnControlTypeEmptyValue(type: string): any {
+  returnControlTypeEmptyValue(prop: PropertiesDto): any {
+    let type = prop.propertyType;
+
     if (type === CONTROL_TYPE_CODE.Textbox || type === CONTROL_TYPE_CODE.Textarea || type === CONTROL_TYPE_CODE.Email || type === CONTROL_TYPE_CODE.Phone || type === CONTROL_TYPE_CODE.Url) {
-      return '';
+      return 'www';
     }
     else if (type === CONTROL_TYPE_CODE.Checkbox) {
       return false;
@@ -71,7 +143,16 @@ export class ContactCompanyPageComponent {
       return 0;
     }
     else if (type === CONTROL_TYPE_CODE.Dropdown || type === CONTROL_TYPE_CODE.Multiselect) {
-      return [];
+      let lookup = {};
+      prop.propertyLookupList.forEach((item) => {
+        if (item.isDefault) {
+          lookup = {
+            label: item.propertyLookupLabel,
+            value: item.uid
+          }
+        }
+      });
+      return lookup;
     }
     else if (type === CONTROL_TYPE_CODE.Radio) {
       return false;
@@ -122,25 +203,28 @@ export class ContactCompanyPageComponent {
     console.log(this.selectedContact)
   }
 
-
   toProfile(contact: ContactDto) {
     this.router.navigate(['contact/profile/' + contact.uid]);
   }
 
   toCreate() {
+    // this.initCreateFormConfig().subscribe(() => {
+    //   this.displayCreateDialog = true;
+    // });
     this.displayCreateDialog = true;
+    console.log(this.createFormConfig)
   }
 
   create() {
-    console.log(this.createFormGroup.value);
+    // console.log(this.createFormGroup.value);
     let contactPropertyJson: string = JSON.stringify([]);
     let contactProperty: PropertyDataDto[] = JSON.parse(contactPropertyJson);
+    console.log(this.createFormGroup.controls)
+    // this.createFormConfig.forEach((item: any) => {
+    //   contactProperty = this.propertyValueUpdate(item, this.createFormGroup.value[item.propertyCode], contactProperty)
+    // });
 
-    this.createFormConfig.forEach((item: any) => {
-      contactProperty = this.propertyValueUpdate(item, this.createFormGroup.value[item.propertyCode], contactProperty)
-    });
-
-    console.log(contactProperty)
+    console.log(this.createFormConfig)
   }
 
   propertyValueUpdate(property: PropertiesDto, value: any, contactProperty: PropertyDataDto[]) {

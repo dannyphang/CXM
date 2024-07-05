@@ -40,13 +40,13 @@
     [(visible)]="displayCreateDialog"
     [style]="{ width: '70%' }"
   >
-    <div *ngFor="let property of createFormConfig">
+    <!-- <div *ngFor="let property of createFormPropertyList">
       <app-property
         [property]="property"
         [fieldControl]="createFormGroup.controls[property.propertyCode].value"
       ></app-property>
-    </div>
-
+    </div> -->
+    <app-base-form [formConfig]="createFormConfig"></app-base-form>
     <ng-template pTemplate="footer">
       <p-button
         label="Cancel"

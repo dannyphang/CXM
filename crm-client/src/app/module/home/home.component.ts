@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CONTROL_TYPE, FormConfig } from '../../core/services/components.service';
 import { Observable, of } from 'rxjs';
 import { MessageService } from 'primeng/api';
+import { FormControl, FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'app-home',
@@ -14,6 +15,10 @@ export class HomeComponent implements OnInit {
   splitBtnList: any[] = [];
   showSidePanel: boolean = false;
   sidePanelPosition: 'left' | 'right' | 'top' | 'bottom' = 'right';
+  formG: FormGroup = new FormGroup({
+    one: new FormControl(''),
+    two: new FormControl(''),
+  });
 
   constructor(
     private messageService: MessageService
@@ -30,6 +35,7 @@ export class HomeComponent implements OnInit {
       {
         label: 'Name',
         type: CONTROL_TYPE.Textbox,
+        fieldControl: this.formG.controls['one'],
         layoutDefine: {
           row: 0,
           column: 0,
@@ -166,7 +172,8 @@ export class HomeComponent implements OnInit {
   }
 
   show() {
-    this.messageService.add({ severity: 'success', summary: 'TITLE', detail: 'Message Content', sticky: true });
+    // this.messageService.add({ severity: 'success', summary: 'TITLE', detail: 'Message Content', sticky: true });
+    console.log(this.formG.controls)
   }
 
   showSidePanelBtn(position: 'left' | 'right' | 'top' | 'bottom') {
