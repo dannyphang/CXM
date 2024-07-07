@@ -36,6 +36,7 @@ import { ProfilePageComponent } from './profile-page/profile-page.component';
 import { LeftPanelComponent } from './profile-page/left-panel/left-panel.component';
 import { MiddlePanelComponent } from './profile-page/middle-panel/middle-panel.component';
 import { RightPanelComponent } from './profile-page/right-panel/right-panel.component';
+import { ActivityDialogComponent } from './activity-dialog/activity-dialog.component';
 
 const components = [
   BaseInputComponent,
@@ -68,7 +69,8 @@ const components = [
   ProfilePageComponent,
   LeftPanelComponent,
   MiddlePanelComponent,
-  RightPanelComponent
+  RightPanelComponent,
+  ActivityDialogComponent
 ];
 
 @NgModule({

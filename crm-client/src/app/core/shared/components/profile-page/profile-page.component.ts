@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonService, ModulePropertiesDto } from '../../../services/common.service';
+import { CommonService, PropertyGroupDto } from '../../../services/common.service';
 
 @Component({
   selector: 'app-profile-page',
@@ -8,7 +8,7 @@ import { CommonService, ModulePropertiesDto } from '../../../services/common.ser
 })
 export class ProfilePageComponent implements OnChanges {
   @Input() module: 'CONT' | 'COMP' = 'CONT';
-  @Input() propertiesList: ModulePropertiesDto[] = [];
+  @Input() propertiesList: PropertyGroupDto[] = [];
   @Input() profileId: string = '';
 
   constructor(

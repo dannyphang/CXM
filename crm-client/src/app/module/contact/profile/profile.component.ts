@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
-import { CommonService, ModulePropertiesDto } from '../../../core/services/common.service';
+import { CommonService, PropertyGroupDto } from '../../../core/services/common.service';
 
 @Component({
   selector: 'app-profile',
@@ -10,7 +10,7 @@ import { CommonService, ModulePropertiesDto } from '../../../core/services/commo
 export class ProfileComponent implements OnInit {
   @Input() module: 'CONT' | 'COMP' = 'CONT';
   profileId: any;
-  propertiesList: ModulePropertiesDto[] = [];
+  propertiesList: PropertyGroupDto[] = [];
   isLoadingProperties: boolean = true;
   isLoadingContact: boolean = true;
 
@@ -25,10 +25,10 @@ export class ProfileComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.commonService.getAllPropertiesByModule('CONT').subscribe((res) => {
-      this.propertiesList = res;
-      this.isLoadingProperties = false;
-    });
+    // this.commonService.getAllPropertiesByModule('CONT').subscribe((res) => {
+    //   this.propertiesList = res;
+    //   this.isLoadingProperties = false;
+    // });
   }
 
   goToSetting() {

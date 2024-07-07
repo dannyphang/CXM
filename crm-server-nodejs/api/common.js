@@ -94,6 +94,66 @@ router.get("/" + propertiesCollection + "/module", async (req, res) => {
   }
 });
 
+// get all properties with lookup by module for create contact/company profile
+router.get("/" + propertiesCollection + "/module/create", async (req, res) => {
+  const moduleCode = req.headers.modulecode;
+
+  try {
+    const propertiesQuery = query(
+      collection(db, propertiesCollection),
+      where("moduleCode", "==", moduleCode),
+      where("statusId", "==", 1),
+      where("isMandatory", "==", true),
+      where("isEditable", "==", true)
+    );
+    const moduleQuery = query(
+      collection(db, moduleCodeCollection),
+      where("moduleSubCode", "==", moduleCode),
+      where("statusId", "==", 1)
+    );
+    const propertiesLookupQuery = query(
+      collection(db, propertiesLookupCollection),
+      where("moduleCode", "==", moduleCode),
+      where("statusId", "==", 1)
+    );
+
+    const snapshot = await getDocs(propertiesQuery);
+    const snapshotModule = await getDocs(moduleQuery);
+    const snapshotPL = await getDocs(propertiesLookupQuery);
+    const propertyList = snapshot.docs.map((doc) => doc.data());
+    const moduleList = snapshotModule.docs.map((doc) => doc.data());
+    const propertyLookupList = snapshotPL.docs.map((doc) => doc.data());
+
+    propertyList.sort((a, b) => {
+      return a.order - b.order;
+    });
+
+    for (let i = 0; i < propertyList.length; i++) {
+      propertyList[i].propertyLookupList = [];
+
+      for (let j = 0; j < propertyLookupList.length; j++) {
+        if (propertyList[i].propertyId === propertyLookupList[j].propertyId) {
+          propertyList[i].propertyLookupList.push(propertyLookupList[j]);
+        }
+      }
+    }
+
+    moduleList.forEach((module) => {
+      module.propertiesList = [];
+      for (let i = 0; i < propertyList.length; i++) {
+        if (module.moduleCode === propertyList[i].moduleCat) {
+          module.propertiesList.push(propertyList[i]);
+        }
+      }
+    });
+
+    res.status(200).json(moduleList);
+  } catch (error) {
+    console.log("error", error);
+    res.status(400).json(error);
+  }
+});
+
 // create properties
 router.post("/" + propertiesCollection, async (req, res) => {
   const list = JSON.parse(JSON.stringify(req.body));
@@ -168,6 +228,60 @@ router.get("/" + moduleCodeCollection, async (req, res) => {
       return a.moduleId - b.moduleId;
     });
     res.status(200).json(list);
+  } catch (error) {
+    console.log("error", error);
+    res.status(400).json(error);
+  }
+});
+
+// get all activities code by module code
+router.get("/activityModule", async (req, res) => {
+  try {
+    const query1 = query(
+      collection(db, moduleCodeCollection),
+      where("moduleType", "==", "ACTIVITY_TYPE"),
+      where("statusId", "==", 1)
+    );
+    const actCtrQuery = query(
+      collection(db, moduleCodeCollection),
+      where("moduleType", "==", "ACTIVITY_CONTROL"),
+      where("statusId", "==", 1)
+    );
+    const subActCtrQuery = query(
+      collection(db, moduleCodeCollection),
+      where("moduleType", "==", "SUB_ACTIVITY_CONTROL"),
+      where("statusId", "==", 1)
+    );
+
+    const snapshot = await getDocs(query1);
+    const actCtrSnapshot = await getDocs(actCtrQuery);
+    const subActCtrSnapshot = await getDocs(subActCtrQuery);
+
+    const activityModuleList = snapshot.docs.map((doc) => doc.data());
+    const activityControlList = actCtrSnapshot.docs.map((doc) => doc.data());
+    const subActivityControlList = subActCtrSnapshot.docs.map((doc) => doc.data());
+
+    activityControlList.forEach((item) => {
+      item.subActivityControl = [];
+      subActivityControlList.forEach((subItem) => {
+        if (item.moduleCode === subItem.moduleSubCode) {
+          item.subActivityControl.push(subItem);
+        }
+      });
+    });
+
+    activityModuleList.sort((a, b) => {
+      return a.moduleId - b.moduleId;
+    });
+
+    activityControlList.sort((a, b) => {
+      return a.moduleId - b.moduleId;
+    });
+
+    res.status(200).json({
+      activityModuleList,
+      activityControlList,
+    });
   } catch (error) {
     console.log("error", error);
     res.status(400).json(error);

@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonService, ModulePropertiesDto } from '../../../../core/services/common.service';
+import { CommonService, PropertyGroupDto } from '../../../../core/services/common.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -10,7 +10,7 @@ import { Router } from '@angular/router';
 export class ContactAllPropertiesComponent implements OnChanges {
   @Input() module: 'CONT' | 'COMP' = 'CONT';
 
-  propertiesList: ModulePropertiesDto[] = [];
+  propertiesList: PropertyGroupDto[] = [];
 
   constructor(
     private commonService: CommonService,

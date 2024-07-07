@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
-import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, TableConfig } from '../../../services/components.service';
-import { CommonService, ContactDto, ModulePropertiesDto, PropertiesDto, PropertyDataDto } from '../../../services/common.service';
+import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel, TableConfig } from '../../../services/components.service';
+import { CommonService, ContactDto, ModuleDto, PropertiesDto, PropertyDataDto } from '../../../services/common.service';
 import { Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
@@ -13,7 +13,7 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 export class ContactCompanyPageComponent {
   @Input() module: 'CONT' | 'COMP' = 'CONT';
   @Input() contactList: ContactDto[] = [];
-  @Input() modulePropertyList: ModulePropertiesDto[] = [];
+  @Input() modulePropertyList: ModuleDto[] = [];
 
   propertiesList: PropertiesDto[] = [];
   tableConfig: TableConfig[] = [];
@@ -43,88 +43,105 @@ export class ContactCompanyPageComponent {
     let formsConfig: FormConfig[] = [];
     this.createFormGroup = this.formBuilder.group({});
 
-    this.commonService.getAllPropertiesByModule(this.module).subscribe((res) => {
+    // this.commonService.getAllPropertiesByModule(this.module).subscribe((res) => {
+    //   res.forEach((item) => {
+    //     item.propertiesList.forEach((prop) => {
+    //       this.propertiesList.push(prop);
+
+    //       if (!prop.isDefaultProperty) {
+    //         let config: TableConfig = {
+    //           header: prop.propertyName,
+    //           code: this.bindCode(prop.propertyCode),
+    //         };
+    //         this.tableConfig.push(config);
+    //       }
+
+    //       if (prop.isMandatory && prop.isEditable) {
+
+    //       }
+    //     });
+    //   });
+
+    //   console.log(formsConfig)
+    //   this.createFormConfig = JSON.parse(JSON.stringify(formsConfig));
+    //   console.log(this.createFormGroup.controls)
+    // });
+
+    this.getCreateFormProperties();
+  }
+
+  getCreateFormProperties() {
+    let createPropCount = 0;
+    let formsConfig: FormConfig[] = [];
+    this.createFormGroup = this.formBuilder.group({});
+    this.commonService.getAllCreateFormPropertiesByModule(this.module).subscribe((res) => {
       res.forEach((item) => {
         item.propertiesList.forEach((prop) => {
-          this.propertiesList.push(prop);
+          this.createFormPropertyList.push(prop);
 
-          if (!prop.isDefaultProperty) {
-            let config: TableConfig = {
-              header: prop.propertyName,
-              code: this.bindCode(prop.propertyCode),
-            };
-            this.tableConfig.push(config);
-          }
+          let control = new FormControl(this.returnControlTypeEmptyValue(prop), Validators.required);
+          this.createFormGroup.addControl(prop.propertyCode, control);
 
-          if (prop.isMandatory && prop.isEditable) {
-            this.createFormPropertyList.push(prop);
+          let forms: FormConfig = {
+            type: CONTROL_TYPE.Textbox,
+            label: prop.propertyName,
+            fieldControl: this.createFormGroup.controls[prop.propertyCode],
+            layoutDefine: {
+              row: createPropCount,
+              column: 0,
+            }
+          };
 
-            let control = new FormControl(this.returnControlTypeEmptyValue(prop), Validators.required);
-            this.createFormGroup.addControl(prop.propertyCode, control);
-
-            let forms: FormConfig = {
+          if (prop.propertyType === CONTROL_TYPE_CODE.Textbox || prop.propertyType === CONTROL_TYPE_CODE.Textarea || prop.propertyType === CONTROL_TYPE_CODE.Email || prop.propertyType === CONTROL_TYPE_CODE.Phone || prop.propertyType === CONTROL_TYPE_CODE.Url || prop.propertyType === CONTROL_TYPE_CODE.Number) {
+            //console.log(this.createFormGroup.controls[prop.propertyCode].value)
+            forms = {
               type: CONTROL_TYPE.Textbox,
               label: prop.propertyName,
-              fieldControl: this.createFormGroup.controls[prop.propertyCode],
+              fieldControl: null,
               layoutDefine: {
                 row: createPropCount,
                 column: 0,
               }
-            };
-
-            if (prop.propertyType === CONTROL_TYPE_CODE.Textbox || prop.propertyType === CONTROL_TYPE_CODE.Textarea || prop.propertyType === CONTROL_TYPE_CODE.Email || prop.propertyType === CONTROL_TYPE_CODE.Phone || prop.propertyType === CONTROL_TYPE_CODE.Url || prop.propertyType === CONTROL_TYPE_CODE.Number) {
-              //console.log(this.createFormGroup.controls[prop.propertyCode].value)
-              forms = {
-                type: CONTROL_TYPE.Textbox,
-                label: prop.propertyName,
-                fieldControl: null,
-                layoutDefine: {
-                  row: createPropCount,
-                  column: 0,
-                }
-              }
             }
-            else if (prop.propertyType === CONTROL_TYPE_CODE.Checkbox || prop.propertyType === CONTROL_TYPE_CODE.MultiCheckbox || prop.propertyType === CONTROL_TYPE_CODE.Multiselect || prop.propertyType === CONTROL_TYPE_CODE.Dropdown || prop.propertyType === CONTROL_TYPE_CODE.Radio) {
-              let propertyLookupList: any[] = [];
-              prop.propertyLookupList.forEach((item) => {
-                propertyLookupList.push({ label: item.propertyLookupLabel, value: item.uid });
-              });
-              console.log(propertyLookupList)
-              forms = {
-                // type: prop.propertyType === CONTROL_TYPE_CODE.Checkbox || prop.propertyType === CONTROL_TYPE_CODE.MultiCheckbox ? CONTROL_TYPE.Checkbox : prop.propertyType === CONTROL_TYPE_CODE.Multiselect ? CONTROL_TYPE.Multiselect : prop.propertyType === CONTROL_TYPE_CODE.Dropdown ? CONTROL_TYPE.Dropdown : CONTROL_TYPE.Radio,
-                type: CONTROL_TYPE.Dropdown,
-                label: prop.propertyName,
-                fieldControl: null,
-                layoutDefine: {
-                  row: createPropCount,
-                  column: 0,
-                },
-                options: propertyLookupList,
-              }
-            }
-            else if (prop.propertyType === CONTROL_TYPE_CODE.DateTime || prop.propertyType === CONTROL_TYPE_CODE.Date || prop.propertyType === CONTROL_TYPE_CODE.Time) {
-              forms = {
-                type: CONTROL_TYPE.Calendar,
-                label: prop.propertyName,
-                fieldControl: null,
-                layoutDefine: {
-                  row: createPropCount,
-                  column: 0,
-                }
-              }
-            }
-
-            formsConfig.push(forms);
-            // this.createFormConfig.push(forms);
-            createPropCount++;
           }
-        });
+          else if (prop.propertyType === CONTROL_TYPE_CODE.Checkbox || prop.propertyType === CONTROL_TYPE_CODE.MultiCheckbox || prop.propertyType === CONTROL_TYPE_CODE.Multiselect || prop.propertyType === CONTROL_TYPE_CODE.Dropdown || prop.propertyType === CONTROL_TYPE_CODE.Radio) {
+            let propertyLookupList: OptionsModel[] = [];
+            prop.propertyLookupList.forEach((item) => {
+              propertyLookupList.push({ label: item.propertyLookupLabel, value: item.uid });
+            });
+
+            forms = {
+              type: prop.propertyType === CONTROL_TYPE_CODE.Checkbox || prop.propertyType === CONTROL_TYPE_CODE.MultiCheckbox ? CONTROL_TYPE.Checkbox : prop.propertyType === CONTROL_TYPE_CODE.Multiselect ? CONTROL_TYPE.Multiselect : prop.propertyType === CONTROL_TYPE_CODE.Dropdown ? CONTROL_TYPE.Dropdown : CONTROL_TYPE.Radio,
+              // type: CONTROL_TYPE.Dropdown,
+              label: prop.propertyName,
+              fieldControl: null,
+              layoutDefine: {
+                row: createPropCount,
+                column: 0,
+              },
+              options: propertyLookupList,
+            }
+          }
+          else if (prop.propertyType === CONTROL_TYPE_CODE.DateTime || prop.propertyType === CONTROL_TYPE_CODE.Date || prop.propertyType === CONTROL_TYPE_CODE.Time) {
+            forms = {
+              type: CONTROL_TYPE.Calendar,
+              label: prop.propertyName,
+              fieldControl: null,
+              layoutDefine: {
+                row: createPropCount,
+                column: 0,
+              }
+            }
+          }
+
+          formsConfig.push(forms);
+          // this.createFormConfig.push(forms);
+          createPropCount++;
+        })
       });
 
-      console.log(formsConfig)
       this.createFormConfig = JSON.parse(JSON.stringify(formsConfig));
-      console.log(this.createFormGroup.controls)
-    })
+    });
   }
 
   returnControlTypeEmptyValue(prop: PropertiesDto): any {

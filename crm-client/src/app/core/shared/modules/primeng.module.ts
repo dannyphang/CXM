@@ -31,6 +31,8 @@ import { BlockUIModule } from 'primeng/blockui';
 import { AvatarModule } from 'primeng/avatar';
 import { TieredMenuModule } from 'primeng/tieredmenu';
 import { DialogModule } from 'primeng/dialog';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
 
 import { MessageService } from 'primeng/api';
 
@@ -67,7 +69,9 @@ const PRIMENG_MODULES = [
     BlockUIModule,
     AvatarModule,
     TieredMenuModule,
-    DialogModule
+    DialogModule,
+    IconFieldModule,
+    InputIconModule
 ]
 
 @NgModule({

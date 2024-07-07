@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { ModulePropertiesDto } from '../../../../services/common.service';
+import { PropertyGroupDto } from '../../../../services/common.service';
 import { NavigationExtras, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 
@@ -9,7 +9,7 @@ import { MessageService } from 'primeng/api';
   styleUrl: './left-panel.component.scss'
 })
 export class LeftPanelComponent implements OnChanges {
-  @Input() propertiesList: ModulePropertiesDto[] = [];
+  @Input() propertiesList: PropertyGroupDto[] = [];
   @Input() module: 'CONT' | 'COMP' = 'CONT';
   @Input() profileId: any;
   actionMenu: any[] = [

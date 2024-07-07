@@ -1,0 +1,25 @@
+<p-dialog
+  [(visible)]="visible"
+  [header]="header"
+  [style]="{ width: '70%' }"
+  [modal]="true"
+  [closable]="false"
+>
+  <app-base-form [formConfig]="activityFormConfig"></app-base-form>
+
+  <div class="text-editor"></div>
+
+  <div class="tw-flex tw-justify-end">
+    <p-button label="Associated with 1 records" [text]="true" />
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      label="Cancel"
+      [text]="true"
+      severity="secondary"
+      (onClick)="closeDialog()"
+    />
+    <p-button label="Save" [outlined]="true" severity="secondary" />
+  </ng-template>
+</p-dialog>
