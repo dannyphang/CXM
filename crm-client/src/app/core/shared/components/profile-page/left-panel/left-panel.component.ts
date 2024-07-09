@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { PropertyGroupDto } from '../../../../services/common.service';
+import { ContactDto, PropertyGroupDto } from '../../../../services/common.service';
 import { NavigationExtras, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 
@@ -11,7 +11,7 @@ import { MessageService } from 'primeng/api';
 export class LeftPanelComponent implements OnChanges {
   @Input() propertiesList: PropertyGroupDto[] = [];
   @Input() module: 'CONT' | 'COMP' = 'CONT';
-  @Input() profileId: any;
+  @Input() contactProfile: ContactDto = new ContactDto();
   actionMenu: any[] = [
     {
       label: 'View all properties',
@@ -24,7 +24,7 @@ export class LeftPanelComponent implements OnChanges {
         };
 
         // navigate to setting page
-        this.router.navigate(['contact/profile/' + this.profileId + '/allProperties'], navigationExtras);
+        this.router.navigate(['contact/profile/' + this.contactProfile.uid + '/allProperties'], navigationExtras);
       }
     }
   ];

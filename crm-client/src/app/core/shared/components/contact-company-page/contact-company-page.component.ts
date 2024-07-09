@@ -39,35 +39,30 @@ export class ContactCompanyPageComponent {
     this.commonService.getAllContact().subscribe((res) => {
       this.contactList = res;
     })
-    let createPropCount = 0;
-    let formsConfig: FormConfig[] = [];
+
     this.createFormGroup = this.formBuilder.group({});
 
-    // this.commonService.getAllPropertiesByModule(this.module).subscribe((res) => {
-    //   res.forEach((item) => {
-    //     item.propertiesList.forEach((prop) => {
-    //       this.propertiesList.push(prop);
+    this.commonService.getAllPropertiesByModule(this.module).subscribe((res) => {
+      res.forEach((item) => {
+        item.propertiesList.forEach((prop) => {
+          this.propertiesList.push(prop);
 
-    //       if (!prop.isDefaultProperty) {
-    //         let config: TableConfig = {
-    //           header: prop.propertyName,
-    //           code: this.bindCode(prop.propertyCode),
-    //         };
-    //         this.tableConfig.push(config);
-    //       }
+          if (!prop.isDefaultProperty) {
+            let config: TableConfig = {
+              header: prop.propertyName,
+              code: this.bindCode(prop.propertyCode),
+            };
+            this.tableConfig.push(config);
+          }
 
-    //       if (prop.isMandatory && prop.isEditable) {
+          if (prop.isMandatory && prop.isEditable) {
 
-    //       }
-    //     });
-    //   });
+          }
+        });
+      });
+    });
 
-    //   console.log(formsConfig)
-    //   this.createFormConfig = JSON.parse(JSON.stringify(formsConfig));
-    //   console.log(this.createFormGroup.controls)
-    // });
-
-    this.getCreateFormProperties();
+    // this.getCreateFormProperties();
   }
 
   getCreateFormProperties() {
