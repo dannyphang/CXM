@@ -134,4 +134,9 @@
       }
     }
   }
+
+  .p-input-icon::before {
+    position: relative;
+    z-index: 1;
+  }
 }

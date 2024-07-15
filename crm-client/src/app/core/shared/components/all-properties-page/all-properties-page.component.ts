@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { ModulePropertiesDto } from '../../../services/common.service';
+import { PropertyGroupDto } from '../../../services/common.service';
 import { FormControl } from '@angular/forms';
 
 @Component({
@@ -9,7 +9,7 @@ import { FormControl } from '@angular/forms';
 })
 export class AllPropertiesPageComponent implements OnChanges {
   @Input() module: 'CONT' | 'COMP' = 'CONT';
-  @Input() propertyList: ModulePropertiesDto[] = [];
+  @Input() propertyList: PropertyGroupDto[] = [];
   searchControl: FormControl = new FormControl('');
   hideEmptySearchCheckbox = [{ label: 'Hide blank properties', value: 'hideEmpty' }];
 

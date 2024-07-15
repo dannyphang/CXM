@@ -8,24 +8,31 @@
         icon="pi pi-user"
         styleClass="tw-w-[80px] tw-h-[80px]"
         shape="circle"
+        data-blobity-magnetic="true"
       />
     </div>
     <div class="info-div tw-overflow-hidden tw-content-center">
       <app-base-label
-        [label]="'NameNameNameNameName'"
+        [label]="
+          contactProfile.contactFirstName
+            ? contactProfile.contactFirstName +
+              ' ' +
+              contactProfile.contactLastName
+            : ''
+        "
         [labelStyle]="'tw-text-ellipsis tw-overflow-hidden profile-name-label'"
       ></app-base-label>
       <div class="email-div tw-flex">
         <div
           class="email-text tw-text-ellipsis tw-overflow-hidden tw-content-center"
         >
-          email&#64;email.com
+          {{ contactProfile.contactEmail }}
         </div>
         <p-button
           icon="pi pi-copy"
           [text]="true"
           [rounded]="true"
-          (click)="copyEmailToClipboard('copied text')"
+          (click)="copyEmailToClipboard(contactProfile.contactEmail)"
           pTooltip="Copy email to clipboard"
         />
       </div>

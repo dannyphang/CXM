@@ -27,7 +27,8 @@ export class BaseInputComponent
   @Input() descriptionMessage: string = '';
   @Input() labelTextStyle: string = '';
   @Input() autoFocus: boolean = false;
-
+  @Input() iconLeftStyle: string = '';
+  @Input() iconRightStyle: string = '';
   @ViewChild('prefix_content', { static: true })
   prefix_content!: ElementRef<HTMLDivElement>;
 

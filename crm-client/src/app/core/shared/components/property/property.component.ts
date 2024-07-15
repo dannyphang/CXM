@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, input, Output } from '@angular/core';
-import { ModulePropertiesDto, PropertiesDto, PropertyLookupDto } from '../../../services/common.service';
+import { ModuleDto, PropertiesDto, PropertyLookupDto } from '../../../services/common.service';
 import { CONTROL_TYPE_CODE } from '../../../services/components.service';
 import { Observable, of } from 'rxjs';
 import { FormControl } from '@angular/forms';

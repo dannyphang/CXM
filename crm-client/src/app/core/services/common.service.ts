@@ -29,18 +29,29 @@ export class CommonService {
         return this.http.get<PropertiesDto[]>(apiConfig.baseUrl + '/common/properties').pipe();
     }
 
-    getAllPropertiesByModule(module: string): Observable<ModulePropertiesDto[]> {
+    getAllPropertiesByModule(module: string): Observable<PropertyGroupDto[]> {
         let headers = {
             'moduleCode': module
         }
-        return this.http.get<ModulePropertiesDto[]>((apiConfig.baseUrl + '/common/properties/module'), { headers }).pipe();
+        return this.http.get<PropertyGroupDto[]>((apiConfig.baseUrl + '/common/properties/module'), { headers }).pipe();
+    }
+
+    getAllCreateFormPropertiesByModule(module: string): Observable<PropertyGroupDto[]> {
+        let headers = {
+            'moduleCode': module
+        }
+        return this.http.get<PropertyGroupDto[]>((apiConfig.baseUrl + '/common/properties/module/create'), { headers }).pipe();
     }
 
     createProperties(properties: PropertiesDto): Observable<PropertiesDto> {
         return this.http.post<PropertiesDto>(apiConfig.baseUrl + '/common/properties', properties).pipe();
     }
+
+    getAllActivityModule(): Observable<ActivitiesListDto> {
+        return this.http.get<ActivitiesListDto>((apiConfig.baseUrl + '/common/activityModule')).pipe();
+    }
 }
-export class ModulePropertiesDto {
+export class ModuleDto {
     uid: string;
     moduleId: string;
     moduleName: string;
@@ -50,11 +61,14 @@ export class ModulePropertiesDto {
     moduleValue: string;
     moduleCode: string;
     statusId: number;
-    propertiesList: PropertiesDto[];
     createdDate: Date;
     createdBy: string;
     modifiedDate: Date;
     modifiedBy: string;
+}
+
+export class PropertyGroupDto extends ModuleDto {
+    propertiesList: PropertiesDto[];
     isHide: boolean;
 }
 
@@ -118,4 +132,13 @@ export class PropertyDataDto {
     uid: string;
     propertyCode: string;
     value: string;
+}
+
+export class ActivityModuleDto extends ModuleDto {
+    subActivityControl: ModuleDto[];
+}
+
+export class ActivitiesListDto {
+    activityControlList: ActivityModuleDto[];
+    activityModuleList: ModuleDto[];
 }

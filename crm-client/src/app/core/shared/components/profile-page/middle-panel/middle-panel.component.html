@@ -1,1 +1,55 @@
-<p>middle-panel works!</p>
+<div class="tw-w-full tw-m-[15px] tw-ml-0">
+  <p-tabView class="middle-profile-tabView tw-w-full">
+    <p-tabPanel header="Activities">
+      <div class="tw-flex tw-justify-between">
+        <app-base-input
+          [iconRightStyle]="searchIcon"
+          [placeholder]="'Search activities...'"
+          [autoFocus]="true"
+          [fieldControl]="searchControl"
+          class="tw-w-[40%]"
+        ></app-base-input>
+        <div>
+          <p-button
+            icon="pi pi-ellipsis-v"
+            [text]="true"
+            [rounded]="true"
+            (click)="profileActionMenu.toggle($event)"
+          />
+          <p-tieredMenu
+            #profileActionMenu
+            [model]="actionMenu"
+            [popup]="true"
+          />
+        </div>
+      </div>
+
+      <p-tabView class="activity-tab">
+        <p-tabPanel header="All" [selected]="false"> </p-tabPanel>
+        <p-tabPanel
+          *ngFor="let activity of activityModuleList"
+          [header]="activity.moduleName"
+          onclick=""
+        >
+          <div class="">
+            <app-base-button
+              [label]="returnActivityLable(activity.moduleCode)"
+              class="tw-flex tw-justify-end"
+              (onClick)="isOpenDialog = true"
+            ></app-base-button>
+
+            <app-activity-dialog
+              [activityModule]="activity"
+              [visible]="isOpenDialog"
+              [activityControlList]="getActivityControlList(activity)"
+              [activityModuleList]="activityModuleList"
+              [header]="returnActivityLable(activity.moduleCode)"
+              (close)="isOpenDialog = false"
+            ></app-activity-dialog>
+          </div>
+        </p-tabPanel>
+      </p-tabView>
+    </p-tabPanel>
+    <!-- <p-tabPanel header="Properties"> </p-tabPanel> -->
+  </p-tabView>
+</div>

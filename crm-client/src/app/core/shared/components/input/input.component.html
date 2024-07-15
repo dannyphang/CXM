@@ -8,162 +8,168 @@
   >
   </app-base-label>
 
-  <div class="input-container" *ngIf="mode === 'text' || mode === 'password'">
-    <input
-      pInputText
-      pAutoFocus
-      [autofocus]="autoFocus"
-      [type]="mode"
-      placeholder="{{ placeholder | translate }}"
-      [ngClass]="{
-        invalid: checkInvalidField(),
-        'pr-30': !!iconUrl,
-        'pl-30': !!leftIconUrl,
-        disabled: disabled
-      }"
-      [readonly]="disabled"
-      [formControl]="fieldControl"
-      (blur)="onBlur()"
-      [maxLength]="maxLength"
+  <p-iconField [iconPosition]="iconLeftStyle != '' ? 'left' : 'right'">
+    <p-inputIcon
+      [styleClass]="iconLeftStyle != '' ? iconLeftStyle : iconRightStyle"
     />
+    <div class="input-container" *ngIf="mode === 'text' || mode === 'password'">
+      <input
+        pInputText
+        pAutoFocus
+        [autofocus]="autoFocus"
+        [type]="mode"
+        placeholder="{{ placeholder | translate }}"
+        [ngClass]="{
+          invalid: checkInvalidField(),
+          'pr-30': !!iconUrl,
+          'pl-30': !!leftIconUrl,
+          disabled: disabled
+        }"
+        [readonly]="disabled"
+        [formControl]="fieldControl"
+        (blur)="onBlur()"
+        [maxLength]="maxLength"
+      />
 
-    <img *ngIf="!!iconUrl" [src]="iconUrl" />
-    <img class="leftIcon" *ngIf="!!leftIconUrl" [src]="leftIconUrl" />
-    <div class="prefix" *ngIf="!!prefix">{{ prefix }}</div>
-    <div class="description-message" *ngIf="descriptionMessage">
-      {{ descriptionMessage | translate }}
+      <img *ngIf="!!iconUrl" [src]="iconUrl" />
+      <img class="leftIcon" *ngIf="!!leftIconUrl" [src]="leftIconUrl" />
+      <div class="prefix" *ngIf="!!prefix">{{ prefix }}</div>
+      <div class="description-message" *ngIf="descriptionMessage">
+        {{ descriptionMessage | translate }}
+      </div>
     </div>
-  </div>
 
-  <!-- url -->
-  <div class="input-container" *ngIf="mode === 'url'">
-    <input
-      pInputText
-      pAutoFocus
-      [autofocus]="autoFocus"
-      type="text"
-      placeholder="{{ placeholder | translate }}"
-      [ngClass]="{
-        invalid: checkInvalidField(),
-        'pr-30': !!iconUrl,
-        'pl-30': !!leftIconUrl,
-        disabled: disabled
-      }"
-      [readonly]="disabled"
-      [formControl]="fieldControl"
-      (blur)="onBlur()"
-      [maxLength]="maxLength"
-    />
+    <!-- url -->
+    <div class="input-container" *ngIf="mode === 'url'">
+      <input
+        pInputText
+        pAutoFocus
+        [autofocus]="autoFocus"
+        type="text"
+        placeholder="{{ placeholder | translate }}"
+        [ngClass]="{
+          invalid: checkInvalidField(),
+          'pr-30': !!iconUrl,
+          'pl-30': !!leftIconUrl,
+          disabled: disabled
+        }"
+        [readonly]="disabled"
+        [formControl]="fieldControl"
+        (blur)="onBlur()"
+        [maxLength]="maxLength"
+      />
 
-    <img *ngIf="!!iconUrl" [src]="iconUrl" />
-    <img class="leftIcon" *ngIf="!!leftIconUrl" [src]="leftIconUrl" />
-    <div class="prefix" *ngIf="!!prefix">{{ prefix }}</div>
-    <div class="description-message" *ngIf="descriptionMessage">
-      {{ descriptionMessage | translate }}
+      <img *ngIf="!!iconUrl" [src]="iconUrl" />
+      <img class="leftIcon" *ngIf="!!leftIconUrl" [src]="leftIconUrl" />
+      <div class="prefix" *ngIf="!!prefix">{{ prefix }}</div>
+      <div class="description-message" *ngIf="descriptionMessage">
+        {{ descriptionMessage | translate }}
+      </div>
     </div>
-  </div>
 
-  <!-- email -->
-  <div class="input-container" *ngIf="mode === 'email'">
-    <input
-      pInputText
-      pAutoFocus
-      [autofocus]="autoFocus"
-      type="email"
-      placeholder="{{ placeholder | translate }}"
-      [ngClass]="{
-        invalid: checkInvalidField(),
-        'pr-30': !!iconUrl,
-        'pl-30': !!leftIconUrl,
-        disabled: disabled
-      }"
-      [readonly]="disabled"
-      [formControl]="fieldControl"
-      (blur)="onBlur()"
-      [maxLength]="maxLength"
-    />
+    <!-- email -->
+    <div class="input-container" *ngIf="mode === 'email'">
+      <input
+        pInputText
+        pAutoFocus
+        [autofocus]="autoFocus"
+        type="email"
+        placeholder="{{ placeholder | translate }}"
+        [ngClass]="{
+          invalid: checkInvalidField(),
+          'pr-30': !!iconUrl,
+          'pl-30': !!leftIconUrl,
+          disabled: disabled
+        }"
+        [readonly]="disabled"
+        [formControl]="fieldControl"
+        (blur)="onBlur()"
+        [maxLength]="maxLength"
+      />
 
-    <img *ngIf="!!iconUrl" [src]="iconUrl" />
-    <img class="leftIcon" *ngIf="!!leftIconUrl" [src]="leftIconUrl" />
-    <div class="prefix" *ngIf="!!prefix">{{ prefix }}</div>
-    <div class="description-message" *ngIf="descriptionMessage">
-      {{ descriptionMessage | translate }}
+      <img *ngIf="!!iconUrl" [src]="iconUrl" />
+      <img class="leftIcon" *ngIf="!!leftIconUrl" [src]="leftIconUrl" />
+      <div class="prefix" *ngIf="!!prefix">{{ prefix }}</div>
+      <div class="description-message" *ngIf="descriptionMessage">
+        {{ descriptionMessage | translate }}
+      </div>
     </div>
-  </div>
 
-  <!-- phone -->
-  <div class="input-container" *ngIf="mode === 'phone'">
-    <input
-      pInputText
-      pAutoFocus
-      [autofocus]="autoFocus"
-      type="text"
-      placeholder="{{ placeholder | translate }}"
-      [ngClass]="{
-        invalid: checkInvalidField(),
-        'pr-30': !!iconUrl,
-        'pl-30': !!leftIconUrl,
-        disabled: disabled
-      }"
-      [readonly]="disabled"
-      [formControl]="fieldControl"
-      (blur)="onBlur()"
-      [maxLength]="maxLength"
-    />
+    <!-- phone -->
+    <div class="input-container" *ngIf="mode === 'phone'">
+      <input
+        pInputText
+        pAutoFocus
+        [autofocus]="autoFocus"
+        type="text"
+        placeholder="{{ placeholder | translate }}"
+        [ngClass]="{
+          invalid: checkInvalidField(),
+          'pr-30': !!iconUrl,
+          'pl-30': !!leftIconUrl,
+          disabled: disabled
+        }"
+        [readonly]="disabled"
+        [formControl]="fieldControl"
+        (blur)="onBlur()"
+        [maxLength]="maxLength"
+      />
 
-    <img *ngIf="!!iconUrl" [src]="iconUrl" />
-    <img class="leftIcon" *ngIf="!!leftIconUrl" [src]="leftIconUrl" />
-    <div class="prefix" *ngIf="!!prefix">{{ prefix }}</div>
-    <div class="description-message" *ngIf="descriptionMessage">
-      {{ descriptionMessage | translate }}
+      <img *ngIf="!!iconUrl" [src]="iconUrl" />
+      <img class="leftIcon" *ngIf="!!leftIconUrl" [src]="leftIconUrl" />
+      <div class="prefix" *ngIf="!!prefix">{{ prefix }}</div>
+      <div class="description-message" *ngIf="descriptionMessage">
+        {{ descriptionMessage | translate }}
+      </div>
     </div>
-  </div>
 
-  <!-- switch -->
-  <div class="input-switch-container" *ngIf="mode === 'switch'">
-    <p-inputSwitch [formControl]="fieldControl"></p-inputSwitch>
-    <div class="inline-flex ml-2">{{ content | translate }}</div>
-  </div>
+    <!-- switch -->
+    <div class="input-switch-container" *ngIf="mode === 'switch'">
+      <p-inputSwitch [formControl]="fieldControl"></p-inputSwitch>
+      <div class="inline-flex ml-2">{{ content | translate }}</div>
+    </div>
 
-  <!-- number -->
-  <div class="input-number-container" *ngIf="mode === 'number'">
-    <p-inputNumber
-      [readonly]="disabled"
-      [formControl]="fieldControl"
-      (blur)="onBlur()"
-      [maxlength]="maxLength"
-      placeholder="{{ placeholder | translate }}"
-      [ngClass]="{
-        invalid: checkInvalidField(),
-        'pr-30': !!iconUrl,
-        'pl-30': !!leftIconUrl || !!prefix,
-        disabled: disabled
-      }"
-      [inputStyle]="{ 'padding-left': paddingForPrefix + 'px' }"
-      [minFractionDigits]="minFractionDigits"
-      [maxFractionDigits]="maxFractionDigits"
-      [useGrouping]="useGrouping"
-      mode="decimal"
-      [allowEmpty]="true"
-      [min]="min"
-      [max]="max"
-      pAutoFocus
-      [autofocus]="autoFocus"
-    ></p-inputNumber>
+    <!-- number -->
+    <div class="input-number-container" *ngIf="mode === 'number'">
+      <p-inputNumber
+        [readonly]="disabled"
+        [formControl]="fieldControl"
+        (blur)="onBlur()"
+        [maxlength]="maxLength"
+        placeholder="{{ placeholder | translate }}"
+        [ngClass]="{
+          invalid: checkInvalidField(),
+          'pr-30': !!iconUrl,
+          'pl-30': !!leftIconUrl || !!prefix,
+          disabled: disabled
+        }"
+        [inputStyle]="{ 'padding-left': paddingForPrefix + 'px' }"
+        [minFractionDigits]="minFractionDigits"
+        [maxFractionDigits]="maxFractionDigits"
+        [useGrouping]="useGrouping"
+        mode="decimal"
+        [allowEmpty]="true"
+        [min]="min"
+        [max]="max"
+        pAutoFocus
+        [autofocus]="autoFocus"
+      ></p-inputNumber>
 
-    <img *ngIf="!!iconUrl" [src]="iconUrl" />
-    <img class="leftIcon" *ngIf="!!leftIconUrl" [src]="leftIconUrl" />
-    <div #prefix_content class="prefix" *ngIf="!!prefix">{{ prefix }}</div>
-    <div *ngIf="suffix" class="suffix">{{ suffix }}</div>
-  </div>
+      <img *ngIf="!!iconUrl" [src]="iconUrl" />
+      <img class="leftIcon" *ngIf="!!leftIconUrl" [src]="leftIconUrl" />
+      <div #prefix_content class="prefix" *ngIf="!!prefix">{{ prefix }}</div>
+      <div *ngIf="suffix" class="suffix">{{ suffix }}</div>
+    </div>
 
-  <div class="input-number-container" *ngIf="mode === 'label-text'">
-    <app-base-label
-      [labelStyle]="'font-normal ' + labelTextStyle"
-      [label]="fieldControl.value"
-    >
-    </app-base-label>
-  </div>
+    <!-- label-text -->
+    <div class="input-number-container" *ngIf="mode === 'label-text'">
+      <app-base-label
+        [labelStyle]="'font-normal ' + labelTextStyle"
+        [label]="fieldControl.value"
+      >
+      </app-base-label>
+    </div>
+  </p-iconField>
 
   <!-- error message -->
   <app-base-label
