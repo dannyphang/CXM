@@ -1,16 +1,6 @@
 {
   "hosting": {
-    "public": "dist/crm-client",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
-    "rewrites": [
-      {
-        "source": "**",
-        "destination": "/index.html"
-      }
-    ]
+    "public": "dist/crm-client/browser",
+    "ignore": ["firebase.json", "**/.*", "**/node_modules/**"]
   }
 }
