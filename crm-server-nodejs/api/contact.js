@@ -54,9 +54,8 @@ router.get("/:id", async (req, res) => {
 
 // create new contact
 router.post("/", async (req, res) => {
-  const contactList = JSON.parse(JSON.stringify(req.body));
-
   try {
+    const contactList = JSON.parse(JSON.stringify(req.body.contactList));
     let createdContactList = [];
     contactList.forEach((contact) => {
       contact.uid = doc(collection(db, collectionName)).id;

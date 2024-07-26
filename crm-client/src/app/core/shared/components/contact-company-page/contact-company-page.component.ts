@@ -41,11 +41,9 @@ export class ContactCompanyPageComponent {
     let createPropCount = 0;
     let formsConfig: FormConfig[] = [];
 
-    this.commonService.getAllContact().subscribe((res) => {
-      this.contactList = res;
-    })
-
     this.createFormGroup = this.formBuilder.group({});
+
+    this.getContact();
 
     this.commonService.getAllPropertiesByModule(this.module).subscribe((res) => {
       res.forEach((item) => {
@@ -66,7 +64,7 @@ export class ContactCompanyPageComponent {
           if (prop.isMandatory && prop.isEditable) {
             this.createFormPropertyList.push(prop);
 
-            let control = new FormControl(this.returnControlTypeEmptyValue(prop), Validators.required);
+            let control = new FormControl(this.commonService.returnControlTypeEmptyValue(prop), Validators.required);
             this.createFormGroup.addControl(prop.propertyCode, control);
 
             let forms: FormConfig = {
@@ -138,40 +136,10 @@ export class ContactCompanyPageComponent {
     });
   }
 
-  returnControlTypeEmptyValue(prop: PropertiesDto): any {
-    let type = prop.propertyType;
-
-    if (type === CONTROL_TYPE_CODE.Textbox || type === CONTROL_TYPE_CODE.Textarea || type === CONTROL_TYPE_CODE.Email || type === CONTROL_TYPE_CODE.Phone || type === CONTROL_TYPE_CODE.Url) {
-      return '';
-    }
-    else if (type === CONTROL_TYPE_CODE.Checkbox) {
-      return false;
-    }
-    else if (type === CONTROL_TYPE_CODE.Date) {
-      return new Date();
-    }
-    else if (type === CONTROL_TYPE_CODE.Number) {
-      return 0;
-    }
-    else if (type === CONTROL_TYPE_CODE.Dropdown || type === CONTROL_TYPE_CODE.Multiselect) {
-      let lookup = {
-        label: '',
-        value: ''
-      };
-      prop.propertyLookupList.forEach((item) => {
-        if (item.isDefault) {
-          lookup = {
-            label: item.propertyLookupLabel,
-            value: item.uid
-          }
-        }
-      });
-      return lookup.value;
-    }
-    else if (type === CONTROL_TYPE_CODE.Radio) {
-      return false;
-    }
-    return {};
+  getContact() {
+    this.commonService.getAllContact().subscribe((res) => {
+      this.contactList = res;
+    });
   }
 
   bindCode(code: string) {
@@ -230,29 +198,19 @@ export class ContactCompanyPageComponent {
   }
 
   create() {
-    let contactPropertyList: PropertyDataDto[] = [];
-
-    console.log(this.createFormConfig)
-
-    this.createFormConfig.forEach((item: any) => {
-      let propertyJson: PropertyDataDto = {
-        uid: item.id,
-        propertyCode: item.name,
-        value: item.fieldControl.value
-      }
-      contactPropertyList.push(propertyJson)
-    });
-
-    let propertyListJson = JSON.stringify(contactPropertyList);
-    // this.commonService.createContact
-    console.log(contactPropertyList);
-
-    this.propertyValueUpdate(this.createFormConfig)
+    if (this.createFormGroup.valid) {
+      this.propertyValueUpdate(this.createFormConfig);
+    }
+    else {
+      console.log(this.createFormGroup)
+    }
   }
 
-  propertyValueUpdate(form: any[], contactProperty: PropertyDataDto[] = []) {
+  propertyValueUpdate(form: any[]) {
     let newContact: ContactDto = new ContactDto();
-    this.profileProperty.forEach(prop => {
+    let contactProperty: PropertyDataDto[] = [];
+
+    this.createFormPropertyList.forEach(prop => {
       if (this.module === 'CONT') {
         switch (prop.propertyCode) {
           case ('first_name'):
@@ -267,20 +225,29 @@ export class ContactCompanyPageComponent {
           case ('phone_number'):
             newContact.contactPhone = form.find((item: any) => item.name === 'phone_number').fieldControl.value;
             break;
+          default:
+            let inputValue = form.find(item => item.name === prop.propertyCode)?.fieldControl.value;
+            if (inputValue) {
+              contactProperty.push({
+                uid: prop.uid,
+                propertyCode: prop.propertyCode,
+                value: inputValue
+              });
+            }
         }
       }
     });
 
-    // {
-    //   // store to properties
-    //   contactProperty.push({
-    //     uid: form.id,
-    //     propertyCode: form.name,
-    //     value: form.fieldControl.value
-    //   });
-    // }
-    console.log(newContact)
-    console.log(this.profileProperty)
+    newContact.contactProperties = JSON.stringify(contactProperty);
+    console.log(newContact);
+    this.commonService.createContact([newContact]).subscribe(res => {
+      console.log(res);
+      this.displayCreateDialog = false;
+
+      this.getContact();
+    }, err => {
+      console.log(err);
+    });
     return;
   }
 }

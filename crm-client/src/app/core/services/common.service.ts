@@ -2,6 +2,7 @@ import { HttpClient, HttpHeaders } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import apiConfig from "../../../environments/apiConfig";
+import { CONTROL_TYPE_CODE } from "./components.service";
 
 @Injectable({ providedIn: 'root' })
 export class CommonService {
@@ -22,7 +23,7 @@ export class CommonService {
         let headers = {
             'contactList': contactList
         }
-        return this.http.post<ContactDto[]>(apiConfig.baseUrl + '/contact', { headers }).pipe();
+        return this.http.post<ContactDto[]>(apiConfig.baseUrl + '/contact', { contactList }).pipe();
     }
 
     getAllProperties(): Observable<PropertiesDto[]> {
@@ -49,6 +50,42 @@ export class CommonService {
 
     getAllActivityModule(): Observable<ActivitiesListDto> {
         return this.http.get<ActivitiesListDto>((apiConfig.baseUrl + '/common/activityModule')).pipe();
+    }
+
+    returnControlTypeEmptyValue(prop: PropertiesDto): any {
+        let type = prop.propertyType;
+
+        if (type === CONTROL_TYPE_CODE.Textbox || type === CONTROL_TYPE_CODE.Textarea || type === CONTROL_TYPE_CODE.Email || type === CONTROL_TYPE_CODE.Phone || type === CONTROL_TYPE_CODE.Url) {
+            return '';
+        }
+        else if (type === CONTROL_TYPE_CODE.Checkbox) {
+            return false;
+        }
+        else if (type === CONTROL_TYPE_CODE.Date) {
+            return new Date();
+        }
+        else if (type === CONTROL_TYPE_CODE.Number) {
+            return 0;
+        }
+        else if (type === CONTROL_TYPE_CODE.Dropdown || type === CONTROL_TYPE_CODE.Multiselect) {
+            let lookup = {
+                label: '',
+                value: ''
+            };
+            prop.propertyLookupList.forEach((item) => {
+                if (item.isDefault) {
+                    lookup = {
+                        label: item.propertyLookupLabel,
+                        value: item.uid
+                    }
+                }
+            });
+            return lookup.value;
+        }
+        else if (type === CONTROL_TYPE_CODE.Radio) {
+            return false;
+        }
+        return {};
     }
 }
 export class ModuleDto {
