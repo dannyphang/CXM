@@ -40,12 +40,6 @@
     [(visible)]="displayCreateDialog"
     [style]="{ width: '70%' }"
   >
-    <!-- <div *ngFor="let property of createFormPropertyList">
-      <app-property
-        [property]="property"
-        [fieldControl]="createFormGroup.controls[property.propertyCode].value"
-      ></app-property>
-    </div> -->
     <app-base-form [formConfig]="createFormConfig"></app-base-form>
     <ng-template pTemplate="footer">
       <p-button
@@ -55,7 +49,7 @@
         (click)="displayCreateDialog = false"
       />
       <p-button
-        label="Save"
+        label="Create"
         [outlined]="true"
         severity="secondary"
         (click)="create()"
@@ -101,11 +95,21 @@
               <div
                 *ngIf="
                   col.code !== 'contactFirstName' &&
-                  col.code !== 'contactLastName'
+                  col.code !== 'contactLastName' &&
+                  col.code !== 'createdDate' &&
+                  col.code !== 'modifiedDate'
                 "
                 [pTooltip]="contact[col.code]"
               >
                 {{ contact[col.code] }}
+              </div>
+              <div
+                *ngIf="
+                  col.code === 'createdDate' || col.code === 'modifiedDate'
+                "
+                [pTooltip]="contact[col.code]"
+              >
+                {{ convertDateFormat(contact[col.code]) }}
               </div>
             </td>
           </tr>

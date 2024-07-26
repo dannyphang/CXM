@@ -23,6 +23,12 @@
           [label]="theme.name"
         ></app-base-button>
       </div>
+
+      <app-input-switch
+        [label]="'Blobity'"
+        [isChecked]="isBlobityOn"
+        (switchUpdate)="inputSwitchUpdate()"
+      ></app-input-switch>
     </div>
   </div>
 </app-overlay-panel>

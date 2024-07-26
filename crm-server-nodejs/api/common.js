@@ -71,8 +71,21 @@ router.get("/" + propertiesCollection + "/module", async (req, res) => {
     for (let i = 0; i < propertyList.length; i++) {
       propertyList[i].propertyLookupList = [];
 
+      propertyList[i].createdDate = convertFirebaseDateFormat(
+        propertyList[i].createdDate
+      );
+      propertyList[i].modifiedDate = convertFirebaseDateFormat(
+        propertyList[i].modifiedDate
+      );
+
       for (let j = 0; j < propertyLookupList.length; j++) {
         if (propertyList[i].propertyId === propertyLookupList[j].propertyId) {
+          propertyLookupList[i].CreatedDate = convertFirebaseDateFormat(
+            propertyLookupList[i].CreatedDate
+          );
+          propertyLookupList[i].ModifiedDate = convertFirebaseDateFormat(
+            propertyLookupList[i].ModifiedDate
+          );
           propertyList[i].propertyLookupList.push(propertyLookupList[j]);
         }
       }
@@ -80,6 +93,8 @@ router.get("/" + propertiesCollection + "/module", async (req, res) => {
 
     moduleList.forEach((module) => {
       module.propertiesList = [];
+      module.createdDate = convertFirebaseDateFormat(module.createdDate);
+      module.modifiedDate = convertFirebaseDateFormat(module.modifiedDate);
       for (let i = 0; i < propertyList.length; i++) {
         if (module.moduleCode === propertyList[i].moduleCat) {
           module.propertiesList.push(propertyList[i]);
@@ -130,6 +145,12 @@ router.get("/" + propertiesCollection + "/module/create", async (req, res) => {
 
     for (let i = 0; i < propertyList.length; i++) {
       propertyList[i].propertyLookupList = [];
+      propertyList[i].createdDate = convertFirebaseDateFormat(
+        propertyList[i].createdDate
+      );
+      propertyList[i].modifiedDate = convertFirebaseDateFormat(
+        propertyList[i].modifiedDate
+      );
 
       for (let j = 0; j < propertyLookupList.length; j++) {
         if (propertyList[i].propertyId === propertyLookupList[j].propertyId) {
@@ -259,7 +280,9 @@ router.get("/activityModule", async (req, res) => {
 
     const activityModuleList = snapshot.docs.map((doc) => doc.data());
     const activityControlList = actCtrSnapshot.docs.map((doc) => doc.data());
-    const subActivityControlList = subActCtrSnapshot.docs.map((doc) => doc.data());
+    const subActivityControlList = subActCtrSnapshot.docs.map((doc) =>
+      doc.data()
+    );
 
     activityControlList.forEach((item) => {
       item.subActivityControl = [];
@@ -311,5 +334,13 @@ router.post("/" + moduleCodeCollection, async (req, res) => {
     res.status(400).json(e);
   }
 });
+
+function convertFirebaseDateFormat(date) {
+  try {
+    return date ? date.toDate() : date;
+  } catch {
+    return;
+  }
+}
 
 export default router;

@@ -2,7 +2,16 @@ import { Router } from "express";
 import express from "express";
 const router = Router();
 import db from "../firebase.js";
-import { collection, getDocs, doc, getDoc, setDoc } from "firebase/firestore";
+import {
+  collection,
+  getDocs,
+  doc,
+  getDoc,
+  setDoc,
+  query,
+  orderBy,
+  Timestamp,
+} from "firebase/firestore";
 
 router.use(express.json());
 
@@ -11,12 +20,17 @@ const collectionName = "contact";
 // get all contacts
 router.get("/", async (req, res) => {
   try {
-    const snapshot = await getDocs(collection(db, collectionName));
-    const contactList = snapshot.docs.map((doc) => doc.data());
-    // sort item list by date
-    contactList.sort((a, b) => {
-      return new Date(a.createdDate) - new Date(b.createdDate);
+    const q = query(collection(db, collectionName), orderBy("createdDate"));
+    const snapshot = await getDocs(q);
+    const contactList = snapshot.docs.map((doc) => {
+      return doc.data();
     });
+
+    contactList.forEach((item) => {
+      item.createdDate = convertFirebaseDateFormat(item.createdDate);
+      item.modifiedDate = convertFirebaseDateFormat(item.modifiedDate);
+    });
+
     res.status(200).json(contactList);
   } catch (error) {
     console.log("error", error);
@@ -73,5 +87,9 @@ router.delete("/delete-user", async (req, res) => {
     res.status(400).json(error);
   }
 });
+
+function convertFirebaseDateFormat(date) {
+  return date.toDate();
+}
 
 export default router;

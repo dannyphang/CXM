@@ -122,9 +122,9 @@ export class ContactDto {
     contactLeadStatusId?: string;
     contactProperties?: string;
     statusId: number;
-    createdDate?: Date;
+    createdDate: Date;
     createdBy?: string;
-    modifiedDate?: Date;
+    modifiedDate: Date;
     modifiedBy?: string;
 }
 
