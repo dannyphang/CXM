@@ -1,9 +1,10 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonService, ContactDto, PropertyGroupDto } from '../../../../services/common.service';
+import { CommonService, ContactDto, PropertiesDto, PropertyGroupDto } from '../../../../services/common.service';
 import { NavigationExtras, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../../../../services/components.service';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 
 @Component({
   selector: 'app-left-panel',
@@ -14,6 +15,7 @@ export class LeftPanelComponent implements OnChanges {
   @Input() propertiesList: PropertyGroupDto[] = [];
   @Input() module: 'CONT' | 'COMP' = 'CONT';
   @Input() contactProfile: ContactDto = new ContactDto();
+
   actionMenu: any[] = [
     {
       label: 'View all properties',
@@ -33,6 +35,9 @@ export class LeftPanelComponent implements OnChanges {
   profileFormGroup: FormGroup;
   profileFormConfig: FormConfig[] = [];
   isConfigForm: boolean = false;
+  showFormUpdateSidebar: boolean = false;
+  propUpdateList: profileUpdateDto[] = [];
+
 
   constructor(
     private commonService: CommonService,
@@ -47,9 +52,13 @@ export class LeftPanelComponent implements OnChanges {
     if (changes['propertiesList'] && changes['propertiesList'].currentValue) {
       this.propertiesList = changes['propertiesList'].currentValue;
       // if (!this.isConfigForm) {
-      //   this.returnProfileFormConfig();
+      this.returnProfileFormConfig();
       // }
     }
+  }
+
+  ngOnInit() {
+
   }
 
   copyEmailToClipboard(copiedText: string) {
@@ -81,7 +90,8 @@ export class LeftPanelComponent implements OnChanges {
             layoutDefine: {
               row: propCount,
               column: 0,
-            }
+            },
+            required: prop.isMandatory
           };
 
           if (prop.isVisible) {
@@ -95,7 +105,8 @@ export class LeftPanelComponent implements OnChanges {
                 layoutDefine: {
                   row: propCount,
                   column: 0,
-                }
+                },
+                required: prop.isMandatory
               }
             }
             else if (prop.propertyType === CONTROL_TYPE_CODE.Checkbox || prop.propertyType === CONTROL_TYPE_CODE.MultiCheckbox || prop.propertyType === CONTROL_TYPE_CODE.Multiselect || prop.propertyType === CONTROL_TYPE_CODE.Dropdown || prop.propertyType === CONTROL_TYPE_CODE.Radio) {
@@ -115,6 +126,7 @@ export class LeftPanelComponent implements OnChanges {
                   column: 0,
                 },
                 options: propertyLookupList,
+                required: prop.isMandatory
               }
             }
             else if (prop.propertyType === CONTROL_TYPE_CODE.DateTime || prop.propertyType === CONTROL_TYPE_CODE.Date || prop.propertyType === CONTROL_TYPE_CODE.Time) {
@@ -127,7 +139,8 @@ export class LeftPanelComponent implements OnChanges {
                 layoutDefine: {
                   row: propCount,
                   column: 0,
-                }
+                },
+                required: prop.isMandatory
               }
             }
 
@@ -138,5 +151,38 @@ export class LeftPanelComponent implements OnChanges {
       }
     });
     this.profileFormConfig = formsConfig;
+
+    this.propertiesList.forEach(item => {
+      if (item.moduleCode === "CONT_INFO" || item.moduleCode === "COMP_INFO") {
+        item.propertiesList.forEach(prop => {
+          this.profileFormGroup.controls[prop.propertyCode].valueChanges.pipe(
+            debounceTime(2000),
+            distinctUntilChanged()
+          ).forEach(value => {
+            this.showFormUpdateSidebar = true;
+            let profileUpdateObj: profileUpdateDto = {
+              property: prop,
+              value: value
+            };
+
+            this.propUpdateList.push(profileUpdateObj);
+          })
+        })
+      }
+
+    });
   }
+
+  cancelButton() {
+    this.showFormUpdateSidebar = false;
+  }
+
+  saveButton() {
+    console.log(this.propUpdateList)
+  }
+}
+
+class profileUpdateDto {
+  property: PropertiesDto;
+  value: string;
 }

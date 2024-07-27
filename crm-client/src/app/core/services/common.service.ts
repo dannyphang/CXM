@@ -87,6 +87,10 @@ export class CommonService {
         }
         return {};
     }
+
+    inputFieldnChange(test: any) {
+        console.log(test);
+    }
 }
 export class ModuleDto {
     uid: string;

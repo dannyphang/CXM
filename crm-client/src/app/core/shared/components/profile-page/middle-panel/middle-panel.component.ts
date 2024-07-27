@@ -40,16 +40,16 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
   }
 
   ngOnInit() {
-    this.searchControl.valueChanges.subscribe((value) => {
-      console.log(value);
-    });
+    // this.searchControl.valueChanges.subscribe((value) => {
+    //   console.log(value);
+    // });
 
-    this.commonService.getAllActivityModule().subscribe((res) => {
-      console.log(res);
+    // this.commonService.getAllActivityModule().subscribe((res) => {
+    //   console.log(res);
 
-      this.activityModuleList = res.activityModuleList;
-      this.activityControlList = res.activityControlList;
-    });
+    //   this.activityModuleList = res.activityModuleList;
+    //   this.activityControlList = res.activityControlList;
+    // });
   }
 
   ngOnChanges(changes: SimpleChanges): void {

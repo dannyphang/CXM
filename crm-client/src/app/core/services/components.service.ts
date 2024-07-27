@@ -17,6 +17,7 @@ export interface BaseFormConfig {
         column: number;
         colSpan?: number;
     };
+    required?: boolean;
     labelOneLine?: boolean;
     cssContainer?: string;
     disabled?: boolean;
@@ -123,7 +124,6 @@ export interface BaseDatepickerFormConfig extends BaseFormConfig {
     mode?: 'range' | 'single' | 'range_2' | 'label-text';
     minDate?: Date;
     maxDate?: Date;
-    required?: boolean;
     dateFormat?: string;
     view?: string;
     showTime?: boolean;
