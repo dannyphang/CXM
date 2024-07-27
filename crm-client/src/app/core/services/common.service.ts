@@ -61,7 +61,7 @@ export class CommonService {
         else if (type === CONTROL_TYPE_CODE.Checkbox) {
             return false;
         }
-        else if (type === CONTROL_TYPE_CODE.Date) {
+        else if (type === CONTROL_TYPE_CODE.Date || type === CONTROL_TYPE_CODE.DateTime || type === CONTROL_TYPE_CODE.Time) {
             return new Date();
         }
         else if (type === CONTROL_TYPE_CODE.Number) {

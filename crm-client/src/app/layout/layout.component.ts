@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import Blobity from 'blobity';
+import * as Blobity from 'blobity';
 
 @Component({
   selector: 'app-layout',
@@ -7,19 +7,32 @@ import Blobity from 'blobity';
   styleUrl: './layout.component.scss'
 })
 export class LayoutComponent implements OnInit {
+
+
   constructor() { }
 
   ngOnInit() {
-    const options = {
-      color: "rgb(180, 180, 180)",
-      zIndex: 1,
-      dotColor: "rgb(50, 200, 200)",
-      opacity: 0.2,
-      size: 20,
-      kineticMorphing: false
-    };
-    new Blobity(options);
+    this.initBlobity(false)
   }
 
+  initBlobity(isOn: boolean) {
+    if (isOn) {
+      const options = {
+        color: "rgb(180, 180, 180)",
+        zIndex: 1,
+        dotColor: "rgb(50, 200, 200)",
+        opacity: 0.2,
+        size: 20,
+        kineticMorphing: false
+      };
+      new Blobity.default(options);
+    }
+    else {
 
+    }
+  }
+
+  blobityFunc(isOn: boolean) {
+    this.initBlobity(isOn);
+  }
 }

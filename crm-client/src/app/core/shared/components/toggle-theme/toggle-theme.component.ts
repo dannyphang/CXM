@@ -1,5 +1,5 @@
 import { DOCUMENT } from '@angular/common';
-import { Component, Inject, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Inject, Output, ViewChild } from '@angular/core';
 import { ThemeService } from '../../../services/theme.service';
 import { OverlayPanelComponent } from '../panel/overlay-panel/overlay-panel.component';
 import Blobity from 'blobity';
@@ -10,6 +10,7 @@ import Blobity from 'blobity';
   styleUrl: './toggle-theme.component.scss'
 })
 export class ToggleThemeComponent {
+  @Output() blobityClick: EventEmitter<boolean> = new EventEmitter<boolean>();
   @ViewChild(OverlayPanelComponent, { static: true }) child?: OverlayPanelComponent;
   themeList = [
     {
@@ -74,5 +75,6 @@ export class ToggleThemeComponent {
     //   };
     //   blobity.updateOptions(options);
     // }
+    this.blobityClick.emit(this.isBlobityOn);
   }
 }

@@ -122,7 +122,9 @@ export class ContactCompanyPageComponent {
                 layoutDefine: {
                   row: createPropCount,
                   column: 0,
-                }
+                },
+                timeOnly: prop.propertyType === CONTROL_TYPE_CODE.Time ? true : false,
+                showTime: prop.propertyType !== CONTROL_TYPE_CODE.Date ? true : false
               }
             }
 
