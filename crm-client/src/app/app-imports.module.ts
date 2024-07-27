@@ -9,10 +9,16 @@ import { LayoutModule } from './layout/layout.module';
 import { HttpClient } from '@angular/common/http';
 import { CommonSharedModule } from './core/shared/modules/common-shared.module';
 import { MaterialModule } from './core/shared/modules/material.module';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { RouterModule } from '@angular/router';
 import { PrimeNgModule } from './core/shared/modules/primeng.module';
 import { ComponentsModule } from './core/shared/components/components.module';
+import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+
+// Configure the translation loader
+export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
+  return new TranslateHttpLoader(http, './assets/i18n/', '.json');
+}
 
 export const imports = [
   CommonModule,
@@ -29,5 +35,11 @@ export const imports = [
   PrimeNgModule,
   ComponentsModule,
 
-  TranslateModule.forRoot(),
+  TranslateModule.forRoot({
+    loader: {
+      provide: TranslateLoader,
+      useFactory: HttpLoaderFactory,
+      deps: [HttpClient]
+    }
+  }),
 ];
