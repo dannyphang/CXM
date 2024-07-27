@@ -33,6 +33,7 @@ import { TieredMenuModule } from 'primeng/tieredmenu';
 import { DialogModule } from 'primeng/dialog';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
+import { SplitterModule } from 'primeng/splitter';
 
 import { MessageService } from 'primeng/api';
 
@@ -71,7 +72,8 @@ const PRIMENG_MODULES = [
     TieredMenuModule,
     DialogModule,
     IconFieldModule,
-    InputIconModule
+    InputIconModule,
+    SplitterModule,
 ]
 
 @NgModule({
