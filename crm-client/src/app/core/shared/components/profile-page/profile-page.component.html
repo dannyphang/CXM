@@ -1,12 +1,18 @@
 <div class="tw-flex">
-  <app-left-panel
-    class="left-panel-area tw-w-[30%] tw-mr-[15px]"
-    [propertiesList]="propertiesList"
-    [contactProfile]="contactProfile"
-  ></app-left-panel>
+  <p-splitter [panelSizes]="[30, 70]" [minSizes]="[20, 50]" class="tw-w-full">
+    <ng-template pTemplate>
+      <app-left-panel
+        class="left-panel-area"
+        [propertiesList]="propertiesList"
+        [contactProfile]="contactProfile"
+      ></app-left-panel>
+    </ng-template>
 
-  <app-middle-panel
-    class="middle-panel-area tw-w-[70%] tw-mr-[15px]"
-  ></app-middle-panel>
+    <ng-template pTemplate>
+      <app-middle-panel
+        class="middle-panel-area tw-mr-[15px] tw-w-full"
+      ></app-middle-panel>
+    </ng-template>
+  </p-splitter>
   <!-- <app-right-panel class="right-panel-area"></app-right-panel> -->
 </div>
