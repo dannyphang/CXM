@@ -1,3 +1,9 @@
 {
-  "YOU_CANNOT_LEAVE_IT_BLANK": "You cannot leave it blank"
+  "YOU_CANNOT_LEAVE_IT_BLANK": "You cannot leave it blank",
+  "BUTTON": {
+    "SAVE": "Save",
+    "CANCEL": "Cancel",
+    "EDIT": "Edit",
+    "Update": "Update"
+  }
 }
