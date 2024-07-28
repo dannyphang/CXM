@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { TranslateService } from '@ngx-translate/core';
 import * as Blobity from 'blobity';
 
 @Component({
@@ -9,7 +10,11 @@ import * as Blobity from 'blobity';
 export class LayoutComponent implements OnInit {
 
 
-  constructor() { }
+  constructor(
+    private translateService: TranslateService
+  ) {
+    this.translateService.use('en');
+  }
 
   ngOnInit() {
     this.initBlobity(false)
