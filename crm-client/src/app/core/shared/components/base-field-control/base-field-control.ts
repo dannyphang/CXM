@@ -5,7 +5,7 @@ import { AbstractControl, FormControl } from '@angular/forms';
 @Component({ selector: '', template: '' })
 export abstract class BaseFieldControlComponent {
   private _errorMessageList: { [key: string]: string } = {
-    required: 'YOU_CANNOT_LEAVE_IT_BLANK',
+    required: 'ERROR.YOU_CANNOT_LEAVE_IT_BLANK',
   };
   @Input() id?: string;
   @Input() label = '';

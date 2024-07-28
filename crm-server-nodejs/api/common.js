@@ -71,12 +71,8 @@ router.get("/" + propertiesCollection + "/module", async (req, res) => {
     for (let i = 0; i < propertyList.length; i++) {
       propertyList[i].propertyLookupList = [];
 
-      propertyList[i].createdDate = convertFirebaseDateFormat(
-        propertyList[i].createdDate
-      );
-      propertyList[i].modifiedDate = convertFirebaseDateFormat(
-        propertyList[i].modifiedDate
-      );
+      propertyList[i].createdDate = convertFirebaseDateFormat(propertyList[i].createdDate);
+      propertyList[i].modifiedDate = convertFirebaseDateFormat(propertyList[i].modifiedDate);
 
       for (let j = 0; j < propertyLookupList.length; j++) {
         if (propertyList[i].propertyId === propertyLookupList[j].propertyId) {
@@ -145,12 +141,8 @@ router.get("/" + propertiesCollection + "/module/create", async (req, res) => {
 
     for (let i = 0; i < propertyList.length; i++) {
       propertyList[i].propertyLookupList = [];
-      propertyList[i].createdDate = convertFirebaseDateFormat(
-        propertyList[i].createdDate
-      );
-      propertyList[i].modifiedDate = convertFirebaseDateFormat(
-        propertyList[i].modifiedDate
-      );
+      propertyList[i].createdDate = convertFirebaseDateFormat(propertyList[i].createdDate);
+      propertyList[i].modifiedDate = convertFirebaseDateFormat(propertyList[i].modifiedDate);
 
       for (let j = 0; j < propertyLookupList.length; j++) {
         if (propertyList[i].propertyId === propertyLookupList[j].propertyId) {
@@ -280,9 +272,7 @@ router.get("/activityModule", async (req, res) => {
 
     const activityModuleList = snapshot.docs.map((doc) => doc.data());
     const activityControlList = actCtrSnapshot.docs.map((doc) => doc.data());
-    const subActivityControlList = subActCtrSnapshot.docs.map((doc) =>
-      doc.data()
-    );
+    const subActivityControlList = subActCtrSnapshot.docs.map((doc) => doc.data());
 
     activityControlList.forEach((item) => {
       item.subActivityControl = [];

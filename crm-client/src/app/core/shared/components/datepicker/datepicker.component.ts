@@ -181,8 +181,8 @@ export class BaseDatepickerComponent
     }
 
     this.errorMessageList = {
-      format: 'The format is invalid.',
-      invalid_range: 'From Date must before To Date',
+      format: 'ERROR.INVALID_FORMAT',
+      invalid_range: 'ERROR.INVALID_DATE_RANGE',
       ...this.errorMessageList,
     };
   }

@@ -20,10 +20,11 @@ export class CommonService {
     }
 
     createContact(contactList: ContactDto[]): Observable<ContactDto[]> {
-        let headers = {
-            'contactList': contactList
-        }
         return this.http.post<ContactDto[]>(apiConfig.baseUrl + '/contact', { contactList }).pipe();
+    }
+
+    updateContact(contactList: UpdateContactDto[]): Observable<UpdateContactDto[]> {
+        return this.http.put<UpdateContactDto[]>(apiConfig.baseUrl + '/contact', { contactList }).pipe();
     }
 
     getAllProperties(): Observable<PropertiesDto[]> {
@@ -52,6 +53,11 @@ export class CommonService {
         return this.http.get<ActivitiesListDto>((apiConfig.baseUrl + '/common/activityModule')).pipe();
     }
 
+    /**
+     * set form control init value
+     * @param prop properties 
+     * @returns 
+     */
     returnControlTypeEmptyValue(prop: PropertiesDto): any {
         let type = prop.propertyType;
 
@@ -86,10 +92,6 @@ export class CommonService {
             return false;
         }
         return {};
-    }
-
-    inputFieldnChange(test: any) {
-        console.log(test);
     }
 }
 export class ModuleDto {
@@ -153,7 +155,7 @@ export class PropertyLookupDto {
 }
 
 export class ContactDto {
-    uid?: string;
+    uid: string;
     contactId?: string;
     contactFirstName: string;
     contactLastName: string;
@@ -161,12 +163,23 @@ export class ContactDto {
     contactPhone: string;
     contactOwnerUid?: string;
     contactLeadStatusId?: string;
-    contactProperties?: string;
+    contactProperties: string;
     statusId: number;
     createdDate: Date;
     createdBy?: string;
     modifiedDate: Date;
     modifiedBy?: string;
+}
+
+export class UpdateContactDto {
+    uid: string;
+    contactFirstName?: string;
+    contactLastName?: string;
+    contactEmail?: string;
+    contactPhone?: string;
+    contactOwnerUid?: string;
+    contactLeadStatusId?: string;
+    contactProperties?: string;
 }
 
 export class PropertyDataDto {
