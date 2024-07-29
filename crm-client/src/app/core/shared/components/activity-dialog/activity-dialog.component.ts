@@ -1,7 +1,8 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { ActivityModuleDto, ModuleDto } from '../../../services/common.service';
+import { ContactDto, ModuleDto } from '../../../services/common.service';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { CONTROL_TYPE, FormConfig, OptionsModel } from '../../../services/components.service';
+import { ActivityDto, ActivityModuleDto, ActivityService } from '../../../services/activity.service';
 
 @Component({
   selector: 'app-activity-dialog',
@@ -9,16 +10,18 @@ import { CONTROL_TYPE, FormConfig, OptionsModel } from '../../../services/compon
   styleUrl: './activity-dialog.component.scss'
 })
 export class ActivityDialogComponent {
+  @Input() module: "CONT" | "COMP" = "CONT";
   @Input() activityModule: ModuleDto = new ModuleDto();
   @Input() visible: boolean = false;
   @Input() activityControlList: ActivityModuleDto[] = [];
   @Input() activityModuleList: ModuleDto[] = [];
   @Input() header: string = 'Activity Dialog';
+  @Input() contactProfile: ContactDto = new ContactDto();
   @Output() close: EventEmitter<any> = new EventEmitter<any>();
 
   activityFormConfig: FormConfig[] = [];
   activityFormGroup: FormGroup = new FormGroup({
-    CONT: new FormControl(null, Validators.required),
+    CONT: new FormControl(this.module === "CONT" ? this.contactProfile.uid : null, Validators.required),
     DATE: new FormControl(new Date(), Validators.required),
     TIME: new FormControl(new Date(), Validators.required),
     OUTCOME_C: new FormControl(null, Validators.required),
@@ -26,19 +29,23 @@ export class ActivityDialogComponent {
     OUTCOME_M: new FormControl(null, Validators.required),
     DURAT: new FormControl(null, Validators.required),
   });
-
+  activitiesList: ActivityDto[] = [];
   componentList: string[] = [];
 
   constructor(
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private activityService: ActivityService
   ) {
 
   }
 
   ngOnInit() {
     this.assignForm();
-
-
+    this.activityService.getAllActivities().subscribe(res => {
+      this.activitiesList = res;
+      console.log(res)
+    })
+    console.log(this.activityFormGroup)
   }
 
   closeDialog() {
@@ -157,6 +164,10 @@ export class ActivityDialogComponent {
       cols++;
       formsConfig.push(forms);
     });
-    this.activityFormConfig = JSON.parse(JSON.stringify(formsConfig));
+    this.activityFormConfig = formsConfig;
+  }
+
+  save() {
+    console.log(this.activityFormGroup)
   }
 }

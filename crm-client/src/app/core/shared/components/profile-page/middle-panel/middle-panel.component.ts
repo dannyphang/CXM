@@ -1,6 +1,7 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
-import { ActivityModuleDto, CommonService, ModuleDto } from '../../../../services/common.service';
+import { CommonService, ContactDto, ModuleDto } from '../../../../services/common.service';
 import { FormControl } from '@angular/forms';
+import { ActivityModuleDto, ActivityService } from '../../../../services/activity.service';
 
 @Component({
   selector: 'app-middle-panel',
@@ -10,6 +11,8 @@ import { FormControl } from '@angular/forms';
 export class MiddlePanelComponent implements OnInit, OnChanges {
   @Input() propertiesList: ModuleDto[] = [];
   @Input() module: 'CONT' | 'COMP' = 'CONT';
+  @Input() contactProfile: ContactDto = new ContactDto();
+  @Input() companyProfile: ContactDto = new ContactDto(); // TODO: company profile
 
   isOpenDialog: boolean = false;
   activityModuleList: ModuleDto[] = [];
@@ -34,22 +37,31 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
   ];
 
   constructor(
-    private commonService: CommonService
+    private commonService: CommonService,
+    private activityService: ActivityService
   ) {
 
   }
 
   ngOnInit() {
-    // this.searchControl.valueChanges.subscribe((value) => {
-    //   console.log(value);
-    // });
+    this.searchControl.valueChanges.subscribe((value) => {
+      console.log(value);
+    });
 
-    // this.commonService.getAllActivityModule().subscribe((res) => {
-    //   console.log(res);
+    this.activityService.getAllActivityModule().subscribe((res) => {
+      console.log(res);
 
-    //   this.activityModuleList = res.activityModuleList;
-    //   this.activityControlList = res.activityControlList;
-    // });
+      this.activityModuleList = res.activityModuleList;
+      this.activityControlList = res.activityControlList;
+    });
+
+    let profile = {
+      contactId: this.module === 'CONT' ? this.contactProfile.uid : '',
+      companyId: this.module === 'COMP' ? this.contactProfile.uid : '',
+    }
+    this.activityService.getAllActivitiesByProfileId(profile).subscribe(res => {
+      console.log(res);
+    })
   }
 
   ngOnChanges(changes: SimpleChanges): void {

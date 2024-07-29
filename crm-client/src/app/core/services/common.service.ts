@@ -49,10 +49,6 @@ export class CommonService {
         return this.http.post<PropertiesDto>(apiConfig.baseUrl + '/common/properties', properties).pipe();
     }
 
-    getAllActivityModule(): Observable<ActivitiesListDto> {
-        return this.http.get<ActivitiesListDto>((apiConfig.baseUrl + '/common/activityModule')).pipe();
-    }
-
     /**
      * set form control init value
      * @param prop properties 
@@ -101,7 +97,16 @@ export class CommonService {
         return value.toString();
     }
 }
-export class ModuleDto {
+
+export class BasedDto {
+    createdDate: Date;
+    createdBy: string;
+    modifiedDate: Date;
+    modifiedBy: string;
+    statusId: number;
+}
+
+export class ModuleDto extends BasedDto {
     uid: string;
     moduleId: string;
     moduleName: string;
@@ -110,11 +115,6 @@ export class ModuleDto {
     moduleType: string;
     moduleValue: string;
     moduleCode: string;
-    statusId: number;
-    createdDate: Date;
-    createdBy: string;
-    modifiedDate: Date;
-    modifiedBy: string;
 }
 
 export class PropertyGroupDto extends ModuleDto {
@@ -122,7 +122,7 @@ export class PropertyGroupDto extends ModuleDto {
     isHide: boolean;
 }
 
-export class PropertiesDto {
+export class PropertiesDto extends BasedDto {
     propertyId: string;
     uid: string;
     propertyName: string;
@@ -135,16 +135,11 @@ export class PropertiesDto {
     isVisible: boolean;
     moduleCode: string;
     order: number;
-    statusID: number;
-    createdDate: Date;
-    createdBy: string;
-    modifiedDate: Date;
-    modifiedBy: string;
     propertyLookupList: PropertyLookupDto[];
     isHide: boolean;
 }
 
-export class PropertyLookupDto {
+export class PropertyLookupDto extends BasedDto {
     uid: string;
     propertyLookupId: string;
     propertyId: string;
@@ -154,14 +149,9 @@ export class PropertyLookupDto {
     isDefault: boolean;
     isSystem: boolean;
     isVisiable: boolean;
-    statusId: number;
-    createdDate: Date;
-    createdBy: string;
-    modifiedDate: Date;
-    modifiedBy: string;
 }
 
-export class ContactDto {
+export class ContactDto extends BasedDto {
     uid: string;
     contactId?: string;
     contactFirstName: string;
@@ -171,11 +161,6 @@ export class ContactDto {
     contactOwnerUid?: string;
     contactLeadStatusId?: string;
     contactProperties: string;
-    statusId: number;
-    createdDate: Date;
-    createdBy?: string;
-    modifiedDate: Date;
-    modifiedBy?: string;
 }
 
 export class UpdateContactDto {
@@ -193,13 +178,4 @@ export class PropertyDataDto {
     uid: string;
     propertyCode: string;
     value: string;
-}
-
-export class ActivityModuleDto extends ModuleDto {
-    subActivityControl: ModuleDto[];
-}
-
-export class ActivitiesListDto {
-    activityControlList: ActivityModuleDto[];
-    activityModuleList: ModuleDto[];
 }

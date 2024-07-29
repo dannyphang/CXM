@@ -110,7 +110,7 @@ export class LeftPanelComponent implements OnChanges {
       if (item.moduleCode === "CONT_INFO" || item.moduleCode === "COMP_INFO") {
         item.propertiesList.forEach(prop => {
           let propProfileValue = this.returnProfileValue(prop);
-          let control = new FormControl(propProfileValue ? propProfileValue : this.commonService.returnControlTypeEmptyValue(prop), Validators.required);
+          let control = new FormControl(propProfileValue ? propProfileValue : this.commonService.returnControlTypeEmptyValue(prop));
 
           this.profileFormGroup.addControl(prop.propertyCode, control);
 
@@ -291,8 +291,6 @@ export class LeftPanelComponent implements OnChanges {
     this.commonService.updateContact([updateContact]).subscribe(res => {
       this.contactProfileUpdateEmit.emit(updateContact);
     });
-
-    console.log(updateContact);
   }
 }
 
