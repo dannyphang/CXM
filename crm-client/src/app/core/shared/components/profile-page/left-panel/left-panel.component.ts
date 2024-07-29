@@ -288,9 +288,9 @@ export class LeftPanelComponent implements OnChanges {
       })
     }
 
-    // this.commonService.updateContact([updateContact]).subscribe(res => {
-    //   this.contactProfileUpdateEmit.emit(updateContact);
-    // });
+    this.commonService.updateContact([updateContact]).subscribe(res => {
+      this.contactProfileUpdateEmit.emit(updateContact);
+    });
 
     console.log(updateContact);
   }
