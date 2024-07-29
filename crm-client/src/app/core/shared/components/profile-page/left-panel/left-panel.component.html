@@ -1,4 +1,42 @@
 <app-toast></app-toast>
+
+<p-dialog
+  [(visible)]="showFormUpdateSidebar"
+  [position]="'bottom'"
+  styleClass="tw-w-full tw-m-[15px]"
+>
+  <ng-template pTemplate="headless">
+    <div
+      *ngIf="propUpdateList"
+      class="tw-flex tw-flex-wrap tw-items-center tw-m-[15px]"
+    >
+      <div class="tw-flex">
+        <app-base-button
+          [label]="'BUTTON.SAVE'"
+          styleClass=""
+          class="tw-w-full"
+          (onClick)="saveButton()"
+        ></app-base-button>
+        <app-base-button
+          [label]="'BUTTON.CANCEL'"
+          class="tw-ml-[15px]"
+          [outlined]="true"
+          (onClick)="cancelButton()"
+        ></app-base-button>
+      </div>
+
+      <app-base-label
+        [label]="
+          'You\'ve changed ' +
+          propUpdateList.length +
+          (propUpdateList.length === 1 ? ' property' : ' properties') +
+          '.'
+        "
+        class="tw-ml-[15px]"
+      ></app-base-label>
+    </div>
+  </ng-template>
+</p-dialog>
 <div class="tw-bg-[var(--primary-color-text)]">
   <div
     class="left-top-area tw-p-[15px] tw-border-x tw-border-t tw-border-b-0 tw-border-[var(--primary-color)] tw-border-solid"
@@ -115,12 +153,10 @@
         {{ propertyGroup.moduleName }}
       </div>
       <div acc-panel-body class="panel-content-div">
-        <div *ngFor="let property of propertyGroup.propertiesList" class="">
-          <app-property
-            [property]="property"
-            *ngIf="property.isVisible"
-          ></app-property>
-        </div>
+        <app-base-form
+          [formConfig]="profileFormConfig"
+          class="left-profile-form"
+        ></app-base-form>
       </div>
     </app-accordion-panel>
   </div>

@@ -8,6 +8,7 @@ import {
   doc,
   getDoc,
   setDoc,
+  updateDoc,
   query,
   orderBy,
   Timestamp,
@@ -75,12 +76,32 @@ router.post("/", async (req, res) => {
 });
 
 // delete user
-router.delete("/delete-user", async (req, res) => {
-  const id = req.params.id;
-  const user = auth.currentUser;
+router.delete("/", async (req, res) => {
+  // const id = req.params.id;
+  // const user = auth.currentUser;
+  // try {
+  //   await deleteUser(user);
+  //   res.status(200).json("User deleted");
+  // } catch (error) {
+  //   console.log("error", error);
+  //   res.status(400).json(error);
+  // }
+});
+
+// update contact
+router.put("/", async (req, res) => {
+  const contactList = req.body.contactList;
+
   try {
-    await deleteUser(user);
-    res.status(200).json("User deleted");
+    let updatedContactList = [];
+    contactList.forEach(async (contact) => {
+      contact.modifiedDate = new Date();
+      const docRef = doc(db, collectionName, contact.uid);
+      const updatedContact = await updateDoc(docRef, contact);
+      updatedContactList.push(updatedContact);
+    });
+
+    res.status(200).json(updatedContactList);
   } catch (error) {
     console.log("error", error);
     res.status(400).json(error);

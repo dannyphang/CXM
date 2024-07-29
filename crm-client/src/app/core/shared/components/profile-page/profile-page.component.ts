@@ -19,22 +19,28 @@ export class ProfilePageComponent implements OnChanges {
   ) {
     this.commonService.getAllPropertiesByModule(this.module).subscribe((res) => {
       this.propertiesList = res;
-      console.log(this.propertiesList);
     });
 
     this.route.params.subscribe((params) => {
       this.profileId = params['id'];
     });
 
-    this.commonService.getContactById(this.profileId).subscribe((res) => {
-      this.contactProfile = res;
-    });
+    this.getContact();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['propertiesList'] && changes['propertiesList'].currentValue) {
       this.propertiesList = changes['propertiesList'].currentValue;
-      console.log(this.propertiesList)
     }
+  }
+
+  getContact() {
+    this.commonService.getContactById(this.profileId).subscribe((res) => {
+      this.contactProfile = res;
+    });
+  }
+
+  contactProfileUpdate(event: any) {
+    this.getContact();
   }
 }

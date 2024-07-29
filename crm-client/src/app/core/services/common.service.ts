@@ -20,10 +20,11 @@ export class CommonService {
     }
 
     createContact(contactList: ContactDto[]): Observable<ContactDto[]> {
-        let headers = {
-            'contactList': contactList
-        }
         return this.http.post<ContactDto[]>(apiConfig.baseUrl + '/contact', { contactList }).pipe();
+    }
+
+    updateContact(contactList: UpdateContactDto[]): Observable<UpdateContactDto[]> {
+        return this.http.put<UpdateContactDto[]>(apiConfig.baseUrl + '/contact', { contactList }).pipe();
     }
 
     getAllProperties(): Observable<PropertiesDto[]> {
@@ -52,14 +53,19 @@ export class CommonService {
         return this.http.get<ActivitiesListDto>((apiConfig.baseUrl + '/common/activityModule')).pipe();
     }
 
+    /**
+     * set form control init value
+     * @param prop properties 
+     * @returns 
+     */
     returnControlTypeEmptyValue(prop: PropertiesDto): any {
         let type = prop.propertyType;
 
         if (type === CONTROL_TYPE_CODE.Textbox || type === CONTROL_TYPE_CODE.Textarea || type === CONTROL_TYPE_CODE.Email || type === CONTROL_TYPE_CODE.Phone || type === CONTROL_TYPE_CODE.Url) {
             return '';
         }
-        else if (type === CONTROL_TYPE_CODE.Checkbox) {
-            return false;
+        else if (type === CONTROL_TYPE_CODE.Checkbox || type === CONTROL_TYPE_CODE.Multiselect) {
+            return null;
         }
         else if (type === CONTROL_TYPE_CODE.Date || type === CONTROL_TYPE_CODE.DateTime || type === CONTROL_TYPE_CODE.Time) {
             return new Date();
@@ -67,7 +73,7 @@ export class CommonService {
         else if (type === CONTROL_TYPE_CODE.Number) {
             return 0;
         }
-        else if (type === CONTROL_TYPE_CODE.Dropdown || type === CONTROL_TYPE_CODE.Multiselect) {
+        else if (type === CONTROL_TYPE_CODE.Dropdown) {
             let lookup = {
                 label: '',
                 value: ''
@@ -86,6 +92,13 @@ export class CommonService {
             return false;
         }
         return {};
+    }
+
+    setPropertyDataValue(prop: PropertiesDto, value: any): string {
+        if (prop.propertyType === CONTROL_TYPE_CODE.Checkbox || prop.propertyType === CONTROL_TYPE_CODE.MultiCheckbox || prop.propertyType === CONTROL_TYPE_CODE.Multiselect) {
+            return value.filter((item: any) => item.length > 0).toString();
+        }
+        return value.toString();
     }
 }
 export class ModuleDto {
@@ -149,7 +162,7 @@ export class PropertyLookupDto {
 }
 
 export class ContactDto {
-    uid?: string;
+    uid: string;
     contactId?: string;
     contactFirstName: string;
     contactLastName: string;
@@ -157,12 +170,23 @@ export class ContactDto {
     contactPhone: string;
     contactOwnerUid?: string;
     contactLeadStatusId?: string;
-    contactProperties?: string;
+    contactProperties: string;
     statusId: number;
     createdDate: Date;
     createdBy?: string;
     modifiedDate: Date;
     modifiedBy?: string;
+}
+
+export class UpdateContactDto {
+    uid: string;
+    contactFirstName?: string;
+    contactLastName?: string;
+    contactEmail?: string;
+    contactPhone?: string;
+    contactOwnerUid?: string;
+    contactLeadStatusId?: string;
+    contactProperties?: string;
 }
 
 export class PropertyDataDto {

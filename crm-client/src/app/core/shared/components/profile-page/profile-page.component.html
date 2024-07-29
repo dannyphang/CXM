@@ -5,6 +5,7 @@
         class="left-panel-area"
         [propertiesList]="propertiesList"
         [contactProfile]="contactProfile"
+        (contactProfileUpdateEmit)="contactProfileUpdate($event)"
       ></app-left-panel>
     </ng-template>
 

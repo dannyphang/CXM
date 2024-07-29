@@ -1,3 +1,13 @@
 {
-  "YOU_CANNOT_LEAVE_IT_BLANK": "You cannot leave it blank"
+  "ERROR": {
+    "YOU_CANNOT_LEAVE_IT_BLANK": "You cannot leave it blank",
+    "INVALID_FORMAT": "The format is invalid.",
+    "INVALID_DATE_RANGE": "From Date must before To Date"
+  },
+  "BUTTON": {
+    "SAVE": "Save",
+    "CANCEL": "Cancel",
+    "EDIT": "Edit",
+    "Update": "Update"
+  }
 }
