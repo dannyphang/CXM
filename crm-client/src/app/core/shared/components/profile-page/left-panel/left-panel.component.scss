@@ -37,3 +37,13 @@
   overflow-y: auto;
   height: calc(100vh - 300px);
 }
+
+:host ::ng-deep {
+  .left-profile-form {
+    .p-dropdown .p-dropdown-label {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 100px;
+    }
+  }
+}

@@ -31,7 +31,6 @@ export class ProfilePageComponent implements OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['propertiesList'] && changes['propertiesList'].currentValue) {
       this.propertiesList = changes['propertiesList'].currentValue;
-      console.log(this.propertiesList)
     }
   }
 

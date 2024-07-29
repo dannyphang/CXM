@@ -1,11 +1,10 @@
-import { Component, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
-import { CommonService, ContactDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, UpdateContactDto } from '../../../../services/common.service';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { NavigationExtras, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
+import { CommonService, ContactDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, UpdateContactDto } from '../../../../services/common.service';
 import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../../../../services/components.service';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
-import { EventEmitter } from '@angular/core';
 
 @Component({
   selector: 'app-left-panel',
@@ -54,6 +53,38 @@ export class LeftPanelComponent implements OnChanges {
       this.propertiesList = changes['propertiesList'].currentValue;
 
       this.returnProfileFormConfig();
+
+      // check fieldcontrol update value
+      this.profileFormGroup.valueChanges.pipe(
+        debounceTime(2000),
+        distinctUntilChanged()
+      ).subscribe(changedValue => {
+        this.propertiesList.forEach(item => {
+          if (item.moduleCode === "CONT_INFO" || item.moduleCode === "COMP_INFO") {
+            item.propertiesList.forEach(prop => {
+              this.profileFormGroup.controls[prop.propertyCode].valueChanges.pipe(
+                debounceTime(2000),
+                distinctUntilChanged()
+              ).forEach(value => {
+                this.showFormUpdateSidebar = true;
+
+                let profileUpdateObj: profileUpdateDto = {
+                  property: prop,
+                  value: value
+                };
+
+                // add to the list if not exist else replace the value
+                if (!this.propUpdateList.find(item => item.property === prop)) {
+                  this.propUpdateList.push(profileUpdateObj);
+                }
+                else {
+                  this.propUpdateList.find(item => item.property === prop)!.value = value;
+                }
+              })
+            })
+          }
+        })
+      });
     }
   }
 
@@ -79,9 +110,8 @@ export class LeftPanelComponent implements OnChanges {
       if (item.moduleCode === "CONT_INFO" || item.moduleCode === "COMP_INFO") {
         item.propertiesList.forEach(prop => {
           let propProfileValue = this.returnProfileValue(prop);
-
           let control = new FormControl(propProfileValue ? propProfileValue : this.commonService.returnControlTypeEmptyValue(prop), Validators.required);
-          console.log(prop.propertyName, control)
+
           this.profileFormGroup.addControl(prop.propertyCode, control);
 
           let forms: FormConfig = {
@@ -159,40 +189,6 @@ export class LeftPanelComponent implements OnChanges {
       }
     });
     this.profileFormConfig = formsConfig;
-
-    // check fieldcontrol update value
-    // this.propertiesList.forEach(item => {
-    //   if (item.moduleCode === "CONT_INFO" || item.moduleCode === "COMP_INFO") {
-    //     item.propertiesList.forEach(prop => {
-    //       this.profileFormGroup.controls[prop.propertyCode].valueChanges.pipe(
-    //         debounceTime(2000),
-    //         distinctUntilChanged()
-    //       ).forEach(value => {
-    //         this.showFormUpdateSidebar = true;
-    //         let profileUpdateObj: profileUpdateDto = {
-    //           property: prop,
-    //           value: value
-    //         };
-
-    //         // add to the list if not exist else replace the value
-    //         if (!this.propUpdateList.find(item => item.property === prop)) {
-    //           this.propUpdateList.push(profileUpdateObj);
-    //         }
-    //         else {
-    //           console.log(this.propUpdateList.find(item => item.property === prop))
-    //           this.propUpdateList.find(item => item.property === prop)!.value = value;
-    //         }
-    //       })
-    //     });
-
-    //     let contactProp: PropertyDataDto[] = JSON.parse(this.contactProfile.contactProperties);
-
-    //     contactProp.forEach(prop => {
-    //       this.profileFormGroup.controls[prop.propertyCode].setValue(prop.value);
-    //     })
-    //   }
-
-    // });
   }
 
   /**
@@ -234,36 +230,15 @@ export class LeftPanelComponent implements OnChanges {
           return this.contactProfile.contactOwnerUid
         default:
           let contactProp: PropertyDataDto[] = JSON.parse(this.contactProfile.contactProperties);
-          contactProp.forEach(item => {
-            if (item.uid === prop.uid) {
-              console.log(`${prop.propertyName}: ${item.value}`);
-              // switch(prop.propertyType){
-              //   case CONTROL_TYPE_CODE.Textbox || CONTROL_TYPE_CODE.Textarea || CONTROL_TYPE_CODE.Email || CONTROL_TYPE_CODE.Phone || CONTROL_TYPE_CODE.Url:
-              //     return item.value;
-              //   case CONTROL_TYPE_CODE.Checkbox:
-              //     // prop.propertyLookupList.forEach(lookupItem => {
-              //     //   let lookup = {
-              //     //     label: '',
-              //     //     value: ''
-              //     //   };
-              //     //   if(lookupItem.uid === item.uid){
-              //     //     lookup = {
-              //     //       label: lookupItem.propertyLookupLabel,
-              //     //       value: lookupItem.uid
-              //     //     }
-              //     //   }
-              //     // });
-              //     return item.uid;
-
-              // }
-              return item.value;
-            }
-            else return;
-          })
+          if (contactProp.find(item => item.uid === prop.uid) && (prop.propertyType === CONTROL_TYPE_CODE.Date || prop.propertyType === CONTROL_TYPE_CODE.DateTime || prop.propertyType === CONTROL_TYPE_CODE.Time)) {
+            return new Date(contactProp.find(item => item.uid === prop.uid)!.value);
+          }
+          return contactProp.find(item => item.uid === prop.uid)?.value;
       }
     }
-
-    return 'www';
+    else {
+      return 'return from COMP';
+    }
   }
 
   cancelButton() {
@@ -302,21 +277,22 @@ export class LeftPanelComponent implements OnChanges {
               profileProperty.push({
                 uid: prop.property.uid,
                 propertyCode: prop.property.propertyCode,
-                value: prop.value
+                value: this.commonService.setPropertyDataValue(prop.property, prop.value)
               });
             }
             else {
-              profileProperty.find(item => item.uid === prop.property.uid)!.value = prop.value;
+              profileProperty.find(item => item.uid === prop.property.uid)!.value = this.commonService.setPropertyDataValue(prop.property, prop.value);
             }
-
             updateContact.contactProperties = JSON.stringify(profileProperty);
         }
       })
     }
 
-    this.commonService.updateContact([updateContact]).subscribe(res => {
-      this.contactProfileUpdateEmit.emit(updateContact);
-    });
+    // this.commonService.updateContact([updateContact]).subscribe(res => {
+    //   this.contactProfileUpdateEmit.emit(updateContact);
+    // });
+
+    console.log(updateContact);
   }
 }
 

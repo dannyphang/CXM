@@ -153,13 +153,10 @@
         {{ propertyGroup.moduleName }}
       </div>
       <div acc-panel-body class="panel-content-div">
-        <!-- <div *ngFor="let property of propertyGroup.propertiesList" class="">
-          <app-property
-            [property]="property"
-            *ngIf="property.isVisible"
-          ></app-property>
-        </div> -->
-        <app-base-form [formConfig]="profileFormConfig"></app-base-form>
+        <app-base-form
+          [formConfig]="profileFormConfig"
+          class="left-profile-form"
+        ></app-base-form>
       </div>
     </app-accordion-panel>
   </div>
