@@ -1,6 +1,7 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonService, ContactDto, PropertyGroupDto } from '../../../services/common.service';
 import { ActivatedRoute } from '@angular/router';
+import { ActivityDto, ActivityService } from '../../../services/activity.service';
 
 @Component({
   selector: 'app-profile-page',
@@ -12,20 +13,22 @@ export class ProfilePageComponent implements OnChanges {
   @Input() propertiesList: PropertyGroupDto[] = [];
   @Input() profileId: string = '';
   contactProfile: ContactDto = new ContactDto();
+  activitiesList: ActivityDto[] = [];
 
   constructor(
     private commonService: CommonService,
+    private activityService: ActivityService,
     private route: ActivatedRoute
   ) {
-    this.commonService.getAllPropertiesByModule(this.module).subscribe((res) => {
-      this.propertiesList = res;
-    });
+
 
     this.route.params.subscribe((params) => {
       this.profileId = params['id'];
     });
 
+    //this.getProperties();
     this.getContact();
+    this.getActivities();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -34,10 +37,27 @@ export class ProfilePageComponent implements OnChanges {
     }
   }
 
+  getProperties() {
+    this.commonService.getAllPropertiesByModule(this.module).subscribe((res) => {
+      this.propertiesList = res;
+    });
+  }
+
   getContact() {
     this.commonService.getContactById(this.profileId).subscribe((res) => {
       this.contactProfile = res;
     });
+  }
+
+  getActivities() {
+    let profile = {
+      contactId: this.module === 'CONT' ? this.contactProfile.uid : '',
+      companyId: this.module === 'COMP' ? this.contactProfile.uid : '',
+    }
+    this.activityService.getAllActivities().subscribe(res => {
+      console.log(res);
+      this.activitiesList = res;
+    })
   }
 
   contactProfileUpdate(event: any) {

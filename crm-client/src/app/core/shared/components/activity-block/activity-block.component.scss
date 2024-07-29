@@ -1,0 +1,24 @@
+:host ::ng-deep {
+  .activity-panel-div {
+    .p-accordion-header {
+      border-radius: var(--border-radius);
+
+      .p-accordion-header-link {
+        background-color: var(--highlight-bg);
+
+        .activity-panel-header {
+          width: 100%;
+        }
+      }
+    }
+
+    .p-toggleable-content {
+      border-radius: var(--border-radius);
+      border: 1px solid var(--primary-color);
+
+      .p-accordion-content {
+        border-radius: var(--border-radius);
+      }
+    }
+  }
+}

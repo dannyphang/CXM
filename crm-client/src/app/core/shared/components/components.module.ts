@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { BaseInputComponent } from './input/input.component';
 import { CommonSharedModule } from '../modules/common-shared.module';
-import { FormArray, ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
 import { MaterialModule } from '../modules/material.module';
 import { PrimeNgModule } from '../modules/primeng.module';
@@ -38,6 +38,7 @@ import { MiddlePanelComponent } from './profile-page/middle-panel/middle-panel.c
 import { RightPanelComponent } from './profile-page/right-panel/right-panel.component';
 import { ActivityDialogComponent } from './activity-dialog/activity-dialog.component';
 import { InputSwitchComponent } from './input-switch/input-switch.component';
+import { ActivityBlockComponent } from './activity-block/activity-block.component';
 
 const components = [
   BaseInputComponent,
@@ -72,7 +73,8 @@ const components = [
   MiddlePanelComponent,
   RightPanelComponent,
   ActivityDialogComponent,
-  InputSwitchComponent
+  InputSwitchComponent,
+  ActivityBlockComponent
 ];
 
 @NgModule({

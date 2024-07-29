@@ -1,24 +1,21 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { ContactDto, ModuleDto } from '../../../services/common.service';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { CONTROL_TYPE, FormConfig, OptionsModel } from '../../../services/components.service';
+import { Component, Input } from '@angular/core';
 import { ActivityDto, ActivityModuleDto, ActivityService } from '../../../services/activity.service';
+import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
+import { ContactDto, ModuleDto } from '../../../services/common.service';
+import { CONTROL_TYPE, FormConfig, OptionsModel } from '../../../services/components.service';
 
 @Component({
-  selector: 'app-activity-dialog',
-  templateUrl: './activity-dialog.component.html',
-  styleUrl: './activity-dialog.component.scss'
+  selector: 'app-activity-block',
+  templateUrl: './activity-block.component.html',
+  styleUrl: './activity-block.component.scss'
 })
-export class ActivityDialogComponent {
-  @Input() module: "CONT" | "COMP" = "CONT";
+export class ActivityBlockComponent {
+  @Input() activity: ActivityDto = new ActivityDto();
   @Input() activityModule: ModuleDto = new ModuleDto();
-  @Input() visible: boolean = false;
-  @Input() activityControlList: ActivityModuleDto[] = [];
   @Input() activityModuleList: ModuleDto[] = [];
-  @Input() header: string = 'Activity Dialog';
+  @Input() activityControlList: ActivityModuleDto[] = [];
+  @Input() module: 'CONT' | 'COMP' = 'CONT';
   @Input() contactProfile: ContactDto = new ContactDto();
-  @Input() activitiesList: ActivityDto[] = [];
-  @Output() close: EventEmitter<any> = new EventEmitter<any>();
 
   activityFormConfig: FormConfig[] = [];
   activityFormGroup: FormGroup = new FormGroup({
@@ -32,29 +29,41 @@ export class ActivityDialogComponent {
   });
   componentList: string[] = [];
 
+  actionMenu: any[] = [
+    {
+      label: 'Pin',
+      icon: '',
+      command: () => {
+        // const navigationExtras: NavigationExtras = {
+        //   state: {
+        //     data: this.propertiesList
+        //   }
+        // };
+
+        // // navigate to setting page
+        // this.router.navigate(['contact/profile/' + this.contactProfile.uid + '/allProperties'], navigationExtras);
+      }
+    },
+    {
+      label: 'Delete',
+      icon: ''
+    }
+  ];
+
   constructor(
     private formBuilder: FormBuilder,
-    private activityService: ActivityService
+    private activityService: ActivityService,
   ) {
 
   }
 
   ngOnInit() {
-    // this.assignForm();
-    // this.activityService.getAllActivities().subscribe(res => {
-    //   this.activitiesList = res;
-    //   console.log(res)
-    // })
-    // console.log(this.activityFormGroup)
-  }
-
-  closeDialog() {
-    this.visible = false;
-    this.close.emit();
+    this.assignForm();
   }
 
   assignForm() {
-    switch (this.activityModule.moduleCode) {
+    console.log(this.activity.activityModuleCode)
+    switch (this.activity.activityModuleCode) {
       case 'NOTE':
         this.componentList = [];
         break;
@@ -69,9 +78,16 @@ export class ActivityDialogComponent {
         break;
     }
 
+    if (this.activity.activityModuleCode != 'EMAIL') {
+
+      console.log(this.activityControlList)
+    }
+
     this.activityControlList = this.activityControlList.filter((control) => {
       return this.componentList.includes(control.moduleCode);
     });
+
+    // console.log(this.activityControlList)
 
     this.activityFormGroup = this.formBuilder.group({});
 
@@ -162,9 +178,5 @@ export class ActivityDialogComponent {
       formsConfig.push(forms);
     });
     this.activityFormConfig = formsConfig;
-  }
-
-  save() {
-    console.log(this.activityFormGroup)
   }
 }

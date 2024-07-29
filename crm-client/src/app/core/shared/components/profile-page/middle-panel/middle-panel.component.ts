@@ -1,7 +1,7 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
 import { CommonService, ContactDto, ModuleDto } from '../../../../services/common.service';
 import { FormControl } from '@angular/forms';
-import { ActivityModuleDto, ActivityService } from '../../../../services/activity.service';
+import { ActivityDto, ActivityModuleDto, ActivityService } from '../../../../services/activity.service';
 
 @Component({
   selector: 'app-middle-panel',
@@ -13,6 +13,7 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
   @Input() module: 'CONT' | 'COMP' = 'CONT';
   @Input() contactProfile: ContactDto = new ContactDto();
   @Input() companyProfile: ContactDto = new ContactDto(); // TODO: company profile
+  @Input() activitiesList: ActivityDto[] = [];
 
   isOpenDialog: boolean = false;
   activityModuleList: ModuleDto[] = [];
@@ -54,14 +55,6 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
       this.activityModuleList = res.activityModuleList;
       this.activityControlList = res.activityControlList;
     });
-
-    let profile = {
-      contactId: this.module === 'CONT' ? this.contactProfile.uid : '',
-      companyId: this.module === 'COMP' ? this.contactProfile.uid : '',
-    }
-    this.activityService.getAllActivitiesByProfileId(profile).subscribe(res => {
-      console.log(res);
-    })
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -84,7 +77,6 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
   }
 
   getActivityControlList(activity: ModuleDto): any {
-
     return this.activityControlList;
   }
 }

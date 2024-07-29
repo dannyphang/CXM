@@ -25,27 +25,45 @@
       </div>
 
       <p-tabView class="activity-tab">
-        <p-tabPanel header="All" [selected]="false"> </p-tabPanel>
+        <p-tabPanel header="All" [selected]="false">
+          <div *ngFor="let activity of activitiesList">
+            <app-activity-block
+              [activityControlList]="activityControlList"
+              [activityModuleList]="activityModuleList"
+              [activity]="activity"
+            ></app-activity-block>
+          </div>
+        </p-tabPanel>
         <p-tabPanel
-          *ngFor="let activity of activityModuleList"
-          [header]="activity.moduleName"
+          *ngFor="let activityTab of activityModuleList"
+          [header]="activityTab.moduleName"
           onclick=""
         >
           <div class="">
             <app-base-button
-              [label]="returnActivityLable(activity.moduleCode)"
+              [label]="returnActivityLable(activityTab.moduleCode)"
               class="tw-flex tw-justify-end"
               (onClick)="isOpenDialog = true"
             ></app-base-button>
 
             <app-activity-dialog
-              [activityModule]="activity"
+              [activityModule]="activityTab"
               [visible]="isOpenDialog"
-              [activityControlList]="getActivityControlList(activity)"
+              [activityControlList]="getActivityControlList(activityTab)"
               [activityModuleList]="activityModuleList"
-              [header]="returnActivityLable(activity.moduleCode)"
+              [header]="returnActivityLable(activityTab.moduleCode)"
               (close)="isOpenDialog = false"
             ></app-activity-dialog>
+
+            <div *ngFor="let activity of activitiesList">
+              <app-activity-block
+                *ngIf="activity.activityModuleCode === activityTab.moduleCode"
+                [activityModule]="activityTab"
+                [activityControlList]="getActivityControlList(activityTab)"
+                [activityModuleList]="activityModuleList"
+                [activity]="activity"
+              ></app-activity-block>
+            </div>
           </div>
         </p-tabPanel>
       </p-tabView>

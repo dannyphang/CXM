@@ -1,0 +1,23 @@
+<p-tieredMenu #activityActionMenu [model]="actionMenu" [popup]="true" />
+<div class="activity-div">
+  <app-accordion-panel
+    class="activity-panel-div"
+    [expandIndex]="activity.isExpand ? [0] : null"
+  >
+    <div
+      acc-panel-header
+      class="activity-panel-header tw-flex tw-justify-between tw-items-center"
+    >
+      <app-base-label [label]="activity.activityModuleCode"></app-base-label>
+      <p-button
+        icon="pi pi-ellipsis-v"
+        [text]="true"
+        [label]="'BUTTON.ACTION' | translate"
+        (click)="activityActionMenu.toggle($event)"
+      />
+    </div>
+    <div acc-panel-body class="activity-panel-content-div">
+      <app-base-form [formConfig]="activityFormConfig"></app-base-form>
+    </div>
+  </app-accordion-panel>
+</div>

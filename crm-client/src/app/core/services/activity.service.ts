@@ -57,6 +57,7 @@ export class ActivityDto extends BasedDto {
     activityModuleId: string;
     activityModuleCode: string;
     isPinned: boolean;
+    isExpand: boolean;
     associationId: string;
     attachmentUrl: string;
 }
