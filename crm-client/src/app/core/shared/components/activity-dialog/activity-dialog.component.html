@@ -19,6 +19,7 @@
   <div class="text-editor">
     <p-editor
       [formControl]="editorFormControl"
+      [(ngModel)]="editorModel"
       [style]="{ height: '200px' }"
       [readonly]="false"
       (onTextChange)="countTextLength($event)"
@@ -26,7 +27,7 @@
   </div>
 
   <div class="tw-flex tw-justify-between">
-    <div>
+    <div class="tw-grid tw-items-center">
       {{ contentWordLength }} / {{ editorContentLimit }}
       {{ "ACTIVITY.WORDS" | translate }}
     </div>

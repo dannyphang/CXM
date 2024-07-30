@@ -33,10 +33,9 @@ export class ActivityDialogComponent implements OnChanges {
   });
   activitiesList: ActivityDto[] = [];
   componentList: string[] = [];
-  editorModel: string = 'test...';
-  editorFormControl: FormControl = new FormControl(this.editorModel);
+  editorModel: string = '<p>Testing</p>';
+  editorFormControl: FormControl = new FormControl('<p>Testing</p>');
   contentWordLength: number = 0;
-  content: string = '';
   editorContentLimit = EDITOR_CONTENT_LIMIT;
 
   constructor(
@@ -49,6 +48,7 @@ export class ActivityDialogComponent implements OnChanges {
 
   ngOnInit() {
     this.assignForm();
+    this.editorFormControl.setValue(this.editorModel)
     // this.editorFormControl.valueChanges.subscribe(item => {
     //   this.contentWordLength = this.content.length;
     // })
@@ -58,6 +58,10 @@ export class ActivityDialogComponent implements OnChanges {
     // if (changes['activityControlList'] && changes['activityControlList'].currentValue) {
     //   this.assignForm();
     // }
+  }
+
+  onInitEditor() {
+    this.editorFormControl.setValue(this.editorModel)
   }
 
   closeDialog() {
@@ -258,10 +262,10 @@ export class ActivityDialogComponent implements OnChanges {
       }
       console.log(createActivity);
 
-      // this.activityService.createActivity([createActivity]).subscribe(res => {
-      //   console.log(res);
-      //   this.closeDialog();
-      // })
+      this.activityService.createActivity([createActivity]).subscribe(res => {
+        console.log(res);
+        this.closeDialog();
+      })
     }
   }
 }
