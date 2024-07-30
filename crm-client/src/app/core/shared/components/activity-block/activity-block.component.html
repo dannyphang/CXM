@@ -8,9 +8,13 @@
       acc-panel-header
       class="activity-panel-header tw-flex tw-justify-between tw-items-center"
     >
-      <app-base-label [label]="activity.activityModuleCode"></app-base-label>
+      <app-base-label
+        [label]="activity.activityModuleCode"
+        class="tw-ml-[6px]"
+      ></app-base-label>
       <p-button
-        icon="pi pi-ellipsis-v"
+        icon="pi pi-sort-down-fill action-icon"
+        [iconPos]="'right'"
         [text]="true"
         [label]="'BUTTON.ACTION' | translate"
         (click)="activityActionMenu.toggle($event)"

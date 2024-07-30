@@ -1,13 +1,18 @@
-:host ::ng-deep {
+:host ::ng-deep .activity-div {
   .activity-panel-div {
     .p-accordion-header {
       border-radius: var(--border-radius);
 
       .p-accordion-header-link {
         background-color: var(--highlight-bg);
+        padding: 8px;
 
         .activity-panel-header {
           width: 100%;
+
+          .action-icon {
+            font-size: 10px;
+          }
         }
       }
     }

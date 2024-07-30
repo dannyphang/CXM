@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { ActivityDto, ActivityModuleDto, ActivityService } from '../../../services/activity.service';
 import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
 import { ContactDto, ModuleDto } from '../../../services/common.service';
@@ -9,13 +9,14 @@ import { CONTROL_TYPE, FormConfig, OptionsModel } from '../../../services/compon
   templateUrl: './activity-block.component.html',
   styleUrl: './activity-block.component.scss'
 })
-export class ActivityBlockComponent {
+export class ActivityBlockComponent implements OnChanges {
   @Input() activity: ActivityDto = new ActivityDto();
   @Input() activityModule: ModuleDto = new ModuleDto();
   @Input() activityModuleList: ModuleDto[] = [];
   @Input() activityControlList: ActivityModuleDto[] = [];
   @Input() module: 'CONT' | 'COMP' = 'CONT';
   @Input() contactProfile: ContactDto = new ContactDto();
+  @Input() moduleLable: string = '';
 
   activityFormConfig: FormConfig[] = [];
   activityFormGroup: FormGroup = new FormGroup({
@@ -31,22 +32,16 @@ export class ActivityBlockComponent {
 
   actionMenu: any[] = [
     {
-      label: 'Pin',
-      icon: '',
+      label: this.activity.isPinned ? 'Unpin' : 'Pin',
+      icon: 'pi pi-thumbtack',
       command: () => {
-        // const navigationExtras: NavigationExtras = {
-        //   state: {
-        //     data: this.propertiesList
-        //   }
-        // };
-
-        // // navigate to setting page
-        // this.router.navigate(['contact/profile/' + this.contactProfile.uid + '/allProperties'], navigationExtras);
+        this.activity.isPinned = !this.activity.isPinned;
+        console.log(this.activity.isPinned);
       }
     },
     {
       label: 'Delete',
-      icon: ''
+      icon: 'pi pi-trash'
     }
   ];
 
@@ -58,11 +53,16 @@ export class ActivityBlockComponent {
   }
 
   ngOnInit() {
-    this.assignForm();
+    // this.assignForm();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['activityControlList'] && changes['activityControlList'].currentValue) {
+      this.assignForm();
+    }
   }
 
   assignForm() {
-    console.log(this.activity.activityModuleCode)
     switch (this.activity.activityModuleCode) {
       case 'NOTE':
         this.componentList = [];
@@ -78,16 +78,16 @@ export class ActivityBlockComponent {
         break;
     }
 
-    if (this.activity.activityModuleCode != 'EMAIL') {
+    if (this.moduleLable != 'ALL') {
+      console.log(this.activity.activityModuleCode)
 
       console.log(this.activityControlList)
+      console.log(this.componentList)
     }
 
     this.activityControlList = this.activityControlList.filter((control) => {
       return this.componentList.includes(control.moduleCode);
     });
-
-    // console.log(this.activityControlList)
 
     this.activityFormGroup = this.formBuilder.group({});
 
@@ -178,5 +178,6 @@ export class ActivityBlockComponent {
       formsConfig.push(forms);
     });
     this.activityFormConfig = formsConfig;
+    console.log(this.activityFormConfig);
   }
 }

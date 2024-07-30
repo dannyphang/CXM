@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { ContactDto, ModuleDto } from '../../../services/common.service';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { CONTROL_TYPE, FormConfig, OptionsModel } from '../../../services/components.service';
@@ -9,7 +9,7 @@ import { ActivityDto, ActivityModuleDto, ActivityService } from '../../../servic
   templateUrl: './activity-dialog.component.html',
   styleUrl: './activity-dialog.component.scss'
 })
-export class ActivityDialogComponent {
+export class ActivityDialogComponent implements OnChanges {
   @Input() module: "CONT" | "COMP" = "CONT";
   @Input() activityModule: ModuleDto = new ModuleDto();
   @Input() visible: boolean = false;
@@ -17,12 +17,11 @@ export class ActivityDialogComponent {
   @Input() activityModuleList: ModuleDto[] = [];
   @Input() header: string = 'Activity Dialog';
   @Input() contactProfile: ContactDto = new ContactDto();
-  @Input() activitiesList: ActivityDto[] = [];
   @Output() close: EventEmitter<any> = new EventEmitter<any>();
 
   activityFormConfig: FormConfig[] = [];
   activityFormGroup: FormGroup = new FormGroup({
-    CONT: new FormControl(this.module === "CONT" ? this.contactProfile.uid : null, Validators.required),
+    CONT: new FormControl(this.module === "CONT" ? this.contactProfile.uid : null),
     DATE: new FormControl(new Date(), Validators.required),
     TIME: new FormControl(new Date(), Validators.required),
     OUTCOME_C: new FormControl(null, Validators.required),
@@ -30,6 +29,7 @@ export class ActivityDialogComponent {
     OUTCOME_M: new FormControl(null, Validators.required),
     DURAT: new FormControl(null, Validators.required),
   });
+  activitiesList: ActivityDto[] = [];
   componentList: string[] = [];
 
   constructor(
@@ -40,12 +40,13 @@ export class ActivityDialogComponent {
   }
 
   ngOnInit() {
-    // this.assignForm();
-    // this.activityService.getAllActivities().subscribe(res => {
-    //   this.activitiesList = res;
-    //   console.log(res)
-    // })
-    // console.log(this.activityFormGroup)
+    this.assignForm();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    // if (changes['activityControlList'] && changes['activityControlList'].currentValue) {
+    //   this.assignForm();
+    // }
   }
 
   closeDialog() {
@@ -72,8 +73,6 @@ export class ActivityDialogComponent {
     this.activityControlList = this.activityControlList.filter((control) => {
       return this.componentList.includes(control.moduleCode);
     });
-
-    this.activityFormGroup = this.formBuilder.group({});
 
     let cols = 0;
     let rows = 0;
@@ -143,8 +142,8 @@ export class ActivityDialogComponent {
       }
       else if (module.moduleCode === 'DURAT') {
         let subList: OptionsModel[] = [];
-        module.subActivityControl.forEach((item) => {
-          subList.push({ label: item.moduleName, value: item.uid });
+        this.generateTimeSlots().forEach((item) => {
+          subList.push({ label: item.label, value: item.value });
         });
 
         forms = {
@@ -155,7 +154,7 @@ export class ActivityDialogComponent {
             row: rows,
             column: cols,
           },
-          options: subList
+          options: this.generateTimeDurations()
         }
       }
       cols++;
@@ -164,7 +163,57 @@ export class ActivityDialogComponent {
     this.activityFormConfig = formsConfig;
   }
 
+  generateTimeSlots(intervalMinutes: number = 30): any[] {
+    let times: any[] = [];
+
+    let minute: number = 0;
+    for (let hours = 0; hours < 24; hours++) {
+      for (let minutes = 0; minutes < 60; minutes += intervalMinutes) {
+        const formattedTime = {
+          value: `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`,
+          label: minute += minutes
+        };
+
+        times.push(formattedTime);
+      }
+    }
+
+    return times;
+  }
+
+  generateTimeDurations(intervalMinutes: number = 15, iterations: number = 32): any[] {
+    const durations: any[] = [];
+    let currentMinutes = intervalMinutes;
+
+    for (let i = 0; i < iterations; i++) {
+      if (currentMinutes < 60) {
+        durations.push({
+          label: `${currentMinutes} minutes`,
+          value: currentMinutes
+        });
+      } else {
+        const hours = Math.floor(currentMinutes / 60);
+        const minutes = currentMinutes % 60;
+        const hourString = hours > 1 ? 'hours' : 'hour';
+        const duration = minutes > 0
+          ? `${hours} ${hourString} ${minutes} minutes`
+          : `${hours} ${hourString}`;
+        durations.push({
+          label: duration,
+          value: currentMinutes
+        });
+      }
+      currentMinutes += intervalMinutes;
+    }
+
+    return durations;
+  }
+
   save() {
-    console.log(this.activityFormGroup)
+    // console.log(this.activityFormGroup.controls);
+    this.activityControlList.forEach(control => {
+      console.log(this.activityFormGroup.controls[control.moduleCode].value);
+    })
+
   }
 }

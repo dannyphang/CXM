@@ -26,7 +26,7 @@ export class ProfilePageComponent implements OnChanges {
       this.profileId = params['id'];
     });
 
-    //this.getProperties();
+    this.getProperties();
     this.getContact();
     this.getActivities();
   }

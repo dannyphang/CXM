@@ -4,8 +4,12 @@
     padding-bottom: 0px;
   }
 
-  .p-dialog-header:hover .header-line-span {
-    opacity: 1;
+  .p-dialog-header:hover {
+    cursor: move;
+
+    .header-line-span {
+      opacity: 1;
+    }
   }
 }
 

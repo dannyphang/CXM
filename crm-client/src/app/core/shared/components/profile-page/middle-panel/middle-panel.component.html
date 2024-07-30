@@ -31,6 +31,7 @@
               [activityControlList]="activityControlList"
               [activityModuleList]="activityModuleList"
               [activity]="activity"
+              [moduleLable]="'ALL'"
             ></app-activity-block>
           </div>
         </p-tabPanel>
@@ -42,7 +43,7 @@
           <div class="">
             <app-base-button
               [label]="returnActivityLable(activityTab.moduleCode)"
-              class="tw-flex tw-justify-end"
+              class="tw-flex tw-justify-end tw-mb-[15px]"
               (onClick)="isOpenDialog = true"
             ></app-base-button>
 
