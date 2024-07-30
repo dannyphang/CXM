@@ -39,6 +39,7 @@ import { RightPanelComponent } from './profile-page/right-panel/right-panel.comp
 import { ActivityDialogComponent } from './activity-dialog/activity-dialog.component';
 import { InputSwitchComponent } from './input-switch/input-switch.component';
 import { ActivityBlockComponent } from './activity-block/activity-block.component';
+import { EditorComponent } from './editor/editor.component';
 
 const components = [
   BaseInputComponent,
@@ -74,7 +75,8 @@ const components = [
   RightPanelComponent,
   ActivityDialogComponent,
   InputSwitchComponent,
-  ActivityBlockComponent
+  ActivityBlockComponent,
+  EditorComponent,
 ];
 
 @NgModule({

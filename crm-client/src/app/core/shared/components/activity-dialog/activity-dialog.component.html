@@ -16,9 +16,20 @@
   </ng-template>
   <app-base-form [formConfig]="activityFormConfig"></app-base-form>
 
-  <div class="text-editor"></div>
+  <div class="text-editor">
+    <p-editor
+      [formControl]="editorFormControl"
+      [style]="{ height: '200px' }"
+      [readonly]="false"
+      (onTextChange)="countTextLength($event)"
+    />
+  </div>
 
-  <div class="tw-flex tw-justify-end">
+  <div class="tw-flex tw-justify-between">
+    <div>
+      {{ contentWordLength }} / {{ editorContentLimit }}
+      {{ "ACTIVITY.WORDS" | translate }}
+    </div>
     <p-button label="Associated with 1 records" [text]="true" />
   </div>
 

@@ -1,6 +1,15 @@
 :host ::ng-deep {
-  .activity-tab .p-tabview-panels {
-    padding-left: 0;
-    padding-right: 0;
+  .activity-tab {
+    .p-tabview-panels {
+      padding-left: 0;
+      padding-right: 0;
+      padding-bottom: 0;
+    }
+  }
+
+  .middle-profile-tabView {
+    .p-tabview-panels {
+      padding-bottom: 0px;
+    }
   }
 }

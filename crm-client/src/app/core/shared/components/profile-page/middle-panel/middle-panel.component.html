@@ -1,4 +1,4 @@
-<div class="tw-w-full tw-m-[15px] tw-ml-0">
+<div class="tw-w-full">
   <p-tabView class="middle-profile-tabView tw-w-full">
     <p-tabPanel header="Activities">
       <div class="tw-flex tw-justify-between">
@@ -26,7 +26,7 @@
 
       <p-tabView class="activity-tab">
         <p-tabPanel header="All" [selected]="false">
-          <div *ngFor="let activity of activitiesList">
+          <div *ngFor="let activity of activitiesList" class="tw-pb-[15px]">
             <app-activity-block
               [activityControlList]="activityControlList"
               [activityModuleList]="activityModuleList"
@@ -50,13 +50,14 @@
             <app-activity-dialog
               [activityModule]="activityTab"
               [visible]="isOpenDialog"
+              [contactProfile]="contactProfile"
               [activityControlList]="getActivityControlList(activityTab)"
               [activityModuleList]="activityModuleList"
               [header]="returnActivityLable(activityTab.moduleCode)"
               (close)="isOpenDialog = false"
             ></app-activity-dialog>
 
-            <div *ngFor="let activity of activitiesList">
+            <div *ngFor="let activity of activitiesList" class="tw-pb-[15px]">
               <app-activity-block
                 *ngIf="activity.activityModuleCode === activityTab.moduleCode"
                 [activityModule]="activityTab"

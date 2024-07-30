@@ -47,7 +47,7 @@ export class ActivitiesModuleListDto {
 }
 
 export class ActivityDto extends BasedDto {
-    activityUid: string;
+    uid: string;
     activityContactedIdList: string[];
     activityDatetime: Date;
     activityOutcomeId: string;
@@ -63,6 +63,14 @@ export class ActivityDto extends BasedDto {
 }
 
 export class CreateActivityDto extends BasedDto {
-    activityModule: ModuleDto;
-    activityModuleList: ActivityModuleDto[];
+    activityModuleCode: string;
+    activityModuleId: string;
+    activityContactedIdList?: string[];
+    activityDatetime?: Date;
+    activityOutcomeId?: string;
+    activityDirectionId?: string;
+    activityDuration?: string;
+    activityContent: string;
+    associationId?: string;
+    attachmentUrl?: string;
 }

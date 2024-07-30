@@ -29,6 +29,7 @@ export class ActivityBlockComponent implements OnChanges {
     DURAT: new FormControl(null, Validators.required),
   });
   componentList: string[] = [];
+  editorModel: string = '';
 
   actionMenu: any[] = [
     {

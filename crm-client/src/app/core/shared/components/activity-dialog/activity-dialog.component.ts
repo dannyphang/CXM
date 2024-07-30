@@ -1,8 +1,10 @@
-import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, NgZone, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { ContactDto, ModuleDto } from '../../../services/common.service';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormControl, FormGroup, NgModel, Validators } from '@angular/forms';
 import { CONTROL_TYPE, FormConfig, OptionsModel } from '../../../services/components.service';
-import { ActivityDto, ActivityModuleDto, ActivityService } from '../../../services/activity.service';
+import { ActivityDto, ActivityModuleDto, ActivityService, CreateActivityDto } from '../../../services/activity.service';
+import { Observable } from 'rxjs';
+import { EDITOR_CONTENT_LIMIT } from '../../constants/common.constants';
 
 @Component({
   selector: 'app-activity-dialog',
@@ -22,25 +24,34 @@ export class ActivityDialogComponent implements OnChanges {
   activityFormConfig: FormConfig[] = [];
   activityFormGroup: FormGroup = new FormGroup({
     CONT: new FormControl(this.module === "CONT" ? this.contactProfile.uid : null),
-    DATE: new FormControl(new Date(), Validators.required),
-    TIME: new FormControl(new Date(), Validators.required),
-    OUTCOME_C: new FormControl(null, Validators.required),
-    DIRECT: new FormControl(null, Validators.required),
-    OUTCOME_M: new FormControl(null, Validators.required),
-    DURAT: new FormControl(null, Validators.required),
+    DATE: new FormControl(new Date()),
+    TIME: new FormControl(new Date()),
+    OUTCOME_C: new FormControl(null),
+    DIRECT: new FormControl(null),
+    OUTCOME_M: new FormControl(null),
+    DURAT: new FormControl(null),
   });
   activitiesList: ActivityDto[] = [];
   componentList: string[] = [];
+  editorModel: string = 'test...';
+  editorFormControl: FormControl = new FormControl(this.editorModel);
+  contentWordLength: number = 0;
+  content: string = '';
+  editorContentLimit = EDITOR_CONTENT_LIMIT;
 
   constructor(
     private formBuilder: FormBuilder,
-    private activityService: ActivityService
+    private activityService: ActivityService,
+    private ngZone: NgZone
   ) {
 
   }
 
   ngOnInit() {
     this.assignForm();
+    // this.editorFormControl.valueChanges.subscribe(item => {
+    //   this.contentWordLength = this.content.length;
+    // })
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -75,7 +86,7 @@ export class ActivityDialogComponent implements OnChanges {
     });
 
     let cols = 0;
-    let rows = 0;
+    let rows = 1;
     let formsConfig: FormConfig[] = [];
 
     this.activityControlList.forEach((module) => {
@@ -97,14 +108,14 @@ export class ActivityDialogComponent implements OnChanges {
 
       if (module.moduleCode === 'CONT') {
         forms = {
-          type: CONTROL_TYPE.Dropdown,
+          type: CONTROL_TYPE.Multiselect,
           label: module.moduleName,
           fieldControl: this.activityFormGroup.controls[module.moduleCode],
           layoutDefine: {
-            row: rows,
-            column: cols,
+            row: 0,
+            column: 0,
           },
-          options: []
+          options: this.getContactedList(),
         }
       }
       else if (module.moduleCode === 'DATE' || module.moduleCode === 'TIME') {
@@ -163,6 +174,22 @@ export class ActivityDialogComponent implements OnChanges {
     this.activityFormConfig = formsConfig;
   }
 
+  getContactedList(): OptionsModel[] {
+    return [{
+      label: `${this.contactProfile.contactFirstName} ${this.contactProfile.contactLastName} (${this.contactProfile.contactEmail})`,
+      value: this.contactProfile.contactId
+    },
+    {
+      label: `${this.contactProfile.contactFirstName} ${this.contactProfile.contactLastName} (${this.contactProfile.contactEmail})`,
+      value: 123
+    },
+    {
+      label: `${this.contactProfile.contactFirstName} ${this.contactProfile.contactLastName} (${this.contactProfile.contactEmail})`,
+      value: 321
+    }
+    ];
+  }
+
   generateTimeSlots(intervalMinutes: number = 30): any[] {
     let times: any[] = [];
 
@@ -209,11 +236,32 @@ export class ActivityDialogComponent implements OnChanges {
     return durations;
   }
 
-  save() {
-    // console.log(this.activityFormGroup.controls);
-    this.activityControlList.forEach(control => {
-      console.log(this.activityFormGroup.controls[control.moduleCode].value);
-    })
+  countTextLength(text: any) {
+    this.ngZone.run(() => {
+      this.contentWordLength = text.textValue.length;
+    });
+  }
 
+  save() {
+    if (this.activityFormGroup.valid) {
+      let createActivity: CreateActivityDto = {
+        activityModuleCode: this.activityModule.moduleCode,
+        activityModuleId: this.activityModule.uid,
+        activityContent: this.editorFormControl.value,
+        activityContactedIdList: this.activityFormGroup.controls['CONT'].value,
+        activityDatetime: this.activityFormGroup.controls['DATE'].value, // TODO
+        activityDirectionId: this.activityFormGroup.controls['DIRECT'].value,
+        activityOutcomeId: this.activityFormGroup.controls['OUTCOME_C'].value || this.activityFormGroup.controls['OUTCOME_M'].value ? this.activityModule.moduleCode === 'CALL' ? this.activityFormGroup.controls['OUTCOME_C'].value : this.activityFormGroup.controls['OUTCOME_M'].value : null,
+        activityDuration: this.activityFormGroup.controls['DURAT'].value,
+        associationId: '',
+        attachmentUrl: '',
+      }
+      console.log(createActivity);
+
+      // this.activityService.createActivity([createActivity]).subscribe(res => {
+      //   console.log(res);
+      //   this.closeDialog();
+      // })
+    }
   }
 }

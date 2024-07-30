@@ -34,6 +34,7 @@ import { DialogModule } from 'primeng/dialog';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { SplitterModule } from 'primeng/splitter';
+import { EditorModule } from 'primeng/editor';
 
 import { MessageService } from 'primeng/api';
 
@@ -74,6 +75,7 @@ const PRIMENG_MODULES = [
     IconFieldModule,
     InputIconModule,
     SplitterModule,
+    EditorModule
 ]
 
 @NgModule({

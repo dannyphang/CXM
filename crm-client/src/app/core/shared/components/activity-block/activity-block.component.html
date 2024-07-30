@@ -21,6 +21,14 @@
       />
     </div>
     <div acc-panel-body class="activity-panel-content-div">
+      <div class="text-editor">
+        <p-editor
+          [(ngModel)]="editorModel"
+          [style]="{ height: '200px' }"
+          [readonly]="true"
+        />
+      </div>
+
       <app-base-form [formConfig]="activityFormConfig"></app-base-form>
     </div>
   </app-accordion-panel>

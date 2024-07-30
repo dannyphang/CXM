@@ -99,11 +99,11 @@ export class CommonService {
 }
 
 export class BasedDto {
-    createdDate: Date;
-    createdBy: string;
-    modifiedDate: Date;
-    modifiedBy: string;
-    statusId: number;
+    createdDate?: Date;
+    createdBy?: string;
+    modifiedDate?: Date;
+    modifiedBy?: string;
+    statusId?: number;
 }
 
 export class ModuleDto extends BasedDto {

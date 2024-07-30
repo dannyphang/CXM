@@ -10,5 +10,8 @@
     "EDIT": "Edit",
     "Update": "Update",
     "ACTION": "Action"
+  },
+  "ACTIVITY": {
+    "WORDS": "words"
   }
 }

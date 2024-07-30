@@ -7,3 +7,12 @@
 .left-panel-area {
   // overflow-y: hidden;
 }
+
+:host ::ng-deep {
+  .profile-box {
+    .p-splitter {
+      background-color: transparent;
+      border-width: 0;
+    }
+  }
+}

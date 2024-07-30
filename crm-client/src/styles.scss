@@ -1,12 +1,3 @@
-// /* You can add global styles to this file, and also import other style files */
-// @import "tailwindcss/base" layer(tailwindcss);
-// @import "tailwindcss/components" layer(tailwindcss);
-// @import "tailwindcss/utilities" layer(tailwindcss);
-
-// // @import "primeng/resources/themes/arya-blue/theme.css";
-// @import "primeng/resources/primeng.min.css";
-// @import "primeicons/primeicons.css";
-
 @layer tailwind-base, primeng, tailwind-utilities;
 @layer tailwind-base {
   @tailwind base;
@@ -19,6 +10,9 @@
 @import "primeng/resources/primeng.min.css";
 @import "primeicons/primeicons.css";
 @import "primeflex/primeflex.scss";
+
+@import "../node_modules/quill/dist/quill.core.css";
+@import "../node_modules/quill/dist/quill.snow.css";
 
 html {
   font-size: 1rem;

@@ -145,6 +145,27 @@ router.get("/activityModule", async (req, res) => {
   }
 });
 
+// create activity
+router.post("/", async (req, res) => {
+  try {
+    const list = JSON.parse(JSON.stringify(req.body.createdActivitiesList));
+    const createDoc = [];
+
+    list.forEach((prop) => {
+      prop.uid = doc(collection(db, activityCollection)).id;
+      prop.createdDate = new Date();
+      prop.modifiedDate = new Date();
+
+      createDoc.push(prop);
+
+      new setDoc(doc(db, activityCollection, prop.uid), prop);
+    });
+  } catch (e) {
+    console.log(e);
+    res.status(400).json(e);
+  }
+});
+
 function convertFirebaseDateFormat(date) {
   try {
     return date ? date.toDate() : date;
