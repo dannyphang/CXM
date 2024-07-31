@@ -19,19 +19,54 @@
   <div class="text-editor">
     <p-editor
       [formControl]="editorFormControl"
-      [(ngModel)]="editorModel"
       [style]="{ height: '200px' }"
       [readonly]="false"
       (onTextChange)="countTextLength($event)"
+      [placeholder]="'ACTIVITY.EDITOR_PLACEHOLDER' | translate"
     />
   </div>
 
-  <div class="tw-flex tw-justify-between">
+  <div class="tw-flex tw-justify-between tw-items-center">
     <div class="tw-grid tw-items-center">
       {{ contentWordLength }} / {{ editorContentLimit }}
       {{ "ACTIVITY.WORDS" | translate }}
     </div>
+    <p-button
+      [icon]="'pi pi-plus'"
+      [rounded]="true"
+      (onClick)="uploader.click()"
+      class="tw-mt-[15px]"
+      [pTooltip]="'BUTTON.ATTACH_FILE' | translate"
+    ></p-button>
     <p-button label="Associated with 1 records" [text]="true" />
+  </div>
+
+  <input
+    type="file"
+    id="file-input"
+    #uploader
+    hidden
+    (change)="fileUpload($event)"
+    multiple
+  />
+
+  <div
+    class="attachment-div tw-mt-[15px] tw-flex"
+    *ngIf="attachmentList.length > 0"
+  >
+    <div class="tw-grid tw-items-center tw-mr-[15px]">
+      <div class="pi pi-paperclip"></div>
+    </div>
+    <div class="attachment-chip-div tw-flex tw-flex-wrap">
+      <app-chip
+        *ngFor="let file of attachmentList"
+        label="{{ file.name }} ({{ returnFileSize(file.size) }})"
+        class="tw-mr-2 tw-mt-1"
+        [isFile]="true"
+        [file]="file"
+        (remove)="removeFile($event)"
+      ></app-chip>
+    </div>
   </div>
 
   <ng-template pTemplate="footer">
@@ -41,6 +76,11 @@
       severity="secondary"
       (onClick)="closeDialog()"
     />
-    <p-button label="Save" severity="primary" (onClick)="save()" />
+    <p-button
+      label="Save"
+      severity="primary"
+      (onClick)="save()"
+      [disabled]="!this.activityFormGroup.valid"
+    />
   </ng-template>
 </p-dialog>

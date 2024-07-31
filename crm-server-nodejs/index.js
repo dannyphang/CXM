@@ -3,6 +3,7 @@ import express from "express";
 import ContactRouter from "./api/contact.js";
 import commonRouter from "./api/common.js";
 import activityRouter from "./api/activity.js";
+import storageRouter from "./api/storage.js";
 import cors from "cors";
 
 const app = express();
@@ -27,6 +28,7 @@ app.use(cors());
 app.use("/contact", ContactRouter);
 app.use("/common", commonRouter);
 app.use("/activity", activityRouter);
+app.use("/storage", storageRouter);
 
 app.listen(port, () => {
   console.log(`server is running at port: ${port}...`);

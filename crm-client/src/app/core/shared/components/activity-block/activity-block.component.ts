@@ -3,6 +3,7 @@ import { ActivityDto, ActivityModuleDto, ActivityService } from '../../../servic
 import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
 import { ContactDto, ModuleDto } from '../../../services/common.service';
 import { CONTROL_TYPE, FormConfig, OptionsModel } from '../../../services/components.service';
+import Quill from 'quill';
 
 @Component({
   selector: 'app-activity-block',
@@ -29,7 +30,7 @@ export class ActivityBlockComponent implements OnChanges {
     DURAT: new FormControl(null, Validators.required),
   });
   componentList: string[] = [];
-  editorModel: string = '';
+  editorModel: string = '<p>test</p>';
 
   actionMenu: any[] = [
     {
@@ -77,13 +78,6 @@ export class ActivityBlockComponent implements OnChanges {
       case 'MEET':
         this.componentList = ['CONT', 'OUTCOME_M', 'DATE', 'TIME', 'DURAT'];
         break;
-    }
-
-    if (this.moduleLable != 'ALL') {
-      console.log(this.activity.activityModuleCode)
-
-      console.log(this.activityControlList)
-      console.log(this.componentList)
     }
 
     this.activityControlList = this.activityControlList.filter((control) => {

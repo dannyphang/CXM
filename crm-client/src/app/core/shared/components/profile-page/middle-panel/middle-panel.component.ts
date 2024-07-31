@@ -20,6 +20,7 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
   activityControlList: ActivityModuleDto[] = [];
   searchControl: FormControl = new FormControl();
   searchIcon: string = "pi pi-search";
+
   actionMenu: any[] = [
     {
       label: 'Collapse all',
@@ -37,6 +38,8 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
     }
   ];
 
+  dialogActivityTab: ModuleDto = new ModuleDto();
+
   constructor(
     private commonService: CommonService,
     private activityService: ActivityService
@@ -50,8 +53,6 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
     });
 
     this.activityService.getAllActivityModule().subscribe((res) => {
-      console.log(res);
-
       this.activityModuleList = res.activityModuleList;
       this.activityControlList = res.activityControlList;
     });
@@ -78,5 +79,10 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
 
   getActivityControlList(activity: ModuleDto): any {
     return this.activityControlList;
+  }
+
+  activityButtonOnClick(activityTab: ModuleDto) {
+    this.isOpenDialog = true;
+    this.dialogActivityTab = activityTab;
   }
 }

@@ -1,7 +1,7 @@
 import { Router } from "express";
 import express from "express";
 const router = Router();
-import db from "../firebase.js";
+import * as db from "../firebase.js";
 import {
   collection,
   getDocs,
@@ -21,7 +21,10 @@ const collectionName = "contact";
 // get all contacts
 router.get("/", async (req, res) => {
   try {
-    const q = query(collection(db, collectionName), orderBy("createdDate"));
+    const q = query(
+      collection(db.default.db, collectionName),
+      orderBy("createdDate")
+    );
     const snapshot = await getDocs(q);
     const contactList = snapshot.docs.map((doc) => {
       return doc.data();
@@ -43,7 +46,7 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   const id = req.params.id;
   try {
-    const snapshot = await getDoc(doc(db, collectionName, id));
+    const snapshot = await getDoc(doc(db.default.db, collectionName, id));
     const contactList = snapshot.data();
 
     res.status(200).json(contactList);
@@ -59,7 +62,7 @@ router.post("/", async (req, res) => {
     const contactList = JSON.parse(JSON.stringify(req.body.contactList));
     let createdContactList = [];
     contactList.forEach((contact) => {
-      contact.uid = doc(collection(db, collectionName)).id;
+      contact.uid = doc(collection(db.default.db, collectionName)).id;
       contact.createdDate = new Date();
       contact.modifiedDate = new Date();
 
@@ -96,7 +99,7 @@ router.put("/", async (req, res) => {
     let updatedContactList = [];
     contactList.forEach(async (contact) => {
       contact.modifiedDate = new Date();
-      const docRef = doc(db, collectionName, contact.uid);
+      const docRef = doc(db.default.db, collectionName, contact.uid);
       const updatedContact = await updateDoc(docRef, contact);
       updatedContactList.push(updatedContact);
     });

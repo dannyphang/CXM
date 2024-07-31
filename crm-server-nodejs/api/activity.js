@@ -1,7 +1,7 @@
 import { Router } from "express";
 import express from "express";
 const router = Router();
-import db from "../firebase.js";
+import * as db from "../firebase.js";
 import {
   collection,
   getDocs,
@@ -21,7 +21,9 @@ const moduleCodeCollection = "moduleCode";
 // get all activities
 router.get("/", async (req, res) => {
   try {
-    const snapshot = await getDocs(collection(db, activityCollection));
+    const snapshot = await getDocs(
+      collection(db.default.db, activityCollection)
+    );
     const list = snapshot.docs.map((doc) => doc.data());
 
     // list.sort((a, b) => {
@@ -51,7 +53,9 @@ router.post("/getActivitiesByProfileId", async (req, res) => {
   }
 
   try {
-    const snapshot = await getDocs(collection(db, activityCollection));
+    const snapshot = await getDocs(
+      collection(db.default.db, activityCollection)
+    );
     const list = snapshot.docs.map((doc) => doc.data());
 
     // list.sort((a, b) => {
@@ -93,17 +97,17 @@ router.post("/getActivitiesByProfileId", async (req, res) => {
 router.get("/activityModule", async (req, res) => {
   try {
     const query1 = query(
-      collection(db, moduleCodeCollection),
+      collection(db.default.db, moduleCodeCollection),
       where("moduleType", "==", "ACTIVITY_TYPE"),
       where("statusId", "==", 1)
     );
     const actCtrQuery = query(
-      collection(db, moduleCodeCollection),
+      collection(db.default.db, moduleCodeCollection),
       where("moduleType", "==", "ACTIVITY_CONTROL"),
       where("statusId", "==", 1)
     );
     const subActCtrQuery = query(
-      collection(db, moduleCodeCollection),
+      collection(db.default.db, moduleCodeCollection),
       where("moduleType", "==", "SUB_ACTIVITY_CONTROL"),
       where("statusId", "==", 1)
     );
@@ -152,13 +156,13 @@ router.post("/", async (req, res) => {
     const createDoc = [];
 
     list.forEach((prop) => {
-      prop.uid = doc(collection(db, activityCollection)).id;
+      prop.uid = doc(collection(db.default.db, activityCollection)).id;
       prop.createdDate = new Date();
       prop.modifiedDate = new Date();
 
       createDoc.push(prop);
 
-      new setDoc(doc(db, activityCollection, prop.uid), prop);
+      new setDoc(doc(db.default.db, activityCollection, prop.uid), prop);
     });
   } catch (e) {
     console.log(e);

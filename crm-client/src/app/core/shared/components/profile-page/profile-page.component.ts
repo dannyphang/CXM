@@ -55,7 +55,6 @@ export class ProfilePageComponent implements OnChanges {
       companyId: this.module === 'COMP' ? this.contactProfile.uid : '',
     }
     this.activityService.getAllActivities().subscribe(res => {
-      console.log(res);
       this.activitiesList = res;
     })
   }

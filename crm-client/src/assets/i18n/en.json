@@ -9,9 +9,11 @@
     "CANCEL": "Cancel",
     "EDIT": "Edit",
     "Update": "Update",
-    "ACTION": "Action"
+    "ACTION": "Action",
+    "ATTACH_FILE": "Attach Files"
   },
   "ACTIVITY": {
-    "WORDS": "words"
+    "WORDS": "words",
+    "EDITOR_PLACEHOLDER": "Describe the log..."
   }
 }

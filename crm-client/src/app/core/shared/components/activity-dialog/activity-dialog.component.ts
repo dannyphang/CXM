@@ -1,10 +1,11 @@
-import { Component, EventEmitter, Input, NgZone, OnChanges, Output, SimpleChanges } from '@angular/core';
-import { ContactDto, ModuleDto } from '../../../services/common.service';
+import { Component, EventEmitter, Input, NgZone, OnChanges, OnDestroy, Output, SimpleChanges } from '@angular/core';
+import { CommonService, ContactDto, ModuleDto } from '../../../services/common.service';
 import { FormBuilder, FormControl, FormGroup, NgModel, Validators } from '@angular/forms';
 import { CONTROL_TYPE, FormConfig, OptionsModel } from '../../../services/components.service';
 import { ActivityDto, ActivityModuleDto, ActivityService, CreateActivityDto } from '../../../services/activity.service';
-import { Observable } from 'rxjs';
-import { EDITOR_CONTENT_LIMIT } from '../../constants/common.constants';
+import { EDITOR_CONTENT_LIMIT, ATTACHMENT_MAX_SIZE } from '../../constants/common.constants';
+import { FileSelectEvent, UploadEvent } from 'primeng/fileupload';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-activity-dialog',
@@ -12,18 +13,19 @@ import { EDITOR_CONTENT_LIMIT } from '../../constants/common.constants';
   styleUrl: './activity-dialog.component.scss'
 })
 export class ActivityDialogComponent implements OnChanges {
+  @Input() contactProfile: ContactDto = new ContactDto();
   @Input() module: "CONT" | "COMP" = "CONT";
   @Input() activityModule: ModuleDto = new ModuleDto();
   @Input() visible: boolean = false;
-  @Input() activityControlList: ActivityModuleDto[] = [];
+  @Input() activityControlListInput: ActivityModuleDto[] = [];
   @Input() activityModuleList: ModuleDto[] = [];
   @Input() header: string = 'Activity Dialog';
-  @Input() contactProfile: ContactDto = new ContactDto();
   @Output() close: EventEmitter<any> = new EventEmitter<any>();
 
+  activityControlList: ActivityModuleDto[] = [];
   activityFormConfig: FormConfig[] = [];
   activityFormGroup: FormGroup = new FormGroup({
-    CONT: new FormControl(this.module === "CONT" ? this.contactProfile.uid : null),
+    CONT: new FormControl(this.module === "CONT" ? [this.contactProfile.contactId] : []),
     DATE: new FormControl(new Date()),
     TIME: new FormControl(new Date()),
     OUTCOME_C: new FormControl(null),
@@ -34,39 +36,49 @@ export class ActivityDialogComponent implements OnChanges {
   activitiesList: ActivityDto[] = [];
   componentList: string[] = [];
   editorModel: string = '<p>Testing</p>';
-  editorFormControl: FormControl = new FormControl('<p>Testing</p>');
+  editorFormControl: FormControl = new FormControl(null, Validators.required);
   contentWordLength: number = 0;
   editorContentLimit = EDITOR_CONTENT_LIMIT;
+  attachmentList: File[] = [];
+  fileMaxSize: number = ATTACHMENT_MAX_SIZE;
 
   constructor(
+    private commonService: CommonService,
     private formBuilder: FormBuilder,
     private activityService: ActivityService,
-    private ngZone: NgZone
+    private ngZone: NgZone,
+    private messageService: MessageService
   ) {
 
   }
 
   ngOnInit() {
-    this.assignForm();
-    this.editorFormControl.setValue(this.editorModel)
-    // this.editorFormControl.valueChanges.subscribe(item => {
-    //   this.contentWordLength = this.content.length;
-    // })
+
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    // if (changes['activityControlList'] && changes['activityControlList'].currentValue) {
-    //   this.assignForm();
-    // }
-  }
-
-  onInitEditor() {
-    this.editorFormControl.setValue(this.editorModel)
+    if (changes['contactProfile'] && changes['contactProfile'].currentValue) {
+      this.activityFormGroup.controls['CONT'].setValue([this.contactProfile.contactId])
+    }
+    if (changes['activityModule'] && changes['activityModule'].currentValue) {
+      this.assignForm();
+    }
   }
 
   closeDialog() {
+    this.clearForm();
     this.visible = false;
     this.close.emit();
+  }
+
+  clearForm() {
+    this.activityFormGroup.controls['CONT'].setValue(this.module === "CONT" ? [this.contactProfile.contactId] : []);
+    this.activityFormGroup.controls['DATE'].setValue(new Date());
+    this.activityFormGroup.controls['TIME'].setValue(new Date());
+    this.activityFormGroup.controls['OUTCOME_C'].setValue(null);
+    this.activityFormGroup.controls['DIRECT'].setValue(null);
+    this.activityFormGroup.controls['OUTCOME_M'].setValue(null);
+    this.activityFormGroup.controls['DURAT'].setValue(null);
   }
 
   assignForm() {
@@ -85,7 +97,7 @@ export class ActivityDialogComponent implements OnChanges {
         break;
     }
 
-    this.activityControlList = this.activityControlList.filter((control) => {
+    this.activityControlList = this.activityControlListInput.filter((control) => {
       return this.componentList.includes(control.moduleCode);
     });
 
@@ -246,8 +258,49 @@ export class ActivityDialogComponent implements OnChanges {
     });
   }
 
+  fileUpload(event: any) {
+    // console.log(event.target.files)
+    let list: File[] = event.target.files;
+
+    for (let i = 0; i < list.length; i++) {
+      if (!this.attachmentList.find(item => item.name === list[i].name)) {
+        if (list[i].size > this.fileMaxSize) {
+          this.popMessage(`File size is exceed. (${this.returnFileSize(list[i].size)})`, "File size error", "error");
+          break;
+        }
+        this.attachmentList.push(list[i]);
+      }
+      else {
+        this.popMessage(`(${list[i].name}) is duplicated.`, "File duplicated", "error");
+      }
+    }
+
+    console.log(this.attachmentList)
+  }
+
+  returnFileSize(bytes: number = 0, decimals: number = 2) {
+    if (!+bytes) return '0 Bytes'
+
+    const k = 1024
+    const dm = decimals < 0 ? 0 : decimals
+    const sizes = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB']
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`
+  }
+
+  removeFile(file: File) {
+    this.attachmentList = this.attachmentList.filter(item => item.name !== file.name)
+  }
+
   save() {
     if (this.activityFormGroup.valid) {
+      let attachment
+      if (this.attachmentList) {
+
+      }
+
       let createActivity: CreateActivityDto = {
         activityModuleCode: this.activityModule.moduleCode,
         activityModuleId: this.activityModule.uid,
@@ -262,10 +315,18 @@ export class ActivityDialogComponent implements OnChanges {
       }
       console.log(createActivity);
 
-      this.activityService.createActivity([createActivity]).subscribe(res => {
-        console.log(res);
-        this.closeDialog();
+      // this.activityService.createActivity([createActivity]).subscribe(res => {
+      //   console.log(res);
+      //   this.closeDialog();
+      // })
+      console.log(this.attachmentList[0])
+      this.commonService.uploadFile(this.attachmentList[0]).subscribe(res => {
+        console.log(res)
       })
     }
+  }
+
+  popMessage(message: string, title: string, severity: string = 'success',) {
+    this.messageService.add({ severity: severity, summary: title, detail: message });
   }
 }

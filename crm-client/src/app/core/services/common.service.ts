@@ -3,12 +3,18 @@ import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import apiConfig from "../../../environments/apiConfig";
 import { CONTROL_TYPE_CODE } from "./components.service";
+import { MessageService } from "primeng/api";
 
 @Injectable({ providedIn: 'root' })
 export class CommonService {
     constructor(
-        private http: HttpClient
+        private http: HttpClient,
+        private messageService: MessageService
     ) {
+    }
+
+    popMessage(message: string, title: string, severity: string = 'success',) {
+        this.messageService.add({ severity: severity, summary: title, detail: message });
     }
 
     getAllContact(): Observable<ContactDto[]> {
@@ -47,6 +53,17 @@ export class CommonService {
 
     createProperties(properties: PropertiesDto): Observable<PropertiesDto> {
         return this.http.post<PropertiesDto>(apiConfig.baseUrl + '/common/properties', properties).pipe();
+    }
+
+    uploadFile(file: File): Observable<any> {
+        const formData: FormData = new FormData();
+
+        formData.append('file', file);
+
+        return this.http.post<any>(apiConfig.baseUrl + '/storage/file', formData, {
+            reportProgress: true,
+            responseType: 'json'
+        }).pipe();
     }
 
     /**

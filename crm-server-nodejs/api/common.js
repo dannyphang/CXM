@@ -1,7 +1,7 @@
 import { Router } from "express";
 import express from "express";
 const router = Router();
-import db from "../firebase.js";
+import * as db from "../firebase.js";
 import {
   collection,
   getDocs,
@@ -22,7 +22,9 @@ const moduleCodeCollection = "moduleCode";
 // get all properties
 router.get("/" + propertiesCollection, async (req, res) => {
   try {
-    const snapshot = await getDocs(collection(db, propertiesCollection));
+    const snapshot = await getDocs(
+      collection(db.default.db, propertiesCollection)
+    );
     const list = snapshot.docs.map((doc) => doc.data());
 
     list.sort((a, b) => {
@@ -42,17 +44,17 @@ router.get("/" + propertiesCollection + "/module", async (req, res) => {
 
   try {
     const propertiesQuery = query(
-      collection(db, propertiesCollection),
+      collection(db.default.db, propertiesCollection),
       where("moduleCode", "==", moduleCode),
       where("statusId", "==", 1)
     );
     const moduleQuery = query(
-      collection(db, moduleCodeCollection),
+      collection(db.default.db, moduleCodeCollection),
       where("moduleSubCode", "==", moduleCode),
       where("statusId", "==", 1)
     );
     const propertiesLookupQuery = query(
-      collection(db, propertiesLookupCollection),
+      collection(db.default.db, propertiesLookupCollection),
       where("moduleCode", "==", moduleCode),
       where("statusId", "==", 1)
     );
@@ -71,8 +73,12 @@ router.get("/" + propertiesCollection + "/module", async (req, res) => {
     for (let i = 0; i < propertyList.length; i++) {
       propertyList[i].propertyLookupList = [];
 
-      propertyList[i].createdDate = convertFirebaseDateFormat(propertyList[i].createdDate);
-      propertyList[i].modifiedDate = convertFirebaseDateFormat(propertyList[i].modifiedDate);
+      propertyList[i].createdDate = convertFirebaseDateFormat(
+        propertyList[i].createdDate
+      );
+      propertyList[i].modifiedDate = convertFirebaseDateFormat(
+        propertyList[i].modifiedDate
+      );
 
       for (let j = 0; j < propertyLookupList.length; j++) {
         if (propertyList[i].propertyId === propertyLookupList[j].propertyId) {
@@ -111,19 +117,19 @@ router.get("/" + propertiesCollection + "/module/create", async (req, res) => {
 
   try {
     const propertiesQuery = query(
-      collection(db, propertiesCollection),
+      collection(db.default.db, propertiesCollection),
       where("moduleCode", "==", moduleCode),
       where("statusId", "==", 1),
       where("isMandatory", "==", true),
       where("isEditable", "==", true)
     );
     const moduleQuery = query(
-      collection(db, moduleCodeCollection),
+      collection(db.default.db, moduleCodeCollection),
       where("moduleSubCode", "==", moduleCode),
       where("statusId", "==", 1)
     );
     const propertiesLookupQuery = query(
-      collection(db, propertiesLookupCollection),
+      collection(db.default.db, propertiesLookupCollection),
       where("moduleCode", "==", moduleCode),
       where("statusId", "==", 1)
     );
@@ -141,8 +147,12 @@ router.get("/" + propertiesCollection + "/module/create", async (req, res) => {
 
     for (let i = 0; i < propertyList.length; i++) {
       propertyList[i].propertyLookupList = [];
-      propertyList[i].createdDate = convertFirebaseDateFormat(propertyList[i].createdDate);
-      propertyList[i].modifiedDate = convertFirebaseDateFormat(propertyList[i].modifiedDate);
+      propertyList[i].createdDate = convertFirebaseDateFormat(
+        propertyList[i].createdDate
+      );
+      propertyList[i].modifiedDate = convertFirebaseDateFormat(
+        propertyList[i].modifiedDate
+      );
 
       for (let j = 0; j < propertyLookupList.length; j++) {
         if (propertyList[i].propertyId === propertyLookupList[j].propertyId) {
@@ -175,13 +185,13 @@ router.post("/" + propertiesCollection, async (req, res) => {
     const createDoc = [];
 
     list.forEach((prop) => {
-      prop.uid = doc(collection(db, propertiesCollection)).id;
+      prop.uid = doc(collection(db.default.db, propertiesCollection)).id;
       prop.createdDate = new Date();
       prop.modifiedDate = new Date();
 
       createDoc.push(prop);
 
-      new setDoc(doc(db, propertiesCollection, prop.uid), prop);
+      new setDoc(doc(db.default.db, propertiesCollection, prop.uid), prop);
     });
 
     res.status(200).json(createDoc);
@@ -194,7 +204,9 @@ router.post("/" + propertiesCollection, async (req, res) => {
 // get all properties lookup
 router.get("/" + propertiesLookupCollection, async (req, res) => {
   try {
-    const snapshot = await getDocs(collection(db, propertiesLookupCollection));
+    const snapshot = await getDocs(
+      collection(db.default.db, propertiesLookupCollection)
+    );
     const list = snapshot.docs.map((doc) => doc.data());
 
     list.sort((a, b) => {
@@ -215,13 +227,16 @@ router.post("/" + propertiesLookupCollection, async (req, res) => {
     const createDoc = [];
 
     list.forEach((prop) => {
-      prop.uid = doc(collection(db, propertiesLookupCollection)).id;
+      prop.uid = doc(collection(db.default.db, propertiesLookupCollection)).id;
       prop.CreatedDate = new Date();
       prop.ModifiedDate = new Date();
 
       createDoc.push(prop);
 
-      new setDoc(doc(db, propertiesLookupCollection, prop.uid), prop);
+      new setDoc(
+        doc(db.default.db, propertiesLookupCollection, prop.uid),
+        prop
+      );
     });
 
     res.status(200).json(createDoc);
@@ -234,7 +249,9 @@ router.post("/" + propertiesLookupCollection, async (req, res) => {
 // get all module code
 router.get("/" + moduleCodeCollection, async (req, res) => {
   try {
-    const snapshot = await getDocs(collection(db, moduleCodeCollection));
+    const snapshot = await getDocs(
+      collection(db.default.db, moduleCodeCollection)
+    );
     const list = snapshot.docs.map((doc) => doc.data());
 
     list.sort((a, b) => {
@@ -251,17 +268,17 @@ router.get("/" + moduleCodeCollection, async (req, res) => {
 router.get("/activityModule", async (req, res) => {
   try {
     const query1 = query(
-      collection(db, moduleCodeCollection),
+      collection(db.default.db, moduleCodeCollection),
       where("moduleType", "==", "ACTIVITY_TYPE"),
       where("statusId", "==", 1)
     );
     const actCtrQuery = query(
-      collection(db, moduleCodeCollection),
+      collection(db.default.db, moduleCodeCollection),
       where("moduleType", "==", "ACTIVITY_CONTROL"),
       where("statusId", "==", 1)
     );
     const subActCtrQuery = query(
-      collection(db, moduleCodeCollection),
+      collection(db.default.db, moduleCodeCollection),
       where("moduleType", "==", "SUB_ACTIVITY_CONTROL"),
       where("statusId", "==", 1)
     );
@@ -272,7 +289,9 @@ router.get("/activityModule", async (req, res) => {
 
     const activityModuleList = snapshot.docs.map((doc) => doc.data());
     const activityControlList = actCtrSnapshot.docs.map((doc) => doc.data());
-    const subActivityControlList = subActCtrSnapshot.docs.map((doc) => doc.data());
+    const subActivityControlList = subActCtrSnapshot.docs.map((doc) =>
+      doc.data()
+    );
 
     activityControlList.forEach((item) => {
       item.subActivityControl = [];
@@ -309,13 +328,13 @@ router.post("/" + moduleCodeCollection, async (req, res) => {
     const createDoc = [];
 
     list.forEach((prop) => {
-      prop.uid = doc(collection(db, moduleCodeCollection)).id;
+      prop.uid = doc(collection(db.default.db, moduleCodeCollection)).id;
       prop.createdDate = new Date();
       prop.modifiedDate = new Date();
 
       createDoc.push(prop);
 
-      new setDoc(doc(db, moduleCodeCollection, prop.uid), prop);
+      new setDoc(doc(db.default.db, moduleCodeCollection, prop.uid), prop);
     });
 
     res.status(200).json(createDoc);
