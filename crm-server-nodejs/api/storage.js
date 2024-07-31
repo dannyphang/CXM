@@ -1,25 +1,37 @@
 import { Router } from "express";
-import express from "express";
 const router = Router();
 import * as firebase from "../firebase.js";
-import { ref, uploadBytes } from "firebase/storage";
+import { ref, uploadBytes, getDownloadURL, listAll } from "firebase/storage";
 import multer from "multer";
 
-// Setting up multer as a middleware to grab photo uploads
 const upload = multer({ storage: multer.memoryStorage() }).single("file");
-
-// const bucket = storage.default.storage.bucket();
-// const storageRef = ref(firebase.default.storage, 'some-child');
 
 router.post("/file", upload, async (req, res) => {
   try {
-    // new uploadBytes(storageRef, )
-    console.log(req.body);
-    res.status(200).json(req.body);
-  } catch (e) {
-    console.log(e);
-    res.status(400).json(e);
+    if (req.file == undefined) {
+      return res.status(400).send({ message: "Please upload a file!" });
+    }
+
+    const storageRef = ref(
+      firebase.default.storage,
+      `${req.body.folderName}/${req.file.originalname}`
+    );
+    uploadBytes(storageRef, req.file).then((up) => {
+      getDownloadURL(storageRef).then((url) => {
+        res.status(200).json({
+          file: req.file,
+          downloadUrl: url,
+          metadata: up.metadata,
+        });
+      });
+    });
+  } catch (err) {
+    res.status(400).json(err);
   }
+});
+
+router.post("/filelist", async (req, res) => {
+  listAll(storageRef).then((listRes) => {});
 });
 
 export default router;

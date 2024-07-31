@@ -55,10 +55,11 @@ export class CommonService {
         return this.http.post<PropertiesDto>(apiConfig.baseUrl + '/common/properties', properties).pipe();
     }
 
-    uploadFile(file: File): Observable<any> {
+    uploadFile(file: File, folderName: string): Observable<any> {
         const formData: FormData = new FormData();
 
         formData.append('file', file);
+        formData.append('folderName', folderName);
 
         return this.http.post<any>(apiConfig.baseUrl + '/storage/file', formData, {
             reportProgress: true,

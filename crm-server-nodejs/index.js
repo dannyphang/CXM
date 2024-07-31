@@ -5,11 +5,18 @@ import commonRouter from "./api/common.js";
 import activityRouter from "./api/activity.js";
 import storageRouter from "./api/storage.js";
 import cors from "cors";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const app = express();
 app.use(express.json());
 
 const port = process.env.PORT || 1113;
+
+global.__basedir = __dirname;
 
 app.all("/*", function (req, res, next) {
   res.header("Access-Control-Allow-Origin", "*");

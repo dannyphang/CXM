@@ -320,7 +320,7 @@ export class ActivityDialogComponent implements OnChanges {
       //   this.closeDialog();
       // })
       console.log(this.attachmentList[0])
-      this.commonService.uploadFile(this.attachmentList[0]).subscribe(res => {
+      this.commonService.uploadFile(this.attachmentList[0], "Activity").subscribe(res => {
         console.log(res)
       })
     }
