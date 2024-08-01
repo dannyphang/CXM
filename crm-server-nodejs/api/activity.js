@@ -6,8 +6,7 @@ import {
   collection,
   getDocs,
   doc,
-  getDoc,
-  runTransaction,
+  updateDoc,
   setDoc,
   query,
   where,
@@ -31,24 +30,28 @@ router.get("/", async (req, res) => {
     const snapshot = await getDocs(query1);
     const list = snapshot.docs.map((doc) => doc.data());
 
-    for (let i = 0; i < list.length; i++) {
-      list[i].activityDatetime = convertFirebaseDateFormat(list[i].activityDatetime);
-      list[i].createdDate = convertFirebaseDateFormat(list[i].createdDate);
-      list[i].modifiedDate = convertFirebaseDateFormat(list[i].modifiedDate);
+    if (list.length > 0) {
+      for (let i = 0; i < list.length; i++) {
+        list[i].activityDatetime = convertFirebaseDateFormat(list[i].activityDatetime);
+        list[i].createdDate = convertFirebaseDateFormat(list[i].createdDate);
+        list[i].modifiedDate = convertFirebaseDateFormat(list[i].modifiedDate);
 
-      const query2 = query(
-        collection(db.default.db, attachmentCollection),
-        where("activityUid", "==", list[i].uid),
-        where("statusId", "==", 1)
-      );
-      const snapshot2 = await getDocs(query2);
-      const attachmentList = snapshot2.docs.map((doc) => doc.data());
-      list[i].attachmentList = attachmentList;
+        const query2 = query(
+          collection(db.default.db, attachmentCollection),
+          where("activityUid", "==", list[i].uid),
+          where("statusId", "==", 1)
+        );
+        const snapshot2 = await getDocs(query2);
+        const attachmentList = snapshot2.docs.map((doc) => doc.data());
+        list[i].attachmentList = attachmentList;
 
-      // return status at the last loop
-      if (i === list.length - 1) {
-        res.status(200).json(list);
+        // return status at the last loop
+        if (i === list.length - 1) {
+          res.status(200).json(list);
+        }
       }
+    } else {
+      res.status(200).json(list);
     }
   } catch (error) {
     console.log("error", error);
@@ -182,11 +185,36 @@ router.post("/upload", async (req, res) => {
   }
 });
 
+// delete activity (update status to 2)
+router.delete("/:uid", async (req, res) => {
+  const uid = req.params.uid;
+  let actRef = doc(db.default.db, activityCollection, uid);
+  await updateDoc(actRef, {
+    statusId: 2,
+  });
+
+  res.status(200).json({
+    uid: uid,
+  });
+});
+
+// update activity
+router.put("/:uid", async (req, res) => {
+  const uid = req.params.uid;
+  let updateBody = req.body;
+  let actRef = doc(db.default.db, activityCollection, uid);
+  await updateDoc(actRef, updateBody);
+  // console.log(updateBody);
+  res.status(200).json({
+    uid: uid,
+  });
+});
+
 function convertFirebaseDateFormat(date) {
   try {
     return date ? date.toDate() : date;
   } catch {
-    return;
+    return date;
   }
 }
 

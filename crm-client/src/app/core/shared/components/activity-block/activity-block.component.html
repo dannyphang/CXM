@@ -22,10 +22,17 @@
     </div>
     <div acc-panel-body class="activity-panel-content-div">
       <div class="text-editor">
+        <div
+          [innerHTML]="activity.activityContent"
+          *ngIf="readonly"
+          class="readonly-content-div"
+          (click)="readonly = false"
+        ></div>
+
         <p-editor
+          *ngIf="!readonly"
           [formControl]="editorFormControl"
           [style]="{ height: '200px' }"
-          [readonly]="false"
           (onTextChange)="countTextLength($event)"
           [placeholder]="'ACTIVITY.EDITOR_PLACEHOLDER' | translate"
         />
@@ -40,9 +47,24 @@
           [icon]="'pi pi-plus'"
           [rounded]="true"
           (onClick)="uploader.click()"
-          class="tw-mt-[15px]"
+          class="tw-mt-[var(--content-gap)]"
           [pTooltip]="'BUTTON.ATTACH_FILE' | translate"
         ></p-button>
+        <div
+          class="content-btn-div tw-flex tw-mt-[var(--content-gap)]"
+          *ngIf="!readonly"
+        >
+          <app-base-button
+            [label]="'BUTTON.CANCEL' | translate"
+            [outlined]="true"
+            (onClick)="readonly = true"
+          ></app-base-button>
+          <app-base-button
+            [label]="'BUTTON.UPDATE' | translate"
+            class="tw-ml-[var(--content-gap)]"
+            (onClick)="updateContent()"
+          ></app-base-button>
+        </div>
         <p-button label="Associated with 1 records" [text]="true" />
       </div>
 

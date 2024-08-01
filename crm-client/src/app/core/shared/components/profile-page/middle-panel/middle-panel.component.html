@@ -25,16 +25,44 @@
       </div>
 
       <p-tabView class="activity-tab">
+        <!-- ALL Tab-->
         <p-tabPanel header="All" [selected]="false">
-          <div *ngFor="let activity of activitiesList" class="tw-pb-[15px]">
-            <app-activity-block
-              [activityControlList]="activityControlList"
-              [activityModuleList]="activityModuleList"
-              [activity]="activity"
-              [moduleLable]="'ALL'"
-            ></app-activity-block>
+          <!-- Pinned -->
+          <div *ngIf="returnIsPinnedActivityList('ALL').length > 0">
+            <app-base-label [label]="'Pinned'"></app-base-label>
+            <div
+              *ngFor="let activity of returnIsPinnedActivityList('ALL')"
+              class="tw-pb-[15px]"
+            >
+              <app-activity-block
+                [activityControlList]="activityControlList"
+                [activityModuleList]="activityModuleList"
+                [activity]="activity"
+                [moduleLable]="'ALL'"
+                (activityReload)="activityListEmit.emit()"
+              ></app-activity-block>
+            </div>
+          </div>
+
+          <!-- UpComing -->
+          <div *ngIf="returnUpComingActivityList('ALL').length > 0">
+            <app-base-label [label]="'UpComing'"></app-base-label>
+            <div
+              *ngFor="let activity of returnUpComingActivityList('ALL')"
+              class="tw-pb-[15px]"
+            >
+              <app-activity-block
+                [activityControlList]="activityControlList"
+                [activityModuleList]="activityModuleList"
+                [activity]="activity"
+                [moduleLable]="'ALL'"
+                (activityReload)="activityListEmit.emit()"
+              ></app-activity-block>
+            </div>
           </div>
         </p-tabPanel>
+
+        <!-- Other Tab -->
         <p-tabPanel
           *ngFor="let activityTab of activityModuleList"
           [header]="activityTab.moduleName"
@@ -47,14 +75,56 @@
               (onClick)="activityButtonOnClick(activityTab)"
             ></app-base-button>
 
-            <div *ngFor="let activity of activitiesList" class="tw-pb-[15px]">
-              <app-activity-block
-                *ngIf="activity.activityModuleCode === activityTab.moduleCode"
-                [activityModule]="activityTab"
-                [activityControlList]="getActivityControlList(activityTab)"
-                [activityModuleList]="activityModuleList"
-                [activity]="activity"
-              ></app-activity-block>
+            <!-- Pinned -->
+            <div
+              *ngIf="
+                returnIsPinnedActivityList(activityTab.moduleCode).length > 0
+              "
+            >
+              <app-base-label [label]="'Pinned'"></app-base-label>
+              <div
+                *ngFor="
+                  let activity of returnIsPinnedActivityList(
+                    activityTab.moduleCode
+                  )
+                "
+                class="tw-pb-[15px]"
+              >
+                <app-activity-block
+                  *ngIf="activity.activityModuleCode === activityTab.moduleCode"
+                  [activityModule]="activityTab"
+                  [activityControlList]="getActivityControlList(activityTab)"
+                  [activityModuleList]="activityModuleList"
+                  [activity]="activity"
+                  (activityReload)="activityListEmit.emit()"
+                ></app-activity-block>
+              </div>
+            </div>
+
+            <!-- UpComing -->
+            <div
+              *ngIf="
+                returnUpComingActivityList(activityTab.moduleCode).length > 0
+              "
+            >
+              <app-base-label [label]="'UpComing'"></app-base-label>
+              <div
+                *ngFor="
+                  let activity of returnUpComingActivityList(
+                    activityTab.moduleCode
+                  )
+                "
+                class="tw-pb-[15px]"
+              >
+                <app-activity-block
+                  *ngIf="activity.activityModuleCode === activityTab.moduleCode"
+                  [activityModule]="activityTab"
+                  [activityControlList]="getActivityControlList(activityTab)"
+                  [activityModuleList]="activityModuleList"
+                  [activity]="activity"
+                  (activityReload)="activityListEmit.emit()"
+                ></app-activity-block>
+              </div>
             </div>
           </div>
         </p-tabPanel>

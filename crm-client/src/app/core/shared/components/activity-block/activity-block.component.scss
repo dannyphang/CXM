@@ -27,3 +27,15 @@
     }
   }
 }
+
+.readonly-content-div {
+  border: 1px solid transparent;
+  padding-left: var(--content-gap);
+  padding-right: var(--content-gap);
+}
+
+.readonly-content-div:hover {
+  cursor: pointer;
+  border: 1px solid var(--primary-color);
+  border-radius: var(--border-radius);
+}

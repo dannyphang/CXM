@@ -2,6 +2,7 @@ import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonService, ContactDto, PropertyGroupDto } from '../../../services/common.service';
 import { ActivatedRoute } from '@angular/router';
 import { ActivityDto, ActivityService } from '../../../services/activity.service';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-profile-page',
@@ -18,7 +19,8 @@ export class ProfilePageComponent implements OnChanges {
   constructor(
     private commonService: CommonService,
     private activityService: ActivityService,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private titleService: Title
   ) {
 
 
@@ -46,6 +48,7 @@ export class ProfilePageComponent implements OnChanges {
   getContact() {
     this.commonService.getContactById(this.profileId).subscribe((res) => {
       this.contactProfile = res;
+      this.titleService.setTitle(`${this.contactProfile.contactFirstName} ${this.contactProfile.contactLastName}`)
     });
   }
 

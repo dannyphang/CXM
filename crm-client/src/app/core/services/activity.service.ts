@@ -39,6 +39,14 @@ export class ActivityService {
     uploadAttachment(attachmentList: AttachmentDto[]): Observable<AttachmentDto> {
         return this.http.post<AttachmentDto>(apiConfig.baseUrl + '/activity/upload', { attachmentList }).pipe();
     }
+
+    deleteActivity(activityUid: string): Observable<any> {
+        return this.http.delete<AttachmentDto>(apiConfig.baseUrl + '/activity/' + activityUid).pipe();
+    }
+
+    updateActivity(updateActivity: UpdateActivityDto): Observable<any> {
+        return this.http.put<AttachmentDto>(apiConfig.baseUrl + '/activity/' + updateActivity.uid, updateActivity).pipe();
+    }
 }
 
 export class ActivityModuleDto extends ModuleDto {
@@ -65,6 +73,22 @@ export class ActivityDto extends BasedDto {
     associationId: string;
     attachmentUid: string;
     attachmentList: AttachmentDto[];
+}
+
+export class UpdateActivityDto extends BasedDto {
+    uid: string;
+    activityContactedIdList?: string[];
+    activityDatetime?: Date;
+    activityOutcomeId?: string;
+    activityDirectionId?: string;
+    activityDuration?: string;
+    activityContent?: string;
+    activityModuleId?: string;
+    activityModuleCode?: string;
+    isPinned?: boolean;
+    associationId?: string;
+    attachmentUid?: string;
+    attachmentList?: AttachmentDto[];
 }
 
 export class CreateActivityDto extends BasedDto {

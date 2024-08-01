@@ -27,14 +27,18 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
       label: 'Collapse all',
       icon: '',
       command: () => {
-
+        this.activitiesList.forEach(act => {
+          act.isExpand = act.isExpand ? false : act.isExpand;
+        });
       }
     },
     {
       label: 'Expand all',
       icon: '',
       command: () => {
-
+        this.activitiesList.forEach(act => {
+          act.isExpand = true;
+        });
       }
     }
   ];
@@ -92,5 +96,19 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
   activityDialogCloseEmit() {
     this.isOpenDialog = false;
     this.activityListEmit.emit();
+  }
+
+  returnUpComingActivityList(code: string): ActivityDto[] {
+    if (code === 'ALL') {
+      return this.activitiesList.filter(act => !act.isPinned);
+    }
+    return this.activitiesList.filter(act => act.activityModuleCode === code && !act.isPinned);
+  }
+
+  returnIsPinnedActivityList(code: string): ActivityDto[] {
+    if (code === 'ALL') {
+      return this.activitiesList.filter(act => act.isPinned);
+    }
+    return this.activitiesList.filter(act => act.activityModuleCode === code && act.isPinned);
   }
 }
