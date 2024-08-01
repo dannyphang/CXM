@@ -71,5 +71,5 @@
   [activityControlListInput]="getActivityControlList(dialogActivityTab)"
   [activityModuleList]="activityModuleList"
   [header]="returnActivityLable(dialogActivityTab.moduleCode)"
-  (close)="isOpenDialog = false"
+  (close)="activityDialogCloseEmit()"
 ></app-activity-dialog>

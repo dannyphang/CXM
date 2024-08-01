@@ -14,6 +14,7 @@
         [contactProfile]="contactProfile"
         [activitiesList]="activitiesList"
         class="middle-panel-area tw-w-full"
+        (activityListEmit)="getActivities()"
       ></app-middle-panel>
     </ng-template>
   </p-splitter>

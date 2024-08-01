@@ -185,6 +185,10 @@ export class BaseDatepickerComponent
       invalid_range: 'ERROR.INVALID_DATE_RANGE',
       ...this.errorMessageList,
     };
+
+    if (this.disabled) {
+      this.fieldControl.disable()
+    }
   }
 
   ngOnChanges(changes: any): void {

@@ -1,9 +1,11 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, NgZone, OnChanges, SimpleChanges } from '@angular/core';
 import { ActivityDto, ActivityModuleDto, ActivityService } from '../../../services/activity.service';
 import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
 import { ContactDto, ModuleDto } from '../../../services/common.service';
 import { CONTROL_TYPE, FormConfig, OptionsModel } from '../../../services/components.service';
 import Quill from 'quill';
+import { MessageService } from 'primeng/api';
+import { EDITOR_CONTENT_LIMIT, ATTACHMENT_MAX_SIZE } from '../../constants/common.constants';
 
 @Component({
   selector: 'app-activity-block',
@@ -21,16 +23,21 @@ export class ActivityBlockComponent implements OnChanges {
 
   activityFormConfig: FormConfig[] = [];
   activityFormGroup: FormGroup = new FormGroup({
-    CONT: new FormControl(this.module === "CONT" ? this.contactProfile.uid : null, Validators.required),
-    DATE: new FormControl(new Date(), Validators.required),
-    TIME: new FormControl(new Date(), Validators.required),
-    OUTCOME_C: new FormControl(null, Validators.required),
-    DIRECT: new FormControl(null, Validators.required),
-    OUTCOME_M: new FormControl(null, Validators.required),
-    DURAT: new FormControl(null, Validators.required),
+    CONT: new FormControl(this.module === "CONT" ? [this.contactProfile.contactId] : []),
+    DATE: new FormControl(new Date()),
+    TIME: new FormControl(new Date()),
+    OUTCOME_C: new FormControl(null),
+    DIRECT: new FormControl(null),
+    OUTCOME_M: new FormControl(null),
+    DURAT: new FormControl(null),
   });
   componentList: string[] = [];
   editorModel: string = '<p>test</p>';
+  editorFormControl: FormControl = new FormControl(null, Validators.required);
+  contentWordLength: number = 0;
+  editorContentLimit = EDITOR_CONTENT_LIMIT;
+  attachmentList: File[] = [];
+  fileMaxSize: number = ATTACHMENT_MAX_SIZE;
 
   actionMenu: any[] = [
     {
@@ -50,17 +57,21 @@ export class ActivityBlockComponent implements OnChanges {
   constructor(
     private formBuilder: FormBuilder,
     private activityService: ActivityService,
+    private ngZone: NgZone,
+    private messageService: MessageService
   ) {
 
   }
 
   ngOnInit() {
-    // this.assignForm();
+
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
+  ngOnChanges(changes: SimpleChanges) {
+    console.log(changes)
     if (changes['activityControlList'] && changes['activityControlList'].currentValue) {
       this.assignForm();
+
     }
   }
 
@@ -84,14 +95,11 @@ export class ActivityBlockComponent implements OnChanges {
       return this.componentList.includes(control.moduleCode);
     });
 
-    this.activityFormGroup = this.formBuilder.group({});
-
     let cols = 0;
-    let rows = 0;
+    let rows = 1;
     let formsConfig: FormConfig[] = [];
 
     this.activityControlList.forEach((module) => {
-
       if (cols === 3) {
         cols = 0;
         rows++;
@@ -102,8 +110,8 @@ export class ActivityBlockComponent implements OnChanges {
         label: module.moduleName,
         fieldControl: this.activityFormGroup.controls[module.moduleCode],
         layoutDefine: {
-          row: rows,
-          column: cols,
+          row: 0,
+          column: 0,
         }
       };
 
@@ -113,11 +121,12 @@ export class ActivityBlockComponent implements OnChanges {
           label: module.moduleName,
           fieldControl: this.activityFormGroup.controls[module.moduleCode],
           layoutDefine: {
-            row: rows,
-            column: cols,
+            row: 0,
+            column: 0,
           },
           options: []
         }
+        // this.activityFormGroup.controls[module.moduleCode].setValue([])
       }
       else if (module.moduleCode === 'DATE' || module.moduleCode === 'TIME') {
         forms = {
@@ -153,11 +162,6 @@ export class ActivityBlockComponent implements OnChanges {
         }
       }
       else if (module.moduleCode === 'DURAT') {
-        let subList: OptionsModel[] = [];
-        module.subActivityControl.forEach((item) => {
-          subList.push({ label: item.moduleName, value: item.uid });
-        });
-
         forms = {
           type: CONTROL_TYPE.Dropdown,
           label: module.moduleName,
@@ -166,13 +170,96 @@ export class ActivityBlockComponent implements OnChanges {
             row: rows,
             column: cols,
           },
-          options: subList
+          options: this.generateTimeDurations()
         }
       }
       cols++;
       formsConfig.push(forms);
     });
     this.activityFormConfig = formsConfig;
-    console.log(this.activityFormConfig);
+
+    this.assignActivityValue();
+  }
+
+  assignActivityValue() {
+    // this.activityFormGroup.controls['CONT'].setValue([])
+    this.activityFormGroup.controls['DATE'].setValue(new Date(this.activity.activityDatetime));
+    this.activityFormGroup.controls['TIME'].setValue(new Date(this.activity.activityDatetime));
+    this.activityFormGroup.controls['OUTCOME_C'].setValue(this.activity.activityOutcomeId);
+    this.activityFormGroup.controls['OUTCOME_M'].setValue(this.activity.activityOutcomeId);
+    this.activityFormGroup.controls['DIRECT'].setValue(this.activity.activityDirectionId);
+    this.activityFormGroup.controls['DURAT'].setValue(this.activity.activityDuration);
+
+  }
+
+  generateTimeDurations(intervalMinutes: number = 15, iterations: number = 32): any[] {
+    const durations: any[] = [];
+    let currentMinutes = intervalMinutes;
+
+    for (let i = 0; i < iterations; i++) {
+      if (currentMinutes < 60) {
+        durations.push({
+          label: `${currentMinutes} minutes`,
+          value: currentMinutes
+        });
+      } else {
+        const hours = Math.floor(currentMinutes / 60);
+        const minutes = currentMinutes % 60;
+        const hourString = hours > 1 ? 'hours' : 'hour';
+        const duration = minutes > 0
+          ? `${hours} ${hourString} ${minutes} minutes`
+          : `${hours} ${hourString}`;
+        durations.push({
+          label: duration,
+          value: currentMinutes
+        });
+      }
+      currentMinutes += intervalMinutes;
+    }
+
+    return durations;
+  }
+
+  countTextLength(text: any) {
+    this.ngZone.run(() => {
+      this.contentWordLength = text.textValue.length;
+    });
+  }
+
+  popMessage(message: string, title: string, severity: string = 'success',) {
+    this.messageService.add({ severity: severity, summary: title, detail: message });
+  }
+
+  fileUpload(event: any) {
+    let list: File[] = event.target.files;
+
+    for (let i = 0; i < list.length; i++) {
+      if (!this.activity.attachmentList.find(item => item.fileName === list[i].name)) {
+        if (list[i].size > this.fileMaxSize) {
+          this.popMessage(`File size is exceed. (${this.returnFileSize(list[i].size)})`, "File size error", "error");
+          break;
+        }
+        this.attachmentList.push(list[i]);
+      }
+      else {
+        this.popMessage(`(${list[i].name}) is duplicated.`, "File duplicated", "error");
+      }
+    }
+  }
+
+  returnFileSize(bytes: number = 0, decimals: number = 2) {
+    if (!+bytes) return '0 Bytes'
+
+    const k = 1024
+    const dm = decimals < 0 ? 0 : decimals
+    const sizes = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB']
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`
+  }
+
+  removeFile(file: File) {
+    this.activity.attachmentList = this.activity.attachmentList.filter(item => item.fileName !== file.name)
   }
 }

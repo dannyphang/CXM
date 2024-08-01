@@ -23,10 +23,54 @@
     <div acc-panel-body class="activity-panel-content-div">
       <div class="text-editor">
         <p-editor
-          [(ngModel)]="editorModel"
+          [formControl]="editorFormControl"
           [style]="{ height: '200px' }"
-          [readonly]="true"
+          [readonly]="false"
+          (onTextChange)="countTextLength($event)"
+          [placeholder]="'ACTIVITY.EDITOR_PLACEHOLDER' | translate"
         />
+      </div>
+
+      <div class="tw-flex tw-justify-between tw-items-center">
+        <div class="tw-grid tw-items-center">
+          {{ contentWordLength }} / {{ editorContentLimit }}
+          {{ "ACTIVITY.WORDS" | translate }}
+        </div>
+        <p-button
+          [icon]="'pi pi-plus'"
+          [rounded]="true"
+          (onClick)="uploader.click()"
+          class="tw-mt-[15px]"
+          [pTooltip]="'BUTTON.ATTACH_FILE' | translate"
+        ></p-button>
+        <p-button label="Associated with 1 records" [text]="true" />
+      </div>
+
+      <input
+        type="file"
+        id="file-input"
+        #uploader
+        hidden
+        (change)="fileUpload($event)"
+        multiple
+      />
+
+      <!-- attachment -->
+      <div
+        class="attachment-div tw-mt-[15px] tw-flex"
+        *ngIf="activity.attachmentList.length > 0"
+      >
+        <div class="tw-grid tw-items-center tw-mr-[15px]">
+          <div class="pi pi-paperclip"></div>
+        </div>
+        <div class="attachment-chip-div tw-flex tw-flex-wrap">
+          <app-chip
+            *ngFor="let file of activity.attachmentList"
+            label="{{ file.fileName }} ({{ returnFileSize(file.fileSize) }})"
+            class="tw-mr-2 tw-mt-1"
+            (remove)="removeFile($event)"
+          ></app-chip>
+        </div>
       </div>
 
       <app-base-form [formConfig]="activityFormConfig"></app-base-form>

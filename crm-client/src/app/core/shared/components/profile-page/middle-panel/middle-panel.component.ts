@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
 import { CommonService, ContactDto, ModuleDto } from '../../../../services/common.service';
 import { FormControl } from '@angular/forms';
 import { ActivityDto, ActivityModuleDto, ActivityService } from '../../../../services/activity.service';
@@ -14,6 +14,7 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
   @Input() contactProfile: ContactDto = new ContactDto();
   @Input() companyProfile: ContactDto = new ContactDto(); // TODO: company profile
   @Input() activitiesList: ActivityDto[] = [];
+  @Output() activityListEmit: EventEmitter<any> = new EventEmitter<any>();
 
   isOpenDialog: boolean = false;
   activityModuleList: ModuleDto[] = [];
@@ -56,6 +57,8 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
       this.activityModuleList = res.activityModuleList;
       this.activityControlList = res.activityControlList;
     });
+
+
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -84,5 +87,10 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
   activityButtonOnClick(activityTab: ModuleDto) {
     this.isOpenDialog = true;
     this.dialogActivityTab = activityTab;
+  }
+
+  activityDialogCloseEmit() {
+    this.isOpenDialog = false;
+    this.activityListEmit.emit();
   }
 }

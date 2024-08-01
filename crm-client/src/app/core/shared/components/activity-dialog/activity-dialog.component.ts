@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, NgZone, OnChanges, OnDestroy, Output, SimpleChanges } from '@angular/core';
-import { CommonService, ContactDto, ModuleDto } from '../../../services/common.service';
+import { AttachmentDto, CommonService, ContactDto, ModuleDto } from '../../../services/common.service';
 import { FormBuilder, FormControl, FormGroup, NgModel, Validators } from '@angular/forms';
 import { CONTROL_TYPE, FormConfig, OptionsModel } from '../../../services/components.service';
 import { ActivityDto, ActivityModuleDto, ActivityService, CreateActivityDto } from '../../../services/activity.service';
@@ -296,10 +296,6 @@ export class ActivityDialogComponent implements OnChanges {
 
   save() {
     if (this.activityFormGroup.valid) {
-      let attachment
-      if (this.attachmentList) {
-
-      }
 
       let createActivity: CreateActivityDto = {
         activityModuleCode: this.activityModule.moduleCode,
@@ -311,18 +307,28 @@ export class ActivityDialogComponent implements OnChanges {
         activityOutcomeId: this.activityFormGroup.controls['OUTCOME_C'].value || this.activityFormGroup.controls['OUTCOME_M'].value ? this.activityModule.moduleCode === 'CALL' ? this.activityFormGroup.controls['OUTCOME_C'].value : this.activityFormGroup.controls['OUTCOME_M'].value : null,
         activityDuration: this.activityFormGroup.controls['DURAT'].value,
         associationId: '',
-        attachmentUrl: '',
+        attachmentUid: '',
       }
-      console.log(createActivity);
 
-      // this.activityService.createActivity([createActivity]).subscribe(res => {
-      //   console.log(res);
-      //   this.closeDialog();
-      // })
-      console.log(this.attachmentList[0])
-      this.commonService.uploadFile(this.attachmentList[0], "Activity").subscribe(res => {
-        console.log(res)
-      })
+      this.activityService.createActivity([createActivity]).subscribe(res => {
+        this.attachmentList.forEach(file => {
+          this.commonService.uploadFile(file, "Activity").subscribe(res2 => {
+            let uploadAttach: AttachmentDto = {
+              activityUid: res[0].uid!,
+              folderName: "Activity",
+              fileName: res2.metadata.name,
+              fullPath: res2.metadata.fullPath,
+              fileSize: res2.metadata.size
+            }
+
+            this.activityService.uploadAttachment([uploadAttach]).subscribe(res3 => {
+
+              this.closeDialog();
+            });
+          });
+        });
+      });
+
     }
   }
 

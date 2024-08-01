@@ -9,10 +9,10 @@ export abstract class BaseFieldControlComponent {
   };
   @Input() id?: string;
   @Input() label = '';
+  @Input() disabled: boolean = false;
   @Input() fieldControl = new FormControl();
   @Input() required: boolean = false;
   @Input() placeholder: string = '';
-  @Input() disabled: boolean = false;
   @Input() visibility: string = 'visible';
   @Input() set errorMessageList(val: any) {
     this._errorMessageList = { ...this._errorMessageList, ...val };

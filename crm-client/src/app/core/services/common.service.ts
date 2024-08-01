@@ -197,3 +197,12 @@ export class PropertyDataDto {
     propertyCode: string;
     value: string;
 }
+
+export class AttachmentDto extends BasedDto {
+    uid?: string;
+    folderName: string;
+    fullPath: string;
+    fileName: string;
+    activityUid: string;
+    fileSize: number;
+}
