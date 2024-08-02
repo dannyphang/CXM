@@ -24,7 +24,8 @@ export class LeftPanelComponent implements OnChanges {
       command: () => {
         const navigationExtras: NavigationExtras = {
           state: {
-            data: this.propertiesList
+            data: this.propertiesList,
+            profile: this.contactProfile
           }
         };
 

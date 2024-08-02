@@ -1,0 +1,10 @@
+:host ::ng-deep {
+  .allProp-div {
+    .p-accordion-content {
+      padding-top: 0px !important;
+      .form-container {
+        padding-top: 0px !important;
+      }
+    }
+  }
+}

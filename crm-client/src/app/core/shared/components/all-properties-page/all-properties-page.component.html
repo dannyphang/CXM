@@ -1,4 +1,4 @@
-<div class="tw-grid tw-p-[15px]">
+<div class="tw-grid tw-p-[15px] allProp-div" *ngIf="propertyConfig.length > 0">
   <div
     class="search-div tw-mt-[15px] tw-mb-0 tw-flex tw-flex-wrap tw-items-center"
   >
@@ -19,18 +19,54 @@
     *ngFor="let propertyGroup of propertyList"
     class="tw-mt-[15px]"
   >
-    <app-accordion-panel *ngIf="!propertyGroup.isHide">
+    <app-accordion-panel *ngIf="!propertyGroup.isHide" [iconPos]="'start'">
       <div acc-panel-header>
         {{ propertyGroup.moduleName }}
       </div>
       <div acc-panel-body>
-        <div *ngFor="let property of propertyGroup.propertiesList">
-          <app-property
-            [property]="property"
-            *ngIf="!property.isHide"
-          ></app-property>
-        </div>
+        <app-base-form
+          [formConfig]="returnProfileFormConfig(propertyGroup.moduleCode)"
+        ></app-base-form>
       </div>
     </app-accordion-panel>
   </div>
 </div>
+
+<!-- update profile form dialog -->
+<p-dialog
+  [(visible)]="showFormUpdateSidebar"
+  [position]="'bottom'"
+  styleClass="tw-w-full tw-m-[15px]"
+>
+  <ng-template pTemplate="headless">
+    <div
+      *ngIf="propUpdateList"
+      class="tw-flex tw-flex-wrap tw-items-center tw-m-[15px]"
+    >
+      <div class="tw-flex">
+        <app-base-button
+          [label]="'BUTTON.SAVE'"
+          styleClass=""
+          class="tw-w-full"
+          (onClick)="saveButton()"
+        ></app-base-button>
+        <app-base-button
+          [label]="'BUTTON.CANCEL'"
+          class="tw-ml-[15px]"
+          [outlined]="true"
+          (onClick)="cancelButton()"
+        ></app-base-button>
+      </div>
+
+      <app-base-label
+        [label]="
+          'You\'ve changed ' +
+          propUpdateList.length +
+          (propUpdateList.length === 1 ? ' property' : ' properties') +
+          '.'
+        "
+        class="tw-ml-[15px]"
+      ></app-base-label>
+    </div>
+  </ng-template>
+</p-dialog>

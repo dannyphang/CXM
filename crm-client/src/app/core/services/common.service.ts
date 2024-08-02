@@ -151,6 +151,7 @@ export class PropertiesDto extends BasedDto {
     isMandatory: boolean;
     isEditable: boolean;
     isVisible: boolean;
+    moduleCat: string;
     moduleCode: string;
     order: number;
     propertyLookupList: PropertyLookupDto[];
