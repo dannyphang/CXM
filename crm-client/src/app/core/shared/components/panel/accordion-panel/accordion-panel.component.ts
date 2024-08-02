@@ -8,6 +8,8 @@ import { Component, Input } from '@angular/core';
 export class AccordionPanelComponent {
   @Input() disabled: boolean = false;
   @Input() multiple: boolean = true;
+  @Input() isExpand: boolean;
+  @Input() iconPos: "end" | "start" = "end";
 
   constructor() {
 

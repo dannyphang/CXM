@@ -1,6 +1,6 @@
 import env from './environment.json';
 
-const isDev = false;
+const isDev = true;
 const apiConfig = {
     baseUrl: isDev ? env.localBaseUrl : env.serverBaseUrl
 };

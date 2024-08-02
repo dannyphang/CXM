@@ -1,0 +1,143 @@
+<p-tieredMenu #activityActionMenu [model]="actionMenu" [popup]="true" />
+<div class="activity-div">
+  <app-accordion-panel
+    class="activity-panel-div"
+    [isExpand]="activity.isExpand"
+  >
+    <div
+      acc-panel-header
+      class="activity-panel-header"
+      (click)="panelOnClick()"
+    >
+      <app-base-label
+        [label]="activity.activityModuleCode"
+        class="tw-ml-[6px] activity-title-label tw-grid tw-items-center"
+        (mouseenter)="activityInfoPanel.toggle($event)"
+      ></app-base-label>
+
+      <div
+        class="activity-panel-content tw-grid tw-items-center"
+        [innerHTML]="activity.activityContent"
+      ></div>
+
+      <p-button
+        icon="pi pi-sort-down-fill action-icon"
+        [iconPos]="'right'"
+        [text]="true"
+        [label]="'BUTTON.ACTION' | translate"
+        (click)="activityActionMenu.toggle($event)"
+        styleClass="activity-action-button"
+      />
+
+      <div class="activity-date tw-grid tw-items-center">
+        {{ activity.activityDatetime | date : "yyyy-MM-dd HH:mm" }}
+      </div>
+    </div>
+    <div acc-panel-body class="activity-panel-content-div">
+      <div class="text-editor">
+        <div
+          [innerHTML]="activity.activityContent"
+          *ngIf="readonly"
+          class="readonly-content-div"
+          (click)="readonly = false"
+        ></div>
+
+        <p-editor
+          *ngIf="!readonly"
+          [formControl]="editorFormControl"
+          [style]="{ height: '200px' }"
+          (onTextChange)="countTextLength($event)"
+          [placeholder]="'ACTIVITY.EDITOR_PLACEHOLDER' | translate"
+        />
+      </div>
+
+      <div class="tw-flex tw-justify-between tw-items-center">
+        <div class="tw-grid tw-items-center">
+          {{ contentWordLength }} / {{ editorContentLimit }}
+          {{ "ACTIVITY.WORDS" | translate }}
+        </div>
+        <p-button
+          [icon]="'pi pi-plus'"
+          [rounded]="true"
+          (onClick)="uploader.click()"
+          class="tw-mt-[var(--content-gap)]"
+          [pTooltip]="'BUTTON.ATTACH_FILE' | translate"
+        ></p-button>
+        <div
+          class="content-btn-div tw-flex tw-mt-[var(--content-gap)]"
+          *ngIf="!readonly"
+        >
+          <app-base-button
+            [label]="'BUTTON.CANCEL' | translate"
+            [outlined]="true"
+            (onClick)="readonly = true"
+          ></app-base-button>
+          <app-base-button
+            [label]="'BUTTON.UPDATE' | translate"
+            class="tw-ml-[var(--content-gap)]"
+            (onClick)="updateContent()"
+          ></app-base-button>
+        </div>
+        <p-button label="Associated with 1 records" [text]="true" />
+      </div>
+
+      <input
+        type="file"
+        id="file-input"
+        #uploader
+        hidden
+        (change)="fileUpload($event)"
+        multiple
+      />
+
+      <!-- attachment -->
+      <div
+        class="attachment-div tw-mt-[15px] tw-flex"
+        *ngIf="activity.attachmentList.length > 0"
+      >
+        <div class="tw-grid tw-items-center tw-mr-[15px]">
+          <div class="pi pi-paperclip"></div>
+        </div>
+        <div class="attachment-chip-div tw-flex tw-flex-wrap">
+          <app-chip
+            *ngFor="let file of activity.attachmentList"
+            label="{{ file.fileName }} ({{ returnFileSize(file.fileSize) }})"
+            class="tw-mr-2 tw-mt-1"
+            (remove)="removeFile($event)"
+          ></app-chip>
+        </div>
+      </div>
+
+      <app-base-form [formConfig]="activityFormConfig"></app-base-form>
+    </div>
+  </app-accordion-panel>
+</div>
+
+<p-overlayPanel #activityInfoPanel>
+  <div *ngFor="let comp of componentList" class="tw-mb-[var(--content-gap)]">
+    <div *ngIf="comp === 'OUTCOME_C' || comp === 'OUTCOME_M'" class="tw-flex">
+      <div class="tw-mr-[var(--content-gap)]">
+        {{ "ACTIVITY.OUTCOME" | translate }}:
+      </div>
+      <div>
+        {{
+          activity.activityOutcomeId
+            ? returnModuleInfo(comp, activity.activityOutcomeId)
+            : "--"
+        }}
+      </div>
+    </div>
+    <div *ngIf="comp === 'DIRECT'" class="tw-flex">
+      <div class="tw-mr-[var(--content-gap)]">
+        {{ "ACTIVITY.DIRECT" | translate }}:
+      </div>
+      <div>
+        {{
+          activity.activityDirectionId
+            ? returnModuleInfo(comp, activity.activityDirectionId)
+            : "--"
+        }}
+      </div>
+    </div>
+  </div>
+</p-overlayPanel>

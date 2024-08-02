@@ -1,0 +1,22 @@
+:host ::ng-deep {
+  .p-dialog-header {
+    padding-top: 5px;
+    padding-bottom: 0px;
+  }
+
+  .p-dialog-header:hover {
+    cursor: move;
+
+    .header-line-span {
+      opacity: 1;
+    }
+  }
+}
+
+.header-line-span {
+  width: 100px;
+  background-color: var(--primary-color);
+  height: 8px;
+  border-radius: 20px;
+  opacity: 0.5;
+}

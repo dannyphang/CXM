@@ -19,6 +19,7 @@ export class HomeComponent implements OnInit {
     one: new FormControl(''),
     two: new FormControl(''),
   });
+  editorModel: string = 'testings';
 
   constructor(
     private messageService: MessageService

@@ -34,4 +34,11 @@
   </p-sidebar> -->
 
   <app-tag [label]="'hihihi'"></app-tag>
+
+  <p-editor
+    [(ngModel)]="editorModel"
+    [style]="{ height: '200px' }"
+    [readonly]="false"
+    [placeholder]="'ACTIVITY.EDITOR_PLACEHOLDER' | translate"
+  />
 </div>

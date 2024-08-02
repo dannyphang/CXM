@@ -3,12 +3,18 @@ import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import apiConfig from "../../../environments/apiConfig";
 import { CONTROL_TYPE_CODE } from "./components.service";
+import { MessageService } from "primeng/api";
 
 @Injectable({ providedIn: 'root' })
 export class CommonService {
     constructor(
-        private http: HttpClient
+        private http: HttpClient,
+        private messageService: MessageService
     ) {
+    }
+
+    popMessage(message: string, title: string, severity: string = 'success',) {
+        this.messageService.add({ severity: severity, summary: title, detail: message });
     }
 
     getAllContact(): Observable<ContactDto[]> {
@@ -20,10 +26,11 @@ export class CommonService {
     }
 
     createContact(contactList: ContactDto[]): Observable<ContactDto[]> {
-        let headers = {
-            'contactList': contactList
-        }
         return this.http.post<ContactDto[]>(apiConfig.baseUrl + '/contact', { contactList }).pipe();
+    }
+
+    updateContact(contactList: UpdateContactDto[]): Observable<UpdateContactDto[]> {
+        return this.http.put<UpdateContactDto[]>(apiConfig.baseUrl + '/contact', { contactList }).pipe();
     }
 
     getAllProperties(): Observable<PropertiesDto[]> {
@@ -48,18 +55,31 @@ export class CommonService {
         return this.http.post<PropertiesDto>(apiConfig.baseUrl + '/common/properties', properties).pipe();
     }
 
-    getAllActivityModule(): Observable<ActivitiesListDto> {
-        return this.http.get<ActivitiesListDto>((apiConfig.baseUrl + '/common/activityModule')).pipe();
+    uploadFile(file: File, folderName: string): Observable<any> {
+        const formData: FormData = new FormData();
+
+        formData.append('file', file);
+        formData.append('folderName', folderName);
+
+        return this.http.post<any>(apiConfig.baseUrl + '/storage/file', formData, {
+            reportProgress: true,
+            responseType: 'json'
+        }).pipe();
     }
 
+    /**
+     * set form control init value
+     * @param prop properties 
+     * @returns 
+     */
     returnControlTypeEmptyValue(prop: PropertiesDto): any {
         let type = prop.propertyType;
 
         if (type === CONTROL_TYPE_CODE.Textbox || type === CONTROL_TYPE_CODE.Textarea || type === CONTROL_TYPE_CODE.Email || type === CONTROL_TYPE_CODE.Phone || type === CONTROL_TYPE_CODE.Url) {
             return '';
         }
-        else if (type === CONTROL_TYPE_CODE.Checkbox) {
-            return false;
+        else if (type === CONTROL_TYPE_CODE.Checkbox || type === CONTROL_TYPE_CODE.Multiselect) {
+            return null;
         }
         else if (type === CONTROL_TYPE_CODE.Date || type === CONTROL_TYPE_CODE.DateTime || type === CONTROL_TYPE_CODE.Time) {
             return new Date();
@@ -67,7 +87,7 @@ export class CommonService {
         else if (type === CONTROL_TYPE_CODE.Number) {
             return 0;
         }
-        else if (type === CONTROL_TYPE_CODE.Dropdown || type === CONTROL_TYPE_CODE.Multiselect) {
+        else if (type === CONTROL_TYPE_CODE.Dropdown) {
             let lookup = {
                 label: '',
                 value: ''
@@ -87,8 +107,24 @@ export class CommonService {
         }
         return {};
     }
+
+    setPropertyDataValue(prop: PropertiesDto, value: any): string {
+        if (prop.propertyType === CONTROL_TYPE_CODE.Checkbox || prop.propertyType === CONTROL_TYPE_CODE.MultiCheckbox || prop.propertyType === CONTROL_TYPE_CODE.Multiselect) {
+            return value.filter((item: any) => item.length > 0).toString();
+        }
+        return value.toString();
+    }
 }
-export class ModuleDto {
+
+export class BasedDto {
+    createdDate?: Date;
+    createdBy?: string;
+    modifiedDate?: Date;
+    modifiedBy?: string;
+    statusId?: number;
+}
+
+export class ModuleDto extends BasedDto {
     uid: string;
     moduleId: string;
     moduleName: string;
@@ -97,11 +133,6 @@ export class ModuleDto {
     moduleType: string;
     moduleValue: string;
     moduleCode: string;
-    statusId: number;
-    createdDate: Date;
-    createdBy: string;
-    modifiedDate: Date;
-    modifiedBy: string;
 }
 
 export class PropertyGroupDto extends ModuleDto {
@@ -109,7 +140,7 @@ export class PropertyGroupDto extends ModuleDto {
     isHide: boolean;
 }
 
-export class PropertiesDto {
+export class PropertiesDto extends BasedDto {
     propertyId: string;
     uid: string;
     propertyName: string;
@@ -122,16 +153,11 @@ export class PropertiesDto {
     isVisible: boolean;
     moduleCode: string;
     order: number;
-    statusID: number;
-    createdDate: Date;
-    createdBy: string;
-    modifiedDate: Date;
-    modifiedBy: string;
     propertyLookupList: PropertyLookupDto[];
     isHide: boolean;
 }
 
-export class PropertyLookupDto {
+export class PropertyLookupDto extends BasedDto {
     uid: string;
     propertyLookupId: string;
     propertyId: string;
@@ -141,15 +167,10 @@ export class PropertyLookupDto {
     isDefault: boolean;
     isSystem: boolean;
     isVisiable: boolean;
-    statusId: number;
-    createdDate: Date;
-    createdBy: string;
-    modifiedDate: Date;
-    modifiedBy: string;
 }
 
-export class ContactDto {
-    uid?: string;
+export class ContactDto extends BasedDto {
+    uid: string;
     contactId?: string;
     contactFirstName: string;
     contactLastName: string;
@@ -157,12 +178,18 @@ export class ContactDto {
     contactPhone: string;
     contactOwnerUid?: string;
     contactLeadStatusId?: string;
+    contactProperties: string;
+}
+
+export class UpdateContactDto {
+    uid: string;
+    contactFirstName?: string;
+    contactLastName?: string;
+    contactEmail?: string;
+    contactPhone?: string;
+    contactOwnerUid?: string;
+    contactLeadStatusId?: string;
     contactProperties?: string;
-    statusId: number;
-    createdDate: Date;
-    createdBy?: string;
-    modifiedDate: Date;
-    modifiedBy?: string;
 }
 
 export class PropertyDataDto {
@@ -171,11 +198,11 @@ export class PropertyDataDto {
     value: string;
 }
 
-export class ActivityModuleDto extends ModuleDto {
-    subActivityControl: ModuleDto[];
-}
-
-export class ActivitiesListDto {
-    activityControlList: ActivityModuleDto[];
-    activityModuleList: ModuleDto[];
+export class AttachmentDto extends BasedDto {
+    uid?: string;
+    folderName: string;
+    fullPath: string;
+    fileName: string;
+    activityUid: string;
+    fileSize: number;
 }

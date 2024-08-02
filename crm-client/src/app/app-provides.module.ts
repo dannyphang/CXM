@@ -13,6 +13,7 @@ import { BaseLabelComponent } from './core/shared/components/label/label.compone
 import { BaseMultiselectComponent } from './core/shared/components/multiselect/multiselect.component';
 import { BaseRadioComponent } from './core/shared/components/radio/radio.component';
 import { BaseTextareaComponent } from './core/shared/components/textarea/textarea.component';
+import { MATERIAL_SANITY_CHECKS } from '@angular/material/core';
 
 export const allBaseUIForm = {
     [CONTROL_TYPE.Textbox]: BaseInputComponent,
@@ -41,5 +42,5 @@ export const providers = [
             arrayItem: FormArrayItemComponent,
         },
     },
-
+    { provide: MATERIAL_SANITY_CHECKS, useValue: false }, // disable material theme checking
 ];

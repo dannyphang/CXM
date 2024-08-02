@@ -1,16 +1,20 @@
-<div class="tw-flex">
+<div class="tw-flex profile-box">
   <p-splitter [panelSizes]="[30, 70]" [minSizes]="[20, 50]" class="tw-w-full">
     <ng-template pTemplate>
       <app-left-panel
-        class="left-panel-area"
+        class="left-panel-area tw-w-full"
         [propertiesList]="propertiesList"
         [contactProfile]="contactProfile"
+        (contactProfileUpdateEmit)="contactProfileUpdate($event)"
       ></app-left-panel>
     </ng-template>
 
     <ng-template pTemplate>
       <app-middle-panel
-        class="middle-panel-area tw-mr-[15px] tw-w-full"
+        [contactProfile]="contactProfile"
+        [activitiesList]="activitiesList"
+        class="middle-panel-area tw-w-full"
+        (activityListEmit)="getActivities()"
       ></app-middle-panel>
     </ng-template>
   </p-splitter>

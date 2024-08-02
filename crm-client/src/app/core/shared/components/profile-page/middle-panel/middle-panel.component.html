@@ -1,4 +1,4 @@
-<div class="tw-w-full tw-m-[15px] tw-ml-0">
+<div class="tw-w-full">
   <p-tabView class="middle-profile-tabView tw-w-full">
     <p-tabPanel header="Activities">
       <div class="tw-flex tw-justify-between">
@@ -25,27 +25,132 @@
       </div>
 
       <p-tabView class="activity-tab">
-        <p-tabPanel header="All" [selected]="false"> </p-tabPanel>
+        <!-- ALL Tab-->
+        <p-tabPanel header="All" [selected]="false">
+          <!-- Pinned -->
+          <div *ngIf="returnIsPinnedActivityList('ALL').length > 0">
+            <div
+              class="activity-label-div tw-flex tw-flex-wrap tw-items-center"
+            >
+              <i class="pi pi-star-fill"></i>
+              <p class="pinned-label">{{ "ACTIVITY.PINNED" | translate }}</p>
+            </div>
+            <div
+              *ngFor="let activity of returnIsPinnedActivityList('ALL')"
+              class="tw-pb-[15px]"
+            >
+              <app-activity-block
+                [activityControlList]="activityControlList"
+                [activityModuleList]="activityModuleList"
+                [activity]="activity"
+                [moduleLable]="'ALL'"
+                (activityReload)="activityListEmit.emit()"
+              ></app-activity-block>
+            </div>
+          </div>
+
+          <!-- UpComing -->
+          <div *ngIf="returnUpComingActivityList('ALL').length > 0">
+            <div
+              class="activity-label-div tw-flex tw-flex-wrap tw-items-center"
+            >
+              <i class="pi pi-calendar"></i>
+              <p class="upcoming-label">
+                {{ "ACTIVITY.UPCOMING" | translate }}
+              </p>
+            </div>
+            <div
+              *ngFor="let activity of returnUpComingActivityList('ALL')"
+              class="tw-pb-[15px]"
+            >
+              <app-activity-block
+                [activityControlList]="activityControlList"
+                [activityModuleList]="activityModuleList"
+                [activity]="activity"
+                [moduleLable]="'ALL'"
+                (activityReload)="activityListEmit.emit()"
+              ></app-activity-block>
+            </div>
+          </div>
+        </p-tabPanel>
+
+        <!-- Other Tab -->
         <p-tabPanel
-          *ngFor="let activity of activityModuleList"
-          [header]="activity.moduleName"
+          *ngFor="let activityTab of activityModuleList"
+          [header]="activityTab.moduleName"
           onclick=""
         >
           <div class="">
             <app-base-button
-              [label]="returnActivityLable(activity.moduleCode)"
-              class="tw-flex tw-justify-end"
-              (onClick)="isOpenDialog = true"
+              [label]="returnActivityLable(activityTab.moduleCode)"
+              class="tw-flex tw-justify-end tw-mb-[15px]"
+              (onClick)="activityButtonOnClick(activityTab)"
             ></app-base-button>
 
-            <app-activity-dialog
-              [activityModule]="activity"
-              [visible]="isOpenDialog"
-              [activityControlList]="getActivityControlList(activity)"
-              [activityModuleList]="activityModuleList"
-              [header]="returnActivityLable(activity.moduleCode)"
-              (close)="isOpenDialog = false"
-            ></app-activity-dialog>
+            <!-- Pinned -->
+            <div
+              *ngIf="
+                returnIsPinnedActivityList(activityTab.moduleCode).length > 0
+              "
+            >
+              <div
+                class="activity-label-div tw-flex tw-flex-wrap tw-items-center"
+              >
+                <i class="pi pi-star-fill"></i>
+                <p class="pinned-label">{{ "ACTIVITY.PINNED" | translate }}</p>
+              </div>
+
+              <div
+                *ngFor="
+                  let activity of returnIsPinnedActivityList(
+                    activityTab.moduleCode
+                  )
+                "
+                class="tw-pb-[15px]"
+              >
+                <app-activity-block
+                  *ngIf="activity.activityModuleCode === activityTab.moduleCode"
+                  [activityModule]="activityTab"
+                  [activityControlList]="getActivityControlList(activityTab)"
+                  [activityModuleList]="activityModuleList"
+                  [activity]="activity"
+                  (activityReload)="activityListEmit.emit()"
+                ></app-activity-block>
+              </div>
+            </div>
+
+            <!-- UpComing -->
+            <div
+              *ngIf="
+                returnUpComingActivityList(activityTab.moduleCode).length > 0
+              "
+            >
+              <div
+                class="activity-label-div tw-flex tw-flex-wrap tw-items-center"
+              >
+                <i class="pi pi-calendar"></i>
+                <p class="upcoming-label">
+                  {{ "ACTIVITY.UPCOMING" | translate }}
+                </p>
+              </div>
+              <div
+                *ngFor="
+                  let activity of returnUpComingActivityList(
+                    activityTab.moduleCode
+                  )
+                "
+                class="tw-pb-[15px]"
+              >
+                <app-activity-block
+                  *ngIf="activity.activityModuleCode === activityTab.moduleCode"
+                  [activityModule]="activityTab"
+                  [activityControlList]="getActivityControlList(activityTab)"
+                  [activityModuleList]="activityModuleList"
+                  [activity]="activity"
+                  (activityReload)="activityListEmit.emit()"
+                ></app-activity-block>
+              </div>
+            </div>
           </div>
         </p-tabPanel>
       </p-tabView>
@@ -53,3 +158,13 @@
     <!-- <p-tabPanel header="Properties"> </p-tabPanel> -->
   </p-tabView>
 </div>
+
+<app-activity-dialog
+  [activityModule]="dialogActivityTab"
+  [visible]="isOpenDialog"
+  [contactProfile]="contactProfile"
+  [activityControlListInput]="getActivityControlList(dialogActivityTab)"
+  [activityModuleList]="activityModuleList"
+  [header]="returnActivityLable(dialogActivityTab.moduleCode)"
+  (close)="activityDialogCloseEmit()"
+></app-activity-dialog>

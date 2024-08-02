@@ -241,9 +241,7 @@ export class ContactCompanyPageComponent {
     });
 
     newContact.contactProperties = JSON.stringify(contactProperty);
-    console.log(newContact);
     this.commonService.createContact([newContact]).subscribe(res => {
-      console.log(res);
       this.displayCreateDialog = false;
 
       this.getContact();

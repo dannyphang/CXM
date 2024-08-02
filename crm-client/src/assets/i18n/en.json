@@ -1,3 +1,23 @@
 {
-  "YOU_CANNOT_LEAVE_IT_BLANK": "You cannot leave it blank"
+  "ERROR": {
+    "YOU_CANNOT_LEAVE_IT_BLANK": "You cannot leave it blank",
+    "INVALID_FORMAT": "The format is invalid.",
+    "INVALID_DATE_RANGE": "From Date must before To Date"
+  },
+  "BUTTON": {
+    "SAVE": "Save",
+    "CANCEL": "Cancel",
+    "EDIT": "Edit",
+    "UPDATE": "Update",
+    "ACTION": "Action",
+    "ATTACH_FILE": "Attach Files"
+  },
+  "ACTIVITY": {
+    "WORDS": "words",
+    "EDITOR_PLACEHOLDER": "Describe the log...",
+    "PINNED": "Pinned",
+    "UPCOMING": "UpComing",
+    "OUTCOME": "Outcome",
+    "DIRECT": "Direction"
+  }
 }

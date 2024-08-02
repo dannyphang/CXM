@@ -53,6 +53,10 @@ export class BaseDropdownComponent
           this.getOptions('searchChange');
         });
     }
+
+    if (this.disabled) {
+      this.fieldControl.disable()
+    }
   }
 
   onChange(event: any) {

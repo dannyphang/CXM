@@ -1,0 +1,47 @@
+:host ::ng-deep .activity-div {
+  .activity-panel-div {
+    .p-accordion-header {
+      border-radius: var(--border-radius);
+
+      .p-accordion-header-link {
+        background-color: var(--highlight-bg);
+        padding: 8px;
+
+        .activity-panel-header {
+          width: 100%;
+          display: grid;
+          grid-template-areas: " activity-title-label activity-panel-content activity-action-button activity-date";
+          grid-template-columns: auto 1fr auto auto;
+          column-gap: var(--content-gap-xs);
+          align-items: center;
+          margin-right: var(--content-gap);
+
+          .action-icon {
+            font-size: 10px;
+          }
+        }
+      }
+    }
+
+    .p-toggleable-content {
+      border-radius: var(--border-radius);
+      border: 1px solid var(--primary-color);
+
+      .p-accordion-content {
+        border-radius: var(--border-radius);
+      }
+    }
+  }
+}
+
+.readonly-content-div {
+  border: 1px solid transparent;
+  padding-left: var(--content-gap);
+  padding-right: var(--content-gap);
+}
+
+.readonly-content-div:hover {
+  cursor: pointer;
+  border: 1px solid var(--primary-color);
+  border-radius: var(--border-radius);
+}

@@ -1,49 +1,84 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { ActivityModuleDto, ModuleDto } from '../../../services/common.service';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { Component, EventEmitter, Input, NgZone, OnChanges, OnDestroy, Output, SimpleChanges } from '@angular/core';
+import { AttachmentDto, CommonService, ContactDto, ModuleDto } from '../../../services/common.service';
+import { FormBuilder, FormControl, FormGroup, NgModel, Validators } from '@angular/forms';
 import { CONTROL_TYPE, FormConfig, OptionsModel } from '../../../services/components.service';
+import { ActivityDto, ActivityModuleDto, ActivityService, CreateActivityDto } from '../../../services/activity.service';
+import { EDITOR_CONTENT_LIMIT, ATTACHMENT_MAX_SIZE } from '../../constants/common.constants';
+import { FileSelectEvent, UploadEvent } from 'primeng/fileupload';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-activity-dialog',
   templateUrl: './activity-dialog.component.html',
   styleUrl: './activity-dialog.component.scss'
 })
-export class ActivityDialogComponent {
+export class ActivityDialogComponent implements OnChanges {
+  @Input() contactProfile: ContactDto = new ContactDto();
+  @Input() module: "CONT" | "COMP" = "CONT";
   @Input() activityModule: ModuleDto = new ModuleDto();
   @Input() visible: boolean = false;
-  @Input() activityControlList: ActivityModuleDto[] = [];
+  @Input() activityControlListInput: ActivityModuleDto[] = [];
   @Input() activityModuleList: ModuleDto[] = [];
   @Input() header: string = 'Activity Dialog';
   @Output() close: EventEmitter<any> = new EventEmitter<any>();
 
+  activityControlList: ActivityModuleDto[] = [];
   activityFormConfig: FormConfig[] = [];
   activityFormGroup: FormGroup = new FormGroup({
-    CONT: new FormControl(null, Validators.required),
-    DATE: new FormControl(new Date(), Validators.required),
-    TIME: new FormControl(new Date(), Validators.required),
-    OUTCOME_C: new FormControl(null, Validators.required),
-    DIRECT: new FormControl(null, Validators.required),
-    OUTCOME_M: new FormControl(null, Validators.required),
-    DURAT: new FormControl(null, Validators.required),
+    CONT: new FormControl(this.module === "CONT" ? [this.contactProfile.contactId] : []),
+    DATE: new FormControl(new Date()),
+    TIME: new FormControl(new Date()),
+    OUTCOME_C: new FormControl(null),
+    DIRECT: new FormControl(null),
+    OUTCOME_M: new FormControl(null),
+    DURAT: new FormControl(null),
   });
-
+  activitiesList: ActivityDto[] = [];
   componentList: string[] = [];
+  editorModel: string = '<p>Testing</p>';
+  editorFormControl: FormControl = new FormControl(null, Validators.required);
+  contentWordLength: number = 0;
+  editorContentLimit = EDITOR_CONTENT_LIMIT;
+  attachmentList: File[] = [];
+  fileMaxSize: number = ATTACHMENT_MAX_SIZE;
 
   constructor(
-    private formBuilder: FormBuilder
+    private commonService: CommonService,
+    private formBuilder: FormBuilder,
+    private activityService: ActivityService,
+    private ngZone: NgZone,
+    private messageService: MessageService
   ) {
 
   }
 
   ngOnInit() {
-    this.assignForm();
-
 
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['contactProfile'] && changes['contactProfile'].currentValue) {
+      this.activityFormGroup.controls['CONT'].setValue([this.contactProfile.contactId])
+    }
+    if (changes['activityModule'] && changes['activityModule'].currentValue) {
+      this.assignForm();
+    }
+  }
+
   closeDialog() {
+    this.clearForm();
     this.visible = false;
     this.close.emit();
+  }
+
+  clearForm() {
+    this.activityFormGroup.controls['CONT'].setValue(this.module === "CONT" ? [this.contactProfile.contactId] : []);
+    this.activityFormGroup.controls['DATE'].setValue(new Date());
+    this.activityFormGroup.controls['TIME'].setValue(new Date());
+    this.activityFormGroup.controls['OUTCOME_C'].setValue(null);
+    this.activityFormGroup.controls['DIRECT'].setValue(null);
+    this.activityFormGroup.controls['OUTCOME_M'].setValue(null);
+    this.activityFormGroup.controls['DURAT'].setValue(null);
   }
 
   assignForm() {
@@ -62,17 +97,12 @@ export class ActivityDialogComponent {
         break;
     }
 
-    this.activityControlList = this.activityControlList.filter((control) => {
+    this.activityControlList = this.activityControlListInput.filter((control) => {
       return this.componentList.includes(control.moduleCode);
     });
 
-    console.log(this.activityModule.moduleName);
-    console.log(this.activityControlList);
-
-    this.activityFormGroup = this.formBuilder.group({});
-
     let cols = 0;
-    let rows = 0;
+    let rows = 1;
     let formsConfig: FormConfig[] = [];
 
     this.activityControlList.forEach((module) => {
@@ -94,14 +124,14 @@ export class ActivityDialogComponent {
 
       if (module.moduleCode === 'CONT') {
         forms = {
-          type: CONTROL_TYPE.Dropdown,
+          type: CONTROL_TYPE.Multiselect,
           label: module.moduleName,
           fieldControl: this.activityFormGroup.controls[module.moduleCode],
           layoutDefine: {
-            row: rows,
-            column: cols,
+            row: 0,
+            column: 0,
           },
-          options: []
+          options: this.getContactedList(),
         }
       }
       else if (module.moduleCode === 'DATE' || module.moduleCode === 'TIME') {
@@ -139,8 +169,8 @@ export class ActivityDialogComponent {
       }
       else if (module.moduleCode === 'DURAT') {
         let subList: OptionsModel[] = [];
-        module.subActivityControl.forEach((item) => {
-          subList.push({ label: item.moduleName, value: item.uid });
+        this.generateTimeSlots().forEach((item) => {
+          subList.push({ label: item.label, value: item.value });
         });
 
         forms = {
@@ -151,12 +181,158 @@ export class ActivityDialogComponent {
             row: rows,
             column: cols,
           },
-          options: subList
+          options: this.generateTimeDurations()
         }
       }
       cols++;
       formsConfig.push(forms);
     });
-    this.activityFormConfig = JSON.parse(JSON.stringify(formsConfig));
+    this.activityFormConfig = formsConfig;
+  }
+
+  getContactedList(): OptionsModel[] {
+    return [{
+      label: `${this.contactProfile.contactFirstName} ${this.contactProfile.contactLastName} (${this.contactProfile.contactEmail})`,
+      value: this.contactProfile.contactId
+    },
+    {
+      label: `${this.contactProfile.contactFirstName} ${this.contactProfile.contactLastName} (${this.contactProfile.contactEmail})`,
+      value: 123
+    },
+    {
+      label: `${this.contactProfile.contactFirstName} ${this.contactProfile.contactLastName} (${this.contactProfile.contactEmail})`,
+      value: 321
+    }
+    ];
+  }
+
+  generateTimeSlots(intervalMinutes: number = 30): any[] {
+    let times: any[] = [];
+
+    let minute: number = 0;
+    for (let hours = 0; hours < 24; hours++) {
+      for (let minutes = 0; minutes < 60; minutes += intervalMinutes) {
+        const formattedTime = {
+          value: `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`,
+          label: minute += minutes
+        };
+
+        times.push(formattedTime);
+      }
+    }
+
+    return times;
+  }
+
+  generateTimeDurations(intervalMinutes: number = 15, iterations: number = 32): any[] {
+    const durations: any[] = [];
+    let currentMinutes = intervalMinutes;
+
+    for (let i = 0; i < iterations; i++) {
+      if (currentMinutes < 60) {
+        durations.push({
+          label: `${currentMinutes} minutes`,
+          value: currentMinutes
+        });
+      } else {
+        const hours = Math.floor(currentMinutes / 60);
+        const minutes = currentMinutes % 60;
+        const hourString = hours > 1 ? 'hours' : 'hour';
+        const duration = minutes > 0
+          ? `${hours} ${hourString} ${minutes} minutes`
+          : `${hours} ${hourString}`;
+        durations.push({
+          label: duration,
+          value: currentMinutes
+        });
+      }
+      currentMinutes += intervalMinutes;
+    }
+
+    return durations;
+  }
+
+  countTextLength(text: any) {
+    this.ngZone.run(() => {
+      this.contentWordLength = text.textValue.length;
+    });
+  }
+
+  fileUpload(event: any) {
+    // console.log(event.target.files)
+    let list: File[] = event.target.files;
+
+    for (let i = 0; i < list.length; i++) {
+      if (!this.attachmentList.find(item => item.name === list[i].name)) {
+        if (list[i].size > this.fileMaxSize) {
+          this.popMessage(`File size is exceed. (${this.returnFileSize(list[i].size)})`, "File size error", "error");
+          break;
+        }
+        this.attachmentList.push(list[i]);
+      }
+      else {
+        this.popMessage(`(${list[i].name}) is duplicated.`, "File duplicated", "error");
+      }
+    }
+
+    console.log(this.attachmentList)
+  }
+
+  returnFileSize(bytes: number = 0, decimals: number = 2) {
+    if (!+bytes) return '0 Bytes'
+
+    const k = 1024
+    const dm = decimals < 0 ? 0 : decimals
+    const sizes = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB']
+
+    const i = Math.floor(Math.log(bytes) / Math.log(k))
+
+    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`
+  }
+
+  removeFile(file: File) {
+    this.attachmentList = this.attachmentList.filter(item => item.name !== file.name)
+  }
+
+  save() {
+    if (this.activityFormGroup.valid) {
+
+      let createActivity: CreateActivityDto = {
+        activityModuleCode: this.activityModule.moduleCode,
+        activityModuleId: this.activityModule.uid,
+        activityContent: this.editorFormControl.value,
+        activityContactedIdList: this.activityFormGroup.controls['CONT'].value,
+        activityDatetime: this.activityFormGroup.controls['DATE'].value, // TODO
+        activityDirectionId: this.activityFormGroup.controls['DIRECT'].value,
+        activityOutcomeId: this.activityFormGroup.controls['OUTCOME_C'].value || this.activityFormGroup.controls['OUTCOME_M'].value ? this.activityModule.moduleCode === 'CALL' ? this.activityFormGroup.controls['OUTCOME_C'].value : this.activityFormGroup.controls['OUTCOME_M'].value : null,
+        activityDuration: this.activityFormGroup.controls['DURAT'].value,
+        associationId: '',
+        attachmentUid: '',
+      }
+
+      this.activityService.createActivity([createActivity]).subscribe(res => {
+        this.attachmentList.forEach(file => {
+          this.commonService.uploadFile(file, "Activity").subscribe(res2 => {
+            let uploadAttach: AttachmentDto = {
+              activityUid: res[0].uid!,
+              folderName: "Activity",
+              fileName: res2.metadata.name,
+              fullPath: res2.metadata.fullPath,
+              fileSize: res2.metadata.size
+            }
+
+            this.activityService.uploadAttachment([uploadAttach]).subscribe(res3 => {
+
+              this.closeDialog();
+            });
+          });
+        });
+      });
+
+    }
+  }
+
+  popMessage(message: string, title: string, severity: string = 'success',) {
+    this.messageService.add({ severity: severity, summary: title, detail: message });
   }
 }
