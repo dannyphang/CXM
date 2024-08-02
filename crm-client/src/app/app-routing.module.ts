@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { LayoutComponent } from './layout/layout.component';
+import { Error404Component } from './layout/error-404/error-404.component';
 
 const routes: Routes = [
   {
@@ -8,7 +9,7 @@ const routes: Routes = [
     component: LayoutComponent,
     children: [
       {
-        path: 'home',
+        path: '',
         loadChildren: () => import('./module/home/home.module').then(m => m.HomeModule),
         data: { breadcrumb: 'Home', title: 'Home' }
       },
@@ -25,13 +26,12 @@ const routes: Routes = [
     ]
   },
   {
-    path: '',
-    redirectTo: '/contact',
-    pathMatch: 'full'
+    path: 'pagenotfound',
+    component: Error404Component
   },
   {
     path: '**',
-    redirectTo: '/contact',
+    redirectTo: '/pagenotfound',
     pathMatch: 'full'
   }
 ];
