@@ -1,5 +1,9 @@
 import { DatePipe } from '@angular/common';
 import { Component, EventEmitter, Output } from '@angular/core';
+import { FormControl } from '@angular/forms';
+import { Router } from '@angular/router';
+import { MenuItem } from 'primeng/api';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 
 @Component({
   selector: 'app-header',
@@ -7,5 +11,38 @@ import { Component, EventEmitter, Output } from '@angular/core';
   styleUrl: './header.component.scss'
 })
 export class HeaderComponent {
+  menuItem: MenuItem[] = [];
+  searchFormControl: FormControl = new FormControl("");
 
+  constructor(
+    private router: Router,
+  ) {
+
+  }
+
+  ngOnInit() {
+    this.menuItem = [
+      {
+        label: 'Contact',
+        icon: '',
+        tooltip: "COMMON.CONTACT",
+        command: () => {
+          this.router.navigate(["/contact"]);
+        }
+      },
+      {
+        label: 'Company',
+        icon: '',
+        tooltip: "COMMON.COMPANY",
+        command: () => {
+          this.router.navigate(["/company"]);
+        }
+      },
+    ];
+
+    this.searchFormControl.valueChanges.pipe(debounceTime(2000),
+      distinctUntilChanged()).subscribe(value => {
+        console.log(value);
+      })
+  }
 }

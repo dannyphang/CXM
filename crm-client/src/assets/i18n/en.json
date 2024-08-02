@@ -1,4 +1,12 @@
 {
+  "COMMON": {
+    "CONTACT": "Contact",
+    "COMPANY": "Company"
+  },
+  "HEADER": {
+    "SETTING": "Setting",
+    "SEARCH": "Search"
+  },
   "ERROR": {
     "YOU_CANNOT_LEAVE_IT_BLANK": "You cannot leave it blank",
     "INVALID_FORMAT": "The format is invalid.",
