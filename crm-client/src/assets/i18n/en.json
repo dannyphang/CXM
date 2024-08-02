@@ -14,6 +14,10 @@
   },
   "ACTIVITY": {
     "WORDS": "words",
-    "EDITOR_PLACEHOLDER": "Describe the log..."
+    "EDITOR_PLACEHOLDER": "Describe the log...",
+    "PINNED": "Pinned",
+    "UPCOMING": "UpComing",
+    "OUTCOME": "Outcome",
+    "DIRECT": "Direction"
   }
 }

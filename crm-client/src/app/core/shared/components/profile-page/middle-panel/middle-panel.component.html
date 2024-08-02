@@ -29,7 +29,12 @@
         <p-tabPanel header="All" [selected]="false">
           <!-- Pinned -->
           <div *ngIf="returnIsPinnedActivityList('ALL').length > 0">
-            <app-base-label [label]="'Pinned'"></app-base-label>
+            <div
+              class="activity-label-div tw-flex tw-flex-wrap tw-items-center"
+            >
+              <i class="pi pi-star-fill"></i>
+              <p class="pinned-label">{{ "ACTIVITY.PINNED" | translate }}</p>
+            </div>
             <div
               *ngFor="let activity of returnIsPinnedActivityList('ALL')"
               class="tw-pb-[15px]"
@@ -46,7 +51,14 @@
 
           <!-- UpComing -->
           <div *ngIf="returnUpComingActivityList('ALL').length > 0">
-            <app-base-label [label]="'UpComing'"></app-base-label>
+            <div
+              class="activity-label-div tw-flex tw-flex-wrap tw-items-center"
+            >
+              <i class="pi pi-calendar"></i>
+              <p class="upcoming-label">
+                {{ "ACTIVITY.UPCOMING" | translate }}
+              </p>
+            </div>
             <div
               *ngFor="let activity of returnUpComingActivityList('ALL')"
               class="tw-pb-[15px]"
@@ -81,7 +93,13 @@
                 returnIsPinnedActivityList(activityTab.moduleCode).length > 0
               "
             >
-              <app-base-label [label]="'Pinned'"></app-base-label>
+              <div
+                class="activity-label-div tw-flex tw-flex-wrap tw-items-center"
+              >
+                <i class="pi pi-star-fill"></i>
+                <p class="pinned-label">{{ "ACTIVITY.PINNED" | translate }}</p>
+              </div>
+
               <div
                 *ngFor="
                   let activity of returnIsPinnedActivityList(
@@ -107,7 +125,14 @@
                 returnUpComingActivityList(activityTab.moduleCode).length > 0
               "
             >
-              <app-base-label [label]="'UpComing'"></app-base-label>
+              <div
+                class="activity-label-div tw-flex tw-flex-wrap tw-items-center"
+              >
+                <i class="pi pi-calendar"></i>
+                <p class="upcoming-label">
+                  {{ "ACTIVITY.UPCOMING" | translate }}
+                </p>
+              </div>
               <div
                 *ngFor="
                   let activity of returnUpComingActivityList(

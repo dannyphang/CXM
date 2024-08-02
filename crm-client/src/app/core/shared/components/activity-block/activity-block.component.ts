@@ -97,7 +97,7 @@ export class ActivityBlockComponent implements OnChanges {
       this.actionMenu = [
         {
           label: this.activity.isPinned ? 'Unpin' : 'Pin',
-          icon: 'pi pi-thumbtack',
+          icon: this.activity.isPinned ? 'pi pi-star-fill' : 'pi pi-star',
           command: () => {
             this.activity.isPinned = !this.activity.isPinned;
             this.activityService.updateActivity({
@@ -322,5 +322,14 @@ export class ActivityBlockComponent implements OnChanges {
       this.activity.activityContent = this.editorFormControl.value;
       this.readonly = true
     });
+  }
+
+  panelOnClick() {
+    this.activity.isExpand = !this.activity.isExpand;
+    console.log(this.activity.isExpand)
+  }
+
+  returnModuleInfo(code: string, id: string): string {
+    return this.activityControlList.find(control => control.moduleCode === code)!.subActivityControl.find(item => item.uid === id)!.moduleName;
   }
 }

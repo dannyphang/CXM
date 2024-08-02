@@ -9,6 +9,12 @@
 
         .activity-panel-header {
           width: 100%;
+          display: grid;
+          grid-template-areas: " activity-title-label activity-panel-content activity-action-button activity-date";
+          grid-template-columns: auto 1fr auto auto;
+          column-gap: var(--content-gap-xs);
+          align-items: center;
+          margin-right: var(--content-gap);
 
           .action-icon {
             font-size: 10px;
