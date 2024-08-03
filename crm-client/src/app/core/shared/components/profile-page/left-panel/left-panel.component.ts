@@ -24,7 +24,8 @@ export class LeftPanelComponent implements OnChanges {
       command: () => {
         const navigationExtras: NavigationExtras = {
           state: {
-            data: this.propertiesList
+            data: this.propertiesList,
+            profile: this.contactProfile
           }
         };
 
@@ -66,6 +67,7 @@ export class LeftPanelComponent implements OnChanges {
                 debounceTime(2000),
                 distinctUntilChanged()
               ).forEach(value => {
+                console.log(prop.propertyName)
                 this.showFormUpdateSidebar = true;
 
                 let profileUpdateObj: profileUpdateDto = {

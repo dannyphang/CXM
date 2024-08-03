@@ -22,7 +22,6 @@
         [formControl]="fieldControl"
         [value]="item.value"
         [inputId]="label + i"
-        [disabled]="disabled"
       ></p-radioButton>
       <label *ngIf="!!item.label" [for]="label + i" class="fz-14_lh-16">{{
         item.label | translate

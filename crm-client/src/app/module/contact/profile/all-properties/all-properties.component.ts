@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonService, PropertyGroupDto } from '../../../../core/services/common.service';
+import { CommonService, ContactDto, PropertyGroupDto } from '../../../../core/services/common.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -11,6 +11,7 @@ export class ContactAllPropertiesComponent implements OnChanges {
   @Input() module: 'CONT' | 'COMP' = 'CONT';
 
   propertiesList: PropertyGroupDto[] = [];
+  contactProfile: ContactDto = new ContactDto();
 
   constructor(
     private commonService: CommonService,
@@ -27,6 +28,10 @@ export class ContactAllPropertiesComponent implements OnChanges {
     if (window.history.state.data) {
       this.propertiesList = window.history.state.data;
     }
+    if (window.history.state.profile) {
+      this.contactProfile = window.history.state.profile;
+    }
+
   }
 
   ngOnChanges(changes: SimpleChanges): void {

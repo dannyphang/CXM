@@ -1,5 +1,6 @@
 <app-toast></app-toast>
 
+<!-- update profile form dialog -->
 <p-dialog
   [(visible)]="showFormUpdateSidebar"
   [position]="'bottom'"
@@ -37,6 +38,7 @@
     </div>
   </ng-template>
 </p-dialog>
+
 <div class="tw-bg-[var(--primary-color-text)]">
   <div
     class="left-top-area tw-p-[15px] tw-border-x tw-border-t tw-border-b-0 tw-border-[var(--primary-color)] tw-border-solid"
@@ -148,7 +150,7 @@
     "
     class="panel-div"
   >
-    <app-accordion-panel class="profile-panel-div">
+    <app-accordion-panel class="profile-panel-div" [iconPos]="'start'">
       <div acc-panel-header>
         {{ propertyGroup.moduleName }}
       </div>

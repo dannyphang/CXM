@@ -6,6 +6,7 @@
     [labelOneLine]="labelOneLine"
   >
   </app-base-label>
+
   <div class="input-container">
     <p-calendar
       *ngIf="mode === 'range' || mode === 'single'"
@@ -30,6 +31,8 @@
       [showButtonBar]="true"
     >
     </p-calendar>
+
+    <!-- range 2 -->
     <div
       *ngIf="mode === 'range_2'"
       class="flex flex-row flex-wrap align-items-center"
@@ -87,6 +90,8 @@
       </div>
     </div>
   </div>
+
+  <!-- error -->
   <div class="w-full flex">
     <div class="pl-0">
       <app-base-label

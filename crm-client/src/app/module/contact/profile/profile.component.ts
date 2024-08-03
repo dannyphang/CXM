@@ -34,7 +34,8 @@ export class ProfileComponent implements OnInit {
   goToSetting() {
     const navigationExtras: NavigationExtras = {
       state: {
-        data: this.propertiesList
+        data: this.propertiesList,
+        // profile: 
       }
     };
 

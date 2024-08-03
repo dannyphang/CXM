@@ -9,6 +9,7 @@
       [className]="item.cssContainer"
       [style.width.%]="(100 * item.layoutDefine.colSpan) / 12 || 100"
       [ngClass]="{ hide: item.visibility === 'hidden' }"
+      [id]="item.id"
     >
       <app-form-item
         *ngIf="item.type !== 'html'"

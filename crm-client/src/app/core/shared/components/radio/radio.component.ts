@@ -20,5 +20,9 @@ export class BaseRadioComponent extends BaseFieldDataSourceControl {
 
   override ngOnInit() {
     super.ngOnInit();
+
+    if (this.disabled) {
+      this.fieldControl.disable()
+    }
   }
 }
