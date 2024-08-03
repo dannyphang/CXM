@@ -14,11 +14,12 @@ export class AllPropertiesPageComponent implements OnChanges {
   @Input() propertyList: PropertyGroupDto[] = [];
   @Input() contactProfile: ContactDto = new ContactDto();
   searchControl: FormControl = new FormControl('');
-  hideEmptySearchCheckbox = [{ label: 'Hide blank properties', value: 'hideEmpty' }];
+  hideEmptySearchCheckbox = [{ label: 'Hide blank properties', value: true }];
   profileFormGroup: FormGroup;
   propertyConfig: any[] = [];
   showFormUpdateSidebar: boolean = false;
   propUpdateList: profileUpdateDto[] = [];
+  hideCheckFormControl: FormControl = new FormControl();
 
   constructor(
     private formBuilder: FormBuilder,
@@ -36,31 +37,38 @@ export class AllPropertiesPageComponent implements OnChanges {
 
   ngOnInit() {
     this.searchControl.valueChanges.subscribe((value) => {
-      console.log(value);
-      // for (let i = 0; i < this.propertyList.length; i++) {
-      //   if (this.propertyList[i].propertiesList.length > 0) {
-      //     this.propertyList[i].isHide = true;
-      //     this.propertyList[i].propertiesList.forEach((property) => {
-      //       property.isHide = true;
-      //       if (property.propertyName.toLowerCase().includes(value.toLowerCase())) {
-      //         property.isHide = false;
-      //         this.propertyList[i].isHide = false;
-      //       }
-      //     })
-      //   }
-
-      // }
-
-      // this.propertyConfig.forEach(item => {
-      //   item.list.forEach((prop: any) => {
-      //     prop.visibility = 'hidden'
-      //     if (prop.label!.toLowerCase().includes(value.toLowerCase())) {
-      //       prop.visibility = 'visible'
-      //     }
-
-      //   })
-      // })
+      this.propertyConfig.forEach(item => {
+        item.list.forEach((prop: FormConfig) => {
+          document.getElementById(prop.id!)!.style.display = 'none';
+          if (prop.label!.toString().toLowerCase().includes(value.toLowerCase())) {
+            document.getElementById(prop.id!)!.style.display = 'block';
+          }
+          if (value.toLowerCase().length === 0) {
+            document.getElementById(prop.id!)!.style.display = 'block';
+          }
+        })
+      })
     });
+
+    this.hideCheckFormControl.valueChanges.subscribe(item => {
+      if (item[0] === true) {
+        this.propertyList.forEach(group => {
+          group.propertiesList.forEach(prop => {
+            document.getElementById(prop.uid!)!.style.display = 'none';
+            if (this.profileFormGroup.controls[prop.propertyCode].value) {
+              document.getElementById(prop.uid!)!.style.display = 'block';
+            }
+          })
+        })
+      }
+      else {
+        this.propertyList.forEach(group => {
+          group.propertiesList.forEach(prop => {
+            document.getElementById(prop.uid!)!.style.display = 'block';
+          })
+        })
+      }
+    })
   }
 
   initProfileFormConfig() {
@@ -145,6 +153,7 @@ export class AllPropertiesPageComponent implements OnChanges {
             debounceTime(2000),
             distinctUntilChanged()
           ).subscribe(value => {
+            console.log(prop.propertyName)
             this.showFormUpdateSidebar = true;
 
             let profileUpdateObj: profileUpdateDto = {

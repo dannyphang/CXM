@@ -51,15 +51,7 @@ export class BaseDatepickerComponent
 
   ngOnInit(): void {
     if (this.mode === 'range_2') {
-      this.date_from.addValidators(this.invalidDateFormat(this.dateFormat));
-      this.date_to.addValidators(this.invalidDateFormat(this.dateFormat));
 
-      if (this.fieldControl.hasValidator(Validators.required)) {
-        this.fieldControl.removeValidators(Validators.required);
-        this.fieldControl.addValidators(this.customRequiredValidatorRange2);
-        this.date_from.addValidators(Validators.required);
-        this.date_to.addValidators(Validators.required);
-      }
 
       const _this = this;
 
@@ -68,8 +60,8 @@ export class BaseDatepickerComponent
       FormControl.prototype.markAsTouched = function () {
         func.call(this);
         if (Array.isArray(this.value)) {
-          _this.date_from.setValue(_this.date_from.value);
-          _this.date_to.setValue(_this.date_to.value);
+          _this.date_from = new FormControl(_this.date_from.value);
+          _this.date_to = new FormControl(_this.date_to.value);
           _this.date_from.markAsTouched();
           _this.date_to.markAsTouched();
         }
@@ -86,8 +78,8 @@ export class BaseDatepickerComponent
       this.date_from.updateValueAndValidity();
       this.date_to.updateValueAndValidity();
       if (typeof this.fieldControl.value === 'string') {
-        this.fieldControl.setValue([]);
-        this.date_from.setValue(new Date());
+        this.fieldControl = new FormControl([]);
+        this.date_from = new FormControl(new Date());
         this.date_from.markAsTouched();
       } else {
         if (this.fieldControl.value) {
@@ -100,13 +92,13 @@ export class BaseDatepickerComponent
             this.date_from.reset(null, { emitEvent: false });
             this.date_to.reset(null, { emitEvent: false });
           } else {
-            this.date_from.setValue(
+            this.date_from = new FormControl(
               this.fieldControl.value &&
                 this.fieldControl.value[0] instanceof Date
                 ? this.fieldControl.value[0]
                 : new Date(this.fieldControl.value?.[0]),
             );
-            this.date_to.setValue(
+            this.date_to = new FormControl(
               this.fieldControl.value &&
                 this.fieldControl.value[1] instanceof Date
                 ? this.fieldControl.value[1]
@@ -154,14 +146,14 @@ export class BaseDatepickerComponent
           }
         } else {
           if (val[0] !== this.date_from.value) {
-            this.date_from.setValue(
+            this.date_from = new FormControl(
               val[0] instanceof Date ? val[0] : new Date(val[0]),
             );
             this.date_from.markAsTouched();
           }
 
           if (val[1] !== this.date_to.value) {
-            this.date_to.setValue(
+            this.date_to = new FormControl(
               val[0] instanceof Date ? val[1] : new Date(val[1]),
             );
             this.date_to.markAsTouched();
@@ -178,6 +170,16 @@ export class BaseDatepickerComponent
       }
       this.fieldControl.addValidators(validators);
       this.fieldControl.updateValueAndValidity();
+    }
+
+    this.date_from.addValidators(this.invalidDateFormat(this.dateFormat));
+    this.date_to.addValidators(this.invalidDateFormat(this.dateFormat));
+
+    if (this.fieldControl.hasValidator(Validators.required)) {
+      this.fieldControl.removeValidators(Validators.required);
+      this.fieldControl.addValidators(this.customRequiredValidatorRange2);
+      this.date_from.addValidators(Validators.required);
+      this.date_to.addValidators(Validators.required);
     }
 
     this.errorMessageList = {
