@@ -13,6 +13,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs';
 export class HeaderComponent {
   menuItem: MenuItem[] = [];
   searchFormControl: FormControl = new FormControl("");
+  userMenuItem: MenuItem[] | undefined;
 
   constructor(
     private router: Router,
@@ -43,6 +44,49 @@ export class HeaderComponent {
     this.searchFormControl.valueChanges.pipe(debounceTime(2000),
       distinctUntilChanged()).subscribe(value => {
         console.log(value);
-      })
+      });
+
+    this.userMenuItem = [
+      {
+        separator: true
+      },
+      // {
+      //   label: 'Documents',
+      //   items: [
+      //     {
+      //       label: 'New',
+      //       icon: 'pi pi-plus',
+      //     },
+      //     {
+      //       label: 'Search',
+      //       icon: 'pi pi-search',
+      //     }
+      //   ]
+      // },
+      {
+        label: 'Profile',
+        items: [
+          {
+            label: 'Settings',
+            icon: 'pi pi-cog',
+          },
+          {
+            label: 'Messages',
+            icon: 'pi pi-inbox',
+          },
+        ]
+      },
+      {
+        separator: true
+      },
+      {
+        items: [
+          {
+            label: 'Logout',
+            icon: 'pi pi-sign-out',
+          }
+        ]
+      }
+    ]
   }
 }

@@ -40,8 +40,58 @@
               [pTooltip]="'HEADER.SETTING' | translate"
             ></p-button>
           </div>
+
+          <div class="user-div">
+            <div class="avatar-div" (click)="userMenu.toggle($event)">
+              <p-avatar
+                icon="pi pi-user"
+                styleClass="tw-w-[40px] tw-h-[40px]"
+                shape="circle"
+                data-blobity-magnetic="true"
+              />
+            </div>
+          </div>
         </div>
       </ng-template>
     </p-menubar>
   </div>
 </div>
+
+<p-menu
+  #userMenu
+  [model]="userMenuItem"
+  [popup]="true"
+  class="user-menu-container"
+>
+  <ng-template pTemplate="start">
+    <div class="user-menu-div">
+      <p-avatar icon="pi pi-user" class="user-menu-avatar" shape="circle" />
+      <div class="user-menu-info-div">
+        <div class="user-menu-name">Danny Phang</div>
+        <div class="user-menu-email">dannyphang64-gmail.com</div>
+      </div>
+    </div>
+  </ng-template>
+  <ng-template pTemplate="item" let-item>
+    <a pRipple class="flex align-items-center p-menuitem-link">
+      <span [class]="item.icon"></span>
+      <span class="ml-2">{{ item.label }}</span>
+    </a>
+  </ng-template>
+  <!-- <ng-template pTemplate="end">
+    <button
+      pRipple
+      class="relative overflow-hidden w-full p-link flex align-items-center p-2 pl-3 text-color hover:surface-200 border-noround"
+    >
+      <p-avatar
+        image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png"
+        class="mr-2"
+        shape="circle"
+      />
+      <span class="inline-flex flex-column">
+        <span class="font-bold">Amy Elsner</span>
+        <span class="text-sm">Admin</span>
+      </span>
+    </button>
+  </ng-template> -->
+</p-menu>

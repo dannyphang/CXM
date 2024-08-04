@@ -67,7 +67,7 @@ export class LeftPanelComponent implements OnChanges {
                 debounceTime(2000),
                 distinctUntilChanged()
               ).forEach(value => {
-                console.log(prop.propertyName)
+                console.log(value)
                 this.showFormUpdateSidebar = true;
 
                 let profileUpdateObj: profileUpdateDto = {
