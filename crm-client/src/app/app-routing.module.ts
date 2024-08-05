@@ -2,6 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { LayoutComponent } from './layout/layout.component';
 import { Error404Component } from './layout/error-404/error-404.component';
+import { LoginComponent } from './module/login/login.component';
 
 const routes: Routes = [
   {
@@ -24,6 +25,14 @@ const routes: Routes = [
         data: { breadcrumb: 'Company', title: 'Company' }
       },
     ]
+  },
+  {
+    path: 'signin',
+    loadChildren: () => import('./module/login/login.module').then(m => m.LoginModule),
+  },
+  {
+    path: 'signup',
+    loadChildren: () => import('./module/login/login.module').then(m => m.LoginModule),
   },
   {
     path: 'pagenotfound',

@@ -14,6 +14,7 @@ import { RouterModule } from '@angular/router';
 import { PrimeNgModule } from './core/shared/modules/primeng.module';
 import { ComponentsModule } from './core/shared/components/components.module';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
+import { LoginModule } from './module/login/login.module';
 
 // Configure the translation loader
 export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
@@ -34,6 +35,7 @@ export const imports = [
   MaterialModule,
   PrimeNgModule,
   ComponentsModule,
+  LoginModule,
 
   TranslateModule.forRoot({
     loader: {

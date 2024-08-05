@@ -1,0 +1,28 @@
+<div
+  class="login-container tw-w-screen tw-h-screen tw-grid tw-justify-center tw-items-center"
+>
+  <div class="tw-grid tw-justify-center tw-items-center">
+    <div class="login-form-div" *ngIf="isLoginMode">
+      <app-base-form [formConfig]="loginFormConfig" class=""> </app-base-form>
+    </div>
+
+    <div class="login-form-div" *ngIf="!isLoginMode">
+      <app-base-form [formConfig]="signupFormConfig" class=""> </app-base-form>
+    </div>
+
+    <div class="action-div tw-flex tw-justify-center tw-p-[var(--content-gap)]">
+      <p-button
+        [label]="'BUTTON.CANCEL' | translate"
+        [severity]="'secondary'"
+        [outlined]="true"
+        (onClick)="cancel()"
+      ></p-button>
+      <p-button
+        [label]="isLoginMode ? 'Login' : 'Sign Up'"
+        [severity]="'primary'"
+        class="tw-ml-[var(--content-gap)]"
+        (onClick)="submit()"
+      ></p-button>
+    </div>
+  </div>
+</div>

@@ -4,6 +4,7 @@ import ContactRouter from "./api/contact.js";
 import commonRouter from "./api/common.js";
 import activityRouter from "./api/activity.js";
 import storageRouter from "./api/storage.js";
+import tokenRouter from "./api/token.js";
 import cors from "cors";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
@@ -36,6 +37,7 @@ app.use("/contact", ContactRouter);
 app.use("/common", commonRouter);
 app.use("/activity", activityRouter);
 app.use("/storage", storageRouter);
+app.use("/token", tokenRouter);
 
 app.listen(port, () => {
   console.log(`server is running at port: ${port}...`);

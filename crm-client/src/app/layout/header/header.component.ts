@@ -4,6 +4,8 @@ import { FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
+import { AuthService } from '../../core/services/auth.service';
+import { User } from 'firebase/auth';
 
 @Component({
   selector: 'app-header',
@@ -14,11 +16,24 @@ export class HeaderComponent {
   menuItem: MenuItem[] = [];
   searchFormControl: FormControl = new FormControl("");
   userMenuItem: MenuItem[] | undefined;
+  currentUser: User | null;
 
   constructor(
     private router: Router,
+    private authService: AuthService
   ) {
 
+
+    this.authService.getCurrentUser().then(res => {
+      if (!res) {
+        console.log("not signed in")
+        this.router.navigate(["/signin"]);
+      }
+      else {
+        console.log(res);
+        this.currentUser = res
+      }
+    });
   }
 
   ngOnInit() {
@@ -69,11 +84,7 @@ export class HeaderComponent {
           {
             label: 'Settings',
             icon: 'pi pi-cog',
-          },
-          {
-            label: 'Messages',
-            icon: 'pi pi-inbox',
-          },
+          }
         ]
       },
       {
@@ -84,6 +95,17 @@ export class HeaderComponent {
           {
             label: 'Logout',
             icon: 'pi pi-sign-out',
+            command: () => {
+              this.authService.signOut();
+            }
+          },
+          {
+            label: 'Check current user',
+            icon: 'pi pi-sign-out',
+            command: () => {
+              console.log(this.authService.getCurrentUser())
+            },
+            visible: false
           }
         ]
       }

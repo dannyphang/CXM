@@ -67,8 +67,12 @@
     <div class="user-menu-div">
       <p-avatar icon="pi pi-user" class="user-menu-avatar" shape="circle" />
       <div class="user-menu-info-div">
-        <div class="user-menu-name">Danny Phang</div>
-        <div class="user-menu-email">dannyphang64-gmail.com</div>
+        <div class="user-menu-name">
+          {{ currentUser ? currentUser.displayName : "--" }}
+        </div>
+        <div class="user-menu-email">
+          {{ currentUser ? currentUser.email : "--" }}
+        </div>
       </div>
     </div>
   </ng-template>
