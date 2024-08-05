@@ -88,8 +88,8 @@
               "extractLicenses": true,
               "fileReplacements": [
                 {
-                  "replace": "apps/some-app/src/environments/environment.ts",
-                  "with": "apps/some-app/src/environments/environment.prod.ts"
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
                 }
               ]
             },
