@@ -26,12 +26,10 @@ export class HeaderComponent {
 
     this.authService.getCurrentUser().then(res => {
       if (!res) {
-        console.log("not signed in")
         this.router.navigate(["/signin"]);
       }
       else {
-        console.log(res);
-        this.currentUser = res
+        this.currentUser = res;
       }
     });
   }
@@ -97,6 +95,7 @@ export class HeaderComponent {
             icon: 'pi pi-sign-out',
             command: () => {
               this.authService.signOut();
+              window.location.reload();
             }
           },
           {

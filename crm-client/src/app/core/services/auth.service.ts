@@ -85,23 +85,26 @@ export class AuthService {
         });
     }
 
-    async getCurrentUser(): Promise<any> {
-        return this.auth ? onAuthStateChanged(this.auth, (user) => {
-            if (user) {
-                // User is signed in.
-                console.log(user)
-                return this.user
-            } else {
-                // User is not signed in.
-                console.log("no data...")
-                return null;
-            }
-        }) : null;
+    async getCurrentUser(): Promise<User | null> {
+        return new Promise((resolve, reject) => {
+            this.commonService.getEnvToken().subscribe(res => {
+                this.app = initializeApp(res);
+                this.auth = getAuth(this.app);
+                this.auth ? onAuthStateChanged(this.auth, (user) => {
+                    if (user) {
+                        this.user = user;
+                        resolve(this.user);
+                    } else {
+                        resolve(null);
+                    }
+                }) : resolve(null);
+            });
+        });
     }
 
     updateCurrentUserInfo() {
         updateProfile(this.auth.currentUser!, {
-            displayName: "Danny Phang"
+            displayName: "Danny Phang 2"
         }).then(() => {
             // Profile updated!
             // ...
