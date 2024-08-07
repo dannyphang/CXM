@@ -37,6 +37,10 @@ export class CommonService {
         return this.http.put<UpdateContactDto[]>(apiConfig.baseUrl + '/contact', { contactList }).pipe();
     }
 
+    deleteContact(contactList: ContactDto[]): Observable<ContactDto> {
+        return this.http.put<ContactDto>(apiConfig.baseUrl + '/contact/delete', { contactList }).pipe();
+    }
+
     getAllProperties(): Observable<PropertiesDto[]> {
         return this.http.get<PropertiesDto[]>(apiConfig.baseUrl + '/common/properties').pipe();
     }

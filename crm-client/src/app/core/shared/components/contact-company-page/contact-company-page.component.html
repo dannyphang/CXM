@@ -41,20 +41,7 @@
     [style]="{ width: '70%' }"
   >
     <app-base-form [formConfig]="createFormConfig"></app-base-form>
-    <ng-template pTemplate="footer">
-      <p-button
-        label="Cancel"
-        [text]="true"
-        severity="secondary"
-        (click)="displayCreateDialog = false"
-      />
-      <p-button
-        label="Create"
-        [outlined]="true"
-        severity="secondary"
-        (click)="create()"
-      />
-    </ng-template>
+    <ng-template pTemplate="footer"> </ng-template>
   </p-dialog>
 
   <p-tabView class="">
@@ -66,7 +53,18 @@
         [(selection)]="selectedContact"
         [resizableColumns]="true"
         styleClass="p-datatable-gridlines p-datatable-striped"
+        class="contact-company-table"
       >
+        <ng-template pTemplate="caption">
+          <div class="tw-flex tw-items-center tw-justify-end">
+            <p-button
+              icon="pi pi-trash"
+              [rounded]="true"
+              [text]="true"
+              (onClick)="delete()"
+            />
+          </div>
+        </ng-template>
         <ng-template pTemplate="header" let-columns>
           <tr>
             <th><p-tableHeaderCheckbox /></th>
