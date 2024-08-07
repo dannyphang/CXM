@@ -3,6 +3,7 @@ import { AuthService } from '../../core/services/auth.service';
 import { CONTROL_TYPE, FormConfig } from '../../core/services/components.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Location } from '@angular/common'
 
 @Component({
   selector: 'app-login',
@@ -27,7 +28,8 @@ export class LoginComponent {
   constructor(
     private authService: AuthService,
     private activatedRoute: ActivatedRoute,
-    private router: Router
+    private router: Router,
+    private _location: Location,
   ) {
     if (this.router.url === '/signin') {
       this.isLoginMode = true;
@@ -121,7 +123,7 @@ export class LoginComponent {
   }
 
   cancel() {
-    this.authService.getCurrentUser();
+    this._location.back();
   }
 
   submit() {

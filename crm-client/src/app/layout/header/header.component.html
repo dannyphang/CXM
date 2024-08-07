@@ -8,7 +8,7 @@
           [pTooltip]="item.tooltip | translate"
         >
           <span [class]="item.icon"></span>
-          <span class="ml-2">{{ item.label }}</span>
+          <span class="">{{ item.label }}</span>
           <span
             *ngIf="item.shortcut"
             class="ml-auto border-1 surface-border border-round surface-100 text-xs p-1"
@@ -32,16 +32,16 @@
             [fieldControl]="searchFormControl"
           ></app-base-input>
 
-          <div class="setting-div">
+          <!-- <div class="setting-div">
             <p-button
               [rounded]="true"
               [text]="true"
               [icon]="'pi pi-cog'"
               [pTooltip]="'HEADER.SETTING' | translate"
             ></p-button>
-          </div>
+          </div> -->
 
-          <div class="user-div">
+          <div class="user-div tw-ml-[var(--content-gap-s)]">
             <div class="avatar-div" (click)="userMenu.toggle($event)">
               <p-avatar
                 icon="pi pi-user"
@@ -82,20 +82,4 @@
       <span class="ml-2">{{ item.label }}</span>
     </a>
   </ng-template>
-  <!-- <ng-template pTemplate="end">
-    <button
-      pRipple
-      class="relative overflow-hidden w-full p-link flex align-items-center p-2 pl-3 text-color hover:surface-200 border-noround"
-    >
-      <p-avatar
-        image="https://primefaces.org/cdn/primeng/images/demo/avatar/amyelsner.png"
-        class="mr-2"
-        shape="circle"
-      />
-      <span class="inline-flex flex-column">
-        <span class="font-bold">Amy Elsner</span>
-        <span class="text-sm">Admin</span>
-      </span>
-    </button>
-  </ng-template> -->
 </p-menu>

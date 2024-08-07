@@ -25,12 +25,60 @@ export class HeaderComponent {
 
 
     this.authService.getCurrentUser().then(res => {
-      if (!res) {
-        this.router.navigate(["/signin"]);
-      }
-      else {
-        this.currentUser = res;
-      }
+      // if (!res) {
+      //   this.router.navigate(["/signin"]);
+      // }
+      // else {
+      //   this.currentUser = res;
+      // }
+
+      this.currentUser = res;
+      this.userMenuItem = [
+        {
+          separator: true
+        },
+        {
+          label: 'Profile',
+          items: [
+            {
+              label: 'Settings',
+              icon: 'pi pi-cog',
+            }
+          ]
+        },
+        {
+          separator: true
+        },
+        {
+          items: [
+            {
+              label: 'Logout',
+              icon: 'pi pi-sign-out',
+              command: () => {
+                this.authService.signOut();
+                window.location.reload();
+              },
+              visible: this.currentUser ? true : false
+            },
+            {
+              label: "Login",
+              icon: "pi pi-sign-in",
+              command: () => {
+                this.redirectToSignIn();
+              },
+              visible: this.currentUser ? false : true
+            },
+            {
+              label: 'Check current user',
+              icon: 'pi pi-sign-out',
+              command: () => {
+                console.log(this.authService.getCurrentUser())
+              },
+              visible: false
+            }
+          ]
+        }
+      ]
     });
   }
 
@@ -59,55 +107,10 @@ export class HeaderComponent {
         console.log(value);
       });
 
-    this.userMenuItem = [
-      {
-        separator: true
-      },
-      // {
-      //   label: 'Documents',
-      //   items: [
-      //     {
-      //       label: 'New',
-      //       icon: 'pi pi-plus',
-      //     },
-      //     {
-      //       label: 'Search',
-      //       icon: 'pi pi-search',
-      //     }
-      //   ]
-      // },
-      {
-        label: 'Profile',
-        items: [
-          {
-            label: 'Settings',
-            icon: 'pi pi-cog',
-          }
-        ]
-      },
-      {
-        separator: true
-      },
-      {
-        items: [
-          {
-            label: 'Logout',
-            icon: 'pi pi-sign-out',
-            command: () => {
-              this.authService.signOut();
-              window.location.reload();
-            }
-          },
-          {
-            label: 'Check current user',
-            icon: 'pi pi-sign-out',
-            command: () => {
-              console.log(this.authService.getCurrentUser())
-            },
-            visible: false
-          }
-        ]
-      }
-    ]
+
+  }
+
+  redirectToSignIn() {
+    this.router.navigate(["/signin"]);
   }
 }
