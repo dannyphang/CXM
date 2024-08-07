@@ -29,5 +29,8 @@
     "UPCOMING": "UpComing",
     "OUTCOME": "Outcome",
     "DIRECT": "Direction"
+  },
+  "PROFILE": {
+    "AVATAR_EDIT": "Edit profile picture"
   }
 }

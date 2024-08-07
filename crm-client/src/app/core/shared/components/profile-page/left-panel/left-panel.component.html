@@ -4,7 +4,7 @@
 <p-dialog
   [(visible)]="showFormUpdateSidebar"
   [position]="'bottom'"
-  styleClass="tw-w-full tw-m-[15px]"
+  styleClass="tw-w-full tw-m-[var(--content-gap)]"
 >
   <ng-template pTemplate="headless">
     <div
@@ -39,14 +39,60 @@
   </ng-template>
 </p-dialog>
 
+<!-- Edit profile picture dialog -->
+<p-dialog
+  [(visible)]="isShowAvatarEditDialog"
+  styleClass="tw-w-[50%] tw-m-[var(--content-gap)]"
+  [modal]="true"
+>
+  <ng-template pTemplate="headless">
+    <img [src]="profileImg" />
+    <p-button
+      [icon]="'pi pi-plus'"
+      [rounded]="true"
+      (onClick)="imageUploader.click()"
+      class="tw-mt-[15px]"
+      [pTooltip]="'BUTTON.ATTACH_FILE' | translate"
+    ></p-button>
+
+    <p-button
+      [label]="'BUTTON.UPLOAD' | translate"
+      (onClick)="imageFileUploadBtn()"
+    ></p-button>
+  </ng-template>
+</p-dialog>
+
+<input
+  type="file"
+  id="file-input"
+  #imageUploader
+  hidden
+  (change)="imageFileUpload($event)"
+  accept="image/*"
+/>
+
 <div class="tw-bg-[var(--primary-color-text)]">
   <div
     class="left-top-area tw-p-[15px] tw-border-x tw-border-t tw-border-b-0 tw-border-[var(--primary-color)] tw-border-solid"
   >
-    <div class="avatar-div">
+    <div
+      class="avatar-div"
+      (mouseenter)="isAvatarEdit = true"
+      (mouseleave)="isAvatarEdit = false"
+    >
+      <p-button
+        icon="pi pi-file-edit"
+        styleClass="tw-w-[80px] tw-h-[80px] avatar-edit"
+        [rounded]="true"
+        [text]="true"
+        *ngIf="isAvatarEdit"
+        (onClick)="editPic()"
+        [pTooltip]="'AVATAR_EDIT' | translate"
+      ></p-button>
       <p-avatar
-        icon="pi pi-user"
+        [icon]="'pi pi-user'"
         styleClass="tw-w-[80px] tw-h-[80px]"
+        [ngClass]="isAvatarEdit ? 'tw-opacity-[0.5]' : 'tw-opacity-[1]'"
         shape="circle"
         data-blobity-magnetic="true"
       />

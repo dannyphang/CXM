@@ -38,7 +38,11 @@ export class LeftPanelComponent implements OnChanges {
   profileFormConfig: FormConfig[] = [];
   showFormUpdateSidebar: boolean = false;
   propUpdateList: profileUpdateDto[] = [];
-
+  isAvatarEdit: boolean = false;
+  isShowAvatarEditDialog: boolean = false;
+  profilePhotoFile: File;
+  profilePhotoFileBlob: string;
+  profileImg: string = 'https://firebasestorage.googleapis.com/v0/b/crm-project-9b8c9.appspot.com/o/Image/Contact/img1.png?alt=media';
 
   constructor(
     private commonService: CommonService,
@@ -293,6 +297,40 @@ export class LeftPanelComponent implements OnChanges {
     this.commonService.updateContact([updateContact]).subscribe(res => {
       this.contactProfileUpdateEmit.emit(updateContact);
     });
+  }
+
+  editPic() {
+    console.log(this.isShowAvatarEditDialog)
+    this.isShowAvatarEditDialog = !this.isShowAvatarEditDialog;
+  }
+
+  imageFileUpload(event: any) {
+    // this.profilePhotoFile = event.target.files[0];
+    // console.log(this.profilePhotoFile)
+    // console.log(event.target.files)
+    // this.imageFileUploadBtn();
+    this.profilePhotoFile = event.target.files[0];
+    this.changeFile(event.target.files[0]).then(item => {
+      this.profilePhotoFileBlob = item;
+      this.profileImg = item;
+    });
+  }
+
+  changeFile(file: File): Promise<any> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = error => reject(error);
+    });
+  }
+
+  imageFileUploadBtn() {
+    console.log(this.profilePhotoFile)
+    this.commonService.uploadProfileImage(this.profilePhotoFile, this.profilePhotoFileBlob, this.module === 'CONT' ? "Image/Contact/" : "Image/Company/").subscribe(res => {
+      console.log(res)
+      this.profileImg = res.downloadUrl;
+    })
   }
 }
 
