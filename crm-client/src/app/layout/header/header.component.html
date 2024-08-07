@@ -8,7 +8,7 @@
           [pTooltip]="item.tooltip | translate"
         >
           <span [class]="item.icon"></span>
-          <span class="ml-2">{{ item.label }}</span>
+          <span class="">{{ item.label }}</span>
           <span
             *ngIf="item.shortcut"
             class="ml-auto border-1 surface-border border-round surface-100 text-xs p-1"
@@ -32,16 +32,54 @@
             [fieldControl]="searchFormControl"
           ></app-base-input>
 
-          <div class="setting-div">
+          <!-- <div class="setting-div">
             <p-button
               [rounded]="true"
               [text]="true"
               [icon]="'pi pi-cog'"
               [pTooltip]="'HEADER.SETTING' | translate"
             ></p-button>
+          </div> -->
+
+          <div class="user-div tw-ml-[var(--content-gap-s)]">
+            <div class="avatar-div" (click)="userMenu.toggle($event)">
+              <p-avatar
+                icon="pi pi-user"
+                styleClass="tw-w-[40px] tw-h-[40px]"
+                shape="circle"
+                data-blobity-magnetic="true"
+              />
+            </div>
           </div>
         </div>
       </ng-template>
     </p-menubar>
   </div>
 </div>
+
+<p-menu
+  #userMenu
+  [model]="userMenuItem"
+  [popup]="true"
+  class="user-menu-container"
+>
+  <ng-template pTemplate="start">
+    <div class="user-menu-div">
+      <p-avatar icon="pi pi-user" class="user-menu-avatar" shape="circle" />
+      <div class="user-menu-info-div">
+        <div class="user-menu-name">
+          {{ currentUser ? currentUser.displayName : "--" }}
+        </div>
+        <div class="user-menu-email">
+          {{ currentUser ? currentUser.email : "--" }}
+        </div>
+      </div>
+    </div>
+  </ng-template>
+  <ng-template pTemplate="item" let-item>
+    <a pRipple class="flex align-items-center p-menuitem-link">
+      <span [class]="item.icon"></span>
+      <span class="ml-2">{{ item.label }}</span>
+    </a>
+  </ng-template>
+</p-menu>

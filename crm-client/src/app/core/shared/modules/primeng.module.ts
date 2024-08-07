@@ -38,6 +38,7 @@ import { EditorModule } from 'primeng/editor';
 import { FileUploadModule } from 'primeng/fileupload';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { MenubarModule } from 'primeng/menubar';
+import { MenuModule } from 'primeng/menu';
 
 import { MessageService } from 'primeng/api';
 
@@ -81,7 +82,8 @@ const PRIMENG_MODULES = [
     EditorModule,
     FileUploadModule,
     ScrollPanelModule,
-    MenubarModule
+    MenubarModule,
+    MenuModule,
 ]
 
 @NgModule({

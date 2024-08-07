@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as Blobity from 'blobity';
+import { AuthService } from '../core/services/auth.service';
 
 @Component({
   selector: 'app-layout',
@@ -11,13 +12,14 @@ export class LayoutComponent implements OnInit {
 
 
   constructor(
-    private translateService: TranslateService
+    private authService: AuthService,
   ) {
-    this.translateService.use('en');
+
   }
 
   ngOnInit() {
-    this.initBlobity(false)
+    this.initBlobity(false);
+    this.authService.getCurrentUser();
   }
 
   initBlobity(isOn: boolean) {

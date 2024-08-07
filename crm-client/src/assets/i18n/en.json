@@ -18,7 +18,9 @@
     "EDIT": "Edit",
     "UPDATE": "Update",
     "ACTION": "Action",
-    "ATTACH_FILE": "Attach Files"
+    "ATTACH_FILE": "Attach Files",
+    "LOGIN": "Login",
+    "LOGOUT": "Logout"
   },
   "ACTIVITY": {
     "WORDS": "words",

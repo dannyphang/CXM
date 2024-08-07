@@ -13,6 +13,10 @@ export class CommonService {
     ) {
     }
 
+    getEnvToken(): Observable<any> {
+        return this.http.get<any>(apiConfig.baseUrl + '/token').pipe();
+    }
+
     popMessage(message: string, title: string, severity: string = 'success',) {
         this.messageService.add({ severity: severity, summary: title, detail: message });
     }
