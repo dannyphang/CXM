@@ -39,9 +39,9 @@ export class LeftPanelComponent implements OnChanges {
   showFormUpdateSidebar: boolean = false;
   propUpdateList: profileUpdateDto[] = [];
   isAvatarEdit: boolean = false;
-  isShowAvatarEditDialog: boolean = false;
+  isShowAvatarEditDialog: boolean = true;
   profilePhotoFile: File;
-  profilePhotoFileBlob: string;
+  profilePhotoFileBlob: Blob;
   profileImg: string = 'https://firebasestorage.googleapis.com/v0/b/crm-project-9b8c9.appspot.com/o/Image/Contact/img1.png?alt=media';
 
   constructor(
@@ -300,18 +300,13 @@ export class LeftPanelComponent implements OnChanges {
   }
 
   editPic() {
-    console.log(this.isShowAvatarEditDialog)
     this.isShowAvatarEditDialog = !this.isShowAvatarEditDialog;
   }
 
   imageFileUpload(event: any) {
-    // this.profilePhotoFile = event.target.files[0];
-    // console.log(this.profilePhotoFile)
-    // console.log(event.target.files)
-    // this.imageFileUploadBtn();
     this.profilePhotoFile = event.target.files[0];
     this.changeFile(event.target.files[0]).then(item => {
-      this.profilePhotoFileBlob = item;
+      this.profilePhotoFileBlob = new Blob([item]);
       this.profileImg = item;
     });
   }
@@ -319,7 +314,7 @@ export class LeftPanelComponent implements OnChanges {
   changeFile(file: File): Promise<any> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.readAsDataURL(file);
+      reader.readAsArrayBuffer(file);
       reader.onload = () => resolve(reader.result);
       reader.onerror = error => reject(error);
     });

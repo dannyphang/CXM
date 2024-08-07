@@ -46,19 +46,26 @@
   [modal]="true"
 >
   <ng-template pTemplate="headless">
-    <img [src]="profileImg" />
-    <p-button
-      [icon]="'pi pi-plus'"
-      [rounded]="true"
-      (onClick)="imageUploader.click()"
-      class="tw-mt-[15px]"
-      [pTooltip]="'BUTTON.ATTACH_FILE' | translate"
-    ></p-button>
+    <div class="tw-p-[var(--content-gap)] tw-flex">
+      <img
+        [src]="profileImg"
+        class="tw-w-[300px] tw-h-[300px] tw-border tw-border-solid tw-border-[var(--primary-color)] tw-object-cover tw-mr-[var(--content-gap)]"
+      />
+      <div>
+        <p-button
+          [icon]="'pi pi-plus'"
+          [rounded]="true"
+          (onClick)="imageUploader.click()"
+          class=""
+          [pTooltip]="'BUTTON.ATTACH_FILE' | translate"
+        ></p-button>
 
-    <p-button
-      [label]="'BUTTON.UPLOAD' | translate"
-      (onClick)="imageFileUploadBtn()"
-    ></p-button>
+        <p-button
+          [label]="'BUTTON.UPLOAD' | translate"
+          (onClick)="imageFileUploadBtn()"
+        ></p-button>
+      </div>
+    </div>
   </ng-template>
 </p-dialog>
 

@@ -75,7 +75,7 @@ export class CommonService {
         }).pipe();
     }
 
-    uploadProfileImage(file: File, blobFile: string, folderName: string): Observable<any> {
+    uploadProfileImage(file: File, blobFile: Blob, folderName: string): Observable<any> {
         let formDataImg: FormData = new FormData();
         if (file) {
             formDataImg.append('image', file);
@@ -83,6 +83,7 @@ export class CommonService {
 
         formDataImg.append('imageBlob', blobFile);
         formDataImg.append('folderName', folderName);
+        // formDataImg.append('folderName', "");
 
         return this.http.post<any>(apiConfig.baseUrl + '/storage/image', formDataImg, {
             reportProgress: true,

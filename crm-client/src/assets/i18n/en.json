@@ -20,7 +20,8 @@
     "ACTION": "Action",
     "ATTACH_FILE": "Attach Files",
     "LOGIN": "Login",
-    "LOGOUT": "Logout"
+    "LOGOUT": "Logout",
+    "UPLOAD": "Upload"
   },
   "ACTIVITY": {
     "WORDS": "words",
