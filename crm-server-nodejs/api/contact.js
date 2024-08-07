@@ -11,6 +11,7 @@ import {
   updateDoc,
   query,
   orderBy,
+  where,
   Timestamp,
 } from "firebase/firestore";
 
@@ -23,7 +24,8 @@ router.get("/", async (req, res) => {
   try {
     const q = query(
       collection(db.default.db, collectionName),
-      orderBy("createdDate")
+      orderBy("createdDate"),
+      where("statusId", "==", 1)
     );
     const snapshot = await getDocs(q);
     const contactList = snapshot.docs.map((doc) => {
@@ -46,7 +48,11 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   const id = req.params.id;
   try {
-    const snapshot = await getDoc(doc(db.default.db, collectionName, id));
+    let q = query(
+      doc(db.default.db, collectionName, id),
+      where("statusId", "==", 1)
+    );
+    const snapshot = await getDoc(q);
     const contactList = snapshot.data();
 
     res.status(200).json(contactList);
@@ -65,10 +71,11 @@ router.post("/", async (req, res) => {
       contact.uid = doc(collection(db.default.db, collectionName)).id;
       contact.createdDate = new Date();
       contact.modifiedDate = new Date();
+      contact.statusId = 1;
 
       createdContactList.push(contact);
 
-      new setDoc(doc(db, collectionName, contact.uid), contact);
+      new setDoc(doc(db.default.db, collectionName, contact.uid), contact);
     });
 
     res.status(200).json(createdContactList);
@@ -78,7 +85,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-// delete user
+// delete contact by id
 router.delete("/", async (req, res) => {
   // const id = req.params.id;
   // const user = auth.currentUser;
@@ -89,6 +96,27 @@ router.delete("/", async (req, res) => {
   //   console.log("error", error);
   //   res.status(400).json(error);
   // }
+});
+
+// delete contact
+router.put("/delete", async (req, res) => {
+  try {
+    req.body.contactList.forEach(async (contact) => {
+      let ref = doc(db.default.db, collectionName, contact.uid);
+      await updateDoc(ref, {
+        statusId: 2,
+      });
+    });
+
+    res.status(200).json({
+      message: "Deleted successfully",
+    });
+
+    // res.status(200).json(req.body.contactList);
+  } catch (e) {
+    console.log(e);
+    res.status(400).json(e);
+  }
 });
 
 // update contact
