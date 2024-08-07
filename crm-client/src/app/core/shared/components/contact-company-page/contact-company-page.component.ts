@@ -188,7 +188,7 @@ export class ContactCompanyPageComponent {
   }
 
   importFile() {
-    console.log(this.selectedContact)
+
   }
 
   toProfile(contact: ContactDto) {
@@ -245,9 +245,14 @@ export class ContactCompanyPageComponent {
       this.displayCreateDialog = false;
 
       this.getContact();
-    }, err => {
-      console.log(err);
     });
     return;
+  }
+
+  delete() {
+    console.log(this.selectedContact)
+    this.commonService.deleteContact(this.selectedContact).subscribe(res => {
+      this.getContact();
+    })
   }
 }
