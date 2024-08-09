@@ -309,7 +309,6 @@ export class LeftPanelComponent implements OnChanges {
   }
 
   saveButton() {
-
     // cast property value into contact/company object
     if (this.module === 'CONT') {
       let updateContact: UpdateContactDto = new UpdateContactDto();
