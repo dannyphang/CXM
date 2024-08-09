@@ -20,7 +20,8 @@
     "ACTION": "Action",
     "ATTACH_FILE": "Attach Files",
     "LOGIN": "Login",
-    "LOGOUT": "Logout"
+    "LOGOUT": "Logout",
+    "UPLOAD": "Upload"
   },
   "ACTIVITY": {
     "WORDS": "words",
@@ -29,5 +30,8 @@
     "UPCOMING": "UpComing",
     "OUTCOME": "Outcome",
     "DIRECT": "Direction"
+  },
+  "PROFILE": {
+    "AVATAR_EDIT": "Edit profile picture"
   }
 }

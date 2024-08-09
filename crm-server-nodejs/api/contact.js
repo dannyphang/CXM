@@ -48,14 +48,11 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   const id = req.params.id;
   try {
-    let q = query(
-      doc(db.default.db, collectionName, id),
-      where("statusId", "==", 1)
-    );
-    const snapshot = await getDoc(q);
-    const contactList = snapshot.data();
+    let qu = query(doc(db.default.db, collectionName, id));
+    const snapshot = await getDoc(qu);
+    const contact = snapshot.data().statusId == 1 ? snapshot.data() : {};
 
-    res.status(200).json(contactList);
+    res.status(200).json(contact);
   } catch (error) {
     console.log("error", error);
     res.status(400).json(error);

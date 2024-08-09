@@ -1,17 +1,26 @@
 import { Router } from "express";
 const router = Router();
 import * as firebase from "../firebase.js";
-import { ref, uploadBytes, getDownloadURL, listAll } from "firebase/storage";
+import {
+  ref,
+  uploadBytes,
+  getDownloadURL,
+  listAll,
+  uploadString,
+} from "firebase/storage";
 import multer from "multer";
 
-const upload = multer({ storage: multer.memoryStorage() }).single("file");
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fieldSize: 25 * 1024 * 1024 },
+}).single("file");
 
+// upload files
 router.post("/file", upload, async (req, res) => {
   try {
     if (req.file == undefined) {
       return res.status(400).send({ message: "Please upload a file!" });
     }
-
     const storageRef = ref(
       firebase.default.storage,
       `${req.body.folderName}/${req.file.originalname}`

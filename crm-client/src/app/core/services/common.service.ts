@@ -75,6 +75,19 @@ export class CommonService {
         }).pipe();
     }
 
+    uploadProfileImage(file: File, blobFile: Blob, folderName: string): Observable<any> {
+        let formDataImg: FormData = new FormData();
+        if (file) {
+            formDataImg.append('image', file);
+        }
+
+        formDataImg.append('imageBlob', blobFile);
+        formDataImg.append('folderName', folderName);
+        // formDataImg.append('folderName', "");
+
+        return this.http.post<any>(apiConfig.baseUrl + '/storage/image', formDataImg).pipe();
+    }
+
     /**
      * set form control init value
      * @param prop properties 
@@ -188,6 +201,7 @@ export class ContactDto extends BasedDto {
     contactOwnerUid?: string;
     contactLeadStatusId?: string;
     contactProperties: string;
+    contactProfilePhotoUrl?: string;
 }
 
 export class UpdateContactDto {
@@ -199,6 +213,7 @@ export class UpdateContactDto {
     contactOwnerUid?: string;
     contactLeadStatusId?: string;
     contactProperties?: string;
+    contactProfilePhotoUrl?: string;
 }
 
 export class PropertyDataDto {

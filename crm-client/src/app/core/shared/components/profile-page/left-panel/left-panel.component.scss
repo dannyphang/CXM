@@ -11,6 +11,15 @@
     .p-avatar-icon {
       font-size: 30px;
     }
+
+    .avatar-edit {
+      position: absolute;
+      z-index: 2;
+
+      .pi-file-edit {
+        font-size: 30px;
+      }
+    }
   }
 
   .profile-name-label {

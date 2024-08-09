@@ -22,8 +22,6 @@ export class ProfilePageComponent implements OnChanges {
     private route: ActivatedRoute,
     private titleService: Title
   ) {
-
-
     this.route.params.subscribe((params) => {
       this.profileId = params['id'];
     });

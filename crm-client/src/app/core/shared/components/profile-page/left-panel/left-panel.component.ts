@@ -5,6 +5,8 @@ import { MessageService } from 'primeng/api';
 import { CommonService, ContactDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, UpdateContactDto } from '../../../../services/common.service';
 import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../../../../services/components.service';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
+import { StorageService } from '../../../../services/storage.service';
+import { DEFAULT_PROFILE_PIC_URL } from '../../../constants/common.constants';
 
 @Component({
   selector: 'app-left-panel',
@@ -38,13 +40,18 @@ export class LeftPanelComponent implements OnChanges {
   profileFormConfig: FormConfig[] = [];
   showFormUpdateSidebar: boolean = false;
   propUpdateList: profileUpdateDto[] = [];
-
+  isAvatarEdit: boolean = false;
+  isShowAvatarEditDialog: boolean = false;
+  profilePhotoFile: File | null;
+  profilePhotoFileBlob: Blob;
+  profileImg: string = DEFAULT_PROFILE_PIC_URL;
 
   constructor(
     private commonService: CommonService,
     private router: Router,
     private formBuilder: FormBuilder,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private storageService: StorageService
   ) {
 
   }
@@ -87,6 +94,12 @@ export class LeftPanelComponent implements OnChanges {
           }
         })
       });
+    }
+
+    if (changes['contactProfile'] && changes['contactProfile'].currentValue) {
+      if (this.contactProfile.contactProfilePhotoUrl) {
+        this.profileImg = this.contactProfile.contactProfilePhotoUrl;
+      }
     }
   }
 
@@ -293,6 +306,48 @@ export class LeftPanelComponent implements OnChanges {
     this.commonService.updateContact([updateContact]).subscribe(res => {
       this.contactProfileUpdateEmit.emit(updateContact);
     });
+  }
+
+  editPic() {
+    this.isShowAvatarEditDialog = !this.isShowAvatarEditDialog;
+  }
+
+  imageFileUpload(event: any) {
+    this.profilePhotoFile = event.target.files[0];
+    this.changeFile(event.target.files[0]).then(item => {
+      this.profilePhotoFileBlob = item;
+      this.profileImg = item;
+    });
+  }
+
+  changeFile(file: File): Promise<any> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = error => reject(error);
+    });
+  }
+
+  imageFileUploadBtn() {
+    if (this.profileImg !== DEFAULT_PROFILE_PIC_URL && this.profilePhotoFile) {
+      this.storageService.uploadImage(this.profilePhotoFile, this.module === 'CONT' ? "Image/Contact/" : "Image/Company/").then(url => {
+        this.profileImg = url;
+        let updateContact: UpdateContactDto = {
+          uid: this.contactProfile.uid,
+          contactProfilePhotoUrl: this.profileImg
+        }
+        this.commonService.updateContact([updateContact]).subscribe(res => {
+          console.log(res);
+          this.contactProfileUpdateEmit.emit(updateContact);
+        })
+      });
+    }
+  }
+
+  onCloseProfileDialog() {
+    this.profileImg = this.contactProfile.contactProfilePhotoUrl ? this.contactProfile.contactProfilePhotoUrl : DEFAULT_PROFILE_PIC_URL;
+    this.profilePhotoFile = null;
   }
 }
 
