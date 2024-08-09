@@ -123,8 +123,20 @@ export class CommonService {
         return value.toString();
     }
 
-    getAllCompany(): Observable<ContactDto[]> {
-        return this.http.get<ContactDto[]>(apiConfig.baseUrl + '/contact').pipe();
+    getAllCompany(): Observable<CompanyDto[]> {
+        return this.http.get<CompanyDto[]>(apiConfig.baseUrl + '/company').pipe();
+    }
+
+    getCompanyById(id: string): Observable<CompanyDto> {
+        return this.http.get<CompanyDto>(apiConfig.baseUrl + '/company/' + id).pipe();
+    }
+
+    createCompany(companyList: CompanyDto[]): Observable<CompanyDto[]> {
+        return this.http.post<CompanyDto[]>(apiConfig.baseUrl + '/company', { companyList }).pipe();
+    }
+
+    deleteCompany(companyList: CompanyDto[]): Observable<CompanyDto> {
+        return this.http.put<CompanyDto>(apiConfig.baseUrl + '/company/delete', { companyList }).pipe();
     }
 }
 
@@ -184,7 +196,7 @@ export class PropertyLookupDto extends BasedDto {
 
 export class ContactDto extends BasedDto {
     uid: string;
-    contactId?: string;
+    contactId?: number;
     contactFirstName: string;
     contactLastName: string;
     contactEmail: string;
@@ -224,8 +236,12 @@ export class AttachmentDto extends BasedDto {
 
 export class CompanyDto extends BasedDto {
     uid: string;
+    companyId: number;
     companyName: string;
+    companyEmail: string;
     companyWebsite: string;
-    companyOwner: string;
-
+    companyOwnerUid: string;
+    companyLeadStatusId: string;
+    companyProperties: string;
+    companyProfilePhotoUrl?: string;
 }

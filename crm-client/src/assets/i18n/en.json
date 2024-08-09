@@ -21,7 +21,10 @@
     "ATTACH_FILE": "Attach Files",
     "LOGIN": "Login",
     "LOGOUT": "Logout",
-    "UPLOAD": "Upload"
+    "UPLOAD": "Upload",
+    "CREATE": "Create",
+    "IMPORT": "Import",
+    "EXPORT": "Export"
   },
   "ACTIVITY": {
     "WORDS": "words",

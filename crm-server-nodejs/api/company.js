@@ -17,9 +17,9 @@ import {
 
 router.use(express.json());
 
-const collectionName = "contact";
+const collectionName = "company";
 
-// get all contacts
+// get all companies
 router.get("/", async (req, res) => {
   try {
     const q = query(
@@ -28,65 +28,65 @@ router.get("/", async (req, res) => {
       where("statusId", "==", 1)
     );
     const snapshot = await getDocs(q);
-    const contactList = snapshot.docs.map((doc) => {
+    const companyList = snapshot.docs.map((doc) => {
       return doc.data();
     });
 
-    contactList.forEach((item) => {
+    companyList.forEach((item) => {
       item.createdDate = convertFirebaseDateFormat(item.createdDate);
       item.modifiedDate = convertFirebaseDateFormat(item.modifiedDate);
     });
 
-    res.status(200).json(contactList);
+    res.status(200).json(companyList);
   } catch (error) {
     console.log("error", error);
     res.status(400).json(error);
   }
 });
 
-// get contact by id
+// get company by id
 router.get("/:id", async (req, res) => {
   const id = req.params.id;
   try {
     let qu = query(doc(db.default.db, collectionName, id));
     const snapshot = await getDoc(qu);
-    const contact = snapshot.data().statusId == 1 ? snapshot.data() : {};
+    const company = snapshot.data().statusId == 1 ? snapshot.data() : {};
 
-    res.status(200).json(contact);
+    res.status(200).json(company);
   } catch (error) {
     console.log("error", error);
     res.status(400).json(error);
   }
 });
 
-// create new contact
+// create new company
 router.post("/", async (req, res) => {
   try {
-    const contactList = JSON.parse(JSON.stringify(req.body.contactList));
-    let createdContactList = [];
-    contactList.forEach((contact) => {
-      contact.uid = doc(collection(db.default.db, collectionName)).id;
-      contact.createdDate = new Date();
-      contact.modifiedDate = new Date();
-      contact.statusId = 1;
+    const companyList = JSON.parse(JSON.stringify(req.body.companyList));
+    let createdCompanyList = [];
+    companyList.forEach((company) => {
+      company.uid = doc(collection(db.default.db, collectionName)).id;
+      company.createdDate = new Date();
+      company.modifiedDate = new Date();
+      company.statusId = 1;
 
-      createdContactList.push(contact);
+      createdCompanyList.push(company);
 
-      new setDoc(doc(db.default.db, collectionName, contact.uid), contact);
+      new setDoc(doc(db.default.db, collectionName, company.uid), company);
     });
 
-    res.status(200).json(createdContactList);
+    res.status(200).json(createdCompanyList);
   } catch (error) {
     console.log("error", error);
     res.status(400).json(error);
   }
 });
 
-// delete contact
+// delete company
 router.put("/delete", async (req, res) => {
   try {
-    req.body.contactList.forEach(async (contact) => {
-      let ref = doc(db.default.db, collectionName, contact.uid);
+    req.body.companyList.forEach(async (company) => {
+      let ref = doc(db.default.db, collectionName, company.uid);
       await updateDoc(ref, {
         statusId: 2,
       });
@@ -96,27 +96,27 @@ router.put("/delete", async (req, res) => {
       message: "Deleted successfully",
     });
 
-    // res.status(200).json(req.body.contactList);
+    // res.status(200).json(req.body.companyList);
   } catch (e) {
     console.log(e);
     res.status(400).json(e);
   }
 });
 
-// update contact
+// update company
 router.put("/", async (req, res) => {
-  const contactList = req.body.contactList;
+  const companyList = req.body.companyList;
 
   try {
-    let updatedContactList = [];
-    contactList.forEach(async (contact) => {
-      contact.modifiedDate = new Date();
-      const docRef = doc(db.default.db, collectionName, contact.uid);
-      const updatedContact = await updateDoc(docRef, contact);
-      updatedContactList.push(updatedContact);
+    let updatedCompanyList = [];
+    companyList.forEach(async (company) => {
+      company.modifiedDate = new Date();
+      const docRef = doc(db.default.db, collectionName, company.uid);
+      const updatedCompany = await updateDoc(docRef, company);
+      updatedCompanyList.push(updatedCompany);
     });
 
-    res.status(200).json(updatedContactList);
+    res.status(200).json(updatedCompanyList);
   } catch (error) {
     console.log("error", error);
     res.status(400).json(error);
