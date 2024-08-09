@@ -431,16 +431,18 @@ export class LeftPanelComponent implements OnChanges {
           }
           this.commonService.updateContact([updateContact]).subscribe(res => {
             console.log(res);
+            this.isShowAvatarEditDialog = false;
             this.profileUpdateEmit.emit(updateContact);
           })
         }
         else {
           let updateCompany: UpdateCompanyDto = {
-            uid: this.contactProfile.uid,
+            uid: this.companyProfile.uid,
             companyProfilePhotoUrl: this.profileImg
           }
           this.commonService.updateCompany([updateCompany]).subscribe(res => {
             console.log(res);
+            this.isShowAvatarEditDialog = false;
             this.profileUpdateEmit.emit(updateCompany);
           })
         }
