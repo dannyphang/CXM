@@ -1,12 +1,12 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { ContactProfileComponent } from './profile.component';
-import { ContactAllPropertiesComponent } from './all-properties/all-properties.component';
+import { CompanyProfileComponent } from './profile.component';
+import { CompanyAllPropertiesComponent } from './all-properties/all-properties.component';
 
 const routes: Routes = [
   {
     path: '',
-    component: ContactProfileComponent,
+    component: CompanyProfileComponent,
     children: [
       {
         path: 'allProperties',
@@ -17,7 +17,7 @@ const routes: Routes = [
   },
   {
     path: 'allProperties',
-    component: ContactAllPropertiesComponent,
+    component: CompanyAllPropertiesComponent,
     data: { breadcrumb: 'All Properties', title: 'All Properties' }
   }
 ];

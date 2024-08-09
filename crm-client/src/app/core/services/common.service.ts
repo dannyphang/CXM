@@ -135,6 +135,10 @@ export class CommonService {
         return this.http.post<CompanyDto[]>(apiConfig.baseUrl + '/company', { companyList }).pipe();
     }
 
+    updateCompany(companyList: UpdateCompanyDto[]): Observable<UpdateCompanyDto[]> {
+        return this.http.put<UpdateCompanyDto[]>(apiConfig.baseUrl + '/company', { companyList }).pipe();
+    }
+
     deleteCompany(companyList: CompanyDto[]): Observable<CompanyDto> {
         return this.http.put<CompanyDto>(apiConfig.baseUrl + '/company/delete', { companyList }).pipe();
     }
@@ -243,5 +247,16 @@ export class CompanyDto extends BasedDto {
     companyOwnerUid: string;
     companyLeadStatusId: string;
     companyProperties: string;
+    companyProfilePhotoUrl?: string;
+}
+
+export class UpdateCompanyDto {
+    uid: string;
+    companyName?: string;
+    companyEmail?: string;
+    companyWebsite?: string;
+    companyOwnerUid?: string;
+    companyLeadStatusId?: string;
+    companyProperties?: string;
     companyProfilePhotoUrl?: string;
 }

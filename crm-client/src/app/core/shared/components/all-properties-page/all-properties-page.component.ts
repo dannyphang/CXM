@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonService, ContactDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, UpdateContactDto } from '../../../services/common.service';
+import { CommonService, CompanyDto, ContactDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, UpdateContactDto } from '../../../services/common.service';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../../../services/components.service';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
@@ -13,6 +13,8 @@ export class AllPropertiesPageComponent implements OnChanges {
   @Input() module: 'CONT' | 'COMP' = 'CONT';
   @Input() propertyList: PropertyGroupDto[] = [];
   @Input() contactProfile: ContactDto = new ContactDto();
+  @Input() companyProfile: CompanyDto = new CompanyDto();
+
   searchControl: FormControl = new FormControl('');
   hideEmptySearchCheckbox = [{ label: 'Hide blank properties', value: true }];
   profileFormGroup: FormGroup;

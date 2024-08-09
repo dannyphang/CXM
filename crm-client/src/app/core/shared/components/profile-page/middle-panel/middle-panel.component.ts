@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
-import { CommonService, ContactDto, ModuleDto } from '../../../../services/common.service';
+import { CommonService, CompanyDto, ContactDto, ModuleDto } from '../../../../services/common.service';
 import { FormControl } from '@angular/forms';
 import { ActivityDto, ActivityModuleDto, ActivityService } from '../../../../services/activity.service';
 
@@ -12,7 +12,7 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
   @Input() propertiesList: ModuleDto[] = [];
   @Input() module: 'CONT' | 'COMP' = 'CONT';
   @Input() contactProfile: ContactDto = new ContactDto();
-  @Input() companyProfile: ContactDto = new ContactDto(); // TODO: company profile
+  @Input() companyProfile: CompanyDto = new CompanyDto(); // TODO: company profile
   @Input() activitiesList: ActivityDto[] = [];
   @Output() activityListEmit: EventEmitter<any> = new EventEmitter<any>();
 

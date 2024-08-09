@@ -105,7 +105,10 @@
         [pTooltip]="'PROFILE.AVATAR_EDIT' | translate"
       ></p-button>
       <p-avatar
-        *ngIf="!contactProfile.contactProfilePhotoUrl"
+        *ngIf="
+          !contactProfile.contactProfilePhotoUrl &&
+          !companyProfile.companyProfilePhotoUrl
+        "
         [icon]="'pi pi-user'"
         styleClass="tw-w-[80px] tw-h-[80px]"
         [ngClass]="isAvatarEdit ? 'tw-opacity-[0.5]' : 'tw-opacity-[1]'"
@@ -113,8 +116,15 @@
         data-blobity-magnetic="true"
       />
       <p-avatar
-        *ngIf="contactProfile.contactProfilePhotoUrl"
-        [image]="contactProfile.contactProfilePhotoUrl"
+        *ngIf="
+          contactProfile.contactProfilePhotoUrl ||
+          companyProfile.companyProfilePhotoUrl
+        "
+        [image]="
+          module === 'CONT'
+            ? contactProfile.contactProfilePhotoUrl
+            : companyProfile.companyProfilePhotoUrl
+        "
         styleClass="tw-w-[80px] tw-h-[80px]"
         [ngClass]="isAvatarEdit ? 'tw-opacity-[0.5]' : 'tw-opacity-[1]'"
         shape="circle"
@@ -124,10 +134,14 @@
     <div class="info-div tw-overflow-hidden tw-content-center">
       <app-base-label
         [label]="
-          contactProfile.contactFirstName
-            ? contactProfile.contactFirstName +
-              ' ' +
-              contactProfile.contactLastName
+          module === 'CONT'
+            ? contactProfile.contactFirstName
+              ? contactProfile.contactFirstName +
+                ' ' +
+                contactProfile.contactLastName
+              : ''
+            : companyProfile.companyName
+            ? companyProfile.companyName
             : ''
         "
         [labelStyle]="'tw-text-ellipsis tw-overflow-hidden profile-name-label'"
@@ -136,13 +150,23 @@
         <div
           class="email-text tw-text-ellipsis tw-overflow-hidden tw-content-center"
         >
-          {{ contactProfile.contactEmail }}
+          {{
+            module === "CONT"
+              ? contactProfile.contactEmail
+              : companyProfile.companyEmail
+          }}
         </div>
         <p-button
           icon="pi pi-copy"
           [text]="true"
           [rounded]="true"
-          (click)="copyEmailToClipboard(contactProfile.contactEmail)"
+          (click)="
+            copyEmailToClipboard(
+              module === 'CONT'
+                ? contactProfile.contactEmail
+                : companyProfile.companyEmail
+            )
+          "
           pTooltip="Copy email to clipboard"
         />
       </div>

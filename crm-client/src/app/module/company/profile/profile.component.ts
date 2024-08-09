@@ -1,14 +1,14 @@
-import { Component, Input, OnInit } from '@angular/core';
-import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
-import { CommonService, PropertyGroupDto } from '../../../core/services/common.service';
+import { Component, Input } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
+import { PropertyGroupDto, CommonService } from '../../../core/services/common.service';
 
 @Component({
-  selector: 'app-contact-profile',
+  selector: 'app-company-profile',
   templateUrl: './profile.component.html',
   styleUrl: './profile.component.scss'
 })
-export class ContactProfileComponent implements OnInit {
-  module: 'CONT' | 'COMP' = 'CONT';
+export class CompanyProfileComponent {
+  module: 'CONT' | 'COMP' = 'COMP';
   profileId: any;
   propertiesList: PropertyGroupDto[] = [];
   isLoadingProperties: boolean = true;
@@ -19,12 +19,9 @@ export class ContactProfileComponent implements OnInit {
     private commonService: CommonService,
     private activatedRoute: ActivatedRoute
   ) {
+    console.log(this.module)
     if (this.activatedRoute.snapshot.queryParamMap) {
       this.profileId = this.activatedRoute.snapshot.paramMap.get('id');
     }
-  }
-
-  ngOnInit(): void {
-
   }
 }

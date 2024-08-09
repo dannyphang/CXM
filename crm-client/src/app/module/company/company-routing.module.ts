@@ -5,7 +5,20 @@ import { CompanyComponent } from './company.component';
 const routes: Routes = [
   {
     path: '',
-    component: CompanyComponent
+    component: CompanyComponent,
+    children: [
+      {
+        path: 'profile/:id',
+        pathMatch: 'full',
+        redirectTo: 'profile',
+      }
+    ]
+  },
+  {
+    path: 'profile/:id',
+    data: { breadcrumb: 'Profile', title: 'Profile' },
+    loadChildren: () => import('./profile/profile.module').then(m => m.ProfileModule)
+
   }
 ];
 

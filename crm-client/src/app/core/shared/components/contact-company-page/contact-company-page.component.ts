@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel, TableConfig } from '../../../services/components.service';
 import { CommonService, CompanyDto, ContactDto, ModuleDto, PropertiesDto, PropertyDataDto } from '../../../services/common.service';
-import { Router } from '@angular/router';
+import { NavigationExtras, Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { DEFAULT_FORMAT_DATE } from '../../constants/common.constants';
@@ -238,11 +238,18 @@ export class ContactCompanyPageComponent {
   }
 
   toProfile(profile: ContactDto | CompanyDto) {
+
+    const navigationExtras: NavigationExtras = {
+      state: {
+        module: this.module
+      }
+    };
+
     if (this.module === 'CONT') {
-      this.router.navigate(['contact/profile/' + profile.uid]);
+      this.router.navigate(['contact/profile/' + profile.uid], navigationExtras);
     }
     else {
-      this.router.navigate(['company/profile/' + profile.uid]);
+      this.router.navigate(['company/profile/' + profile.uid], navigationExtras);
     }
   }
 

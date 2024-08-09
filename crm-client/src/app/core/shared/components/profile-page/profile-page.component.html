@@ -3,15 +3,19 @@
     <ng-template pTemplate>
       <app-left-panel
         class="left-panel-area tw-w-full"
+        [module]="module"
         [propertiesList]="propertiesList"
         [contactProfile]="contactProfile"
-        (contactProfileUpdateEmit)="contactProfileUpdate($event)"
+        [companyProfile]="companyProfile"
+        (profileUpdateEmit)="profileUpdate($event)"
       ></app-left-panel>
     </ng-template>
 
     <ng-template pTemplate>
       <app-middle-panel
+        [module]="module"
         [contactProfile]="contactProfile"
+        [companyProfile]="companyProfile"
         [activitiesList]="activitiesList"
         class="middle-panel-area tw-w-full"
         (activityListEmit)="getActivities()"

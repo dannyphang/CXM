@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonService, ContactDto, PropertyGroupDto } from '../../../services/common.service';
+import { CommonService, CompanyDto, ContactDto, PropertyGroupDto } from '../../../services/common.service';
 import { ActivatedRoute } from '@angular/router';
 import { ActivityDto, ActivityService } from '../../../services/activity.service';
 import { Title } from '@angular/platform-browser';
@@ -14,6 +14,7 @@ export class ProfilePageComponent implements OnChanges {
   @Input() propertiesList: PropertyGroupDto[] = [];
   @Input() profileId: string = '';
   contactProfile: ContactDto = new ContactDto();
+  companyProfile: CompanyDto = new CompanyDto();
   activitiesList: ActivityDto[] = [];
 
   constructor(
@@ -25,15 +26,24 @@ export class ProfilePageComponent implements OnChanges {
     this.route.params.subscribe((params) => {
       this.profileId = params['id'];
     });
-
-    // this.getProperties();
-    this.getContact();
-    // this.getActivities();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['propertiesList'] && changes['propertiesList'].currentValue) {
       this.propertiesList = changes['propertiesList'].currentValue;
+    }
+
+    if (changes['module'] && changes['module'].currentValue) {
+      if (this.module === "CONT") {
+        this.getContact();
+      }
+      else {
+        this.getCompany();
+      }
+
+      this.getProperties();
+
+      this.getActivities();
     }
   }
 
@@ -50,6 +60,13 @@ export class ProfilePageComponent implements OnChanges {
     });
   }
 
+  getCompany() {
+    this.commonService.getCompanyById(this.profileId).subscribe((res) => {
+      this.companyProfile = res;
+      this.titleService.setTitle(`${this.companyProfile.companyName}`)
+    });
+  }
+
   getActivities() {
     let profile = {
       contactId: this.module === 'CONT' ? this.contactProfile.uid : '',
@@ -60,7 +77,12 @@ export class ProfilePageComponent implements OnChanges {
     })
   }
 
-  contactProfileUpdate(event: any) {
-    this.getContact();
+  profileUpdate(event: any) {
+    if (this.module === 'CONT') {
+      this.getContact();
+    }
+    else {
+      this.getCompany();
+    }
   }
 }
