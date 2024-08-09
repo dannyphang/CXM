@@ -7,13 +7,13 @@ import { CommonSharedModule } from '../../core/shared/modules/common-shared.modu
 import { MaterialModule } from '../../core/shared/modules/material.module';
 import { PrimeNgModule } from '../../core/shared/modules/primeng.module';
 import { ContactComponent } from './contact.component';
-import { ProfileComponent } from './profile/profile.component';
+import { ContactProfileComponent } from './profile/profile.component';
 
 
 @NgModule({
   declarations: [
     ContactComponent,
-    ProfileComponent
+    ContactProfileComponent
   ],
   imports: [
     CommonModule,

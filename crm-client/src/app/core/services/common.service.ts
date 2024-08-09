@@ -75,19 +75,6 @@ export class CommonService {
         }).pipe();
     }
 
-    uploadProfileImage(file: File, blobFile: Blob, folderName: string): Observable<any> {
-        let formDataImg: FormData = new FormData();
-        if (file) {
-            formDataImg.append('image', file);
-        }
-
-        formDataImg.append('imageBlob', blobFile);
-        formDataImg.append('folderName', folderName);
-        // formDataImg.append('folderName', "");
-
-        return this.http.post<any>(apiConfig.baseUrl + '/storage/image', formDataImg).pipe();
-    }
-
     /**
      * set form control init value
      * @param prop properties 
@@ -134,6 +121,26 @@ export class CommonService {
             return value.filter((item: any) => item.length > 0).toString();
         }
         return value.toString();
+    }
+
+    getAllCompany(): Observable<CompanyDto[]> {
+        return this.http.get<CompanyDto[]>(apiConfig.baseUrl + '/company').pipe();
+    }
+
+    getCompanyById(id: string): Observable<CompanyDto> {
+        return this.http.get<CompanyDto>(apiConfig.baseUrl + '/company/' + id).pipe();
+    }
+
+    createCompany(companyList: CompanyDto[]): Observable<CompanyDto[]> {
+        return this.http.post<CompanyDto[]>(apiConfig.baseUrl + '/company', { companyList }).pipe();
+    }
+
+    updateCompany(companyList: UpdateCompanyDto[]): Observable<UpdateCompanyDto[]> {
+        return this.http.put<UpdateCompanyDto[]>(apiConfig.baseUrl + '/company', { companyList }).pipe();
+    }
+
+    deleteCompany(companyList: CompanyDto[]): Observable<CompanyDto> {
+        return this.http.put<CompanyDto>(apiConfig.baseUrl + '/company/delete', { companyList }).pipe();
     }
 }
 
@@ -193,7 +200,7 @@ export class PropertyLookupDto extends BasedDto {
 
 export class ContactDto extends BasedDto {
     uid: string;
-    contactId?: string;
+    contactId?: number;
     contactFirstName: string;
     contactLastName: string;
     contactEmail: string;
@@ -229,4 +236,27 @@ export class AttachmentDto extends BasedDto {
     fileName: string;
     activityUid: string;
     fileSize: number;
+}
+
+export class CompanyDto extends BasedDto {
+    uid: string;
+    companyId: number;
+    companyName: string;
+    companyEmail: string;
+    companyWebsite: string;
+    companyOwnerUid: string;
+    companyLeadStatusId: string;
+    companyProperties: string;
+    companyProfilePhotoUrl?: string;
+}
+
+export class UpdateCompanyDto {
+    uid: string;
+    companyName?: string;
+    companyEmail?: string;
+    companyWebsite?: string;
+    companyOwnerUid?: string;
+    companyLeadStatusId?: string;
+    companyProperties?: string;
+    companyProfilePhotoUrl?: string;
 }

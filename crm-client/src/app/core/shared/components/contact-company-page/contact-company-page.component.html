@@ -2,11 +2,11 @@
   <div class="tw-flex">
     <div class="tw-justify-between tw-w-full tw-grid tw-items-center">
       <app-base-label
-        [label]="'Company'"
+        [label]="'COMMON.COMPANY' | translate"
         *ngIf="module === 'COMP'"
       ></app-base-label>
       <app-base-label
-        [label]="'Contact'"
+        [label]="'COMMON.CONTACT' | translate"
         *ngIf="module === 'CONT'"
       ></app-base-label>
     </div>
@@ -15,33 +15,46 @@
         [icon]="'pi pi-upload'"
         rounded="true"
         [text]="true"
-        [pTooltip]="'Export'"
+        [pTooltip]="'BUTTON.EXPORT' | translate"
         (onClick)="exportFile(dt.processedData)"
       ></p-button>
       <p-button
         [icon]="'pi pi-download'"
         rounded="true"
         [text]="true"
-        [pTooltip]="'Import'"
+        [pTooltip]="'BUTTON.IMPORT' | translate"
         (onClick)="importFile()"
       ></p-button>
       <p-button
         [icon]="'pi pi-plus'"
         rounded="true"
         [text]="true"
-        [pTooltip]="'Create'"
+        [pTooltip]="'BUTTON.CREATE' | translate"
         (onClick)="toCreate()"
       ></p-button>
     </div>
   </div>
 
   <p-dialog
-    header="Create Contact"
+    [header]="'PROFILE.CREATE_PROFILE' | translate"
     [(visible)]="displayCreateDialog"
     [style]="{ width: '70%' }"
   >
     <app-base-form [formConfig]="createFormConfig"></app-base-form>
-    <ng-template pTemplate="footer"> </ng-template>
+    <ng-template pTemplate="footer">
+      <p-button
+        [label]="'BUTTON.CANCEL' | translate"
+        [text]="true"
+        severity="secondary"
+        (click)="displayCreateDialog = false"
+      />
+      <p-button
+        [label]="'BUTTON.CREATE' | translate"
+        [outlined]="true"
+        severity="primary"
+        (click)="create()"
+      />
+    </ng-template>
   </p-dialog>
 
   <p-tabView class="">
@@ -49,11 +62,11 @@
       <p-table
         #dt
         [columns]="tableConfig"
-        [value]="contactList"
-        [(selection)]="selectedContact"
+        [value]="module === 'CONT' ? contactList : companyList"
+        [(selection)]="selectedProfile"
         [resizableColumns]="true"
         styleClass="p-datatable-gridlines p-datatable-striped"
-        class="contact-company-table"
+        class="profile-company-table"
       >
         <ng-template pTemplate="caption">
           <div class="tw-flex tw-items-center tw-justify-end">
@@ -69,42 +82,63 @@
           <tr>
             <th><p-tableHeaderCheckbox /></th>
             <th *ngFor="let item of columns" pSortableColumn="{{ item.code }}">
-              <div *ngIf="item.code !== 'contactProfilePhotoUrl'">
+              <div
+                *ngIf="
+                  item.code !== 'contactProfilePhotoUrl' &&
+                  item.code !== 'companyProfilePhotoUrl'
+                "
+              >
                 {{ item.header }} <p-sortIcon field="{{ item.code }}" />
               </div>
-              <div *ngIf="item.code === 'contactProfilePhotoUrl'"></div>
+              <div
+                *ngIf="
+                  item.code === 'contactProfilePhotoUrl' ||
+                  item.code !== 'companyProfilePhotoUrl'
+                "
+              ></div>
             </th>
           </tr>
         </ng-template>
-        <ng-template pTemplate="body" let-contact let-columns="columns">
+        <ng-template pTemplate="body" let-profile let-columns="columns">
           <tr>
-            <td><p-tableCheckbox [value]="contact" /></td>
+            <td><p-tableCheckbox [value]="profile" /></td>
             <td *ngFor="let col of columns">
-              <div *ngIf="col.code === 'contactProfilePhotoUrl'">
+              <div
+                *ngIf="
+                  col.code === 'contactProfilePhotoUrl' ||
+                  col.code === 'companyProfilePhotoUrl'
+                "
+              >
                 <p-avatar
-                  *ngIf="contact[col.code]"
-                  [image]="contact[col.code]"
+                  *ngIf="profile[col.code]"
+                  [image]="profile[col.code]"
                   shape="circle"
                 ></p-avatar>
                 <p-avatar
-                  *ngIf="!contact[col.code]"
+                  *ngIf="!profile[col.code]"
                   [icon]="'pi pi-user'"
                   shape="circle"
                 ></p-avatar>
               </div>
 
-              <div *ngIf="col.code !== 'contactProfilePhotoUrl'">
+              <div
+                *ngIf="
+                  col.code !== 'contactProfilePhotoUrl' &&
+                  col.code !== 'companyProfilePhotoUrl'
+                "
+              >
                 <div
                   *ngIf="
                     col.code === 'contactFirstName' ||
-                    col.code === 'contactLastName'
+                    col.code === 'contactLastName' ||
+                    col.code === 'companyName'
                   "
                 >
                   <p-button
-                    [label]="contact[col.code]"
+                    [label]="profile[col.code]"
                     [text]="true"
-                    [pTooltip]="contact[col.code]"
-                    (onClick)="toProfile(contact)"
+                    [pTooltip]="profile[col.code]"
+                    (onClick)="toProfile(profile)"
                   ></p-button>
                 </div>
                 <div
@@ -112,19 +146,20 @@
                     col.code !== 'contactFirstName' &&
                     col.code !== 'contactLastName' &&
                     col.code !== 'createdDate' &&
-                    col.code !== 'modifiedDate'
+                    col.code !== 'modifiedDate' &&
+                    col.code !== 'companyName'
                   "
-                  [pTooltip]="contact[col.code]"
+                  [pTooltip]="profile[col.code]"
                 >
-                  {{ contact[col.code] }}
+                  {{ profile[col.code] }}
                 </div>
                 <div
                   *ngIf="
                     col.code === 'createdDate' || col.code === 'modifiedDate'
                   "
-                  [pTooltip]="contact[col.code]"
+                  [pTooltip]="profile[col.code]"
                 >
-                  {{ convertDateFormat(contact[col.code]) }}
+                  {{ convertDateFormat(profile[col.code]) }}
                 </div>
               </div>
             </td>

@@ -1,17 +1,17 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonService, ContactDto, PropertyGroupDto } from '../../../../core/services/common.service';
-import { Router } from '@angular/router';
+import { Component, OnChanges, Input, SimpleChanges } from "@angular/core";
+import { Router } from "@angular/router";
+import { PropertyGroupDto, CompanyDto, CommonService } from "../../../../core/services/common.service";
 
 @Component({
-  selector: 'app-contact-all-properties',
+  selector: 'app-company-all-properties',
   templateUrl: './all-properties.component.html',
   styleUrl: './all-properties.component.scss'
 })
-export class ContactAllPropertiesComponent implements OnChanges {
-  @Input() module: 'CONT' | 'COMP' = 'CONT';
+export class CompanyAllPropertiesComponent implements OnChanges {
+  @Input() module: 'CONT' | 'COMP' = 'COMP';
 
   propertiesList: PropertyGroupDto[] = [];
-  contactProfile: ContactDto = new ContactDto();
+  companyProfile: CompanyDto = new CompanyDto();
 
   constructor(
     private commonService: CommonService,
@@ -25,7 +25,7 @@ export class ContactAllPropertiesComponent implements OnChanges {
       this.propertiesList = window.history.state.data;
     }
     if (window.history.state.profile) {
-      this.contactProfile = window.history.state.profile;
+      this.companyProfile = window.history.state.profile;
     }
 
   }

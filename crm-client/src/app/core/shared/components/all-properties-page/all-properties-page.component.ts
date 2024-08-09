@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonService, ContactDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, UpdateContactDto } from '../../../services/common.service';
+import { CommonService, CompanyDto, ContactDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, UpdateCompanyDto, UpdateContactDto } from '../../../services/common.service';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../../../services/components.service';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
@@ -13,6 +13,8 @@ export class AllPropertiesPageComponent implements OnChanges {
   @Input() module: 'CONT' | 'COMP' = 'CONT';
   @Input() propertyList: PropertyGroupDto[] = [];
   @Input() contactProfile: ContactDto = new ContactDto();
+  @Input() companyProfile: CompanyDto = new CompanyDto();
+
   searchControl: FormControl = new FormControl('');
   hideEmptySearchCheckbox = [{ label: 'Hide blank properties', value: true }];
   profileFormGroup: FormGroup;
@@ -29,7 +31,7 @@ export class AllPropertiesPageComponent implements OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['propertyList'] && changes['propertyList'].currentValue) {
+    if (changes['propertyList'] && changes['propertyList'].currentValue && changes['module'] && changes['module'].currentValue) {
       this.propertyList = changes['propertyList'].currentValue;
       this.initProfileFormConfig();
     }
@@ -205,7 +207,22 @@ export class AllPropertiesPageComponent implements OnChanges {
         }
       }
       else {
-        return 'return from COMP';
+        switch (prop.propertyCode) {
+          case 'company_name':
+            return this.companyProfile.companyName;
+          case 'company_website_url':
+            return this.companyProfile.companyWebsite
+          case 'company_email':
+            return this.companyProfile.companyEmail;
+          case 'company_owner':
+            return this.companyProfile.companyOwnerUid
+          default:
+            let companyProp: PropertyDataDto[] = JSON.parse(this.companyProfile.companyProperties);
+            if (companyProp.find(item => item.uid === prop.uid) && (prop.propertyType === CONTROL_TYPE_CODE.Date || prop.propertyType === CONTROL_TYPE_CODE.DateTime || prop.propertyType === CONTROL_TYPE_CODE.Time)) {
+              return new Date(companyProp.find(item => item.uid === prop.uid)!.value);
+            }
+            return companyProp.find(item => item.uid === prop.uid)?.value;
+        }
       }
     }
     else {
@@ -222,11 +239,10 @@ export class AllPropertiesPageComponent implements OnChanges {
   }
 
   saveButton() {
-    let updateContact: UpdateContactDto = new UpdateContactDto();
-    let profileProperty: PropertyDataDto[] = JSON.parse(this.contactProfile.contactProperties);
-
     // cast property value into contact/company object
     if (this.module === 'CONT') {
+      let updateContact: UpdateContactDto = new UpdateContactDto();
+      let profileProperty: PropertyDataDto[] = JSON.parse(this.contactProfile.contactProperties);
       updateContact.uid = this.contactProfile.uid;
       this.propUpdateList.forEach(prop => {
         switch (prop.property.propertyCode) {
@@ -261,14 +277,54 @@ export class AllPropertiesPageComponent implements OnChanges {
             }
             updateContact.contactProperties = JSON.stringify(profileProperty);
         }
-      })
+      });
+
+      this.commonService.updateContact([updateContact]).subscribe(res => {
+        this.propUpdateList = [];
+        this.showFormUpdateSidebar = false;
+      });
     }
+    else {
+      let updateCompany: UpdateCompanyDto = new UpdateCompanyDto();
+      let profileProperty: PropertyDataDto[] = JSON.parse(this.companyProfile.companyProperties);
+      updateCompany.uid = this.companyProfile.uid;
+      this.propUpdateList.forEach(prop => {
+        switch (prop.property.propertyCode) {
+          case 'company_name':
+            updateCompany.companyName = prop.value;
+            break;
+          case 'company_website_url':
+            updateCompany.companyWebsite = prop.value;
+            break;
+          case 'company_email':
+            updateCompany.companyEmail = prop.value;
+            break;
+          case 'company_owner':
+            updateCompany.companyOwnerUid = prop.value;
+            break;
+          case 'lead_status':
+            updateCompany.companyLeadStatusId = prop.value;
+            break;
+          default:
+            if (!profileProperty.find(item => item.uid === prop.property.uid)) {
+              profileProperty.push({
+                uid: prop.property.uid,
+                propertyCode: prop.property.propertyCode,
+                value: this.commonService.setPropertyDataValue(prop.property, prop.value)
+              });
+            }
+            else {
+              profileProperty.find(item => item.uid === prop.property.uid)!.value = this.commonService.setPropertyDataValue(prop.property, prop.value);
+            }
+            updateCompany.companyProperties = JSON.stringify(profileProperty);
+        }
+      });
 
-    // this.commonService.updateContact([updateContact]).subscribe(res => {
-    //   // this.contactProfileUpdateEmit.emit(updateContact);
-    // });
-
-    console.log(updateContact);
+      this.commonService.updateCompany([updateCompany]).subscribe(res => {
+        this.propUpdateList = [];
+        this.showFormUpdateSidebar = false;
+      });
+    }
   }
 }
 

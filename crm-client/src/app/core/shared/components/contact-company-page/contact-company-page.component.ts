@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel, TableConfig } from '../../../services/components.service';
-import { CommonService, ContactDto, ModuleDto, PropertiesDto, PropertyDataDto } from '../../../services/common.service';
-import { Router } from '@angular/router';
+import { CommonService, CompanyDto, ContactDto, ModuleDto, PropertiesDto, PropertyDataDto } from '../../../services/common.service';
+import { NavigationExtras, Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { DEFAULT_FORMAT_DATE } from '../../constants/common.constants';
@@ -14,11 +14,12 @@ import { DEFAULT_FORMAT_DATE } from '../../constants/common.constants';
 export class ContactCompanyPageComponent {
   @Input() module: 'CONT' | 'COMP' = 'CONT';
   @Input() contactList: ContactDto[] = [];
+  @Input() companyList: CompanyDto[] = [];
   @Input() modulePropertyList: ModuleDto[] = [];
 
   propertiesList: PropertiesDto[] = [];
   tableConfig: any[] = []; // from table config
-  selectedContact: ContactDto[] = [];
+  selectedProfile: ContactDto[] | CompanyDto[] = [];
   displayCreateDialog: boolean = false;
   createFormPropertyList: PropertiesDto[] = [];
   createFormConfig: FormConfig[] = [];
@@ -43,17 +44,31 @@ export class ContactCompanyPageComponent {
 
     this.createFormGroup = this.formBuilder.group({});
 
-    this.getContact();
+    if (this.module === 'CONT') {
+      this.getContact();
+    }
+    else {
+      this.getCompany();
+    }
 
-    this.tableConfig.push({
-      header: "contactProfilePhotoUrl",
-      code: "contactProfilePhotoUrl",
-      order: 0
-    })
+    this.tableConfig = [];
+    if (this.module === 'CONT') {
+      this.tableConfig.push({
+        header: "contactProfilePhotoUrl",
+        code: "contactProfilePhotoUrl",
+        order: 0
+      })
+    }
+    else {
+      this.tableConfig.push({
+        header: "companyProfilePhotoUrl",
+        code: "companyProfilePhotoUrl",
+        order: 0
+      })
+    }
+
 
     this.commonService.getAllPropertiesByModule(this.module).subscribe((res) => {
-
-
       res.forEach((item) => {
         item.propertiesList.forEach((prop) => {
           this.propertiesList.push(prop);
@@ -73,7 +88,7 @@ export class ContactCompanyPageComponent {
           if (prop.isMandatory && prop.isEditable) {
             this.createFormPropertyList.push(prop);
 
-            let control = new FormControl(this.commonService.returnControlTypeEmptyValue(prop), Validators.required);
+            let control = new FormControl(this.commonService.returnControlTypeEmptyValue(prop), prop.isMandatory ? Validators.required : null);
             this.createFormGroup.addControl(prop.propertyCode, control);
 
             let forms: FormConfig = {
@@ -89,7 +104,6 @@ export class ContactCompanyPageComponent {
             };
 
             if (prop.propertyType === CONTROL_TYPE_CODE.Textbox || prop.propertyType === CONTROL_TYPE_CODE.Textarea || prop.propertyType === CONTROL_TYPE_CODE.Email || prop.propertyType === CONTROL_TYPE_CODE.Phone || prop.propertyType === CONTROL_TYPE_CODE.Url || prop.propertyType === CONTROL_TYPE_CODE.Number) {
-              //console.log(this.createFormGroup.controls[prop.propertyCode].value)
               forms = {
                 id: prop.uid,
                 name: prop.propertyCode,
@@ -156,23 +170,43 @@ export class ContactCompanyPageComponent {
     });
   }
 
-  bindCode(code: string) {
-    let returnCode = '';
+  getCompany() {
+    this.commonService.getAllCompany().subscribe((res) => {
+      this.companyList = res;
+    });
+  }
 
-    switch (code) {
-      case 'contact_owner': return 'contactOwnerUid';
-      case 'first_name': return 'contactFirstName';
-      case 'last_name': return 'contactLastName';
-      case 'email': return 'contactEmail';
-      case 'phone_number': return 'contactPhone';
-      case 'lead_status': return 'contactLeadStatusId';
-      case 'created_date': return 'createdDate';
-      case 'created_by': return 'createdBy';
-      case 'last_modified_date': return 'modifiedDate';
-      case 'last_modified_by': return 'modifiedBy';
+  bindCode(code: string) {
+    if (this.module === 'CONT') {
+      switch (code) {
+        case 'contact_owner': return 'contactOwnerUid';
+        case 'first_name': return 'contactFirstName';
+        case 'last_name': return 'contactLastName';
+        case 'email': return 'contactEmail';
+        case 'phone_number': return 'contactPhone';
+        case 'lead_status': return 'contactLeadStatusId';
+        case 'created_date': return 'createdDate';
+        case 'created_by': return 'createdBy';
+        case 'last_modified_date': return 'modifiedDate';
+        case 'last_modified_by': return 'modifiedBy';
+        default: return '';
+      }
+    }
+    else {
+      switch (code) {
+        case 'company_owner': return 'companyOwnerUid';
+        case 'company_name': return 'companyName';
+        case 'company_email': return 'companyEmail';
+        case 'lead_status': return 'companyLeadStatusId';
+        case 'company_website_url': return 'companyWebsite';
+        case 'created_date': return 'createdDate';
+        case 'created_by': return 'createdBy';
+        case 'last_modified_date': return 'modifiedDate';
+        case 'last_modified_by': return 'modifiedBy';
+        default: return '';
+      }
     }
 
-    return returnCode;
   }
 
   convertDateFormat(date: any) {
@@ -203,8 +237,20 @@ export class ContactCompanyPageComponent {
 
   }
 
-  toProfile(contact: ContactDto) {
-    this.router.navigate(['contact/profile/' + contact.uid]);
+  toProfile(profile: ContactDto | CompanyDto) {
+
+    const navigationExtras: NavigationExtras = {
+      state: {
+        module: this.module
+      }
+    };
+
+    if (this.module === 'CONT') {
+      this.router.navigate(['contact/profile/' + profile.uid], navigationExtras);
+    }
+    else {
+      this.router.navigate(['company/profile/' + profile.uid], navigationExtras);
+    }
   }
 
   toCreate() {
@@ -222,7 +268,8 @@ export class ContactCompanyPageComponent {
 
   propertyValueUpdate(form: any[]) {
     let newContact: ContactDto = new ContactDto();
-    let contactProperty: PropertyDataDto[] = [];
+    let newCompany: CompanyDto = new CompanyDto();
+    let profileProperty: PropertyDataDto[] = [];
 
     this.createFormPropertyList.forEach(prop => {
       if (this.module === 'CONT') {
@@ -242,7 +289,29 @@ export class ContactCompanyPageComponent {
           default:
             let inputValue = form.find(item => item.name === prop.propertyCode)?.fieldControl.value;
             if (inputValue) {
-              contactProperty.push({
+              profileProperty.push({
+                uid: prop.uid,
+                propertyCode: prop.propertyCode,
+                value: inputValue
+              });
+            }
+        }
+      }
+      else {
+        switch (prop.propertyCode) {
+          case ('company_name'):
+            newCompany.companyName = form.find((item: any) => item.name === 'company_name').fieldControl.value;
+            break;
+          case ('company_website'):
+            newCompany.companyWebsite = form.find((item: any) => item.name === 'company_website').fieldControl.value;
+            break;
+          case ('company_website_url'):
+            newCompany.companyEmail = form.find((item: any) => item.name === 'company_website_url').fieldControl.value;
+            break;
+          default:
+            let inputValue = form.find(item => item.name === prop.propertyCode)?.fieldControl.value;
+            if (inputValue) {
+              profileProperty.push({
                 uid: prop.uid,
                 propertyCode: prop.propertyCode,
                 value: inputValue
@@ -251,20 +320,37 @@ export class ContactCompanyPageComponent {
         }
       }
     });
+    if (this.module === "CONT") {
+      newContact.contactProperties = JSON.stringify(profileProperty);
+      this.commonService.createContact([newContact]).subscribe(res => {
+        this.displayCreateDialog = false;
 
-    newContact.contactProperties = JSON.stringify(contactProperty);
-    this.commonService.createContact([newContact]).subscribe(res => {
-      this.displayCreateDialog = false;
+        this.getContact();
+      });
+    }
+    else {
+      newCompany.companyProperties = JSON.stringify(profileProperty);
+      this.commonService.createCompany([newCompany]).subscribe(res => {
+        this.displayCreateDialog = false;
 
-      this.getContact();
-    });
+        this.getCompany();
+      });
+    }
+
+
     return;
   }
 
   delete() {
-    console.log(this.selectedContact)
-    this.commonService.deleteContact(this.selectedContact).subscribe(res => {
-      this.getContact();
-    })
+    if (this.module === 'CONT') {
+      this.commonService.deleteContact(this.selectedProfile as ContactDto[]).subscribe(res => {
+        this.getContact();
+      });
+    }
+    else {
+      this.commonService.deleteCompany(this.selectedProfile as CompanyDto[]).subscribe(res => {
+        this.getContact();
+      });
+    }
   }
 }

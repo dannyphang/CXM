@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { NavigationExtras, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
-import { CommonService, ContactDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, UpdateContactDto } from '../../../../services/common.service';
+import { CommonService, CompanyDto, ContactDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, UpdateCompanyDto, UpdateContactDto } from '../../../../services/common.service';
 import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../../../../services/components.service';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { StorageService } from '../../../../services/storage.service';
@@ -17,7 +17,8 @@ export class LeftPanelComponent implements OnChanges {
   @Input() propertiesList: PropertyGroupDto[] = [];
   @Input() module: 'CONT' | 'COMP' = 'CONT';
   @Input() contactProfile: ContactDto = new ContactDto();
-  @Output() contactProfileUpdateEmit: EventEmitter<any> = new EventEmitter<any>();
+  @Input() companyProfile: CompanyDto = new CompanyDto();
+  @Output() profileUpdateEmit: EventEmitter<any> = new EventEmitter<any>();
 
   actionMenu: any[] = [
     {
@@ -27,12 +28,18 @@ export class LeftPanelComponent implements OnChanges {
         const navigationExtras: NavigationExtras = {
           state: {
             data: this.propertiesList,
-            profile: this.contactProfile
+            profile: this.module === 'CONT' ? this.contactProfile : this.companyProfile,
+            module: this.module
           }
         };
 
         // navigate to setting page
-        this.router.navigate(['contact/profile/' + this.contactProfile.uid + '/allProperties'], navigationExtras);
+        if (this.module === 'CONT') {
+          this.router.navigate(['contact/profile/' + this.contactProfile.uid + '/allProperties'], navigationExtras);
+        }
+        else {
+          this.router.navigate(['company/profile/' + this.companyProfile.uid + '/allProperties'], navigationExtras);
+        }
       }
     }
   ];
@@ -101,6 +108,14 @@ export class LeftPanelComponent implements OnChanges {
         this.profileImg = this.contactProfile.contactProfilePhotoUrl;
       }
     }
+
+    if (changes['companyProfile'] && changes['companyProfile'].currentValue) {
+      if (this.companyProfile.companyProfilePhotoUrl) {
+        this.profileImg = this.companyProfile.companyProfilePhotoUrl;
+      }
+    }
+
+
   }
 
   ngOnInit() {
@@ -143,7 +158,7 @@ export class LeftPanelComponent implements OnChanges {
           };
 
           if (prop.isVisible) {
-            if (prop.propertyType === CONTROL_TYPE_CODE.Textbox || prop.propertyType === CONTROL_TYPE_CODE.Textarea || prop.propertyType === CONTROL_TYPE_CODE.Email || prop.propertyType === CONTROL_TYPE_CODE.Phone || prop.propertyType === CONTROL_TYPE_CODE.Url || prop.propertyType === CONTROL_TYPE_CODE.Number) {
+            if (prop.propertyType === CONTROL_TYPE_CODE.Textbox || prop.propertyType === CONTROL_TYPE_CODE.Textarea || prop.propertyType === CONTROL_TYPE_CODE.Email || prop.propertyType === CONTROL_TYPE_CODE.Phone || prop.propertyType === CONTROL_TYPE_CODE.Url || prop.propertyType === CONTROL_TYPE_CODE.Number || prop.propertyType === CONTROL_TYPE_CODE.Year) {
               forms = {
                 id: prop.uid,
                 name: prop.propertyCode,
@@ -211,22 +226,40 @@ export class LeftPanelComponent implements OnChanges {
    * @param prop Property object
    */
   bindProfileValue(prop: PropertiesDto) {
-    switch (prop.propertyCode) {
-      case 'first_name':
-        this.profileFormGroup.controls[prop.propertyCode].setValue(this.contactProfile.contactFirstName);
-        break;
-      case 'last_name':
-        this.profileFormGroup.controls[prop.propertyCode].setValue(this.contactProfile.contactLastName);
-        break;
-      case 'email':
-        this.profileFormGroup.controls[prop.propertyCode].setValue(this.contactProfile.contactEmail);
-        break;
-      case 'phone_number':
-        this.profileFormGroup.controls[prop.propertyCode].setValue(this.contactProfile.contactPhone);
-        break;
-      case 'contact_owner':
-        this.profileFormGroup.controls[prop.propertyCode].setValue(this.contactProfile.contactOwnerUid);
-        break;
+    if (this.module === 'CONT') {
+      switch (prop.propertyCode) {
+        case 'first_name':
+          this.profileFormGroup.controls[prop.propertyCode].setValue(this.contactProfile.contactFirstName);
+          break;
+        case 'last_name':
+          this.profileFormGroup.controls[prop.propertyCode].setValue(this.contactProfile.contactLastName);
+          break;
+        case 'email':
+          this.profileFormGroup.controls[prop.propertyCode].setValue(this.contactProfile.contactEmail);
+          break;
+        case 'phone_number':
+          this.profileFormGroup.controls[prop.propertyCode].setValue(this.contactProfile.contactPhone);
+          break;
+        case 'contact_owner':
+          this.profileFormGroup.controls[prop.propertyCode].setValue(this.contactProfile.contactOwnerUid);
+          break;
+      }
+    }
+    else {
+      switch (prop.propertyCode) {
+        case 'company_name':
+          this.profileFormGroup.controls[prop.propertyCode].setValue(this.companyProfile.companyName);
+          break;
+        case 'company_website_url':
+          this.profileFormGroup.controls[prop.propertyCode].setValue(this.companyProfile.companyWebsite);
+          break;
+        case 'company_email':
+          this.profileFormGroup.controls[prop.propertyCode].setValue(this.companyProfile.companyEmail);
+          break;
+        case 'company_owner':
+          this.profileFormGroup.controls[prop.propertyCode].setValue(this.companyProfile.companyOwnerUid);
+          break;
+      }
     }
   }
 
@@ -252,7 +285,22 @@ export class LeftPanelComponent implements OnChanges {
       }
     }
     else {
-      return 'return from COMP';
+      switch (prop.propertyCode) {
+        case 'company_name':
+          return this.companyProfile.companyName;
+        case 'company_website_url':
+          return this.companyProfile.companyWebsite
+        case 'company_email':
+          return this.companyProfile.companyEmail;
+        case 'company_owner':
+          return this.companyProfile.companyOwnerUid
+        default:
+          let companyProp: PropertyDataDto[] = JSON.parse(this.companyProfile.companyProperties);
+          if (companyProp.find(item => item.uid === prop.uid) && (prop.propertyType === CONTROL_TYPE_CODE.Date || prop.propertyType === CONTROL_TYPE_CODE.DateTime || prop.propertyType === CONTROL_TYPE_CODE.Time)) {
+            return new Date(companyProp.find(item => item.uid === prop.uid)!.value);
+          }
+          return companyProp.find(item => item.uid === prop.uid)?.value;
+      }
     }
   }
 
@@ -261,11 +309,10 @@ export class LeftPanelComponent implements OnChanges {
   }
 
   saveButton() {
-    let updateContact: UpdateContactDto = new UpdateContactDto();
-    let profileProperty: PropertyDataDto[] = JSON.parse(this.contactProfile.contactProperties);
-
     // cast property value into contact/company object
     if (this.module === 'CONT') {
+      let updateContact: UpdateContactDto = new UpdateContactDto();
+      let profileProperty: PropertyDataDto[] = JSON.parse(this.contactProfile.contactProperties);
       updateContact.uid = this.contactProfile.uid;
       this.propUpdateList.forEach(prop => {
         switch (prop.property.propertyCode) {
@@ -300,12 +347,56 @@ export class LeftPanelComponent implements OnChanges {
             }
             updateContact.contactProperties = JSON.stringify(profileProperty);
         }
-      })
-    }
+      });
 
-    this.commonService.updateContact([updateContact]).subscribe(res => {
-      this.contactProfileUpdateEmit.emit(updateContact);
-    });
+      this.commonService.updateContact([updateContact]).subscribe(res => {
+        this.propUpdateList = [];
+        this.showFormUpdateSidebar = false;
+        this.profileUpdateEmit.emit(updateContact);
+      });
+    }
+    else {
+      let updateCompany: UpdateCompanyDto = new UpdateCompanyDto();
+      let profileProperty: PropertyDataDto[] = JSON.parse(this.companyProfile.companyProperties);
+      updateCompany.uid = this.companyProfile.uid;
+      this.propUpdateList.forEach(prop => {
+        switch (prop.property.propertyCode) {
+          case 'company_name':
+            updateCompany.companyName = prop.value;
+            break;
+          case 'company_website_url':
+            updateCompany.companyWebsite = prop.value;
+            break;
+          case 'company_email':
+            updateCompany.companyEmail = prop.value;
+            break;
+          case 'company_owner':
+            updateCompany.companyOwnerUid = prop.value;
+            break;
+          case 'lead_status':
+            updateCompany.companyLeadStatusId = prop.value;
+            break;
+          default:
+            if (!profileProperty.find(item => item.uid === prop.property.uid)) {
+              profileProperty.push({
+                uid: prop.property.uid,
+                propertyCode: prop.property.propertyCode,
+                value: this.commonService.setPropertyDataValue(prop.property, prop.value)
+              });
+            }
+            else {
+              profileProperty.find(item => item.uid === prop.property.uid)!.value = this.commonService.setPropertyDataValue(prop.property, prop.value);
+            }
+            updateCompany.companyProperties = JSON.stringify(profileProperty);
+        }
+      });
+
+      this.commonService.updateCompany([updateCompany]).subscribe(res => {
+        this.propUpdateList = [];
+        this.showFormUpdateSidebar = false;
+        this.profileUpdateEmit.emit(updateCompany);
+      });
+    }
   }
 
   editPic() {
@@ -333,14 +424,28 @@ export class LeftPanelComponent implements OnChanges {
     if (this.profileImg !== DEFAULT_PROFILE_PIC_URL && this.profilePhotoFile) {
       this.storageService.uploadImage(this.profilePhotoFile, this.module === 'CONT' ? "Image/Contact/" : "Image/Company/").then(url => {
         this.profileImg = url;
-        let updateContact: UpdateContactDto = {
-          uid: this.contactProfile.uid,
-          contactProfilePhotoUrl: this.profileImg
+        if (this.module === 'CONT') {
+          let updateContact: UpdateContactDto = {
+            uid: this.contactProfile.uid,
+            contactProfilePhotoUrl: this.profileImg
+          }
+          this.commonService.updateContact([updateContact]).subscribe(res => {
+            console.log(res);
+            this.isShowAvatarEditDialog = false;
+            this.profileUpdateEmit.emit(updateContact);
+          })
         }
-        this.commonService.updateContact([updateContact]).subscribe(res => {
-          console.log(res);
-          this.contactProfileUpdateEmit.emit(updateContact);
-        })
+        else {
+          let updateCompany: UpdateCompanyDto = {
+            uid: this.companyProfile.uid,
+            companyProfilePhotoUrl: this.profileImg
+          }
+          this.commonService.updateCompany([updateCompany]).subscribe(res => {
+            console.log(res);
+            this.isShowAvatarEditDialog = false;
+            this.profileUpdateEmit.emit(updateCompany);
+          })
+        }
       });
     }
   }
