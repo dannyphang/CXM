@@ -17,7 +17,7 @@ export class ContactCompanyPageComponent {
   @Input() modulePropertyList: ModuleDto[] = [];
 
   propertiesList: PropertiesDto[] = [];
-  tableConfig: TableConfig[] = [];
+  tableConfig: any[] = []; // from table config
   selectedContact: ContactDto[] = [];
   displayCreateDialog: boolean = false;
   createFormPropertyList: PropertiesDto[] = [];
@@ -45,16 +45,25 @@ export class ContactCompanyPageComponent {
 
     this.getContact();
 
+    this.tableConfig.push({
+      header: "contactProfilePhotoUrl",
+      code: "contactProfilePhotoUrl",
+      order: 0
+    })
+
     this.commonService.getAllPropertiesByModule(this.module).subscribe((res) => {
+
+
       res.forEach((item) => {
         item.propertiesList.forEach((prop) => {
           this.propertiesList.push(prop);
 
           // only display property that is system property which is not storing inside the properties column
           if (!prop.isDefaultProperty) {
-            let config: TableConfig = {
+            let config: any = {
               header: prop.propertyName,
               code: this.bindCode(prop.propertyCode),
+              order: prop.order
             };
             this.tableConfig.push(config);
             this.profileProperty.push(prop);
@@ -135,6 +144,9 @@ export class ContactCompanyPageComponent {
       });
 
       this.createFormConfig = formsConfig;
+
+      // sort table column
+      this.tableConfig = this.tableConfig.sort((a, b) => a.order - b.order);
     });
   }
 

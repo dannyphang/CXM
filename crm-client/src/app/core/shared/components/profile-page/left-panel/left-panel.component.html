@@ -44,29 +44,37 @@
   [(visible)]="isShowAvatarEditDialog"
   styleClass="tw-w-[50%] tw-m-[var(--content-gap)]"
   [modal]="true"
+  [header]="'PROFILE.AVATAR_EDIT' | translate"
+  (onHide)="onCloseProfileDialog()"
+  [closeOnEscape]="false"
 >
-  <ng-template pTemplate="headless">
-    <div class="tw-p-[var(--content-gap)] tw-flex">
-      <img
-        [src]="profileImg"
-        class="tw-w-[300px] tw-h-[300px] tw-border tw-border-solid tw-border-[var(--primary-color)] tw-object-cover tw-mr-[var(--content-gap)]"
-      />
-      <div>
-        <p-button
-          [icon]="'pi pi-plus'"
-          [rounded]="true"
-          (onClick)="imageUploader.click()"
-          class=""
-          [pTooltip]="'BUTTON.ATTACH_FILE' | translate"
-        ></p-button>
+  <div class="tw-grid">
+    <img
+      [src]="profileImg"
+      class="tw-w-full tw-aspect-square tw-border tw-border-solid tw-border-[var(--primary-color)] tw-object-cover tw-mb-[var(--content-gap)]"
+    />
+    <div class="tw-flex tw-justify-between">
+      <p-button
+        [icon]="'pi pi-plus'"
+        [rounded]="true"
+        (onClick)="imageUploader.click()"
+        class=""
+        [pTooltip]="'BUTTON.ATTACH_FILE' | translate"
+      ></p-button>
 
-        <p-button
-          [label]="'BUTTON.UPLOAD' | translate"
-          (onClick)="imageFileUploadBtn()"
-        ></p-button>
-      </div>
+      <app-chip
+        *ngIf="profilePhotoFile"
+        [label]="profilePhotoFile.name"
+        [removable]="false"
+        class="tw-grid tw-items-center"
+      ></app-chip>
+
+      <p-button
+        [label]="'BUTTON.UPLOAD' | translate"
+        (onClick)="imageFileUploadBtn()"
+      ></p-button>
     </div>
-  </ng-template>
+  </div>
 </p-dialog>
 
 <input
@@ -94,10 +102,19 @@
         [text]="true"
         *ngIf="isAvatarEdit"
         (onClick)="editPic()"
-        [pTooltip]="'AVATAR_EDIT' | translate"
+        [pTooltip]="'PROFILE.AVATAR_EDIT' | translate"
       ></p-button>
       <p-avatar
+        *ngIf="!contactProfile.contactProfilePhotoUrl"
         [icon]="'pi pi-user'"
+        styleClass="tw-w-[80px] tw-h-[80px]"
+        [ngClass]="isAvatarEdit ? 'tw-opacity-[0.5]' : 'tw-opacity-[1]'"
+        shape="circle"
+        data-blobity-magnetic="true"
+      />
+      <p-avatar
+        *ngIf="contactProfile.contactProfilePhotoUrl"
+        [image]="contactProfile.contactProfilePhotoUrl"
         styleClass="tw-w-[80px] tw-h-[80px]"
         [ngClass]="isAvatarEdit ? 'tw-opacity-[0.5]' : 'tw-opacity-[1]'"
         shape="circle"

@@ -85,10 +85,7 @@ export class CommonService {
         formDataImg.append('folderName', folderName);
         // formDataImg.append('folderName', "");
 
-        return this.http.post<any>(apiConfig.baseUrl + '/storage/image', formDataImg, {
-            reportProgress: true,
-            responseType: 'json'
-        }).pipe();
+        return this.http.post<any>(apiConfig.baseUrl + '/storage/image', formDataImg).pipe();
     }
 
     /**
@@ -216,6 +213,7 @@ export class UpdateContactDto {
     contactOwnerUid?: string;
     contactLeadStatusId?: string;
     contactProperties?: string;
+    contactProfilePhotoUrl?: string;
 }
 
 export class PropertyDataDto {
