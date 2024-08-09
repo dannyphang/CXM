@@ -79,11 +79,11 @@ router.get("/" + propertiesCollection + "/module", async (req, res) => {
 
       for (let j = 0; j < propertyLookupList.length; j++) {
         if (propertyList[i].propertyId === propertyLookupList[j].propertyId) {
-          propertyLookupList[i].CreatedDate = convertFirebaseDateFormat(
-            propertyLookupList[i].CreatedDate
+          propertyLookupList[i].createdDate = convertFirebaseDateFormat(
+            propertyLookupList[i].createdDate
           );
-          propertyLookupList[i].ModifiedDate = convertFirebaseDateFormat(
-            propertyLookupList[i].ModifiedDate
+          propertyLookupList[i].modifiedDate = convertFirebaseDateFormat(
+            propertyLookupList[i].modifiedDate
           );
           propertyList[i].propertyLookupList.push(propertyLookupList[j]);
         }
@@ -222,8 +222,8 @@ router.post("/" + propertiesLookupCollection, async (req, res) => {
 
     list.forEach((prop) => {
       prop.uid = doc(collection(db.default.db, propertiesLookupCollection)).id;
-      prop.CreatedDate = new Date();
-      prop.ModifiedDate = new Date();
+      prop.createdDate = new Date();
+      prop.modifiedDate = new Date();
 
       createDoc.push(prop);
 

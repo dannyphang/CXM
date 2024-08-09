@@ -75,19 +75,6 @@ export class CommonService {
         }).pipe();
     }
 
-    uploadProfileImage(file: File, blobFile: Blob, folderName: string): Observable<any> {
-        let formDataImg: FormData = new FormData();
-        if (file) {
-            formDataImg.append('image', file);
-        }
-
-        formDataImg.append('imageBlob', blobFile);
-        formDataImg.append('folderName', folderName);
-        // formDataImg.append('folderName', "");
-
-        return this.http.post<any>(apiConfig.baseUrl + '/storage/image', formDataImg).pipe();
-    }
-
     /**
      * set form control init value
      * @param prop properties 
@@ -134,6 +121,10 @@ export class CommonService {
             return value.filter((item: any) => item.length > 0).toString();
         }
         return value.toString();
+    }
+
+    getAllCompany(): Observable<ContactDto[]> {
+        return this.http.get<ContactDto[]>(apiConfig.baseUrl + '/contact').pipe();
     }
 }
 
@@ -229,4 +220,12 @@ export class AttachmentDto extends BasedDto {
     fileName: string;
     activityUid: string;
     fileSize: number;
+}
+
+export class CompanyDto extends BasedDto {
+    uid: string;
+    companyName: string;
+    companyWebsite: string;
+    companyOwner: string;
+
 }

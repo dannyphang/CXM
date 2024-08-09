@@ -43,7 +43,13 @@ export class ContactCompanyPageComponent {
 
     this.createFormGroup = this.formBuilder.group({});
 
-    this.getContact();
+    if (this.module === 'CONT') {
+
+      this.getContact();
+    }
+    else {
+      this.getCompany();
+    }
 
     this.tableConfig.push({
       header: "contactProfilePhotoUrl",
@@ -52,8 +58,6 @@ export class ContactCompanyPageComponent {
     })
 
     this.commonService.getAllPropertiesByModule(this.module).subscribe((res) => {
-
-
       res.forEach((item) => {
         item.propertiesList.forEach((prop) => {
           this.propertiesList.push(prop);
@@ -156,9 +160,13 @@ export class ContactCompanyPageComponent {
     });
   }
 
-  bindCode(code: string) {
-    let returnCode = '';
+  getCompany() {
+    this.commonService.getAllCompany().subscribe((res) => {
+      this.contactList = res;
+    });
+  }
 
+  bindCode(code: string) {
     switch (code) {
       case 'contact_owner': return 'contactOwnerUid';
       case 'first_name': return 'contactFirstName';
@@ -170,9 +178,8 @@ export class ContactCompanyPageComponent {
       case 'created_by': return 'createdBy';
       case 'last_modified_date': return 'modifiedDate';
       case 'last_modified_by': return 'modifiedBy';
+      default: return '';
     }
-
-    return returnCode;
   }
 
   convertDateFormat(date: any) {
