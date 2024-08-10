@@ -1,5 +1,12 @@
 <div class="tw-flex profile-box">
-  <p-splitter [panelSizes]="[30, 70]" [minSizes]="[20, 50]" class="tw-w-full">
+  <p-splitter
+    [panelSizes]="[15, 70]"
+    [minSizes]="[10, 50]"
+    [ngClass]="{
+      'tw-w-[80%]': isRightPanelShow,
+      'tw-w-full': !isRightPanelShow
+    }"
+  >
     <ng-template pTemplate>
       <app-left-panel
         class="left-panel-area tw-w-full"
@@ -20,7 +27,29 @@
         class="middle-panel-area tw-w-full"
         (activityListEmit)="getActivities()"
       ></app-middle-panel>
+
+      <p-button
+        [icon]="
+          isRightPanelShow
+            ? 'pi pi-angle-double-right'
+            : 'pi pi-angle-double-left'
+        "
+        [rounded]="true"
+        (onClick)="isRightPanelShow = !isRightPanelShow"
+      ></p-button>
     </ng-template>
   </p-splitter>
-  <!-- <app-right-panel class="right-panel-area"></app-right-panel> -->
+
+  <app-right-panel
+    [ngClass]="{
+      'tw-w-[20%]': isRightPanelShow,
+      'tw-w-0': !isRightPanelShow
+    }"
+    (rightPanelOpenEmit)="updateRightPanelShow()"
+    *ngIf="isRightPanelShow"
+    [module]="module"
+    [propertiesList]="propertiesList"
+    [contactProfile]="contactProfile"
+    [companyProfile]="companyProfile"
+  ></app-right-panel>
 </div>

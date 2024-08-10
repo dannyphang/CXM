@@ -19,6 +19,7 @@ router.use(express.json());
 const propertiesCollection = "properties";
 const propertiesLookupCollection = "propertiesLookup";
 const moduleCodeCollection = "moduleCode";
+const associationCollection = "association";
 
 // get all properties
 router.get("/" + propertiesCollection, async (req, res) => {
@@ -70,12 +71,8 @@ router.get("/" + propertiesCollection + "/module", async (req, res) => {
     for (let i = 0; i < propertyList.length; i++) {
       propertyList[i].propertyLookupList = [];
 
-      propertyList[i].createdDate = convertFirebaseDateFormat(
-        propertyList[i].createdDate
-      );
-      propertyList[i].modifiedDate = convertFirebaseDateFormat(
-        propertyList[i].modifiedDate
-      );
+      propertyList[i].createdDate = convertFirebaseDateFormat(propertyList[i].createdDate);
+      propertyList[i].modifiedDate = convertFirebaseDateFormat(propertyList[i].modifiedDate);
 
       for (let j = 0; j < propertyLookupList.length; j++) {
         if (propertyList[i].propertyId === propertyLookupList[j].propertyId) {
@@ -141,12 +138,8 @@ router.get("/" + propertiesCollection + "/module/create", async (req, res) => {
 
     for (let i = 0; i < propertyList.length; i++) {
       propertyList[i].propertyLookupList = [];
-      propertyList[i].createdDate = convertFirebaseDateFormat(
-        propertyList[i].createdDate
-      );
-      propertyList[i].modifiedDate = convertFirebaseDateFormat(
-        propertyList[i].modifiedDate
-      );
+      propertyList[i].createdDate = convertFirebaseDateFormat(propertyList[i].createdDate);
+      propertyList[i].modifiedDate = convertFirebaseDateFormat(propertyList[i].modifiedDate);
 
       for (let j = 0; j < propertyLookupList.length; j++) {
         if (propertyList[i].propertyId === propertyLookupList[j].propertyId) {
@@ -227,10 +220,7 @@ router.post("/" + propertiesLookupCollection, async (req, res) => {
 
       createDoc.push(prop);
 
-      new setDoc(
-        doc(db.default.db, propertiesLookupCollection, prop.uid),
-        prop
-      );
+      new setDoc(doc(db.default.db, propertiesLookupCollection, prop.uid), prop);
     });
 
     res.status(200).json(createDoc);
@@ -284,9 +274,7 @@ router.get("/activityModule", async (req, res) => {
 
     const activityModuleList = snapshot.docs.map((doc) => doc.data());
     const activityControlList = actCtrSnapshot.docs.map((doc) => doc.data());
-    const subActivityControlList = subActCtrSnapshot.docs.map((doc) =>
-      doc.data()
-    );
+    const subActivityControlList = subActCtrSnapshot.docs.map((doc) => doc.data());
 
     activityControlList.forEach((item) => {
       item.subActivityControl = [];
@@ -338,5 +326,51 @@ function convertFirebaseDateFormat(date) {
     return;
   }
 }
+
+router.post("/asso", async (req, res) => {
+  const body = req.body.asso;
+  console.log(body);
+  try {
+    const createDoc = [];
+    if (body.module === "CONT") {
+      body.companyAssoList.forEach((comp) => {
+        let asso = {
+          uid: doc(collection(db.default.db, associationCollection)).id,
+          createdDate: new Date(),
+          modifiedDate: new Date(),
+          module: body.module,
+          profileUid: body.profileUid,
+          assoProfileUid: comp,
+          statusId: 1,
+        };
+
+        createDoc.push(asso);
+        new setDoc(doc(db.default.db, associationCollection, asso.uid), asso);
+        console.log(asso);
+      });
+    } else if (body.module === "COMP") {
+      body.contactAssoList.forEach((cont) => {
+        let asso = {
+          uid: doc(collection(db.default.db, associationCollection)).id,
+          createdDate: new Date(),
+          modifiedDate: new Date(),
+          module: body.module,
+          profileUid: body.profileUid,
+          assoProfileUid: cont,
+          statusId: 1,
+        };
+
+        createDoc.push(asso);
+        new setDoc(doc(db.default.db, associationCollection, asso.uid), asso);
+        console.log(asso);
+      });
+    }
+
+    res.status(200).json(createDoc);
+  } catch (e) {
+    console.log(e);
+    res.status(400).json(e);
+  }
+});
 
 export default router;

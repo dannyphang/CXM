@@ -24,7 +24,8 @@
     "UPLOAD": "Upload",
     "CREATE": "Create",
     "IMPORT": "Import",
-    "EXPORT": "Export"
+    "EXPORT": "Export",
+    "ADD": "Add"
   },
   "ACTIVITY": {
     "WORDS": "words",
@@ -35,6 +36,8 @@
     "DIRECT": "Direction"
   },
   "PROFILE": {
-    "AVATAR_EDIT": "Edit profile picture"
+    "AVATAR_EDIT": "Edit profile picture",
+    "CONTACTS": "Contacts",
+    "COMPANYS": "Companys"
   }
 }

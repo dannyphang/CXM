@@ -1,0 +1,51 @@
+<div
+  class="tw-border-[1px] tw-border-[var(--primary-color)] tw-flex tw-justify-between"
+>
+  <div class="tw-grid">
+    <p-button
+      [text]="true"
+      [label]="
+        module === 'CONT'
+          ? companyProfile.companyName
+          : contactProfile.contactFirstName +
+            ' ' +
+            contactProfile.contactLastName
+      "
+      (onClick)="toProfile()"
+    ></p-button>
+    <p-button
+      [text]="true"
+      [label]="
+        module === 'CONT'
+          ? companyProfile.companyEmail
+          : contactProfile.contactEmail
+      "
+    ></p-button>
+  </div>
+  <div>
+    <p-avatar
+      *ngIf="
+        !contactProfile.contactProfilePhotoUrl &&
+        !companyProfile.companyProfilePhotoUrl
+      "
+      [icon]="'pi pi-user'"
+      styleClass="tw-w-[40px] tw-h-[40px]"
+      shape="circle"
+      data-blobity-magnetic="true"
+    />
+    <p-avatar
+      *ngIf="
+        contactProfile.contactProfilePhotoUrl ||
+        companyProfile.companyProfilePhotoUrl
+      "
+      [image]="
+        module === 'CONT'
+          ? companyProfile.companyProfilePhotoUrl
+          : contactProfile.contactProfilePhotoUrl
+      "
+      styleClass="tw-w-[40px] tw-h-[40px]"
+      shape="circle"
+      data-blobity-magnetic="true"
+    />
+  </div>
+</div>
