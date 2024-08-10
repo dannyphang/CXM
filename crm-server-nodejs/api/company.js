@@ -17,13 +17,15 @@ import {
 
 router.use(express.json());
 
-const collectionName = "company";
+const contactCollectionName = "contact";
+const companyCollectionName = "company";
+const associationCollection = "association";
 
 // get all companies
 router.get("/", async (req, res) => {
   try {
     const q = query(
-      collection(db.default.db, collectionName),
+      collection(db.default.db, companyCollectionName),
       orderBy("createdDate"),
       where("statusId", "==", 1)
     );
@@ -48,11 +50,81 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   const id = req.params.id;
   try {
-    let qu = query(doc(db.default.db, collectionName, id));
-    const snapshot = await getDoc(qu);
-    const company = snapshot.data().statusId == 1 ? snapshot.data() : {};
+    let qu = query(doc(db.default.db, companyCollectionName, id));
+    const assoQuery = query(
+      collection(db.default.db, associationCollection),
+      orderBy("createdDate"),
+      where("statusId", "==", 1),
+      where("profileUid", "==", id)
+    );
+    const assoQuery2 = query(
+      collection(db.default.db, associationCollection),
+      orderBy("createdDate"),
+      where("statusId", "==", 1),
+      where("assoProfileUid", "==", id)
+    );
 
-    res.status(200).json(company);
+    const snapshot = await getDoc(qu);
+    const assoSnapshot = await getDocs(assoQuery);
+    const assoSnapshot2 = await getDocs(assoQuery2);
+
+    const company = snapshot.data().statusId == 1 ? snapshot.data() : {};
+    const assoList = assoSnapshot.docs.map((doc) => {
+      return doc.data();
+    });
+    const assoList2 = assoSnapshot2.docs.map((doc) => {
+      return doc.data();
+    });
+
+    let companyData = company;
+    companyData.createdDate = convertFirebaseDateFormat(companyData.createdDate);
+    companyData.modifiedDate = convertFirebaseDateFormat(companyData.modifiedDate);
+
+    if (assoList.length > 0 || assoList2.length > 0) {
+      companyData.associationList = [];
+
+      let p1 = new Promise((resolve, reject) => {
+        if (assoList.length == 0) {
+          resolve();
+        }
+        let count = 0;
+        assoList.forEach(async (item) => {
+          let que = query(doc(db.default.db, contactCollectionName, item.assoProfileUid));
+          let companySnapshot = await getDoc(que);
+          let comp = companySnapshot.data()?.statusId == 1 ? companySnapshot.data() : {};
+          companyData.associationList.push(comp);
+          count++;
+
+          if (assoList.length == count) {
+            resolve();
+          }
+        });
+      });
+
+      let p2 = new Promise((resolve, reject) => {
+        if (assoList2.length == 0) {
+          resolve();
+        }
+        let count = 0;
+        assoList2.forEach(async (item) => {
+          let que = query(doc(db.default.db, contactCollectionName, item.profileUid));
+          let companySnapshot2 = await getDoc(que);
+          let comp2 = companySnapshot2.data()?.statusId == 1 ? companySnapshot2.data() : {};
+          companyData.associationList.push(comp2);
+          count++;
+
+          if (assoList2.length == count) {
+            resolve();
+          }
+        });
+      });
+
+      Promise.all([p1, p2]).then((_) => {
+        res.status(200).json(companyData);
+      });
+    } else {
+      res.status(200).json(companyData);
+    }
   } catch (error) {
     console.log("error", error);
     res.status(400).json(error);
@@ -65,14 +137,14 @@ router.post("/", async (req, res) => {
     const companyList = JSON.parse(JSON.stringify(req.body.companyList));
     let createdCompanyList = [];
     companyList.forEach((company) => {
-      company.uid = doc(collection(db.default.db, collectionName)).id;
+      company.uid = doc(collection(db.default.db, companyCollectionName)).id;
       company.createdDate = new Date();
       company.modifiedDate = new Date();
       company.statusId = 1;
 
       createdCompanyList.push(company);
 
-      new setDoc(doc(db.default.db, collectionName, company.uid), company);
+      new setDoc(doc(db.default.db, companyCollectionName, company.uid), company);
     });
 
     res.status(200).json(createdCompanyList);
@@ -86,7 +158,7 @@ router.post("/", async (req, res) => {
 router.put("/delete", async (req, res) => {
   try {
     req.body.companyList.forEach(async (company) => {
-      let ref = doc(db.default.db, collectionName, company.uid);
+      let ref = doc(db.default.db, companyCollectionName, company.uid);
       await updateDoc(ref, {
         statusId: 2,
       });
@@ -111,7 +183,7 @@ router.put("/", async (req, res) => {
     let updatedCompanyList = [];
     companyList.forEach(async (company) => {
       company.modifiedDate = new Date();
-      const docRef = doc(db.default.db, collectionName, company.uid);
+      const docRef = doc(db.default.db, companyCollectionName, company.uid);
       const updatedCompany = await updateDoc(docRef, company);
       updatedCompanyList.push(updatedCompany);
     });

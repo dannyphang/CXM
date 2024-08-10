@@ -16,6 +16,7 @@ export class ProfilePageComponent implements OnChanges {
   contactProfile: ContactDto = new ContactDto();
   companyProfile: CompanyDto = new CompanyDto();
   activitiesList: ActivityDto[] = [];
+  isRightPanelShow: boolean = true;
 
   constructor(
     private commonService: CommonService,
@@ -84,5 +85,9 @@ export class ProfilePageComponent implements OnChanges {
     else {
       this.getCompany();
     }
+  }
+
+  updateRightPanelShow() {
+    this.isRightPanelShow = !this.isRightPanelShow;
   }
 }

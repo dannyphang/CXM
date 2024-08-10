@@ -142,6 +142,10 @@ export class CommonService {
     deleteCompany(companyList: CompanyDto[]): Observable<CompanyDto> {
         return this.http.put<CompanyDto>(apiConfig.baseUrl + '/company/delete', { companyList }).pipe();
     }
+
+    createAssociation(asso: CreateAssociationDto): Observable<any> {
+        return this.http.post<any>(apiConfig.baseUrl + '/common/asso', { asso }).pipe();
+    }
 }
 
 export class BasedDto {
@@ -209,6 +213,7 @@ export class ContactDto extends BasedDto {
     contactLeadStatusId?: string;
     contactProperties: string;
     contactProfilePhotoUrl?: string;
+    associationList: CompanyDto[];
 }
 
 export class UpdateContactDto {
@@ -248,6 +253,7 @@ export class CompanyDto extends BasedDto {
     companyLeadStatusId: string;
     companyProperties: string;
     companyProfilePhotoUrl?: string;
+    associationList: ContactDto[];
 }
 
 export class UpdateCompanyDto {
@@ -259,4 +265,19 @@ export class UpdateCompanyDto {
     companyLeadStatusId?: string;
     companyProperties?: string;
     companyProfilePhotoUrl?: string;
+}
+
+export class AssociationDto {
+    uid: string;
+    contactAssoList: ContactDto[];
+    companyAssoList: CompanyDto[];
+    module: string;
+    profileUid: string;
+}
+
+export class CreateAssociationDto {
+    contactAssoList?: ContactDto[];
+    companyAssoList?: CompanyDto[];
+    module: 'CONT' | 'COMP';
+    profileUid: string;
 }
