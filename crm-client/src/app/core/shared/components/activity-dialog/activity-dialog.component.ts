@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, NgZone, OnChanges, OnDestroy, Output, SimpleChanges } from '@angular/core';
-import { AttachmentDto, CommonService, ContactDto, ModuleDto } from '../../../services/common.service';
+import { AttachmentDto, CommonService, CompanyDto, ContactDto, ModuleDto } from '../../../services/common.service';
 import { FormBuilder, FormControl, FormGroup, NgModel, Validators } from '@angular/forms';
 import { CONTROL_TYPE, FormConfig, OptionsModel } from '../../../services/components.service';
 import { ActivityDto, ActivityModuleDto, ActivityService, CreateActivityDto } from '../../../services/activity.service';
@@ -14,6 +14,7 @@ import { MessageService } from 'primeng/api';
 })
 export class ActivityDialogComponent implements OnChanges {
   @Input() contactProfile: ContactDto = new ContactDto();
+  @Input() companyProfile: CompanyDto = new CompanyDto();
   @Input() module: "CONT" | "COMP" = "CONT";
   @Input() activityModule: ModuleDto = new ModuleDto();
   @Input() visible: boolean = false;
@@ -41,6 +42,11 @@ export class ActivityDialogComponent implements OnChanges {
   editorContentLimit = EDITOR_CONTENT_LIMIT;
   attachmentList: File[] = [];
   fileMaxSize: number = ATTACHMENT_MAX_SIZE;
+  assoFormConfig: FormConfig[] = [];
+  assoCompanyForm: FormControl = new FormControl([]);
+  assoContactForm: FormControl = new FormControl([]);
+  assoCompanyList: any[] = [];
+  assoContactList: any[];
 
   constructor(
     private commonService: CommonService,
@@ -58,7 +64,8 @@ export class ActivityDialogComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['contactProfile'] && changes['contactProfile'].currentValue) {
-      this.activityFormGroup.controls['CONT'].setValue([this.contactProfile.contactId])
+      this.activityFormGroup.controls['CONT'].setValue([this.contactProfile.contactId]);
+      this.setAssociation();
     }
     if (changes['activityModule'] && changes['activityModule'].currentValue) {
       this.assignForm();
@@ -190,18 +197,58 @@ export class ActivityDialogComponent implements OnChanges {
     this.activityFormConfig = formsConfig;
   }
 
+  setAssociation() {
+    // assign association 
+    console.log(this.contactProfile)
+    if (this.module === 'CONT' && this.contactProfile.association) {
+      this.contactProfile.association.companyList.forEach(profile => {
+        this.assoCompanyList.push({
+          label: `${profile.companyName} (${profile.companyEmail})`,
+          value: profile.uid
+        });
+      });
+
+      this.assoFormConfig = [
+        {
+          id: '',
+          type: CONTROL_TYPE.Multiselect,
+          layoutDefine: {
+            row: 0,
+            column: 0
+          },
+          options: this.assoCompanyList,
+          fieldControl: this.assoCompanyForm
+        }
+      ]
+    }
+    else if (this.module === 'COMP' && this.companyProfile.association) {
+      this.companyProfile.association.contactList.forEach(profile => {
+        this.assoContactList.push({
+          label: `${profile.contactFirstName} ${profile.contactLastName}  (${profile.contactEmail})`,
+          value: profile.uid
+        });
+      });
+      this.assoFormConfig = [
+        {
+          id: '',
+          type: CONTROL_TYPE.Multiselect,
+          layoutDefine: {
+            row: 0,
+            column: 0
+          },
+          options: this.assoContactList,
+          fieldControl: this.assoContactForm
+        }
+      ]
+    }
+
+    console.log(this.assoCompanyList)
+  }
+
   getContactedList(): OptionsModel[] {
     return [{
       label: `${this.contactProfile.contactFirstName} ${this.contactProfile.contactLastName} (${this.contactProfile.contactEmail})`,
       value: this.contactProfile.contactId
-    },
-    {
-      label: `${this.contactProfile.contactFirstName} ${this.contactProfile.contactLastName} (${this.contactProfile.contactEmail})`,
-      value: 123
-    },
-    {
-      label: `${this.contactProfile.contactFirstName} ${this.contactProfile.contactLastName} (${this.contactProfile.contactEmail})`,
-      value: 321
     }
     ];
   }

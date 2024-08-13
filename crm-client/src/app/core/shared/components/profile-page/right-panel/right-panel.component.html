@@ -14,8 +14,8 @@
           }}
           ({{
             module === "CONT"
-              ? contactProfile.associationList.length
-              : companyProfile.associationList.length
+              ? contactProfile.association.companyList.length
+              : companyProfile.association.contactList.length
           }})
         </div>
 
@@ -36,7 +36,7 @@
       class="tw-p-[var(--content-gap)]"
     >
       <div *ngIf="module === 'CONT'">
-        <div *ngFor="let asso of contactProfile.associationList">
+        <div *ngFor="let asso of contactProfile.association.companyList">
           <app-asso-block
             [module]="module"
             [companyProfile]="asso"
@@ -44,7 +44,7 @@
         </div>
       </div>
       <div *ngIf="module === 'COMP'">
-        <div *ngFor="let asso of companyProfile.associationList">
+        <div *ngFor="let asso of companyProfile.association.contactList">
           <app-asso-block
             [module]="module"
             [contactProfile]="asso"

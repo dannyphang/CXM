@@ -80,7 +80,8 @@ router.get("/:id", async (req, res) => {
     contactData.modifiedDate = convertFirebaseDateFormat(contactData.modifiedDate);
 
     if (assoList.length > 0 || assoList2.length > 0) {
-      contactData.associationList = [];
+      contactData.association = {};
+      contactData.association.companyList = [];
 
       let p1 = new Promise((resolve, reject) => {
         if (assoList.length == 0) {
@@ -91,7 +92,7 @@ router.get("/:id", async (req, res) => {
           let que = query(doc(db.default.db, companyCollectionName, item.assoProfileUid));
           let contactSnapshot = await getDoc(que);
           let cont = contactSnapshot.data()?.statusId == 1 ? contactSnapshot.data() : {};
-          contactData.associationList.push(cont);
+          contactData.association.companyList.push(cont);
           count++;
 
           if (assoList.length == count) {
@@ -109,7 +110,7 @@ router.get("/:id", async (req, res) => {
           let que = query(doc(db.default.db, companyCollectionName, item.profileUid));
           let contactSnapshot2 = await getDoc(que);
           let cont2 = contactSnapshot2.data()?.statusId == 1 ? contactSnapshot2.data() : {};
-          contactData.associationList.push(cont2);
+          contactData.association.companyList.push(cont2);
           count++;
 
           if (assoList2.length == count) {

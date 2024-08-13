@@ -42,9 +42,9 @@ export class ProfilePageComponent implements OnChanges {
         this.getCompany();
       }
 
-      this.getProperties();
+      // this.getProperties();
 
-      this.getActivities();
+      // this.getActivities();
     }
   }
 

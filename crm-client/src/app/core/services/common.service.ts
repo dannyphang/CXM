@@ -213,7 +213,7 @@ export class ContactDto extends BasedDto {
     contactLeadStatusId?: string;
     contactProperties: string;
     contactProfilePhotoUrl?: string;
-    associationList: CompanyDto[];
+    association: AssociationDto;
 }
 
 export class UpdateContactDto {
@@ -253,7 +253,7 @@ export class CompanyDto extends BasedDto {
     companyLeadStatusId: string;
     companyProperties: string;
     companyProfilePhotoUrl?: string;
-    associationList: ContactDto[];
+    association: AssociationDto;
 }
 
 export class UpdateCompanyDto {
@@ -268,11 +268,8 @@ export class UpdateCompanyDto {
 }
 
 export class AssociationDto {
-    uid: string;
-    contactAssoList: ContactDto[];
-    companyAssoList: CompanyDto[];
-    module: string;
-    profileUid: string;
+    companyList: CompanyDto[];
+    contactList: ContactDto[];
 }
 
 export class CreateAssociationDto {

@@ -87,6 +87,7 @@ export interface OptionsModel {
     value: any;
     preIcon?: string;
     disabled?: boolean;
+    required?: boolean;
 }
 
 export interface TreeOptionsModel {

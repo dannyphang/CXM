@@ -38,7 +38,11 @@
       class="tw-mt-[15px]"
       [pTooltip]="'BUTTON.ATTACH_FILE' | translate"
     ></p-button>
-    <p-button label="Associated with 1 records" [text]="true" />
+    <p-button
+      label="Associated with 1 records"
+      [text]="true"
+      (onClick)="assoPanel.toggle($event)"
+    />
   </div>
 
   <input
@@ -84,3 +88,69 @@
     />
   </ng-template>
 </p-dialog>
+
+<p-overlayPanel #assoPanel>
+  <!-- <div class="asso-div tw-flex tw-w-[600px]">
+    <div class="ass-left tw-w-[30%]">
+      <p-button [text]="true" styleClass="tw-flex tw-w-full tw-justify-between">
+        <div>
+          {{ "PROFILE.SELECTED" | translate }}
+        </div>
+        <div>0</div>
+      </p-button>
+      <p-button [text]="true" styleClass="tw-flex tw-w-full tw-justify-between">
+        <div>
+          {{ "PROFILE.COMPANYS" | translate }}
+        </div>
+        <div>0</div>
+      </p-button>
+      <p-button
+        [text]="true"
+        styleClass="tw-flex tw-w-full tw-justify-between"
+        (onClick)="assoMode = 'CONTACTS'"
+      >
+        <div>
+          {{ "PROFILE.CONTACTS" | translate }}
+        </div>
+        <div>0</div>
+      </p-button>
+    </div>
+    <div class="ass-right tw-w-[70%] tw-h-[400px]">
+      <app-base-input
+        [placeholder]="'COMMON.SEARCH' | translate"
+        [fieldControl]="searchAsso"
+      ></app-base-input>
+
+      <app-base-checkbox
+        [options]="assoList"
+        [fieldControl]="returnAssoFormControl()"
+      ></app-base-checkbox>
+    </div>
+  </div> -->
+  <div class="asso-div tw-flex">
+    <p-tabView>
+      <p-tabPanel>
+        <ng-template pTemplate="header">
+          <div styleClass="tw-flex tw-w-full tw-justify-between">
+            {{ "PROFILE.COMPANYS" | translate }}
+          </div>
+          <div>(0)</div>
+        </ng-template>
+        <div>
+          <app-base-form [formConfig]="assoFormConfig"></app-base-form>
+        </div>
+      </p-tabPanel>
+      <p-tabPanel>
+        <ng-template pTemplate="header">
+          <div styleClass="tw-flex tw-w-full tw-justify-between">
+            {{ "PROFILE.CONTACTS" | translate }}
+          </div>
+          <div>(0)</div>
+        </ng-template>
+        <div>
+          <app-base-form [formConfig]="assoFormConfig"></app-base-form>
+        </div>
+      </p-tabPanel>
+    </p-tabView>
+  </div>
+</p-overlayPanel>
