@@ -104,7 +104,7 @@ export interface BaseInputTextConfig {
 
 export interface BaseInputFormConfig extends BaseFormConfig, BaseInputTextConfig {
     type: CONTROL_TYPE.Textbox;
-    mode?: 'text' | 'number' | 'password' | 'switch' | 'label-text' | 'email';
+    mode?: 'text' | 'number' | 'password' | 'switch' | 'label-text' | 'email' | 'url' | 'phone';
     prefix?: string;
     suffix?: string;
     onlyNumber?: boolean;
