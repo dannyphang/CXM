@@ -41,6 +41,8 @@ import { InputSwitchComponent } from './input-switch/input-switch.component';
 import { ActivityBlockComponent } from './activity-block/activity-block.component';
 import { EditorComponent } from './editor/editor.component';
 import { AssociationBlockComponent } from './association-block/association-block.component';
+import { OnlyNumberDirective } from '../directives/only-number.directive';
+import { PasswordValidator } from '../directives/password.directive';
 
 const components = [
   BaseInputComponent,
@@ -78,7 +80,7 @@ const components = [
   InputSwitchComponent,
   ActivityBlockComponent,
   EditorComponent,
-  AssociationBlockComponent
+  AssociationBlockComponent,
 ];
 
 @NgModule({
@@ -92,6 +94,8 @@ const components = [
     PrimeNgModule,
     ReactiveFormsModule,
     TranslateModule,
+    OnlyNumberDirective,
+    PasswordValidator
   ],
   exports: [
     components

@@ -113,7 +113,8 @@ export class ContactCompanyPageComponent {
                 layoutDefine: {
                   row: createPropCount,
                   column: 0,
-                }
+                },
+                mode: this.returnTextMode(prop.propertyType),
               }
             }
             else if (prop.propertyType === CONTROL_TYPE_CODE.Checkbox || prop.propertyType === CONTROL_TYPE_CODE.MultiCheckbox || prop.propertyType === CONTROL_TYPE_CODE.Multiselect || prop.propertyType === CONTROL_TYPE_CODE.Dropdown || prop.propertyType === CONTROL_TYPE_CODE.Radio) {
@@ -207,6 +208,21 @@ export class ContactCompanyPageComponent {
       }
     }
 
+  }
+
+  returnTextMode(type: string): any {
+    switch (type) {
+      case CONTROL_TYPE_CODE.Email:
+        return 'email';
+      case CONTROL_TYPE_CODE.Phone:
+        return 'phone';
+      case CONTROL_TYPE_CODE.Url:
+        return 'url';
+      case CONTROL_TYPE_CODE.Number:
+        return 'number';
+    }
+
+    return 'text';
   }
 
   convertDateFormat(date: any) {

@@ -12,7 +12,15 @@
     <p-inputIcon
       [styleClass]="iconLeftStyle != '' ? iconLeftStyle : iconRightStyle"
     />
-    <div class="input-container" *ngIf="mode === 'text' || mode === 'password'">
+    <div
+      class="input-container"
+      *ngIf="
+        mode === 'text' ||
+        mode === 'email' ||
+        mode === 'url' ||
+        mode === 'phone'
+      "
+    >
       <input
         pInputText
         pAutoFocus
@@ -29,6 +37,7 @@
         [formControl]="fieldControl"
         (blur)="onBlur()"
         [maxLength]="maxLength"
+        [onlyNumber]="mode === 'phone'"
       />
 
       <img *ngIf="!!iconUrl" [src]="iconUrl" />
@@ -39,13 +48,13 @@
       </div>
     </div>
 
-    <!-- url -->
-    <div class="input-container" *ngIf="mode === 'url'">
+    <!-- password -->
+    <div class="input-container" *ngIf="mode === 'password'">
       <input
         pInputText
         pAutoFocus
         [autofocus]="autoFocus"
-        type="text"
+        [type]="mode"
         placeholder="{{ placeholder | translate }}"
         [ngClass]="{
           invalid: checkInvalidField(),
@@ -57,62 +66,7 @@
         [formControl]="fieldControl"
         (blur)="onBlur()"
         [maxLength]="maxLength"
-      />
-
-      <img *ngIf="!!iconUrl" [src]="iconUrl" />
-      <img class="leftIcon" *ngIf="!!leftIconUrl" [src]="leftIconUrl" />
-      <div class="prefix" *ngIf="!!prefix">{{ prefix }}</div>
-      <div class="description-message" *ngIf="descriptionMessage">
-        {{ descriptionMessage | translate }}
-      </div>
-    </div>
-
-    <!-- email -->
-    <div class="input-container" *ngIf="mode === 'email'">
-      <input
-        pInputText
-        pAutoFocus
-        [autofocus]="autoFocus"
-        type="email"
-        placeholder="{{ placeholder | translate }}"
-        [ngClass]="{
-          invalid: checkInvalidField(),
-          'pr-30': !!iconUrl,
-          'pl-30': !!leftIconUrl,
-          disabled: disabled
-        }"
-        [readonly]="disabled"
-        [formControl]="fieldControl"
-        (blur)="onBlur()"
-        [maxLength]="maxLength"
-      />
-
-      <img *ngIf="!!iconUrl" [src]="iconUrl" />
-      <img class="leftIcon" *ngIf="!!leftIconUrl" [src]="leftIconUrl" />
-      <div class="prefix" *ngIf="!!prefix">{{ prefix }}</div>
-      <div class="description-message" *ngIf="descriptionMessage">
-        {{ descriptionMessage | translate }}
-      </div>
-    </div>
-
-    <!-- phone -->
-    <div class="input-container" *ngIf="mode === 'phone'">
-      <input
-        pInputText
-        pAutoFocus
-        [autofocus]="autoFocus"
-        type="text"
-        placeholder="{{ placeholder | translate }}"
-        [ngClass]="{
-          invalid: checkInvalidField(),
-          'pr-30': !!iconUrl,
-          'pl-30': !!leftIconUrl,
-          disabled: disabled
-        }"
-        [readonly]="disabled"
-        [formControl]="fieldControl"
-        (blur)="onBlur()"
-        [maxLength]="maxLength"
+        validatePassword
       />
 
       <img *ngIf="!!iconUrl" [src]="iconUrl" />
@@ -153,6 +107,7 @@
         [max]="max"
         pAutoFocus
         [autofocus]="autoFocus"
+        [onlyNumber]="true"
       ></p-inputNumber>
 
       <img *ngIf="!!iconUrl" [src]="iconUrl" />

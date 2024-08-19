@@ -8,9 +8,12 @@
     "SEARCH": "Search"
   },
   "ERROR": {
-    "YOU_CANNOT_LEAVE_IT_BLANK": "You cannot leave it blank",
+    "YOU_CANNOT_LEAVE_IT_BLANK": "You cannot leave it blank.",
     "INVALID_FORMAT": "The format is invalid.",
-    "INVALID_DATE_RANGE": "From Date must before To Date"
+    "INVALID_DATE_RANGE": "From Date must before To Date.",
+    "INVALID_EMAIL": "Invalid Email.",
+    "INVALID_PASSWORD": "Invalid Password.",
+    "INVALID_URL": "Invalid Url."
   },
   "BUTTON": {
     "SAVE": "Save",
@@ -37,6 +40,7 @@
   },
   "PROFILE": {
     "AVATAR_EDIT": "Edit profile picture",
+    "CREATE_PROFILE": "Create Profile",
     "CONTACTS": "Contacts",
     "COMPANYS": "Companys"
   }

@@ -67,7 +67,9 @@ export class LeftPanelComponent implements OnChanges {
     if (changes['propertiesList'] && changes['propertiesList'].currentValue) {
       this.propertiesList = changes['propertiesList'].currentValue;
 
-      this.returnProfileFormConfig();
+      if (this.contactProfile || this.companyProfile) {
+        this.returnProfileFormConfig();
+      }
 
       // check fieldcontrol update value
       this.profileFormGroup.valueChanges.pipe(
@@ -104,12 +106,18 @@ export class LeftPanelComponent implements OnChanges {
     }
 
     if (changes['contactProfile'] && changes['contactProfile'].currentValue) {
+      if (this.propertiesList) {
+        this.returnProfileFormConfig();
+      }
       if (this.contactProfile.contactProfilePhotoUrl) {
         this.profileImg = this.contactProfile.contactProfilePhotoUrl;
       }
     }
 
     if (changes['companyProfile'] && changes['companyProfile'].currentValue) {
+      if (this.propertiesList) {
+        this.returnProfileFormConfig();
+      }
       if (this.companyProfile.companyProfilePhotoUrl) {
         this.profileImg = this.companyProfile.companyProfilePhotoUrl;
       }
@@ -158,7 +166,7 @@ export class LeftPanelComponent implements OnChanges {
           };
 
           if (prop.isVisible) {
-            if (prop.propertyType === CONTROL_TYPE_CODE.Textbox || prop.propertyType === CONTROL_TYPE_CODE.Textarea || prop.propertyType === CONTROL_TYPE_CODE.Email || prop.propertyType === CONTROL_TYPE_CODE.Phone || prop.propertyType === CONTROL_TYPE_CODE.Url || prop.propertyType === CONTROL_TYPE_CODE.Number || prop.propertyType === CONTROL_TYPE_CODE.Year) {
+            if (prop.propertyType === CONTROL_TYPE_CODE.Textbox || prop.propertyType === CONTROL_TYPE_CODE.Textarea) {
               forms = {
                 id: prop.uid,
                 name: prop.propertyCode,
@@ -170,6 +178,68 @@ export class LeftPanelComponent implements OnChanges {
                   column: 0,
                 },
                 required: prop.isMandatory
+              }
+            }
+            if (prop.propertyType === CONTROL_TYPE_CODE.Url) {
+              forms = {
+                id: prop.uid,
+                name: prop.propertyCode,
+                type: CONTROL_TYPE.Textbox,
+                label: prop.propertyName,
+                fieldControl: this.profileFormGroup.controls[prop.propertyCode],
+                layoutDefine: {
+                  row: propCount,
+                  column: 0,
+                },
+                required: prop.isMandatory,
+                mode: 'url'
+              }
+            }
+            if (prop.propertyType === CONTROL_TYPE_CODE.Phone) {
+              forms = {
+                id: prop.uid,
+                name: prop.propertyCode,
+                type: CONTROL_TYPE.Textbox,
+                label: prop.propertyName,
+                fieldControl: this.profileFormGroup.controls[prop.propertyCode],
+                layoutDefine: {
+                  row: propCount,
+                  column: 0,
+                },
+                required: prop.isMandatory,
+                mode: 'phone'
+              }
+            }
+            if (prop.propertyType === CONTROL_TYPE_CODE.Number || prop.propertyType === CONTROL_TYPE_CODE.Year) {
+              forms = {
+                id: prop.uid,
+                name: prop.propertyCode,
+                type: CONTROL_TYPE.Textbox,
+                label: prop.propertyName,
+                fieldControl: this.profileFormGroup.controls[prop.propertyCode],
+                layoutDefine: {
+                  row: propCount,
+                  column: 0,
+                },
+                required: prop.isMandatory,
+                mode: 'number',
+                max: prop.propertyType === CONTROL_TYPE_CODE.Year ? 4 : undefined,
+                min: prop.propertyType === CONTROL_TYPE_CODE.Year ? 4 : undefined,
+              }
+            }
+            if (prop.propertyType === CONTROL_TYPE_CODE.Email) {
+              forms = {
+                id: prop.uid,
+                name: prop.propertyCode,
+                type: CONTROL_TYPE.Textbox,
+                label: prop.propertyName,
+                fieldControl: this.profileFormGroup.controls[prop.propertyCode],
+                layoutDefine: {
+                  row: propCount,
+                  column: 0,
+                },
+                required: prop.isMandatory,
+                mode: 'email',
               }
             }
             else if (prop.propertyType === CONTROL_TYPE_CODE.Checkbox || prop.propertyType === CONTROL_TYPE_CODE.MultiCheckbox || prop.propertyType === CONTROL_TYPE_CODE.Multiselect || prop.propertyType === CONTROL_TYPE_CODE.Dropdown || prop.propertyType === CONTROL_TYPE_CODE.Radio) {
@@ -277,7 +347,7 @@ export class LeftPanelComponent implements OnChanges {
         case 'contact_owner':
           return this.contactProfile.contactOwnerUid
         default:
-          let contactProp: PropertyDataDto[] = JSON.parse(this.contactProfile.contactProperties);
+          let contactProp: PropertyDataDto[] = JSON.parse(this.contactProfile.contactProperties ?? "[]");
           if (contactProp.find(item => item.uid === prop.uid) && (prop.propertyType === CONTROL_TYPE_CODE.Date || prop.propertyType === CONTROL_TYPE_CODE.DateTime || prop.propertyType === CONTROL_TYPE_CODE.Time)) {
             return new Date(contactProp.find(item => item.uid === prop.uid)!.value);
           }
@@ -295,7 +365,7 @@ export class LeftPanelComponent implements OnChanges {
         case 'company_owner':
           return this.companyProfile.companyOwnerUid
         default:
-          let companyProp: PropertyDataDto[] = JSON.parse(this.companyProfile.companyProperties);
+          let companyProp: PropertyDataDto[] = JSON.parse(this.companyProfile.companyProperties ?? "[]");
           if (companyProp.find(item => item.uid === prop.uid) && (prop.propertyType === CONTROL_TYPE_CODE.Date || prop.propertyType === CONTROL_TYPE_CODE.DateTime || prop.propertyType === CONTROL_TYPE_CODE.Time)) {
             return new Date(companyProp.find(item => item.uid === prop.uid)!.value);
           }
