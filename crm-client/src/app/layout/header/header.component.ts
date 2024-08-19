@@ -1,5 +1,5 @@
 import { DatePipe } from '@angular/common';
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, HostListener, Output } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MenuItem } from 'primeng/api';
@@ -17,13 +17,12 @@ export class HeaderComponent {
   searchFormControl: FormControl = new FormControl("");
   userMenuItem: MenuItem[] | undefined;
   currentUser: User | null;
+  isAutoFocus: boolean = false;
 
   constructor(
     private router: Router,
     private authService: AuthService
   ) {
-
-
     this.authService.getCurrentUser().then(res => {
       // if (!res) {
       //   this.router.navigate(["/signin"]);

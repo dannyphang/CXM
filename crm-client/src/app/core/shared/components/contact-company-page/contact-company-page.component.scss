@@ -4,4 +4,13 @@
       border-width: 0px;
     }
   }
+  .contact-company-tab-view {
+    .p-tabview .p-tabview-nav li:nth-last-child(2) {
+      display: flex;
+
+      .p-tabview-nav-link {
+        padding: 0px;
+      }
+    }
+  }
 }

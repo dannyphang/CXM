@@ -25,6 +25,13 @@ export class ContactCompanyPageComponent {
   createFormConfig: FormConfig[] = [];
   createFormGroup: FormGroup;
   profileProperty: PropertiesDto[] = [];
+  panelList: any[] = [
+    {
+      headerLabel: "Contact",
+      order: 0,
+      closable: false,
+    }
+  ];
 
   constructor(
     private commonService: CommonService,
@@ -368,5 +375,14 @@ export class ContactCompanyPageComponent {
         this.getContact();
       });
     }
+  }
+
+  addTab() {
+    console.log("add tab");
+    this.panelList.push({
+      headerLabel: 'TEST',
+      order: 1,
+      closable: true,
+    })
   }
 }

@@ -28,7 +28,8 @@
     "CREATE": "Create",
     "IMPORT": "Import",
     "EXPORT": "Export",
-    "ADD": "Add"
+    "ADD": "Add",
+    "DELETE": "Delete"
   },
   "ACTIVITY": {
     "WORDS": "words",

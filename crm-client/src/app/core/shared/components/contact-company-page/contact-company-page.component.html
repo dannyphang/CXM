@@ -1,5 +1,5 @@
 <div class="page-container tw-m-[15px]">
-  <div class="tw-flex">
+  <!-- <div class="tw-flex">
     <div class="tw-justify-between tw-w-full tw-grid tw-items-center">
       <app-base-label
         [label]="'COMMON.COMPANY' | translate"
@@ -10,30 +10,8 @@
         *ngIf="module === 'CONT'"
       ></app-base-label>
     </div>
-    <div class="action-div tw-flex">
-      <p-button
-        [icon]="'pi pi-upload'"
-        rounded="true"
-        [text]="true"
-        [pTooltip]="'BUTTON.EXPORT' | translate"
-        (onClick)="exportFile(dt.processedData)"
-      ></p-button>
-      <p-button
-        [icon]="'pi pi-download'"
-        rounded="true"
-        [text]="true"
-        [pTooltip]="'BUTTON.IMPORT' | translate"
-        (onClick)="importFile()"
-      ></p-button>
-      <p-button
-        [icon]="'pi pi-plus'"
-        rounded="true"
-        [text]="true"
-        [pTooltip]="'BUTTON.CREATE' | translate"
-        (onClick)="toCreate()"
-      ></p-button>
-    </div>
-  </div>
+    <div class="action-div tw-flex"></div>
+  </div> -->
 
   <p-dialog
     [header]="'PROFILE.CREATE_PROFILE' | translate"
@@ -57,8 +35,167 @@
     </ng-template>
   </p-dialog>
 
-  <p-tabView class="">
-    <p-tabPanel header="Contact" [selected]="true" [closable]="true">
+  <p-tabView class="contact-company-tab-view">
+    <p-tabPanel *ngFor="let panel of panelList" [closable]="panel.closable">
+      <ng-template pTemplate="header" class="tab-view-header">
+        {{ panel.headerLabel }}
+      </ng-template>
+
+      <ng-template pTemplate="content">
+        <p-table
+          #dt
+          [columns]="tableConfig"
+          [value]="module === 'CONT' ? contactList : companyList"
+          [(selection)]="selectedProfile"
+          [resizableColumns]="true"
+          styleClass="p-datatable-gridlines p-datatable-striped"
+          class="profile-company-table"
+        >
+          <ng-template pTemplate="caption">
+            <div class="tw-flex tw-items-center tw-justify-end">
+              <p-button
+                [icon]="'pi pi-upload'"
+                rounded="true"
+                [text]="true"
+                [pTooltip]="'BUTTON.EXPORT' | translate"
+                (onClick)="exportFile(dt.processedData)"
+              ></p-button>
+              <p-button
+                [icon]="'pi pi-download'"
+                rounded="true"
+                [text]="true"
+                [pTooltip]="'BUTTON.IMPORT' | translate"
+                (onClick)="importFile()"
+              ></p-button>
+              <p-button
+                [icon]="'pi pi-plus'"
+                rounded="true"
+                [text]="true"
+                [pTooltip]="'BUTTON.CREATE' | translate"
+                (onClick)="toCreate()"
+              ></p-button>
+              <p-button
+                icon="pi pi-trash"
+                [rounded]="true"
+                [text]="true"
+                (onClick)="delete()"
+                *ngIf="selectedProfile.length > 0"
+                [pTooltip]="'BUTTON.DELETE' | translate"
+              />
+            </div>
+          </ng-template>
+          <ng-template pTemplate="header" let-columns>
+            <tr>
+              <th><p-tableHeaderCheckbox /></th>
+              <th
+                *ngFor="let item of columns"
+                pSortableColumn="{{ item.code }}"
+              >
+                <div
+                  *ngIf="
+                    item.code !== 'contactProfilePhotoUrl' &&
+                    item.code !== 'companyProfilePhotoUrl'
+                  "
+                >
+                  {{ item.header }} <p-sortIcon field="{{ item.code }}" />
+                </div>
+                <div
+                  *ngIf="
+                    item.code === 'contactProfilePhotoUrl' ||
+                    item.code !== 'companyProfilePhotoUrl'
+                  "
+                ></div>
+              </th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-profile let-columns="columns">
+            <tr>
+              <td><p-tableCheckbox [value]="profile" /></td>
+              <td *ngFor="let col of columns">
+                <div
+                  *ngIf="
+                    col.code === 'contactProfilePhotoUrl' ||
+                    col.code === 'companyProfilePhotoUrl'
+                  "
+                >
+                  <p-avatar
+                    *ngIf="profile[col.code]"
+                    [image]="profile[col.code]"
+                    shape="circle"
+                  ></p-avatar>
+                  <p-avatar
+                    *ngIf="!profile[col.code]"
+                    [icon]="'pi pi-user'"
+                    shape="circle"
+                  ></p-avatar>
+                </div>
+
+                <div
+                  *ngIf="
+                    col.code !== 'contactProfilePhotoUrl' &&
+                    col.code !== 'companyProfilePhotoUrl'
+                  "
+                >
+                  <div
+                    *ngIf="
+                      col.code === 'contactFirstName' ||
+                      col.code === 'contactLastName' ||
+                      col.code === 'companyName'
+                    "
+                  >
+                    <p-button
+                      [label]="profile[col.code]"
+                      [text]="true"
+                      [pTooltip]="profile[col.code]"
+                      (onClick)="toProfile(profile)"
+                    ></p-button>
+                  </div>
+                  <div
+                    *ngIf="
+                      col.code !== 'contactFirstName' &&
+                      col.code !== 'contactLastName' &&
+                      col.code !== 'createdDate' &&
+                      col.code !== 'modifiedDate' &&
+                      col.code !== 'companyName'
+                    "
+                    [pTooltip]="profile[col.code]"
+                  >
+                    {{ profile[col.code] }}
+                  </div>
+                  <div
+                    *ngIf="
+                      col.code === 'createdDate' || col.code === 'modifiedDate'
+                    "
+                    [pTooltip]="profile[col.code]"
+                  >
+                    {{ convertDateFormat(profile[col.code]) }}
+                  </div>
+                </div>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </ng-template>
+    </p-tabPanel>
+
+    <p-tabPanel>
+      <ng-template pTemplate="header" class="tw-p-0">
+        <p-button
+          icon="pi pi-plus"
+          (click)="addTab(); $event.stopPropagation()"
+          styleClass="tw-w-[52px] tw-h-[52px] "
+          [text]="true"
+        >
+        </p-button>
+      </ng-template>
+    </p-tabPanel>
+  </p-tabView>
+
+  <!-- <p-tabMenu [model]="panelList">
+    <ng-template pTemplate="header">
+      {{ panel.headerLabel }}
+    </ng-template>
+    <ng-template pTemplate="content">
       <p-table
         #dt
         [columns]="tableConfig"
@@ -71,10 +208,33 @@
         <ng-template pTemplate="caption">
           <div class="tw-flex tw-items-center tw-justify-end">
             <p-button
+              [icon]="'pi pi-upload'"
+              rounded="true"
+              [text]="true"
+              [pTooltip]="'BUTTON.EXPORT' | translate"
+              (onClick)="exportFile(dt.processedData)"
+            ></p-button>
+            <p-button
+              [icon]="'pi pi-download'"
+              rounded="true"
+              [text]="true"
+              [pTooltip]="'BUTTON.IMPORT' | translate"
+              (onClick)="importFile()"
+            ></p-button>
+            <p-button
+              [icon]="'pi pi-plus'"
+              rounded="true"
+              [text]="true"
+              [pTooltip]="'BUTTON.CREATE' | translate"
+              (onClick)="toCreate()"
+            ></p-button>
+            <p-button
               icon="pi pi-trash"
               [rounded]="true"
               [text]="true"
               (onClick)="delete()"
+              *ngIf="selectedProfile.length > 0"
+              [pTooltip]="'BUTTON.DELETE' | translate"
             />
           </div>
         </ng-template>
@@ -166,6 +326,6 @@
           </tr>
         </ng-template>
       </p-table>
-    </p-tabPanel>
-  </p-tabView>
+    </ng-template>
+  </p-tabMenu> -->
 </div>
