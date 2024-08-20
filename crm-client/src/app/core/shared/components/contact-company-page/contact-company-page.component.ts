@@ -2,9 +2,10 @@ import { Component, Input } from '@angular/core';
 import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel, TableConfig } from '../../../services/components.service';
 import { CommonService, CompanyDto, ContactDto, ModuleDto, PropertiesDto, PropertyDataDto } from '../../../services/common.service';
 import { NavigationExtras, Router } from '@angular/router';
-import { Observable, of } from 'rxjs';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { DEFAULT_FORMAT_DATE } from '../../constants/common.constants';
+import * as ExcelJS from 'exceljs';
+import { saveAs } from 'file-saver';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-contact-company-page',
@@ -36,7 +37,8 @@ export class ContactCompanyPageComponent {
   constructor(
     private commonService: CommonService,
     private router: Router,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private translateService: TranslateService
   ) {
 
   }
@@ -246,18 +248,46 @@ export class ContactCompanyPageComponent {
     // });
   }
 
-  saveAsExcelFile(buffer: any, fileName: string): void {
-    // https://www.primefaces.org/primeng-v14-lts/table/export
-    // let EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
-    // let EXCEL_EXTENSION = '.xlsx';
-    // const data: Blob = new Blob([buffer], {
-    //     type: EXCEL_TYPE
-    // });
-    // FileSaver.saveAs(data, fileName + '_export_' + new Date().getTime() + EXCEL_EXTENSION);
-  }
-
   importFile() {
 
+  }
+
+  downloadTemplate() {
+    // Create a workbook and worksheet
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet(this.translateService.instant(this.module === 'CONT' ? 'COMMON.CONTACT' : 'COMMON.COMPANY'));
+
+    worksheet.columns = this.createFormConfig.map(item => ({
+      header: <string>item.label,
+      key: item.name!,
+    }));
+
+    let letter = 'A';
+    let count = 0;
+    this.createFormConfig.forEach(item => {
+      let cell = String.fromCharCode(letter.charCodeAt(0) + count);
+      count++;
+
+      if (item.type === CONTROL_TYPE.Dropdown || item.type === CONTROL_TYPE.Multiselect || item.type === CONTROL_TYPE.Checkbox || item.type === CONTROL_TYPE.Radio) {
+        let list = item.options!.map(dp => dp.label!).join(',');
+        list = `"${list}"`;
+        for (let i = 2; i < 100; i++) {
+          worksheet.getCell(`${cell}${i}`).dataValidation = {
+            type: 'list',
+            allowBlank: true,
+            formulae: [list],  // Set the dropdown options
+            showErrorMessage: true,
+            errorTitle: 'Invalid Selection',
+            error: 'Please select a value from the list.',
+          };
+        }
+      }
+    });
+
+    workbook.xlsx.writeBuffer().then((buffer) => {
+      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      saveAs(blob, 'dropdown-example.xlsx');
+    });
   }
 
   toProfile(profile: ContactDto | CompanyDto) {

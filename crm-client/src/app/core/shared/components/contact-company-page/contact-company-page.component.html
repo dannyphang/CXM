@@ -68,6 +68,13 @@
                 (onClick)="importFile()"
               ></p-button>
               <p-button
+                [icon]="'pi pi-cloud-download'"
+                rounded="true"
+                [text]="true"
+                [pTooltip]="'BUTTON.DOWNLOAD_TEMPLATE' | translate"
+                (onClick)="downloadTemplate()"
+              ></p-button>
+              <p-button
                 [icon]="'pi pi-plus'"
                 rounded="true"
                 [text]="true"

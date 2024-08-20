@@ -29,7 +29,8 @@
     "IMPORT": "Import",
     "EXPORT": "Export",
     "ADD": "Add",
-    "DELETE": "Delete"
+    "DELETE": "Delete",
+    "DOWNLOAD_TEMPLATE": "Download template"
   },
   "ACTIVITY": {
     "WORDS": "words",
