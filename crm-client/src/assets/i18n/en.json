@@ -1,7 +1,8 @@
 {
   "COMMON": {
     "CONTACT": "Contact",
-    "COMPANY": "Company"
+    "COMPANY": "Company",
+    "DATA_LOADING": "Data loading..."
   },
   "HEADER": {
     "SETTING": "Setting",
@@ -30,7 +31,20 @@
     "EXPORT": "Export",
     "ADD": "Add",
     "DELETE": "Delete",
-    "DOWNLOAD_TEMPLATE": "Download template"
+    "DOWNLOAD_TEMPLATE": "Download template",
+    "ADVANCE_FILTER": "Advance filter",
+    "SUBMIT": "Submit"
+  },
+  "INPUT": {
+    "EQUAL_TO": "Equal to",
+    "NOT_EQUAL_TO": "Not equal to",
+    "MORE_THAN_EQUAL_TO": "More than equal to",
+    "LESS_THAN_EQUAL_TO": "Less than equal to",
+    "LESS_THAN": "Less than",
+    "MORE_THAN": "More than",
+    "IS_KNOWN": "Is known",
+    "IS_NOT_KNOWN": "Is not known",
+    "SELECT": "Select"
   },
   "ACTIVITY": {
     "WORDS": "words",
@@ -44,6 +58,10 @@
     "AVATAR_EDIT": "Edit profile picture",
     "CREATE_PROFILE": "Create Profile",
     "CONTACTS": "Contacts",
-    "COMPANYS": "Companys"
+    "COMPANYS": "Companys",
+    "ADVANCE_FILTER": "Advance filter",
+    "PROPERTY": "Property",
+    "CONDITION": "Condition",
+    "VALUE": "Value"
   }
 }

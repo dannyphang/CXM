@@ -6,6 +6,9 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 import * as ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
 import { TranslateService } from '@ngx-translate/core';
+import { MessageService } from 'primeng/api';
+import { Checkbox } from 'primeng/checkbox';
+import { Observable, of } from 'rxjs';
 
 @Component({
   selector: 'app-contact-company-page',
@@ -33,18 +36,81 @@ export class ContactCompanyPageComponent {
       closable: false,
     }
   ];
+  isShowFilter: boolean = false;
+  filterFormConfig: FormConfig[] = [];
+  filterFormControl: FormControl = new FormControl();
+  isShowCondition: boolean = false;
+  conditionFormConfig: FormConfig[] = [];
+  conditionFormControl: FormControl = new FormControl();
+  conditionList: OptionsModel[] = [];
+  filterValueFormControl: FormControl = new FormControl();
 
   constructor(
     private commonService: CommonService,
     private router: Router,
     private formBuilder: FormBuilder,
-    private translateService: TranslateService
+    private translateService: TranslateService,
+    private messageService: MessageService
   ) {
 
   }
 
   async ngOnInit() {
     this.initCreateFormConfig();
+
+    this.filterFormControl.valueChanges.subscribe(value => {
+      this.filterValueFormControl.setValue(null);
+      const propertyType = this.propertiesList.find(prop => prop.uid === this.filterFormControl.value)!.propertyType;
+      switch (propertyType) {
+        case CONTROL_TYPE_CODE.Textbox:
+        case CONTROL_TYPE_CODE.Textarea:
+        case CONTROL_TYPE_CODE.Url:
+        case CONTROL_TYPE_CODE.Email:
+        case CONTROL_TYPE_CODE.Phone:
+          document.getElementById('VALUE_FORM_DROPDOWN')!.style.display = 'none';
+          document.getElementById('VALUE_FORM_TEXT')!.style.display = 'block';
+          document.getElementById('VALUE_FORM_NUMBER')!.style.display = 'none';
+          document.getElementById('VALUE_FORM_YEAR')!.style.display = 'none';
+          break;
+        case CONTROL_TYPE_CODE.Dropdown:
+        case CONTROL_TYPE_CODE.Multiselect:
+        case CONTROL_TYPE_CODE.Checkbox:
+        case CONTROL_TYPE_CODE.MultiCheckbox:
+          document.getElementById('VALUE_FORM_DROPDOWN')!.style.display = 'block';
+          document.getElementById('VALUE_FORM_TEXT')!.style.display = 'none';
+          document.getElementById('VALUE_FORM_NUMBER')!.style.display = 'none';
+          document.getElementById('VALUE_FORM_YEAR')!.style.display = 'none';
+          break;
+        case CONTROL_TYPE_CODE.Number:
+          document.getElementById('VALUE_FORM_DROPDOWN')!.style.display = 'none';
+          document.getElementById('VALUE_FORM_TEXT')!.style.display = 'none';
+          document.getElementById('VALUE_FORM_NUMBER')!.style.display = 'block';
+          document.getElementById('VALUE_FORM_YEAR')!.style.display = 'none';
+          break;
+        case CONTROL_TYPE_CODE.Year:
+          document.getElementById('VALUE_FORM_DROPDOWN')!.style.display = 'none';
+          document.getElementById('VALUE_FORM_TEXT')!.style.display = 'none';
+          document.getElementById('VALUE_FORM_NUMBER')!.style.display = 'none';
+          document.getElementById('VALUE_FORM_YEAR')!.style.display = 'block';
+          break;
+        default:
+          document.getElementById('VALUE_FORM_DROPDOWN')!.style.display = 'none';
+          document.getElementById('VALUE_FORM_TEXT')!.style.display = 'none';
+          document.getElementById('VALUE_FORM_NUMBER')!.style.display = 'none';
+          document.getElementById('VALUE_FORM_YEAR')!.style.display = 'none';
+          break;
+
+      }
+    });
+
+    this.conditionFormControl.valueChanges.subscribe(value => {
+      if (value === 'is_known' || value === 'is_not_known') {
+        document.getElementById('VALUE_FORM_DROPDOWN')!.style.display = 'none';
+        document.getElementById('VALUE_FORM_TEXT')!.style.display = 'none';
+        document.getElementById('VALUE_FORM_NUMBER')!.style.display = 'none';
+        document.getElementById('VALUE_FORM_YEAR')!.style.display = 'none';
+      }
+    })
   }
 
   initCreateFormConfig() {
@@ -163,7 +229,11 @@ export class ContactCompanyPageComponent {
 
             formsConfig.push(forms);
             createPropCount++;
+
           }
+
+
+
         });
       });
 
@@ -240,12 +310,6 @@ export class ContactCompanyPageComponent {
 
   exportFile(data: any) {
     console.log(data)
-    // import("xlsx").then(xlsx => {
-    //   const worksheet = xlsx.utils.json_to_sheet(this.products);
-    //   const workbook = { Sheets: { 'data': worksheet }, SheetNames: ['data'] };
-    //   const excelBuffer: any = xlsx.write(workbook, { bookType: 'xlsx', type: 'array' });
-    //   this.saveAsExcelFile(excelBuffer, "products");
-    // });
   }
 
   importFile() {
@@ -291,7 +355,6 @@ export class ContactCompanyPageComponent {
   }
 
   toProfile(profile: ContactDto | CompanyDto) {
-
     const navigationExtras: NavigationExtras = {
       state: {
         module: this.module
@@ -414,5 +477,212 @@ export class ContactCompanyPageComponent {
       order: 1,
       closable: true,
     })
+  }
+
+  advanceFIlterBtn() {
+    if (this.propertiesList.length > 0) {
+      this.isShowFilter = true;
+      let formList: OptionsModel[] = this.propertiesList.map(item => ({
+        label: item.propertyName,
+        value: item.uid
+      }));
+
+      // init filter form config
+      this.filterFormConfig = [
+        {
+          id: 'FILTER_FORM',
+          name: 'FILTERFORM',
+          label: this.translateService.instant("PROFILE.PROPERTY"),
+          type: CONTROL_TYPE.Dropdown,
+          layoutDefine: {
+            row: 0,
+            column: 0
+          },
+          options: formList,
+          fieldControl: this.filterFormControl,
+        },
+        {
+          id: 'CONDITION_FORM',
+          name: 'CONDITIONFORM',
+          label: this.translateService.instant("PROFILE.CONDITION"),
+          type: CONTROL_TYPE.Dropdown,
+          layoutDefine: {
+            row: 1,
+            column: 0
+          },
+          dataSourceDependOn: ['FILTER_FORM'],
+          dataSourceAction: () => this.getConditionList(),
+          fieldControl: this.conditionFormControl
+        },
+        {
+          id: 'VALUE_FORM_DROPDOWN',
+          name: 'VALUEFORMDROPDOWN',
+          label: this.translateService.instant("PROFILE.VALUE"),
+          type: CONTROL_TYPE.Multiselect,
+          layoutDefine: {
+            row: 2,
+            column: 0
+          },
+          dataSourceDependOn: ['FILTER_FORM', 'CONDITION_FORM'],
+          dataSourceAction: () => this.getValueList(),
+          fieldControl: this.filterValueFormControl
+        },
+        {
+          id: 'VALUE_FORM_TEXT',
+          name: 'VALUEFORMTEXT',
+          label: this.translateService.instant("PROFILE.VALUE"),
+          type: CONTROL_TYPE.Textbox,
+          layoutDefine: {
+            row: 3,
+            column: 0
+          },
+          fieldControl: this.filterValueFormControl
+        },
+        {
+          id: 'VALUE_FORM_NUMBER',
+          name: 'VALUEFORMNUMBER',
+          label: this.translateService.instant("PROFILE.VALUE_NUMBER"),
+          type: CONTROL_TYPE.Textbox,
+          layoutDefine: {
+            row: 4,
+            column: 0
+          },
+          mode: 'number',
+          fieldControl: this.filterValueFormControl
+        },
+        {
+          id: 'VALUE_FORM_YEAR',
+          name: 'VALUEFORMYEAR',
+          label: this.translateService.instant("PROFILE.VALUE_YEAR"),
+          type: CONTROL_TYPE.Textbox,
+          layoutDefine: {
+            row: 5,
+            column: 0
+          },
+          mode: 'number',
+          maxLength: 4,
+          min: 1000,
+          maxFractionDigits: 0,
+          minFractionDigits: 0,
+          useGrouping: false,
+          fieldControl: this.filterValueFormControl
+        }
+      ];
+
+      document.getElementById('VALUE_FORM_DROPDOWN')!.style.display = 'none';
+      document.getElementById('VALUE_FORM_TEXT')!.style.display = 'none';
+      document.getElementById('VALUE_FORM_NUMBER')!.style.display = 'none';
+      document.getElementById('VALUE_FORM_YEAR')!.style.display = 'none';
+
+    }
+    else {
+      this.messageService.add({ severity: 'info', summary: 'Loading', detail: this.translateService.instant('COMMON.DATA_LOADING') });
+    }
+  }
+
+  closeFilter() {
+    this.isShowFilter = false;
+  }
+
+  getConditionList(): Observable<OptionsModel[]> {
+    let conditionList: OptionsModel[] = [];
+    if (this.propertiesList.find(prop => prop.uid === this.filterFormControl.value)) {
+      const propertyType = this.propertiesList.find(prop => prop.uid === this.filterFormControl.value)!.propertyType;
+      switch (propertyType) {
+        case CONTROL_TYPE_CODE.Textbox:
+        case CONTROL_TYPE_CODE.Textarea:
+        case CONTROL_TYPE_CODE.Url:
+        case CONTROL_TYPE_CODE.Email:
+        case CONTROL_TYPE_CODE.Phone:
+        case CONTROL_TYPE_CODE.Dropdown:
+        case CONTROL_TYPE_CODE.Multiselect:
+        case CONTROL_TYPE_CODE.Checkbox:
+        case CONTROL_TYPE_CODE.MultiCheckbox:
+          conditionList = [
+            {
+              label: `${this.translateService.instant("INPUT.EQUAL_TO")} (==)`,
+              value: 'equal_to',
+            },
+            {
+              label: `${this.translateService.instant("INPUT.NOT_EQUAL_TO")} (!=)`,
+              value: 'not_equal_to',
+            },
+            {
+              label: this.translateService.instant("INPUT.IS_KNOWN"),
+              value: 'is_known',
+            },
+            {
+              label: this.translateService.instant("INPUT.IS_NOT_KNOWN"),
+              value: 'is_not_known',
+            }
+          ];
+          break;
+        case CONTROL_TYPE_CODE.Number:
+        case CONTROL_TYPE_CODE.Year:
+          conditionList = [
+            {
+              label: `${this.translateService.instant("INPUT.EQUAL_TO")} (==)`,
+              value: 'equal_to',
+            },
+            {
+              label: `${this.translateService.instant("INPUT.NOT_EQUAL_TO")} (!=)`,
+              value: 'not_equal_to',
+            },
+            {
+              label: `${this.translateService.instant("INPUT.MORE_THAN_EQUAL_TO")} (>=)`,
+              value: 'more_than_equal_to',
+            },
+            {
+              label: `${this.translateService.instant("INPUT.MORE_THAN")} (>)`,
+              value: 'more_than',
+            },
+            {
+              label: `${this.translateService.instant("INPUT.LESS_THAN_EQUAL_TO")} (<=)`,
+              value: 'less_than_equal_to',
+            },
+            {
+              label: `${this.translateService.instant("INPUT.LESS_THAN")} (<)`,
+              value: 'less_than',
+            },
+            {
+              label: this.translateService.instant("INPUT.IS_KNOWN"),
+              value: 'is_known',
+            },
+            {
+              label: this.translateService.instant("INPUT.IS_NOT_KNOWN"),
+              value: 'is_not_known',
+            }
+          ];
+          break;
+      }
+    }
+    return of(conditionList);
+  }
+
+  getValueList(): Observable<OptionsModel[]> {
+    let list: OptionsModel[] = [];
+
+    if (this.propertiesList.find(prop => prop.uid === this.filterFormControl.value)) {
+      const propertyType = this.propertiesList.find(prop => prop.uid === this.filterFormControl.value)!.propertyType;
+      switch (propertyType) {
+        case CONTROL_TYPE_CODE.Dropdown:
+        case CONTROL_TYPE_CODE.Multiselect:
+        case CONTROL_TYPE_CODE.Checkbox:
+        case CONTROL_TYPE_CODE.MultiCheckbox:
+          list = this.propertiesList.find(prop => prop.uid === this.filterFormControl.value)!.propertyLookupList!.map(item => ({
+            label: item.propertyLookupLabel,
+            value: item.uid
+          }));
+          break;
+      }
+    }
+
+    return of(list);
+  }
+
+  filterSubmit() {
+    console.log(this.filterFormControl.value);
+    console.log(this.conditionFormControl.value);
+    console.log(this.filterValueFormControl.value);
   }
 }

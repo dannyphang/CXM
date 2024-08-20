@@ -1,3 +1,4 @@
+<app-toast></app-toast>
 <div class="page-container tw-m-[15px]">
   <!-- <div class="tw-flex">
     <div class="tw-justify-between tw-w-full tw-grid tw-items-center">
@@ -52,44 +53,86 @@
           class="profile-company-table"
         >
           <ng-template pTemplate="caption">
-            <div class="tw-flex tw-items-center tw-justify-end">
-              <p-button
-                [icon]="'pi pi-upload'"
-                rounded="true"
-                [text]="true"
-                [pTooltip]="'BUTTON.EXPORT' | translate"
-                (onClick)="exportFile(dt.processedData)"
-              ></p-button>
-              <p-button
-                [icon]="'pi pi-download'"
-                rounded="true"
-                [text]="true"
-                [pTooltip]="'BUTTON.IMPORT' | translate"
-                (onClick)="importFile()"
-              ></p-button>
-              <p-button
-                [icon]="'pi pi-cloud-download'"
-                rounded="true"
-                [text]="true"
-                [pTooltip]="'BUTTON.DOWNLOAD_TEMPLATE' | translate"
-                (onClick)="downloadTemplate()"
-              ></p-button>
-              <p-button
-                [icon]="'pi pi-plus'"
-                rounded="true"
-                [text]="true"
-                [pTooltip]="'BUTTON.CREATE' | translate"
-                (onClick)="toCreate()"
-              ></p-button>
-              <p-button
-                icon="pi pi-trash"
-                [rounded]="true"
-                [text]="true"
-                (onClick)="delete()"
-                *ngIf="selectedProfile.length > 0"
-                [pTooltip]="'BUTTON.DELETE' | translate"
-              />
+            <div class="tw-flex tw-justify-between">
+              <div class="tw-flex">
+                <p-button
+                  [label]="'BUTTON.ADVANCE_FILTER' | translate"
+                  [text]="true"
+                  [iconPos]="'left'"
+                  [icon]="'pi pi-sliders-h'"
+                  (onClick)="advanceFIlterBtn()"
+                  [loading]="!propertiesList"
+                ></p-button>
+              </div>
+
+              <div class="tw-flex">
+                <p-button
+                  [icon]="'pi pi-upload'"
+                  rounded="true"
+                  [text]="true"
+                  [pTooltip]="'BUTTON.EXPORT' | translate"
+                  (onClick)="exportFile(dt.processedData)"
+                ></p-button>
+                <p-button
+                  [icon]="'pi pi-download'"
+                  rounded="true"
+                  [text]="true"
+                  [pTooltip]="'BUTTON.IMPORT' | translate"
+                  (onClick)="importFile()"
+                ></p-button>
+                <p-button
+                  [icon]="'pi pi-cloud-download'"
+                  rounded="true"
+                  [text]="true"
+                  [pTooltip]="'BUTTON.DOWNLOAD_TEMPLATE' | translate"
+                  (onClick)="downloadTemplate()"
+                ></p-button>
+                <p-button
+                  [icon]="'pi pi-plus'"
+                  rounded="true"
+                  [text]="true"
+                  [pTooltip]="'BUTTON.CREATE' | translate"
+                  (onClick)="toCreate()"
+                ></p-button>
+                <p-button
+                  icon="pi pi-trash"
+                  [rounded]="true"
+                  [text]="true"
+                  (onClick)="delete()"
+                  *ngIf="selectedProfile.length > 0"
+                  [pTooltip]="'BUTTON.DELETE' | translate"
+                />
+              </div>
             </div>
+            <p-dialog
+              [(visible)]="isShowFilter"
+              [closable]="false"
+              [position]="'right'"
+              styleClass="tw-h-full tw-w-[30%]"
+              [draggable]="false"
+              [header]="'PROFILE.ADVANCE_FILTER' | translate"
+            >
+              <ng-template pTemplate="content">
+                <app-base-form [formConfig]="filterFormConfig"></app-base-form>
+                <app-base-form
+                  [formConfig]="conditionFormConfig"
+                  *ngIf="isShowCondition"
+                ></app-base-form>
+              </ng-template>
+              <ng-template pTemplate="footer">
+                <div class="tw-flex tw-justify-between">
+                  <p-button
+                    [label]="'BUTTON.CANCEL' | translate"
+                    [outlined]="true"
+                    (onClick)="closeFilter()"
+                  ></p-button>
+                  <p-button
+                    [label]="'BUTTON.SUBMIT' | translate"
+                    (onClick)="filterSubmit()"
+                  ></p-button>
+                </div>
+              </ng-template>
+            </p-dialog>
           </ng-template>
           <ng-template pTemplate="header" let-columns>
             <tr>

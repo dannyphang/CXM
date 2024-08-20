@@ -223,8 +223,9 @@ export class LeftPanelComponent implements OnChanges {
                 },
                 required: prop.isMandatory,
                 mode: 'number',
-                max: prop.propertyType === CONTROL_TYPE_CODE.Year ? 4 : undefined,
-                min: prop.propertyType === CONTROL_TYPE_CODE.Year ? 4 : undefined,
+                maxLength: prop.propertyType === CONTROL_TYPE_CODE.Year ? 4 : undefined,
+                min: prop.propertyType === CONTROL_TYPE_CODE.Year ? 1000 : undefined,
+                useGrouping: prop.propertyType === CONTROL_TYPE_CODE.Year ? false : true
               }
             }
             if (prop.propertyType === CONTROL_TYPE_CODE.Email) {
