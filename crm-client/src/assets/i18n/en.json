@@ -43,7 +43,7 @@
     "LESS_THAN": "Less than",
     "MORE_THAN": "More than",
     "IS_KNOWN": "Is known",
-    "IS_NOT_KNOWN": "Is not known",
+    "IS_NOT_KNOWN": "Is unknown",
     "SELECT": "Select"
   },
   "ACTIVITY": {

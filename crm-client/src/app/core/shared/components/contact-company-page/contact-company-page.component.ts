@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel, TableConfig } from '../../../services/components.service';
+import { BaseDataSourceActionEvent, CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel, TableConfig } from '../../../services/components.service';
 import { CommonService, CompanyDto, ContactDto, ModuleDto, PropertiesDto, PropertyDataDto } from '../../../services/common.service';
 import { NavigationExtras, Router } from '@angular/router';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
@@ -21,6 +21,7 @@ export class ContactCompanyPageComponent {
   @Input() companyList: CompanyDto[] = [];
   @Input() modulePropertyList: ModuleDto[] = [];
 
+  CONTROL_TYPE_CODE = CONTROL_TYPE_CODE;
   propertiesList: PropertiesDto[] = [];
   tableConfig: any[] = []; // from table config
   selectedProfile: ContactDto[] | CompanyDto[] = [];
@@ -44,6 +45,11 @@ export class ContactCompanyPageComponent {
   conditionFormControl: FormControl = new FormControl();
   conditionList: OptionsModel[] = [];
   filterValueFormControl: FormControl = new FormControl();
+  filterSelectValueFormControl: FormControl = new FormControl([]);
+  isSelectingMultiForm: boolean = false;
+  filterFormGroup: FormGroup;
+  filterList: Filter[] = [];
+  filterPropList: any[] = [];
 
   constructor(
     private commonService: CommonService,
@@ -60,47 +66,7 @@ export class ContactCompanyPageComponent {
 
     this.filterFormControl.valueChanges.subscribe(value => {
       this.filterValueFormControl.setValue(null);
-      const propertyType = this.propertiesList.find(prop => prop.uid === this.filterFormControl.value)!.propertyType;
-      switch (propertyType) {
-        case CONTROL_TYPE_CODE.Textbox:
-        case CONTROL_TYPE_CODE.Textarea:
-        case CONTROL_TYPE_CODE.Url:
-        case CONTROL_TYPE_CODE.Email:
-        case CONTROL_TYPE_CODE.Phone:
-          document.getElementById('VALUE_FORM_DROPDOWN')!.style.display = 'none';
-          document.getElementById('VALUE_FORM_TEXT')!.style.display = 'block';
-          document.getElementById('VALUE_FORM_NUMBER')!.style.display = 'none';
-          document.getElementById('VALUE_FORM_YEAR')!.style.display = 'none';
-          break;
-        case CONTROL_TYPE_CODE.Dropdown:
-        case CONTROL_TYPE_CODE.Multiselect:
-        case CONTROL_TYPE_CODE.Checkbox:
-        case CONTROL_TYPE_CODE.MultiCheckbox:
-          document.getElementById('VALUE_FORM_DROPDOWN')!.style.display = 'block';
-          document.getElementById('VALUE_FORM_TEXT')!.style.display = 'none';
-          document.getElementById('VALUE_FORM_NUMBER')!.style.display = 'none';
-          document.getElementById('VALUE_FORM_YEAR')!.style.display = 'none';
-          break;
-        case CONTROL_TYPE_CODE.Number:
-          document.getElementById('VALUE_FORM_DROPDOWN')!.style.display = 'none';
-          document.getElementById('VALUE_FORM_TEXT')!.style.display = 'none';
-          document.getElementById('VALUE_FORM_NUMBER')!.style.display = 'block';
-          document.getElementById('VALUE_FORM_YEAR')!.style.display = 'none';
-          break;
-        case CONTROL_TYPE_CODE.Year:
-          document.getElementById('VALUE_FORM_DROPDOWN')!.style.display = 'none';
-          document.getElementById('VALUE_FORM_TEXT')!.style.display = 'none';
-          document.getElementById('VALUE_FORM_NUMBER')!.style.display = 'none';
-          document.getElementById('VALUE_FORM_YEAR')!.style.display = 'block';
-          break;
-        default:
-          document.getElementById('VALUE_FORM_DROPDOWN')!.style.display = 'none';
-          document.getElementById('VALUE_FORM_TEXT')!.style.display = 'none';
-          document.getElementById('VALUE_FORM_NUMBER')!.style.display = 'none';
-          document.getElementById('VALUE_FORM_YEAR')!.style.display = 'none';
-          break;
-
-      }
+      this.updateCondtionalStyle();
     });
 
     this.conditionFormControl.valueChanges.subscribe(value => {
@@ -110,7 +76,57 @@ export class ContactCompanyPageComponent {
         document.getElementById('VALUE_FORM_NUMBER')!.style.display = 'none';
         document.getElementById('VALUE_FORM_YEAR')!.style.display = 'none';
       }
+      else {
+        this.updateCondtionalStyle();
+      }
     })
+  }
+
+  updateCondtionalStyle() {
+    const propertyType = this.propertiesList.find(prop => prop.uid === this.filterFormControl.value)!.propertyType;
+    this.isSelectingMultiForm = false;
+    switch (propertyType) {
+      case CONTROL_TYPE_CODE.Textbox:
+      case CONTROL_TYPE_CODE.Textarea:
+      case CONTROL_TYPE_CODE.Url:
+      case CONTROL_TYPE_CODE.Email:
+      case CONTROL_TYPE_CODE.Phone:
+        document.getElementById('VALUE_FORM_DROPDOWN')!.style.display = 'none';
+        document.getElementById('VALUE_FORM_TEXT')!.style.display = 'block';
+        document.getElementById('VALUE_FORM_NUMBER')!.style.display = 'none';
+        document.getElementById('VALUE_FORM_YEAR')!.style.display = 'none';
+        break;
+      case CONTROL_TYPE_CODE.Dropdown:
+      case CONTROL_TYPE_CODE.Multiselect:
+      case CONTROL_TYPE_CODE.Checkbox:
+      case CONTROL_TYPE_CODE.MultiCheckbox:
+        document.getElementById('VALUE_FORM_DROPDOWN')!.style.display = 'block';
+        document.getElementById('VALUE_FORM_TEXT')!.style.display = 'none';
+        document.getElementById('VALUE_FORM_NUMBER')!.style.display = 'none';
+        document.getElementById('VALUE_FORM_YEAR')!.style.display = 'none';
+
+        this.isSelectingMultiForm = true;
+        break;
+      case CONTROL_TYPE_CODE.Number:
+        document.getElementById('VALUE_FORM_DROPDOWN')!.style.display = 'none';
+        document.getElementById('VALUE_FORM_TEXT')!.style.display = 'none';
+        document.getElementById('VALUE_FORM_NUMBER')!.style.display = 'block';
+        document.getElementById('VALUE_FORM_YEAR')!.style.display = 'none';
+        break;
+      case CONTROL_TYPE_CODE.Year:
+        document.getElementById('VALUE_FORM_DROPDOWN')!.style.display = 'none';
+        document.getElementById('VALUE_FORM_TEXT')!.style.display = 'none';
+        document.getElementById('VALUE_FORM_NUMBER')!.style.display = 'none';
+        document.getElementById('VALUE_FORM_YEAR')!.style.display = 'block';
+        break;
+      default:
+        document.getElementById('VALUE_FORM_DROPDOWN')!.style.display = 'none';
+        document.getElementById('VALUE_FORM_TEXT')!.style.display = 'none';
+        document.getElementById('VALUE_FORM_NUMBER')!.style.display = 'none';
+        document.getElementById('VALUE_FORM_YEAR')!.style.display = 'none';
+        break;
+
+    }
   }
 
   initCreateFormConfig() {
@@ -479,101 +495,47 @@ export class ContactCompanyPageComponent {
     })
   }
 
-  advanceFIlterBtn() {
+  advanceFilterBtn() {
     if (this.propertiesList.length > 0) {
       this.isShowFilter = true;
-      let formList: OptionsModel[] = this.propertiesList.map(item => ({
-        label: item.propertyName,
-        value: item.uid
-      }));
-
-      // init filter form config
-      this.filterFormConfig = [
-        {
-          id: 'FILTER_FORM',
-          name: 'FILTERFORM',
-          label: this.translateService.instant("PROFILE.PROPERTY"),
-          type: CONTROL_TYPE.Dropdown,
-          layoutDefine: {
-            row: 0,
-            column: 0
-          },
-          options: formList,
-          fieldControl: this.filterFormControl,
-        },
-        {
-          id: 'CONDITION_FORM',
-          name: 'CONDITIONFORM',
-          label: this.translateService.instant("PROFILE.CONDITION"),
-          type: CONTROL_TYPE.Dropdown,
-          layoutDefine: {
-            row: 1,
-            column: 0
-          },
-          dataSourceDependOn: ['FILTER_FORM'],
-          dataSourceAction: () => this.getConditionList(),
-          fieldControl: this.conditionFormControl
-        },
-        {
-          id: 'VALUE_FORM_DROPDOWN',
-          name: 'VALUEFORMDROPDOWN',
-          label: this.translateService.instant("PROFILE.VALUE"),
-          type: CONTROL_TYPE.Multiselect,
-          layoutDefine: {
-            row: 2,
-            column: 0
-          },
-          dataSourceDependOn: ['FILTER_FORM', 'CONDITION_FORM'],
-          dataSourceAction: () => this.getValueList(),
-          fieldControl: this.filterValueFormControl
-        },
-        {
-          id: 'VALUE_FORM_TEXT',
-          name: 'VALUEFORMTEXT',
-          label: this.translateService.instant("PROFILE.VALUE"),
-          type: CONTROL_TYPE.Textbox,
-          layoutDefine: {
-            row: 3,
-            column: 0
-          },
-          fieldControl: this.filterValueFormControl
-        },
-        {
-          id: 'VALUE_FORM_NUMBER',
-          name: 'VALUEFORMNUMBER',
-          label: this.translateService.instant("PROFILE.VALUE_NUMBER"),
-          type: CONTROL_TYPE.Textbox,
-          layoutDefine: {
-            row: 4,
-            column: 0
-          },
-          mode: 'number',
-          fieldControl: this.filterValueFormControl
-        },
-        {
-          id: 'VALUE_FORM_YEAR',
-          name: 'VALUEFORMYEAR',
-          label: this.translateService.instant("PROFILE.VALUE_YEAR"),
-          type: CONTROL_TYPE.Textbox,
-          layoutDefine: {
-            row: 5,
-            column: 0
-          },
-          mode: 'number',
-          maxLength: 4,
-          min: 1000,
-          maxFractionDigits: 0,
-          minFractionDigits: 0,
-          useGrouping: false,
-          fieldControl: this.filterValueFormControl
+      this.filterFormGroup = this.formBuilder.group({});
+      this.propertiesList.forEach(prop => {
+        let control = new FormControl();
+        this.filterFormGroup.addControl(prop.propertyCode, control);
+        let icon = '';
+        switch (prop.propertyType) {
+          case CONTROL_TYPE_CODE.Dropdown:
+          case CONTROL_TYPE_CODE.Multiselect:
+          case CONTROL_TYPE_CODE.Checkbox:
+          case CONTROL_TYPE_CODE.MultiCheckbox:
+            icon = 'pi pi-clone';
+            break;
+          case CONTROL_TYPE_CODE.Time:
+          case CONTROL_TYPE_CODE.Date:
+          case CONTROL_TYPE_CODE.DateTime:
+            icon = 'pi pi-calendar'
+            break;
+          case CONTROL_TYPE_CODE.Country:
+          case CONTROL_TYPE_CODE.City:
+          case CONTROL_TYPE_CODE.State:
+          case CONTROL_TYPE_CODE.Postcode:
+            icon = 'pi pi-globe'
+            break;
+          case CONTROL_TYPE_CODE.Number:
+          case CONTROL_TYPE_CODE.Year:
+            icon = 'pi pi-hashtag';
+            break;
+          default:
+            icon = 'pi pi-language';
+            break;
         }
-      ];
-
-      document.getElementById('VALUE_FORM_DROPDOWN')!.style.display = 'none';
-      document.getElementById('VALUE_FORM_TEXT')!.style.display = 'none';
-      document.getElementById('VALUE_FORM_NUMBER')!.style.display = 'none';
-      document.getElementById('VALUE_FORM_YEAR')!.style.display = 'none';
-
+        this.filterPropList.push({
+          property: prop,
+          fieldControl: this.filterFormGroup.controls[prop.propertyCode],
+          condition: [],
+          icon: icon,
+        });
+      });
     }
     else {
       this.messageService.add({ severity: 'info', summary: 'Loading', detail: this.translateService.instant('COMMON.DATA_LOADING') });
@@ -584,105 +546,119 @@ export class ContactCompanyPageComponent {
     this.isShowFilter = false;
   }
 
-  getConditionList(): Observable<OptionsModel[]> {
-    let conditionList: OptionsModel[] = [];
-    if (this.propertiesList.find(prop => prop.uid === this.filterFormControl.value)) {
-      const propertyType = this.propertiesList.find(prop => prop.uid === this.filterFormControl.value)!.propertyType;
-      switch (propertyType) {
-        case CONTROL_TYPE_CODE.Textbox:
-        case CONTROL_TYPE_CODE.Textarea:
-        case CONTROL_TYPE_CODE.Url:
-        case CONTROL_TYPE_CODE.Email:
-        case CONTROL_TYPE_CODE.Phone:
-        case CONTROL_TYPE_CODE.Dropdown:
-        case CONTROL_TYPE_CODE.Multiselect:
-        case CONTROL_TYPE_CODE.Checkbox:
-        case CONTROL_TYPE_CODE.MultiCheckbox:
-          conditionList = [
-            {
-              label: `${this.translateService.instant("INPUT.EQUAL_TO")} (==)`,
-              value: 'equal_to',
-            },
-            {
-              label: `${this.translateService.instant("INPUT.NOT_EQUAL_TO")} (!=)`,
-              value: 'not_equal_to',
-            },
-            {
-              label: this.translateService.instant("INPUT.IS_KNOWN"),
-              value: 'is_known',
-            },
-            {
-              label: this.translateService.instant("INPUT.IS_NOT_KNOWN"),
-              value: 'is_not_known',
-            }
-          ];
-          break;
-        case CONTROL_TYPE_CODE.Number:
-        case CONTROL_TYPE_CODE.Year:
-          conditionList = [
-            {
-              label: `${this.translateService.instant("INPUT.EQUAL_TO")} (==)`,
-              value: 'equal_to',
-            },
-            {
-              label: `${this.translateService.instant("INPUT.NOT_EQUAL_TO")} (!=)`,
-              value: 'not_equal_to',
-            },
-            {
-              label: `${this.translateService.instant("INPUT.MORE_THAN_EQUAL_TO")} (>=)`,
-              value: 'more_than_equal_to',
-            },
-            {
-              label: `${this.translateService.instant("INPUT.MORE_THAN")} (>)`,
-              value: 'more_than',
-            },
-            {
-              label: `${this.translateService.instant("INPUT.LESS_THAN_EQUAL_TO")} (<=)`,
-              value: 'less_than_equal_to',
-            },
-            {
-              label: `${this.translateService.instant("INPUT.LESS_THAN")} (<)`,
-              value: 'less_than',
-            },
-            {
-              label: this.translateService.instant("INPUT.IS_KNOWN"),
-              value: 'is_known',
-            },
-            {
-              label: this.translateService.instant("INPUT.IS_NOT_KNOWN"),
-              value: 'is_not_known',
-            }
-          ];
-          break;
-      }
+  filterClick(prop: PropertiesDto) {
+    if (!this.filterList.find(item => item.property === prop)) {
+      this.filterList.push({
+        property: prop,
+        condition: this.getConditionList(prop),
+        options: () => this.getValueList(prop),
+        fieldControl: <FormControl>this.filterFormGroup.controls[prop.propertyCode],
+      });
     }
-    return of(conditionList);
+
   }
 
-  getValueList(): Observable<OptionsModel[]> {
+  getConditionList(prop: PropertiesDto): OptionsModel[] {
+    let conditionList: OptionsModel[] = [];
+    switch (prop.propertyType) {
+      case CONTROL_TYPE_CODE.Textbox:
+      case CONTROL_TYPE_CODE.Textarea:
+      case CONTROL_TYPE_CODE.Url:
+      case CONTROL_TYPE_CODE.Email:
+      case CONTROL_TYPE_CODE.Phone:
+      case CONTROL_TYPE_CODE.Dropdown:
+      case CONTROL_TYPE_CODE.Multiselect:
+      case CONTROL_TYPE_CODE.Checkbox:
+      case CONTROL_TYPE_CODE.MultiCheckbox:
+        conditionList = [
+          {
+            label: `${this.translateService.instant("INPUT.EQUAL_TO")} (==)`,
+            value: 'equal_to',
+          },
+          {
+            label: `${this.translateService.instant("INPUT.NOT_EQUAL_TO")} (!=)`,
+            value: 'not_equal_to',
+          },
+          {
+            label: this.translateService.instant("INPUT.IS_KNOWN"),
+            value: 'is_known',
+          },
+          {
+            label: this.translateService.instant("INPUT.IS_NOT_KNOWN"),
+            value: 'is_not_known',
+          }
+        ];
+        break;
+      case CONTROL_TYPE_CODE.Number:
+      case CONTROL_TYPE_CODE.Year:
+        conditionList = [
+          {
+            label: `${this.translateService.instant("INPUT.EQUAL_TO")} (==)`,
+            value: 'equal_to',
+          },
+          {
+            label: `${this.translateService.instant("INPUT.NOT_EQUAL_TO")} (!=)`,
+            value: 'not_equal_to',
+          },
+          {
+            label: `${this.translateService.instant("INPUT.MORE_THAN_EQUAL_TO")} (>=)`,
+            value: 'more_than_equal_to',
+          },
+          {
+            label: `${this.translateService.instant("INPUT.MORE_THAN")} (>)`,
+            value: 'more_than',
+          },
+          {
+            label: `${this.translateService.instant("INPUT.LESS_THAN_EQUAL_TO")} (<=)`,
+            value: 'less_than_equal_to',
+          },
+          {
+            label: `${this.translateService.instant("INPUT.LESS_THAN")} (<)`,
+            value: 'less_than',
+          },
+          {
+            label: this.translateService.instant("INPUT.IS_KNOWN"),
+            value: 'is_known',
+          },
+          {
+            label: this.translateService.instant("INPUT.IS_NOT_KNOWN"),
+            value: 'is_not_known',
+          }
+        ];
+        break;
+    }
+    return conditionList;
+  }
+
+  getValueList(prop: PropertiesDto): Observable<OptionsModel[]> {
     let list: OptionsModel[] = [];
 
-    if (this.propertiesList.find(prop => prop.uid === this.filterFormControl.value)) {
-      const propertyType = this.propertiesList.find(prop => prop.uid === this.filterFormControl.value)!.propertyType;
-      switch (propertyType) {
-        case CONTROL_TYPE_CODE.Dropdown:
-        case CONTROL_TYPE_CODE.Multiselect:
-        case CONTROL_TYPE_CODE.Checkbox:
-        case CONTROL_TYPE_CODE.MultiCheckbox:
-          list = this.propertiesList.find(prop => prop.uid === this.filterFormControl.value)!.propertyLookupList!.map(item => ({
-            label: item.propertyLookupLabel,
-            value: item.uid
-          }));
-          break;
-      }
+    switch (prop.propertyType) {
+      case CONTROL_TYPE_CODE.Dropdown:
+      case CONTROL_TYPE_CODE.Multiselect:
+      case CONTROL_TYPE_CODE.Checkbox:
+      case CONTROL_TYPE_CODE.MultiCheckbox:
+        console.log(this.propertiesList.find(prop1 => prop1.uid === prop.uid))
+        list = this.propertiesList.find(prop1 => prop1.uid === prop.uid)!.propertyLookupList!.map(item => ({
+          label: item.propertyLookupLabel,
+          value: item.uid
+        }));
+        break;
     }
 
     return of(list);
   }
 
   filterSubmit() {
-    console.log(this.filterFormControl.value);
-    console.log(this.conditionFormControl.value);
-    console.log(this.filterValueFormControl.value);
+    // console.log(this.filterFormControl.value);
+    // console.log(this.conditionFormControl.value);
+    // console.log(this.isSelectingMultiForm ? this.filterSelectValueFormControl.value : this.filterValueFormControl.value);
   }
+}
+
+class Filter {
+  property: PropertiesDto;
+  condition: OptionsModel[];
+  options: ((event?: BaseDataSourceActionEvent) => Observable<any>);
+  fieldControl: FormControl;
 }

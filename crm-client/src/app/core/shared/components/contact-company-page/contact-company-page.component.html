@@ -14,12 +14,14 @@
     <div class="action-div tw-flex"></div>
   </div> -->
 
+  <!-- create dialog -->
   <p-dialog
     [header]="'PROFILE.CREATE_PROFILE' | translate"
     [(visible)]="displayCreateDialog"
     [style]="{ width: '70%' }"
   >
     <app-base-form [formConfig]="createFormConfig"></app-base-form>
+
     <ng-template pTemplate="footer">
       <p-button
         [label]="'BUTTON.CANCEL' | translate"
@@ -33,6 +35,81 @@
         severity="primary"
         (click)="create()"
       />
+    </ng-template>
+  </p-dialog>
+
+  <!-- advance filter dialog -->
+  <p-dialog
+    [(visible)]="isShowFilter"
+    [closable]="false"
+    [position]="'right'"
+    styleClass="tw-h-full tw-w-[30%]"
+    [draggable]="false"
+    [header]="'PROFILE.ADVANCE_FILTER' | translate"
+  >
+    <ng-template pTemplate="content">
+      <!-- <app-base-form [formConfig]="filterFormConfig"></app-base-form> -->
+      <div class="tw-flex">
+        <div class="filter-left tw-w-[50%]">
+          <div
+            *ngFor="let item of filterList"
+            class="tw-border tw-border-[var(--primary-color)] tw-border-solid tw-mb-[var(--content-gap)] tw-mr-[var(--content-gap)] tw-p-[var(--content-gap)] tw-rounded-[var(--border-radius)]"
+          >
+            <!-- <app-base-label
+              [label]="item.property.propertyName"
+            ></app-base-label> -->
+
+            <p>{{ item.property.propertyName }}</p>
+            <app-base-dropdown
+              [options]="item.condition"
+              [label]="'PROFILE.CONDITION' | translate"
+            ></app-base-dropdown>
+            <app-base-multiselect
+              *ngIf="
+                item.property.propertyType === CONTROL_TYPE_CODE.Dropdown ||
+                item.property.propertyType === CONTROL_TYPE_CODE.Multiselect ||
+                item.property.propertyType === CONTROL_TYPE_CODE.Checkbox ||
+                item.property.propertyType === CONTROL_TYPE_CODE.MultiCheckbox
+              "
+              [dataSourceAction]="item.options"
+              [label]="'PROFILE.VALUE' | translate"
+            ></app-base-multiselect>
+          </div>
+        </div>
+
+        <div
+          class="filter-right tw-border-0 tw-border-l tw-border-[var(--primary-color)] tw-border-solid tw-w-[50%]"
+        >
+          <div *ngFor="let item of filterPropList">
+            <p-button
+              [text]="true"
+              [label]="item.property.propertyName"
+              styleClass="tw-w-full tw-text-left"
+              (onClick)="filterClick(item.property)"
+              [iconPos]="'left'"
+              [icon]="item.icon"
+            ></p-button>
+          </div>
+        </div>
+      </div>
+
+      <!-- <app-base-form
+      [formConfig]="conditionFormConfig"
+      *ngIf="isShowCondition"
+    ></app-base-form> -->
+    </ng-template>
+    <ng-template pTemplate="footer">
+      <div class="tw-flex tw-justify-between">
+        <p-button
+          [label]="'BUTTON.CANCEL' | translate"
+          [outlined]="true"
+          (onClick)="closeFilter()"
+        ></p-button>
+        <p-button
+          [label]="'BUTTON.SUBMIT' | translate"
+          (onClick)="filterSubmit()"
+        ></p-button>
+      </div>
     </ng-template>
   </p-dialog>
 
@@ -60,7 +137,7 @@
                   [text]="true"
                   [iconPos]="'left'"
                   [icon]="'pi pi-sliders-h'"
-                  (onClick)="advanceFIlterBtn()"
+                  (onClick)="advanceFilterBtn()"
                   [loading]="!propertiesList"
                 ></p-button>
               </div>
@@ -104,35 +181,6 @@
                 />
               </div>
             </div>
-            <p-dialog
-              [(visible)]="isShowFilter"
-              [closable]="false"
-              [position]="'right'"
-              styleClass="tw-h-full tw-w-[30%]"
-              [draggable]="false"
-              [header]="'PROFILE.ADVANCE_FILTER' | translate"
-            >
-              <ng-template pTemplate="content">
-                <app-base-form [formConfig]="filterFormConfig"></app-base-form>
-                <app-base-form
-                  [formConfig]="conditionFormConfig"
-                  *ngIf="isShowCondition"
-                ></app-base-form>
-              </ng-template>
-              <ng-template pTemplate="footer">
-                <div class="tw-flex tw-justify-between">
-                  <p-button
-                    [label]="'BUTTON.CANCEL' | translate"
-                    [outlined]="true"
-                    (onClick)="closeFilter()"
-                  ></p-button>
-                  <p-button
-                    [label]="'BUTTON.SUBMIT' | translate"
-                    (onClick)="filterSubmit()"
-                  ></p-button>
-                </div>
-              </ng-template>
-            </p-dialog>
           </ng-template>
           <ng-template pTemplate="header" let-columns>
             <tr>
