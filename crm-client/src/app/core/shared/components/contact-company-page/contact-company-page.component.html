@@ -119,17 +119,34 @@
         </p-scrollPanel>
 
         <p-scrollPanel
-          class="filter-right tw-border-0 tw-border-l tw-border-[var(--primary-color)] tw-border-solid tw-w-[50%] tw-overflow-auto"
+          class="filter-right tw-border-0 tw-border-l tw-border-[var(--primary-color)] tw-border-solid tw-w-[50%] tw-overflow-auto tw-pl-[var(--content-gap)]"
         >
-          <div *ngFor="let item of filterPropList">
-            <p-button
-              [text]="true"
-              [label]="item.property.propertyName"
-              styleClass="tw-w-full tw-text-left"
-              (onClick)="filterClick(item.property)"
-              [iconPos]="'left'"
-              [icon]="item.icon"
-            ></p-button>
+          <app-base-input
+            [placeholder]="'INPUT.SEARCH' | translate"
+            [fieldControl]="filterSearch"
+          ></app-base-input>
+
+          <div
+            *ngFor="let grp of modulePropertyList"
+            class="tw-mt-[var(--content-gap-s)]"
+          >
+            <app-base-label [label]="grp.moduleName"></app-base-label>
+            <div *ngFor="let prop of grp.propertiesList">
+              <p-button
+                [text]="true"
+                [label]="returnFilterProperty(prop).property.propertyName"
+                styleClass="tw-w-full tw-text-left"
+                (onClick)="filterClick(returnFilterProperty(prop).property)"
+                [iconPos]="'left'"
+                [icon]="returnFilterProperty(prop).icon"
+                *ngIf="
+                  filterSearch.value === '' ||
+                  prop.propertyName
+                    .toLowerCase()
+                    .includes(filterSearch.value.toLowerCase())
+                "
+              ></p-button>
+            </div>
           </div>
         </p-scrollPanel>
       </div>

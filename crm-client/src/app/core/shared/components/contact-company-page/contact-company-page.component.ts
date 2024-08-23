@@ -1,6 +1,6 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { BaseDataSourceActionEvent, CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel, TableConfig } from '../../../services/components.service';
-import { CommonService, CompanyDto, ContactDto, ModuleDto, PropertiesDto, PropertyDataDto } from '../../../services/common.service';
+import { CommonService, CompanyDto, ContactDto, ModuleDto, PropertiesDto, PropertyDataDto, PropertyGroupDto } from '../../../services/common.service';
 import { NavigationExtras, Router } from '@angular/router';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import * as ExcelJS from 'exceljs';
@@ -21,7 +21,7 @@ export class ContactCompanyPageComponent implements OnChanges {
   module: 'CONT' | 'COMP' = 'CONT';
   contactList: ContactDto[] = [];
   companyList: CompanyDto[] = [];
-  modulePropertyList: ModuleDto[] = [];
+  modulePropertyList: PropertyGroupDto[] = [];
 
   CONTROL_TYPE_CODE = CONTROL_TYPE_CODE;
   propertiesList: PropertiesDto[] = [];
@@ -38,6 +38,7 @@ export class ContactCompanyPageComponent implements OnChanges {
   conditionFormGroup: FormGroup;
   filterList: Filter[] = [];
   filterPropList: any[] = [];
+  filterSearch: FormControl = new FormControl("");
 
   constructor(
     private commonService: CommonService,
@@ -435,6 +436,10 @@ export class ContactCompanyPageComponent implements OnChanges {
       order: 1,
       closable: true,
     })
+  }
+
+  returnFilterProperty(prop: PropertiesDto) {
+    return this.filterPropList.find(item => item.property === prop)!;
   }
 
   advanceFilterBtn() {

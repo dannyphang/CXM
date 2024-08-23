@@ -5,8 +5,7 @@
     "DATA_LOADING": "Data loading..."
   },
   "HEADER": {
-    "SETTING": "Setting",
-    "SEARCH": "Search"
+    "SETTING": "Setting"
   },
   "ERROR": {
     "YOU_CANNOT_LEAVE_IT_BLANK": "You cannot leave it blank.",
@@ -37,6 +36,7 @@
     "REMOVE_FILTER": "Remove Filter"
   },
   "INPUT": {
+    "SEARCH": "Search",
     "EQUAL_TO": "Equal to",
     "NOT_EQUAL_TO": "Not equal to",
     "MORE_THAN_EQUAL_TO": "More than equal to",
