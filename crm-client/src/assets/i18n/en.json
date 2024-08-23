@@ -32,8 +32,9 @@
     "ADD": "Add",
     "DELETE": "Delete",
     "DOWNLOAD_TEMPLATE": "Download template",
-    "ADVANCE_FILTER": "Advance filter",
-    "SUBMIT": "Submit"
+    "ADVANCE_FILTER": "Advance filter ({{numberOfFilter}})",
+    "SUBMIT": "Submit",
+    "REMOVE_FILTER": "Remove Filter"
   },
   "INPUT": {
     "EQUAL_TO": "Equal to",

@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { BaseDataSourceActionEvent, CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel, TableConfig } from '../../../services/components.service';
 import { CommonService, CompanyDto, ContactDto, ModuleDto, PropertiesDto, PropertyDataDto } from '../../../services/common.service';
 import { NavigationExtras, Router } from '@angular/router';
@@ -7,19 +7,21 @@ import * as ExcelJS from 'exceljs';
 import { saveAs } from 'file-saver';
 import { TranslateService } from '@ngx-translate/core';
 import { MessageService } from 'primeng/api';
-import { Checkbox } from 'primeng/checkbox';
 import { Observable, of } from 'rxjs';
+import { ROW_PER_PAGE_DEFAULT, ROW_PER_PAGE_DEFAULT_LIST } from '../../constants/common.constants';
 
 @Component({
   selector: 'app-contact-company-page',
   templateUrl: './contact-company-page.component.html',
   styleUrl: './contact-company-page.component.scss'
 })
-export class ContactCompanyPageComponent {
-  @Input() module: 'CONT' | 'COMP' = 'CONT';
-  @Input() contactList: ContactDto[] = [];
-  @Input() companyList: CompanyDto[] = [];
-  @Input() modulePropertyList: ModuleDto[] = [];
+export class ContactCompanyPageComponent implements OnChanges {
+  ROW_PER_PAGE_DEFAULT = ROW_PER_PAGE_DEFAULT;
+  ROW_PER_PAGE_DEFAULT_LIST = ROW_PER_PAGE_DEFAULT_LIST;
+  module: 'CONT' | 'COMP' = 'CONT';
+  contactList: ContactDto[] = [];
+  companyList: CompanyDto[] = [];
+  modulePropertyList: ModuleDto[] = [];
 
   CONTROL_TYPE_CODE = CONTROL_TYPE_CODE;
   propertiesList: PropertiesDto[] = [];
@@ -30,24 +32,10 @@ export class ContactCompanyPageComponent {
   createFormConfig: FormConfig[] = [];
   createFormGroup: FormGroup;
   profileProperty: PropertiesDto[] = [];
-  panelList: any[] = [
-    {
-      headerLabel: "Contact",
-      order: 0,
-      closable: false,
-    }
-  ];
+  panelList: any[] = [];
   isShowFilter: boolean = false;
-  filterFormConfig: FormConfig[] = [];
-  filterFormControl: FormControl = new FormControl();
-  isShowCondition: boolean = false;
-  conditionFormConfig: FormConfig[] = [];
-  conditionFormControl: FormControl = new FormControl();
-  conditionList: OptionsModel[] = [];
-  filterValueFormControl: FormControl = new FormControl();
-  filterSelectValueFormControl: FormControl = new FormControl([]);
-  isSelectingMultiForm: boolean = false;
   filterFormGroup: FormGroup;
+  conditionFormGroup: FormGroup;
   filterList: Filter[] = [];
   filterPropList: any[] = [];
 
@@ -58,75 +46,28 @@ export class ContactCompanyPageComponent {
     private translateService: TranslateService,
     private messageService: MessageService
   ) {
+    if (this.router.url === '/contact') {
+      this.module = 'CONT';
+    }
+    else {
+      this.module = 'COMP';
+    }
 
+    this.panelList = [
+      {
+        headerLabel: this.module === 'CONT' ? this.translateService.instant("COMMON.CONTACT") : this.translateService.instant("COMMON.COMPANY"),
+        order: 0,
+        closable: false,
+      }
+    ];
   }
 
   async ngOnInit() {
     this.initCreateFormConfig();
-
-    this.filterFormControl.valueChanges.subscribe(value => {
-      this.filterValueFormControl.setValue(null);
-      this.updateCondtionalStyle();
-    });
-
-    this.conditionFormControl.valueChanges.subscribe(value => {
-      if (value === 'is_known' || value === 'is_not_known') {
-        document.getElementById('VALUE_FORM_DROPDOWN')!.style.display = 'none';
-        document.getElementById('VALUE_FORM_TEXT')!.style.display = 'none';
-        document.getElementById('VALUE_FORM_NUMBER')!.style.display = 'none';
-        document.getElementById('VALUE_FORM_YEAR')!.style.display = 'none';
-      }
-      else {
-        this.updateCondtionalStyle();
-      }
-    })
   }
 
-  updateCondtionalStyle() {
-    const propertyType = this.propertiesList.find(prop => prop.uid === this.filterFormControl.value)!.propertyType;
-    this.isSelectingMultiForm = false;
-    switch (propertyType) {
-      case CONTROL_TYPE_CODE.Textbox:
-      case CONTROL_TYPE_CODE.Textarea:
-      case CONTROL_TYPE_CODE.Url:
-      case CONTROL_TYPE_CODE.Email:
-      case CONTROL_TYPE_CODE.Phone:
-        document.getElementById('VALUE_FORM_DROPDOWN')!.style.display = 'none';
-        document.getElementById('VALUE_FORM_TEXT')!.style.display = 'block';
-        document.getElementById('VALUE_FORM_NUMBER')!.style.display = 'none';
-        document.getElementById('VALUE_FORM_YEAR')!.style.display = 'none';
-        break;
-      case CONTROL_TYPE_CODE.Dropdown:
-      case CONTROL_TYPE_CODE.Multiselect:
-      case CONTROL_TYPE_CODE.Checkbox:
-      case CONTROL_TYPE_CODE.MultiCheckbox:
-        document.getElementById('VALUE_FORM_DROPDOWN')!.style.display = 'block';
-        document.getElementById('VALUE_FORM_TEXT')!.style.display = 'none';
-        document.getElementById('VALUE_FORM_NUMBER')!.style.display = 'none';
-        document.getElementById('VALUE_FORM_YEAR')!.style.display = 'none';
+  ngOnChanges(changes: SimpleChanges): void {
 
-        this.isSelectingMultiForm = true;
-        break;
-      case CONTROL_TYPE_CODE.Number:
-        document.getElementById('VALUE_FORM_DROPDOWN')!.style.display = 'none';
-        document.getElementById('VALUE_FORM_TEXT')!.style.display = 'none';
-        document.getElementById('VALUE_FORM_NUMBER')!.style.display = 'block';
-        document.getElementById('VALUE_FORM_YEAR')!.style.display = 'none';
-        break;
-      case CONTROL_TYPE_CODE.Year:
-        document.getElementById('VALUE_FORM_DROPDOWN')!.style.display = 'none';
-        document.getElementById('VALUE_FORM_TEXT')!.style.display = 'none';
-        document.getElementById('VALUE_FORM_NUMBER')!.style.display = 'none';
-        document.getElementById('VALUE_FORM_YEAR')!.style.display = 'block';
-        break;
-      default:
-        document.getElementById('VALUE_FORM_DROPDOWN')!.style.display = 'none';
-        document.getElementById('VALUE_FORM_TEXT')!.style.display = 'none';
-        document.getElementById('VALUE_FORM_NUMBER')!.style.display = 'none';
-        document.getElementById('VALUE_FORM_YEAR')!.style.display = 'none';
-        break;
-
-    }
   }
 
   initCreateFormConfig() {
@@ -160,6 +101,8 @@ export class ContactCompanyPageComponent {
 
 
     this.commonService.getAllPropertiesByModule(this.module).subscribe((res) => {
+      this.modulePropertyList = res;
+      console.log(this.modulePropertyList);
       res.forEach((item) => {
         item.propertiesList.forEach((prop) => {
           this.propertiesList.push(prop);
@@ -302,7 +245,6 @@ export class ContactCompanyPageComponent {
         default: return '';
       }
     }
-
   }
 
   returnTextMode(type: string): any {
@@ -499,9 +441,12 @@ export class ContactCompanyPageComponent {
     if (this.propertiesList.length > 0) {
       this.isShowFilter = true;
       this.filterFormGroup = this.formBuilder.group({});
+      this.conditionFormGroup = this.formBuilder.group({});
       this.propertiesList.forEach(prop => {
         let control = new FormControl();
+        let control2 = new FormControl();
         this.filterFormGroup.addControl(prop.propertyCode, control);
+        this.conditionFormGroup.addControl(prop.propertyCode, control2);
         let icon = '';
         switch (prop.propertyType) {
           case CONTROL_TYPE_CODE.Dropdown:
@@ -513,15 +458,20 @@ export class ContactCompanyPageComponent {
           case CONTROL_TYPE_CODE.Time:
           case CONTROL_TYPE_CODE.Date:
           case CONTROL_TYPE_CODE.DateTime:
-            icon = 'pi pi-calendar'
+            icon = 'pi pi-calendar';
             break;
           case CONTROL_TYPE_CODE.Country:
           case CONTROL_TYPE_CODE.City:
           case CONTROL_TYPE_CODE.State:
           case CONTROL_TYPE_CODE.Postcode:
-            icon = 'pi pi-globe'
+            icon = 'pi pi-globe';
             break;
           case CONTROL_TYPE_CODE.Number:
+            icon = 'pi pi-hashtag';
+            break;
+          case CONTROL_TYPE_CODE.User:
+            icon = 'pi pi-user';
+            break;
           case CONTROL_TYPE_CODE.Year:
             icon = 'pi pi-hashtag';
             break;
@@ -531,7 +481,8 @@ export class ContactCompanyPageComponent {
         }
         this.filterPropList.push({
           property: prop,
-          fieldControl: this.filterFormGroup.controls[prop.propertyCode],
+          filterFieldControl: this.filterFormGroup.controls[prop.propertyCode],
+          conditionFieldControl: this.conditionFormGroup.controls[prop.propertyCode],
           condition: [],
           icon: icon,
         });
@@ -544,18 +495,58 @@ export class ContactCompanyPageComponent {
 
   closeFilter() {
     this.isShowFilter = false;
+    this.filterList = [];
   }
 
   filterClick(prop: PropertiesDto) {
     if (!this.filterList.find(item => item.property === prop)) {
+
+      let mode = '';
+      switch (prop.propertyType) {
+        case CONTROL_TYPE_CODE.Dropdown:
+        case CONTROL_TYPE_CODE.Multiselect:
+        case CONTROL_TYPE_CODE.Checkbox:
+        case CONTROL_TYPE_CODE.MultiCheckbox:
+          mode = CONTROL_TYPE.Multiselect;
+          break;
+        case CONTROL_TYPE_CODE.Time:
+        case CONTROL_TYPE_CODE.Date:
+        case CONTROL_TYPE_CODE.DateTime:
+          mode = 'date';
+          break;
+        case CONTROL_TYPE_CODE.Country:
+        case CONTROL_TYPE_CODE.City:
+        case CONTROL_TYPE_CODE.State:
+        case CONTROL_TYPE_CODE.Postcode:
+          mode = CONTROL_TYPE.Multiselect;
+          break;
+        case CONTROL_TYPE_CODE.Number:
+          mode = 'number'
+          break;
+        case CONTROL_TYPE_CODE.Year:
+          mode = 'year'
+          break;
+        default:
+          mode = 'text';
+          break;
+      }
+
       this.filterList.push({
         property: prop,
         condition: this.getConditionList(prop),
         options: () => this.getValueList(prop),
-        fieldControl: <FormControl>this.filterFormGroup.controls[prop.propertyCode],
+        filterFieldControl: <FormControl>this.filterFormGroup.controls[prop.propertyCode],
+        conditionFieldControl: <FormControl>this.conditionFormGroup.controls[prop.propertyCode],
+        mode: mode,
       });
     }
 
+  }
+
+  deleteFilter(prop: PropertiesDto) {
+    this.filterList = this.filterList.filter(item => {
+      item.property === prop
+    })
   }
 
   getConditionList(prop: PropertiesDto): OptionsModel[] {
@@ -570,6 +561,11 @@ export class ContactCompanyPageComponent {
       case CONTROL_TYPE_CODE.Multiselect:
       case CONTROL_TYPE_CODE.Checkbox:
       case CONTROL_TYPE_CODE.MultiCheckbox:
+      case CONTROL_TYPE_CODE.Country:
+      case CONTROL_TYPE_CODE.State:
+      case CONTROL_TYPE_CODE.City:
+      case CONTROL_TYPE_CODE.Postcode:
+      case CONTROL_TYPE_CODE.User:
         conditionList = [
           {
             label: `${this.translateService.instant("INPUT.EQUAL_TO")} (==)`,
@@ -638,7 +634,6 @@ export class ContactCompanyPageComponent {
       case CONTROL_TYPE_CODE.Multiselect:
       case CONTROL_TYPE_CODE.Checkbox:
       case CONTROL_TYPE_CODE.MultiCheckbox:
-        console.log(this.propertiesList.find(prop1 => prop1.uid === prop.uid))
         list = this.propertiesList.find(prop1 => prop1.uid === prop.uid)!.propertyLookupList!.map(item => ({
           label: item.propertyLookupLabel,
           value: item.uid
@@ -650,9 +645,11 @@ export class ContactCompanyPageComponent {
   }
 
   filterSubmit() {
-    // console.log(this.filterFormControl.value);
-    // console.log(this.conditionFormControl.value);
-    // console.log(this.isSelectingMultiForm ? this.filterSelectValueFormControl.value : this.filterValueFormControl.value);
+    this.filterList.forEach(item => {
+      console.log("Condition: " + this.conditionFormGroup.controls[item.property.propertyCode].value);
+      console.log("filter: " + this.filterFormGroup.controls[item.property.propertyCode].value);
+      console.log('-----------');
+    })
   }
 }
 
@@ -660,5 +657,7 @@ class Filter {
   property: PropertiesDto;
   condition: OptionsModel[];
   options: ((event?: BaseDataSourceActionEvent) => Observable<any>);
-  fieldControl: FormControl;
+  filterFieldControl: FormControl;
+  conditionFieldControl: FormControl;
+  mode: any;
 }

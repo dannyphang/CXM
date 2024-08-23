@@ -23,7 +23,7 @@ export class BaseDropdownComponent
   @Input() searchable!: boolean;
   @Output() onItemSelected: EventEmitter<any> = new EventEmitter();
   @Input() defaultValue: any = null;
-  @Input() showClear: boolean = false;
+  @Input() showClear: boolean = true;
   @Input() containerClass = '';
 
   @ViewChild('dropdown') dropdown!: Dropdown;

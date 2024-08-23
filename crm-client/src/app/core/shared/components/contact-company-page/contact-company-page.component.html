@@ -41,44 +41,85 @@
   <!-- advance filter dialog -->
   <p-dialog
     [(visible)]="isShowFilter"
-    [closable]="false"
     [position]="'right'"
-    styleClass="tw-h-full tw-w-[30%]"
+    styleClass="tw-h-full tw-w-[50%]"
     [draggable]="false"
+    [resizable]="true"
     [header]="'PROFILE.ADVANCE_FILTER' | translate"
   >
-    <ng-template pTemplate="content">
-      <!-- <app-base-form [formConfig]="filterFormConfig"></app-base-form> -->
-      <div class="tw-flex">
-        <div class="filter-left tw-w-[50%]">
+    <ng-template pTemplate="content" class="tw-overflow-hidden">
+      <div class="tw-flex tw-h-full">
+        <p-scrollPanel class="filter-left tw-w-[50%] tw-overflow-auto">
           <div
             *ngFor="let item of filterList"
             class="tw-border tw-border-[var(--primary-color)] tw-border-solid tw-mb-[var(--content-gap)] tw-mr-[var(--content-gap)] tw-p-[var(--content-gap)] tw-rounded-[var(--border-radius)]"
           >
-            <!-- <app-base-label
-              [label]="item.property.propertyName"
-            ></app-base-label> -->
+            <div class="tw-flex tw-justify-between tw-items-center">
+              <h3>{{ item.property.propertyName }}</h3>
+              <p-button
+                [text]="true"
+                [icon]="'pi pi-trash'"
+                [rounded]="true"
+                (onClick)="deleteFilter(item.property)"
+                [pTooltip]="'BUTTON.REMOVE_FILTER' | translate"
+              ></p-button>
+            </div>
 
-            <p>{{ item.property.propertyName }}</p>
             <app-base-dropdown
               [options]="item.condition"
               [label]="'PROFILE.CONDITION' | translate"
+              [fieldControl]="item.conditionFieldControl"
             ></app-base-dropdown>
-            <app-base-multiselect
-              *ngIf="
-                item.property.propertyType === CONTROL_TYPE_CODE.Dropdown ||
-                item.property.propertyType === CONTROL_TYPE_CODE.Multiselect ||
-                item.property.propertyType === CONTROL_TYPE_CODE.Checkbox ||
-                item.property.propertyType === CONTROL_TYPE_CODE.MultiCheckbox
-              "
-              [dataSourceAction]="item.options"
-              [label]="'PROFILE.VALUE' | translate"
-            ></app-base-multiselect>
-          </div>
-        </div>
 
-        <div
-          class="filter-right tw-border-0 tw-border-l tw-border-[var(--primary-color)] tw-border-solid tw-w-[50%]"
+            <div
+              *ngIf="
+                item.conditionFieldControl.value !== 'is_known' &&
+                item.conditionFieldControl.value !== 'is_not_known'
+              "
+              class="tw-mt-[var(--content-gap-xs)]"
+            >
+              <app-base-multiselect
+                *ngIf="
+                  item.property.propertyType === CONTROL_TYPE_CODE.Dropdown ||
+                  item.property.propertyType ===
+                    CONTROL_TYPE_CODE.Multiselect ||
+                  item.property.propertyType === CONTROL_TYPE_CODE.Checkbox ||
+                  item.property.propertyType ===
+                    CONTROL_TYPE_CODE.MultiCheckbox ||
+                  item.property.propertyType === CONTROL_TYPE_CODE.Country ||
+                  item.property.propertyType === CONTROL_TYPE_CODE.State ||
+                  item.property.propertyType === CONTROL_TYPE_CODE.City ||
+                  item.property.propertyType === CONTROL_TYPE_CODE.Postcode ||
+                  item.property.propertyType === CONTROL_TYPE_CODE.User
+                "
+                [dataSourceAction]="item.options"
+                [label]="'PROFILE.VALUE' | translate"
+                [fieldControl]="item.filterFieldControl"
+              ></app-base-multiselect>
+              <app-base-input
+                *ngIf="
+                  item.property.propertyType !== CONTROL_TYPE_CODE.Dropdown &&
+                  item.property.propertyType !==
+                    CONTROL_TYPE_CODE.Multiselect &&
+                  item.property.propertyType !== CONTROL_TYPE_CODE.Checkbox &&
+                  item.property.propertyType !==
+                    CONTROL_TYPE_CODE.MultiCheckbox &&
+                  item.property.propertyType !== CONTROL_TYPE_CODE.Country &&
+                  item.property.propertyType !== CONTROL_TYPE_CODE.State &&
+                  item.property.propertyType !== CONTROL_TYPE_CODE.City &&
+                  item.property.propertyType !== CONTROL_TYPE_CODE.Postcode &&
+                  item.property.propertyType !== CONTROL_TYPE_CODE.User
+                "
+                [label]="'PROFILE.VALUE' | translate"
+                [mode]="item.mode"
+                [fieldControl]="item.filterFieldControl"
+              ></app-base-input>
+            </div>
+          </div>
+        </p-scrollPanel>
+
+        <p-scrollPanel
+          class="filter-right tw-border-0 tw-border-l tw-border-[var(--primary-color)] tw-border-solid tw-w-[50%] tw-overflow-auto"
         >
           <div *ngFor="let item of filterPropList">
             <p-button
@@ -90,14 +131,10 @@
               [icon]="item.icon"
             ></p-button>
           </div>
-        </div>
+        </p-scrollPanel>
       </div>
-
-      <!-- <app-base-form
-      [formConfig]="conditionFormConfig"
-      *ngIf="isShowCondition"
-    ></app-base-form> -->
     </ng-template>
+
     <ng-template pTemplate="footer">
       <div class="tw-flex tw-justify-between">
         <p-button
@@ -126,14 +163,22 @@
           [value]="module === 'CONT' ? contactList : companyList"
           [(selection)]="selectedProfile"
           [resizableColumns]="true"
+          [reorderableColumns]="true"
+          [rowHover]="true"
           styleClass="p-datatable-gridlines p-datatable-striped"
           class="profile-company-table"
+          [paginator]="true"
+          [rows]="ROW_PER_PAGE_DEFAULT"
+          [rowsPerPageOptions]="ROW_PER_PAGE_DEFAULT_LIST"
         >
           <ng-template pTemplate="caption">
             <div class="tw-flex tw-justify-between">
               <div class="tw-flex">
                 <p-button
-                  [label]="'BUTTON.ADVANCE_FILTER' | translate"
+                  [label]="
+                    'BUTTON.ADVANCE_FILTER'
+                      | translate : { numberOfFilter: filterList.length }
+                  "
                   [text]="true"
                   [iconPos]="'left'"
                   [icon]="'pi pi-sliders-h'"
@@ -188,6 +233,7 @@
               <th
                 *ngFor="let item of columns"
                 pSortableColumn="{{ item.code }}"
+                pReorderableColumn
               >
                 <div
                   *ngIf="
@@ -200,7 +246,7 @@
                 <div
                   *ngIf="
                     item.code === 'contactProfilePhotoUrl' ||
-                    item.code !== 'companyProfilePhotoUrl'
+                    item.code === 'companyProfilePhotoUrl'
                   "
                 ></div>
               </th>
@@ -264,7 +310,7 @@
                     *ngIf="
                       col.code === 'createdDate' || col.code === 'modifiedDate'
                     "
-                    [pTooltip]="profile[col.code]"
+                    [pTooltip]="convertDateFormat(profile[col.code])"
                   >
                     {{ convertDateFormat(profile[col.code]) }}
                   </div>

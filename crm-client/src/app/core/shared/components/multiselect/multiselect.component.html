@@ -28,6 +28,7 @@
       }"
       [lazy]="!!virtualScroll"
       (onLazyLoad)="onLazyLoad($event)"
+      [showClear]="showClear"
     >
       <ng-template let-value pTemplate="selectedItems">
         <div *ngIf="fieldControl.value?.length > 0">
