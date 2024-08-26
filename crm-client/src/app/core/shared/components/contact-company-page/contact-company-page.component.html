@@ -167,7 +167,10 @@
     </ng-template>
   </p-dialog>
 
-  <p-tabView class="contact-company-tab-view">
+  <p-tabView
+    class="contact-company-tab-view"
+    (onChange)="tabViewOnChange($event)"
+  >
     <p-tabPanel *ngFor="let panel of panelList" [closable]="panel.closable">
       <ng-template pTemplate="header" class="tab-view-header">
         {{ panel.headerLabel }}

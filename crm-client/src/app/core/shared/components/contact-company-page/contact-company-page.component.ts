@@ -39,6 +39,7 @@ export class ContactCompanyPageComponent implements OnChanges {
   filterList: Filter[] = [];
   filterPropList: any[] = [];
   filterSearch: FormControl = new FormControl("");
+  activeTabPanel: number = 0;
 
   constructor(
     private commonService: CommonService,
@@ -57,8 +58,8 @@ export class ContactCompanyPageComponent implements OnChanges {
     this.panelList = [
       {
         headerLabel: this.module === 'CONT' ? this.translateService.instant("COMMON.CONTACT") : this.translateService.instant("COMMON.COMPANY"),
-        order: 0,
         closable: false,
+        index: 0,
       }
     ];
   }
@@ -430,12 +431,12 @@ export class ContactCompanyPageComponent implements OnChanges {
   }
 
   addTab() {
-    console.log("add tab");
     this.panelList.push({
       headerLabel: 'TEST',
-      order: 1,
       closable: true,
-    })
+      index: this.panelList[this.panelList.length - 1].index + 1
+    });
+    console.log(this.panelList);
   }
 
   returnFilterProperty(prop: PropertiesDto) {
@@ -655,6 +656,11 @@ export class ContactCompanyPageComponent implements OnChanges {
       console.log("filter: " + this.filterFormGroup.controls[item.property.propertyCode].value);
       console.log('-----------');
     })
+  }
+
+  tabViewOnChange(event: any) {
+    console.log(event)
+    this.activeTabPanel = event.index;
   }
 }
 
