@@ -13,6 +13,8 @@ import {
   where,
   orderBy,
 } from "firebase/firestore";
+import pkg from "firebase-admin";
+const { auth } = pkg;
 
 router.use(express.json());
 
@@ -71,8 +73,12 @@ router.get("/" + propertiesCollection + "/module", async (req, res) => {
     for (let i = 0; i < propertyList.length; i++) {
       propertyList[i].propertyLookupList = [];
 
-      propertyList[i].createdDate = convertFirebaseDateFormat(propertyList[i].createdDate);
-      propertyList[i].modifiedDate = convertFirebaseDateFormat(propertyList[i].modifiedDate);
+      propertyList[i].createdDate = convertFirebaseDateFormat(
+        propertyList[i].createdDate
+      );
+      propertyList[i].modifiedDate = convertFirebaseDateFormat(
+        propertyList[i].modifiedDate
+      );
 
       for (let j = 0; j < propertyLookupList.length; j++) {
         if (propertyList[i].propertyId === propertyLookupList[j].propertyId) {
@@ -138,8 +144,12 @@ router.get("/" + propertiesCollection + "/module/create", async (req, res) => {
 
     for (let i = 0; i < propertyList.length; i++) {
       propertyList[i].propertyLookupList = [];
-      propertyList[i].createdDate = convertFirebaseDateFormat(propertyList[i].createdDate);
-      propertyList[i].modifiedDate = convertFirebaseDateFormat(propertyList[i].modifiedDate);
+      propertyList[i].createdDate = convertFirebaseDateFormat(
+        propertyList[i].createdDate
+      );
+      propertyList[i].modifiedDate = convertFirebaseDateFormat(
+        propertyList[i].modifiedDate
+      );
 
       for (let j = 0; j < propertyLookupList.length; j++) {
         if (propertyList[i].propertyId === propertyLookupList[j].propertyId) {
@@ -220,7 +230,10 @@ router.post("/" + propertiesLookupCollection, async (req, res) => {
 
       createDoc.push(prop);
 
-      new setDoc(doc(db.default.db, propertiesLookupCollection, prop.uid), prop);
+      new setDoc(
+        doc(db.default.db, propertiesLookupCollection, prop.uid),
+        prop
+      );
     });
 
     res.status(200).json(createDoc);
@@ -274,7 +287,9 @@ router.get("/activityModule", async (req, res) => {
 
     const activityModuleList = snapshot.docs.map((doc) => doc.data());
     const activityControlList = actCtrSnapshot.docs.map((doc) => doc.data());
-    const subActivityControlList = subActCtrSnapshot.docs.map((doc) => doc.data());
+    const subActivityControlList = subActCtrSnapshot.docs.map((doc) =>
+      doc.data()
+    );
 
     activityControlList.forEach((item) => {
       item.subActivityControl = [];
@@ -371,6 +386,29 @@ router.post("/asso", async (req, res) => {
     console.log(e);
     res.status(400).json(e);
   }
+});
+
+const listAllUsers = (nextPageToken) => {
+  // List batch of users, 1000 at a time.
+
+  auth(db.default.app)
+    .listUsers(1000, nextPageToken)
+    .then((listUsersResult) => {
+      listUsersResult.users.forEach((userRecord) => {
+        console.log("user", userRecord.toJSON());
+      });
+      if (listUsersResult.pageToken) {
+        // List next batch of users.
+        listAllUsers(listUsersResult.pageToken);
+      }
+    })
+    .catch((error) => {
+      console.log("Error listing users:", error);
+    });
+};
+
+router.get("/allUser", async (req, res) => {
+  listAllUsers();
 });
 
 export default router;

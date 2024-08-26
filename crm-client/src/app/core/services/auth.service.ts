@@ -19,6 +19,7 @@ import {
     onAuthStateChanged,
 } from "firebase/auth";
 import { CommonService } from "./common.service";
+import apiConfig from "../../../environments/apiConfig";
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -112,5 +113,9 @@ export class AuthService {
             // An error occurred
             // ...
         });
+    }
+
+    getAllUser() {
+        return this.http.get<any>(apiConfig.baseUrl + '/common/allUser').pipe();
     }
 }
