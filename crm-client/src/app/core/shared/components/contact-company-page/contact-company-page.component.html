@@ -147,7 +147,8 @@
                     col.code !== 'contactLastName' &&
                     col.code !== 'createdDate' &&
                     col.code !== 'modifiedDate' &&
-                    col.code !== 'companyName'
+                    col.code !== 'companyName' &&
+                    col.type !== 'USR'
                   "
                   [pTooltip]="profile[col.code]"
                 >
@@ -157,9 +158,15 @@
                   *ngIf="
                     col.code === 'createdDate' || col.code === 'modifiedDate'
                   "
-                  [pTooltip]="profile[col.code]"
+                  [pTooltip]="convertDateFormat(profile[col.code])"
                 >
                   {{ convertDateFormat(profile[col.code]) }}
+                </div>
+                <div
+                  *ngIf="col.type === 'USR'"
+                  [pTooltip]="returnUserLabelFromUid(profile[col.code])"
+                >
+                  {{ returnUserLabelFromUid(profile[col.code]) }}
                 </div>
               </div>
             </td>

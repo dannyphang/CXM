@@ -101,9 +101,9 @@ export class CommonService {
                 value: ''
             };
             prop.propertyLookupList.forEach((item) => {
-                if (item.isDefault) {
+                if ((item as PropertyLookupDto).isDefault) {
                     lookup = {
-                        label: item.propertyLookupLabel,
+                        label: (item as PropertyLookupDto).propertyLookupLabel,
                         value: item.uid
                     }
                 }
@@ -186,7 +186,7 @@ export class PropertiesDto extends BasedDto {
     moduleCat: string;
     moduleCode: string;
     order: number;
-    propertyLookupList: PropertyLookupDto[];
+    propertyLookupList: PropertyLookupDto[] | UserDto[];
     isHide: boolean;
 }
 
@@ -280,4 +280,11 @@ export class CreateAssociationDto {
     companyAssoList?: CompanyDto[];
     module: 'CONT' | 'COMP';
     profileUid: string;
+}
+
+export class UserDto {
+    uid: string;
+    displayName: string;
+    email: string;
+    emailVerified: boolean;
 }

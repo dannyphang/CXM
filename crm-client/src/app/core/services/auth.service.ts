@@ -37,7 +37,10 @@ export class AuthService {
             this.auth = getAuth(this.app);
             this.getCurrentUser();
         })
+    }
 
+    currentUser(): User | null {
+        return this.user;
     }
 
     signUp(email: string, password: string): boolean {

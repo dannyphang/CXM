@@ -35,30 +35,6 @@ router.get("/" + propertiesCollection + "/module", async (req, res) => {
   const moduleCode = req.headers.modulecode;
 
   try {
-    // const propertiesQuery = query(
-    //   collection(db.default.db, propertiesCollection),
-    //   where("moduleCode", "==", moduleCode),
-    //   where("statusId", "==", 1),
-    //   orderBy("order")
-    // );
-    // const moduleQuery = query(
-    //   collection(db.default.db, moduleCodeCollection),
-    //   where("moduleSubCode", "==", moduleCode),
-    //   where("statusId", "==", 1)
-    // );
-    // const propertiesLookupQuery = query(
-    //   collection(db.default.db, propertiesLookupCollection),
-    //   where("moduleCode", "==", moduleCode),
-    //   where("statusId", "==", 1)
-    // );
-
-    // const snapshot = await getDocs(propertiesQuery);
-    // const snapshotModule = await getDocs(moduleQuery);
-    // const snapshotPL = await getDocs(propertiesLookupQuery);
-    // const propertyList = snapshot.docs.map((doc) => doc.data());
-    // const moduleList = snapshotModule.docs.map((doc) => doc.data());
-    // const propertyLookupList = snapshotPL.docs.map((doc) => doc.data());
-
     const snapshot = await db.default.db
       .collection(propertiesCollection)
       .where("moduleCode", "==", moduleCode)
@@ -80,6 +56,8 @@ router.get("/" + propertiesCollection + "/module", async (req, res) => {
     const moduleList = snapshotModule.docs.map((doc) => doc.data());
     const propertyLookupList = snapshotPL.docs.map((doc) => doc.data());
 
+    let list = await db.default.auth.listUsers();
+
     for (let i = 0; i < propertyList.length; i++) {
       propertyList[i].propertyLookupList = [];
 
@@ -89,6 +67,11 @@ router.get("/" + propertiesCollection + "/module", async (req, res) => {
       propertyList[i].modifiedDate = convertFirebaseDateFormat(
         propertyList[i].modifiedDate
       );
+
+      // assign user list into lookup property
+      if (propertyList[i].propertyType === "USR") {
+        propertyList[i].propertyLookupList = list.users;
+      }
 
       for (let j = 0; j < propertyLookupList.length; j++) {
         if (propertyList[i].propertyId === propertyLookupList[j].propertyId) {
