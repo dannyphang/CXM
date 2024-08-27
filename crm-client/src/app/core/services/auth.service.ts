@@ -19,9 +19,11 @@ import {
     onAuthStateChanged,
 } from "firebase/auth";
 import { CommonService } from "./common.service";
+import apiConfig from "../../../environments/apiConfig";
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+    SERVICE_PATH = 'auth';
     app: FirebaseApp;
     auth: Auth;
     user: User | null;
@@ -35,7 +37,10 @@ export class AuthService {
             this.auth = getAuth(this.app);
             this.getCurrentUser();
         })
+    }
 
+    currentUser(): User | null {
+        return this.user;
     }
 
     signUp(email: string, password: string): boolean {
@@ -112,5 +117,9 @@ export class AuthService {
             // An error occurred
             // ...
         });
+    }
+
+    getAllUser() {
+        return this.http.get<any>(`${apiConfig.baseUrl}/${this.SERVICE_PATH}` + '/allUser').pipe();
     }
 }

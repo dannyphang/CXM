@@ -1,11 +1,12 @@
 //import { createServer } from "http";
 import express from "express";
+import commonRouter from "./api/common.js";
 import contactRouter from "./api/contact.js";
 import companyRouter from "./api/company.js";
-import commonRouter from "./api/common.js";
 import activityRouter from "./api/activity.js";
 import storageRouter from "./api/storage.js";
 import tokenRouter from "./api/token.js";
+import authRouter from "./api/auth.js";
 import cors from "cors";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
@@ -34,12 +35,13 @@ app.all("/*", function (req, res, next) {
 // to resolve CORS issue
 app.use(cors());
 
+app.use("/common", commonRouter);
 app.use("/contact", contactRouter);
 app.use("/company", companyRouter);
-app.use("/common", commonRouter);
 app.use("/activity", activityRouter);
 app.use("/storage", storageRouter);
 app.use("/token", tokenRouter);
+app.use("/auth", authRouter);
 
 app.listen(port, () => {
   console.log(`server is running at port: ${port}...`);

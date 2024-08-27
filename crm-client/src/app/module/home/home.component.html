@@ -20,7 +20,8 @@
 
   <!-- <app-terminal></app-terminal> -->
 
-  <p-button (onClick)="showSidePanelBtn('top')">show side panel</p-button>
+  <!-- <p-button (onClick)="showSidePanelBtn('top')">show side panel</p-button> -->
+  <p-button (onClick)="getAllUser()">show side panel</p-button>
   <app-side-panel [position]="sidePanelPosition" [visible]="showSidePanel">
     <div side-panel-header>
       <p-splitButton [model]="splitBtnList"></p-splitButton>

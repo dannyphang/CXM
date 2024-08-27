@@ -1,10 +1,12 @@
 import { Component, Input } from '@angular/core';
 import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel, TableConfig } from '../../../services/components.service';
-import { CommonService, CompanyDto, ContactDto, ModuleDto, PropertiesDto, PropertyDataDto } from '../../../services/common.service';
+import { CommonService, CompanyDto, ContactDto, ModuleDto, PropertiesDto, PropertyDataDto, PropertyLookupDto, UserDto } from '../../../services/common.service';
 import { NavigationExtras, Router } from '@angular/router';
 import { Observable, of } from 'rxjs';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { DEFAULT_FORMAT_DATE } from '../../constants/common.constants';
+import { AuthService } from '../../../services/auth.service';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-contact-company-page',
@@ -29,7 +31,9 @@ export class ContactCompanyPageComponent {
   constructor(
     private commonService: CommonService,
     private router: Router,
-    private formBuilder: FormBuilder
+    private formBuilder: FormBuilder,
+    private authService: AuthService,
+    private messageService: MessageService,
   ) {
 
   }
@@ -78,7 +82,8 @@ export class ContactCompanyPageComponent {
             let config: any = {
               header: prop.propertyName,
               code: this.bindCode(prop.propertyCode),
-              order: prop.order
+              order: prop.order,
+              type: prop.propertyType
             };
             this.tableConfig.push(config);
             this.profileProperty.push(prop);
@@ -120,7 +125,7 @@ export class ContactCompanyPageComponent {
             else if (prop.propertyType === CONTROL_TYPE_CODE.Checkbox || prop.propertyType === CONTROL_TYPE_CODE.MultiCheckbox || prop.propertyType === CONTROL_TYPE_CODE.Multiselect || prop.propertyType === CONTROL_TYPE_CODE.Dropdown || prop.propertyType === CONTROL_TYPE_CODE.Radio) {
               let propertyLookupList: OptionsModel[] = [];
               prop.propertyLookupList.forEach((item) => {
-                propertyLookupList.push({ label: item.propertyLookupLabel, value: item.uid });
+                propertyLookupList.push({ label: (item as PropertyLookupDto).propertyLookupLabel, value: item.uid });
               });
 
               forms = {
@@ -149,6 +154,25 @@ export class ContactCompanyPageComponent {
                 },
                 timeOnly: prop.propertyType === CONTROL_TYPE_CODE.Time ? true : false,
                 showTime: prop.propertyType !== CONTROL_TYPE_CODE.Date ? true : false
+              }
+            }
+            else if (prop.propertyType === CONTROL_TYPE_CODE.User) {
+              let propertyLookupList: OptionsModel[] = [];
+              prop.propertyLookupList.forEach((item) => {
+                propertyLookupList.push({ label: `${(item as UserDto).displayName}`, value: item.uid });
+              });
+
+              forms = {
+                id: prop.uid,
+                name: prop.propertyCode,
+                type: CONTROL_TYPE.Dropdown,
+                label: prop.propertyName,
+                fieldControl: this.createFormGroup.controls[prop.propertyCode],
+                layoutDefine: {
+                  row: createPropCount,
+                  column: 0,
+                },
+                options: propertyLookupList
               }
             }
 
@@ -270,7 +294,9 @@ export class ContactCompanyPageComponent {
   }
 
   toCreate() {
-    this.displayCreateDialog = true;
+    if (this.authService.currentUser()) {
+      this.displayCreateDialog = true;
+    }
   }
 
   create() {
@@ -278,7 +304,7 @@ export class ContactCompanyPageComponent {
       this.propertyValueUpdate(this.createFormConfig);
     }
     else {
-      console.log(this.createFormGroup)
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Profile is not created. Please check again.' });
     }
   }
 
@@ -286,7 +312,6 @@ export class ContactCompanyPageComponent {
     let newContact: ContactDto = new ContactDto();
     let newCompany: CompanyDto = new CompanyDto();
     let profileProperty: PropertyDataDto[] = [];
-
     this.createFormPropertyList.forEach(prop => {
       if (this.module === 'CONT') {
         switch (prop.propertyCode) {
@@ -311,7 +336,9 @@ export class ContactCompanyPageComponent {
                 value: inputValue
               });
             }
-        }
+        };
+
+        newContact.contactOwnerUid = this.authService.currentUser()!.uid;
       }
       else {
         switch (prop.propertyCode) {
@@ -333,7 +360,9 @@ export class ContactCompanyPageComponent {
                 value: inputValue
               });
             }
-        }
+        };
+
+        newCompany.companyOwnerUid = this.authService.currentUser()!.uid;
       }
     });
     if (this.module === "CONT") {
@@ -353,7 +382,6 @@ export class ContactCompanyPageComponent {
       });
     }
 
-
     return;
   }
 
@@ -368,5 +396,9 @@ export class ContactCompanyPageComponent {
         this.getContact();
       });
     }
+  }
+
+  returnUserLabelFromUid(uid: string): string {
+    return (this.propertiesList.find(item => item.propertyType === 'USR')!.propertyLookupList.find(item => item.uid === uid) as UserDto)?.displayName;
   }
 }
