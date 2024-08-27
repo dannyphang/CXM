@@ -1,18 +1,7 @@
 import { Router } from "express";
 import express from "express";
 const router = Router();
-import * as db from "../firebase.js";
-import {
-  collection,
-  getDocs,
-  doc,
-  getDoc,
-  runTransaction,
-  setDoc,
-  query,
-  where,
-  orderBy,
-} from "firebase/firestore";
+import * as db from "../firebase-admin.js";
 import pkg from "firebase-admin";
 const { auth } = pkg;
 
@@ -26,12 +15,12 @@ const associationCollection = "association";
 // get all properties
 router.get("/" + propertiesCollection, async (req, res) => {
   try {
-    let query1 = query(
-      collection(db.default.db, propertiesCollection),
-      where("statusId", "==", 1),
-      orderBy("propertyId")
-    );
-    const snapshot = await getDocs(query1);
+    let snapshot = await db.default.db
+      .collection(propertiesCollection)
+      .where("statusId", "==", 1)
+      .orderBy("propertyId")
+      .get();
+
     const list = snapshot.docs.map((doc) => doc.data());
 
     res.status(200).json(list);
@@ -46,26 +35,47 @@ router.get("/" + propertiesCollection + "/module", async (req, res) => {
   const moduleCode = req.headers.modulecode;
 
   try {
-    const propertiesQuery = query(
-      collection(db.default.db, propertiesCollection),
-      where("moduleCode", "==", moduleCode),
-      where("statusId", "==", 1),
-      orderBy("order")
-    );
-    const moduleQuery = query(
-      collection(db.default.db, moduleCodeCollection),
-      where("moduleSubCode", "==", moduleCode),
-      where("statusId", "==", 1)
-    );
-    const propertiesLookupQuery = query(
-      collection(db.default.db, propertiesLookupCollection),
-      where("moduleCode", "==", moduleCode),
-      where("statusId", "==", 1)
-    );
+    // const propertiesQuery = query(
+    //   collection(db.default.db, propertiesCollection),
+    //   where("moduleCode", "==", moduleCode),
+    //   where("statusId", "==", 1),
+    //   orderBy("order")
+    // );
+    // const moduleQuery = query(
+    //   collection(db.default.db, moduleCodeCollection),
+    //   where("moduleSubCode", "==", moduleCode),
+    //   where("statusId", "==", 1)
+    // );
+    // const propertiesLookupQuery = query(
+    //   collection(db.default.db, propertiesLookupCollection),
+    //   where("moduleCode", "==", moduleCode),
+    //   where("statusId", "==", 1)
+    // );
 
-    const snapshot = await getDocs(propertiesQuery);
-    const snapshotModule = await getDocs(moduleQuery);
-    const snapshotPL = await getDocs(propertiesLookupQuery);
+    // const snapshot = await getDocs(propertiesQuery);
+    // const snapshotModule = await getDocs(moduleQuery);
+    // const snapshotPL = await getDocs(propertiesLookupQuery);
+    // const propertyList = snapshot.docs.map((doc) => doc.data());
+    // const moduleList = snapshotModule.docs.map((doc) => doc.data());
+    // const propertyLookupList = snapshotPL.docs.map((doc) => doc.data());
+
+    const snapshot = await db.default.db
+      .collection(propertiesCollection)
+      .where("moduleCode", "==", moduleCode)
+      .where("statusId", "==", 1)
+      .orderBy("order")
+      .get();
+    const snapshotModule = await db.default.db
+      .collection(moduleCodeCollection)
+      .where("moduleSubCode", "==", moduleCode)
+      .where("statusId", "==", 1)
+      .get();
+    const snapshotPL = await db.default.db
+      .collection(propertiesLookupCollection)
+      .where("moduleCode", "==", moduleCode)
+      .where("statusId", "==", 1)
+      .get();
+
     const propertyList = snapshot.docs.map((doc) => doc.data());
     const moduleList = snapshotModule.docs.map((doc) => doc.data());
     const propertyLookupList = snapshotPL.docs.map((doc) => doc.data());
@@ -116,28 +126,24 @@ router.get("/" + propertiesCollection + "/module/create", async (req, res) => {
   const moduleCode = req.headers.modulecode;
 
   try {
-    const propertiesQuery = query(
-      collection(db.default.db, propertiesCollection),
-      where("moduleCode", "==", moduleCode),
-      where("statusId", "==", 1),
-      where("isMandatory", "==", true),
-      where("isEditable", "==", true),
-      orderBy("order")
-    );
-    const moduleQuery = query(
-      collection(db.default.db, moduleCodeCollection),
-      where("moduleSubCode", "==", moduleCode),
-      where("statusId", "==", 1)
-    );
-    const propertiesLookupQuery = query(
-      collection(db.default.db, propertiesLookupCollection),
-      where("moduleCode", "==", moduleCode),
-      where("statusId", "==", 1)
-    );
-
-    const snapshot = await getDocs(propertiesQuery);
-    const snapshotModule = await getDocs(moduleQuery);
-    const snapshotPL = await getDocs(propertiesLookupQuery);
+    const snapshot = await db.default.db
+      .collection(propertiesCollection)
+      .where("moduleCode", "==", moduleCode)
+      .where("statusId", "==", 1)
+      .where("isMandatory", "==", true)
+      .where("isEditable", "==", true)
+      .orderBy("order")
+      .get();
+    const snapshotModule = await db.default.db
+      .collection(moduleCodeCollection)
+      .where("moduleSubCode", "==", moduleCode)
+      .where("statusId", "==", 1)
+      .get();
+    const snapshotPL = await db.default.db
+      .collection(propertiesLookupCollection)
+      .where("moduleCode", "==", moduleCode)
+      .where("statusId", "==", 1)
+      .get();
     const propertyList = snapshot.docs.map((doc) => doc.data());
     const moduleList = snapshotModule.docs.map((doc) => doc.data());
     const propertyLookupList = snapshotPL.docs.map((doc) => doc.data());
@@ -181,14 +187,15 @@ router.post("/" + propertiesCollection, async (req, res) => {
   try {
     const createDoc = [];
 
-    list.forEach((prop) => {
-      prop.uid = doc(collection(db.default.db, propertiesCollection)).id;
+    list.forEach(async (prop) => {
+      let newRef = db.default.db.collection(propertiesCollection).doc();
+      prop.uid = newRef.id;
       prop.createdDate = new Date();
       prop.modifiedDate = new Date();
 
       createDoc.push(prop);
 
-      new setDoc(doc(db.default.db, propertiesCollection, prop.uid), prop);
+      await newRef.set(prop);
     });
 
     res.status(200).json(createDoc);
@@ -201,12 +208,19 @@ router.post("/" + propertiesCollection, async (req, res) => {
 // get all properties lookup
 router.get("/" + propertiesLookupCollection, async (req, res) => {
   try {
-    let q = query(
-      collection(db.default.db, propertiesLookupCollection),
-      where("statusId", "==", 1),
-      orderBy("propertityLookupId")
-    );
-    const snapshot = await getDocs(q);
+    // let q = query(
+    //   collection(db.default.db, propertiesLookupCollection),
+    //   where("statusId", "==", 1),
+    //   orderBy("propertityLookupId")
+    // );
+    // const snapshot = await getDocs(q);
+    // const list = snapshot.docs.map((doc) => doc.data());
+
+    const snapshot = await db.default.db
+      .collection(propertiesLookupCollection)
+      .where("statusId", "==", 1)
+      .orderBy("propertityLookupId")
+      .get();
     const list = snapshot.docs.map((doc) => doc.data());
 
     res.status(200).json(list);
@@ -223,17 +237,15 @@ router.post("/" + propertiesLookupCollection, async (req, res) => {
   try {
     const createDoc = [];
 
-    list.forEach((prop) => {
-      prop.uid = doc(collection(db.default.db, propertiesLookupCollection)).id;
+    list.forEach(async (prop) => {
+      let newRef = db.default.db.collection(propertiesLookupCollection).doc();
+      prop.uid = newRef.id;
       prop.createdDate = new Date();
       prop.modifiedDate = new Date();
 
       createDoc.push(prop);
 
-      new setDoc(
-        doc(db.default.db, propertiesLookupCollection, prop.uid),
-        prop
-      );
+      await newRef.set(prop);
     });
 
     res.status(200).json(createDoc);
@@ -246,11 +258,12 @@ router.post("/" + propertiesLookupCollection, async (req, res) => {
 // get all module code
 router.get("/" + moduleCodeCollection, async (req, res) => {
   try {
-    const snapshot = await getDocs(
-      collection(db.default.db, moduleCodeCollection),
-      where("statusId", "==", 1),
-      orderBy("moduleId")
-    );
+    const snapshot = await db.default.db
+      .collection(moduleCodeCollection)
+      .where("statusId", "==", 1)
+      .orderBy("moduleId")
+      .get();
+
     const list = snapshot.docs.map((doc) => doc.data());
 
     res.status(200).json(list);
@@ -263,27 +276,23 @@ router.get("/" + moduleCodeCollection, async (req, res) => {
 // get all activities code by module code
 router.get("/activityModule", async (req, res) => {
   try {
-    const query1 = query(
-      collection(db.default.db, moduleCodeCollection),
-      where("moduleType", "==", "ACTIVITY_TYPE"),
-      where("statusId", "==", 1),
-      orderBy("moduleId")
-    );
-    const actCtrQuery = query(
-      collection(db.default.db, moduleCodeCollection),
-      where("moduleType", "==", "ACTIVITY_CONTROL"),
-      where("statusId", "==", 1),
-      orderBy("moduleId")
-    );
-    const subActCtrQuery = query(
-      collection(db.default.db, moduleCodeCollection),
-      where("moduleType", "==", "SUB_ACTIVITY_CONTROL"),
-      where("statusId", "==", 1)
-    );
-
-    const snapshot = await getDocs(query1);
-    const actCtrSnapshot = await getDocs(actCtrQuery);
-    const subActCtrSnapshot = await getDocs(subActCtrQuery);
+    const snapshot = db.default.db
+      .collection(moduleCodeCollection)
+      .where("moduleType", "==", "ACTIVITY_TYPE")
+      .where("statusId", "==", 1)
+      .orderBy("moduleId")
+      .get();
+    const actCtrSnapshot = db.default.db
+      .collection(moduleCodeCollection)
+      .where("moduleType", "==", "ACTIVITY_CONTROL")
+      .where("statusId", "==", 1)
+      .orderBy("moduleId")
+      .get();
+    const subActCtrSnapshot = db.default.db
+      .collection(moduleCodeCollection)
+      .where("moduleType", "==", "SUB_ACTIVITY_CONTROL")
+      .where("statusId", "==", 1)
+      .get();
 
     const activityModuleList = snapshot.docs.map((doc) => doc.data());
     const activityControlList = actCtrSnapshot.docs.map((doc) => doc.data());
@@ -317,14 +326,15 @@ router.post("/" + moduleCodeCollection, async (req, res) => {
   try {
     const createDoc = [];
 
-    list.forEach((prop) => {
-      prop.uid = doc(collection(db.default.db, moduleCodeCollection)).id;
+    list.forEach(async (prop) => {
+      let newRef = db.default.db.collection(moduleCodeCollection).doc();
+      prop.uid = newRef.id;
       prop.createdDate = new Date();
       prop.modifiedDate = new Date();
 
       createDoc.push(prop);
 
-      new setDoc(doc(db.default.db, moduleCodeCollection, prop.uid), prop);
+      await newRef.set(prop);
     });
 
     res.status(200).json(createDoc);

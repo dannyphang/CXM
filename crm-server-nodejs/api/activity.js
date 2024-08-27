@@ -1,17 +1,7 @@
 import { Router } from "express";
 import express from "express";
 const router = Router();
-import * as db from "../firebase.js";
-import {
-  collection,
-  getDocs,
-  doc,
-  updateDoc,
-  setDoc,
-  query,
-  where,
-  orderBy,
-} from "firebase/firestore";
+import * as db from "../firebase-admin.js";
 
 router.use(express.json());
 
@@ -22,27 +12,29 @@ const moduleCodeCollection = "moduleCode";
 // get all activities
 router.get("/", async (req, res) => {
   try {
-    const query1 = query(
-      collection(db.default.db, activityCollection),
-      where("statusId", "==", 1),
-      orderBy("modifiedDate", "desc")
-    );
-    const snapshot = await getDocs(query1);
+    const snapshot = await db.default.db
+      .collection(activityCollection)
+      .where("statusId", "==", 1)
+      .orderBy("modifiedDate", "desc")
+      .get();
+
     const list = snapshot.docs.map((doc) => doc.data());
 
     if (list.length > 0) {
       for (let i = 0; i < list.length; i++) {
-        list[i].activityDatetime = convertFirebaseDateFormat(list[i].activityDatetime);
+        list[i].activityDatetime = convertFirebaseDateFormat(
+          list[i].activityDatetime
+        );
         list[i].createdDate = convertFirebaseDateFormat(list[i].createdDate);
         list[i].modifiedDate = convertFirebaseDateFormat(list[i].modifiedDate);
 
-        const query2 = query(
-          collection(db.default.db, attachmentCollection),
-          where("activityUid", "==", list[i].uid),
-          where("statusId", "==", 1)
-        );
-        const snapshot2 = await getDocs(query2);
+        const snapshot2 = await db.default.db
+          .collection(attachmentCollection)
+          .where("activityUid", "==", list[i].uid)
+          .where("statusId", "==", 1)
+          .get();
         const attachmentList = snapshot2.docs.map((doc) => doc.data());
+
         list[i].attachmentList = attachmentList;
 
         // return status at the last loop
@@ -69,7 +61,7 @@ router.post("/getActivitiesByProfileId", async (req, res) => {
   }
 
   try {
-    const snapshot = await getDocs(collection(db.default.db, activityCollection));
+    const snapshot = await db.default.db.collection(activityCollection).get();
     const list = snapshot.docs.map((doc) => doc.data());
 
     // list.sort((a, b) => {
@@ -86,31 +78,29 @@ router.post("/getActivitiesByProfileId", async (req, res) => {
 // get all activities code by module code
 router.get("/activityModule", async (req, res) => {
   try {
-    const query1 = query(
-      collection(db.default.db, moduleCodeCollection),
-      where("moduleType", "==", "ACTIVITY_TYPE"),
-      where("statusId", "==", 1),
-      orderBy("moduleId")
-    );
-    const actCtrQuery = query(
-      collection(db.default.db, moduleCodeCollection),
-      where("moduleType", "==", "ACTIVITY_CONTROL"),
-      where("statusId", "==", 1),
-      orderBy("moduleId")
-    );
-    const subActCtrQuery = query(
-      collection(db.default.db, moduleCodeCollection),
-      where("moduleType", "==", "SUB_ACTIVITY_CONTROL"),
-      where("statusId", "==", 1)
-    );
-
-    const snapshot = await getDocs(query1);
-    const actCtrSnapshot = await getDocs(actCtrQuery);
-    const subActCtrSnapshot = await getDocs(subActCtrQuery);
+    const snapshot = await db.default.db
+      .collection(moduleCodeCollection)
+      .where("moduleType", "==", "ACTIVITY_TYPE")
+      .where("statusId", "==", 1)
+      .orderBy("moduleId")
+      .get();
+    const actCtrSnapshot = await db.default.db
+      .collection(moduleCodeCollection)
+      .where("moduleType", "==", "ACTIVITY_CONTROL")
+      .where("statusId", "==", 1)
+      .orderBy("moduleId")
+      .get();
+    const subActCtrSnapshot = await db.default.db
+      .collection(moduleCodeCollection)
+      .where("moduleType", "==", "SUB_ACTIVITY_CONTROL")
+      .where("statusId", "==", 1)
+      .get();
 
     const activityModuleList = snapshot.docs.map((doc) => doc.data());
     const activityControlList = actCtrSnapshot.docs.map((doc) => doc.data());
-    const subActivityControlList = subActCtrSnapshot.docs.map((doc) => doc.data());
+    const subActivityControlList = subActCtrSnapshot.docs.map((doc) =>
+      doc.data()
+    );
 
     activityControlList.forEach((item) => {
       item.subActivityControl = [];
@@ -145,15 +135,16 @@ router.post("/", async (req, res) => {
     const list = JSON.parse(JSON.stringify(req.body.createdActivitiesList));
     const createDoc = [];
 
-    list.forEach((prop) => {
-      prop.uid = doc(collection(db.default.db, activityCollection)).id;
+    list.forEach(async (prop) => {
+      let newRef = db.default.db.collection(activityCollection).doc();
+      prop.uid = newRef.id;
       prop.createdDate = new Date();
       prop.modifiedDate = new Date();
       prop.statusId = 1;
 
       createDoc.push(prop);
 
-      new setDoc(doc(db.default.db, activityCollection, prop.uid), prop);
+      await newRef.set(prop);
     });
     res.status(200).json(list);
   } catch (e) {
@@ -168,15 +159,16 @@ router.post("/upload", async (req, res) => {
     const list = JSON.parse(JSON.stringify(req.body.attachmentList));
     const createDoc = [];
 
-    list.forEach((prop) => {
-      prop.uid = doc(collection(db.default.db, attachmentCollection)).id;
+    list.forEach(async (prop) => {
+      let newRef = db.default.db.collection(attachmentCollection).doc();
+      prop.uid = newRef.id;
       prop.createdDate = new Date();
       prop.modifiedDate = new Date();
       prop.statusId = 1;
 
       createDoc.push(prop);
 
-      new setDoc(doc(db.default.db, attachmentCollection, prop.uid), prop);
+      await newRef.set(prop).doc(prop.uid);
     });
     res.status(200).json(list);
   } catch (e) {
@@ -188,9 +180,11 @@ router.post("/upload", async (req, res) => {
 // delete activity (update status to 2)
 router.delete("/:uid", async (req, res) => {
   const uid = req.params.uid;
-  let actRef = doc(db.default.db, activityCollection, uid);
-  await updateDoc(actRef, {
+  let actRef = db.default.db.collection(activityCollection).doc(uid);
+
+  await actRef.update({
     statusId: 2,
+    modifiedDate: new Date(),
   });
 
   res.status(200).json({
@@ -202,11 +196,15 @@ router.delete("/:uid", async (req, res) => {
 router.put("/:uid", async (req, res) => {
   const uid = req.params.uid;
   let updateBody = req.body;
-  let actRef = doc(db.default.db, activityCollection, uid);
-  await updateDoc(actRef, updateBody);
-  // console.log(updateBody);
+
+  updateBody.modifiedDate = new Date();
+
+  let actRef = db.default.db.collection(activityCollection).doc(uid);
+
+  const updatedContact = await actRef.update(updateBody);
+
   res.status(200).json({
-    uid: uid,
+    updatedContact,
   });
 });
 
