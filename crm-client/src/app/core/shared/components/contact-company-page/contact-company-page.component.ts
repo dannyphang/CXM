@@ -6,6 +6,7 @@ import { Observable, of } from 'rxjs';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { DEFAULT_FORMAT_DATE } from '../../constants/common.constants';
 import { AuthService } from '../../../services/auth.service';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-contact-company-page',
@@ -31,7 +32,8 @@ export class ContactCompanyPageComponent {
     private commonService: CommonService,
     private router: Router,
     private formBuilder: FormBuilder,
-    private authService: AuthService
+    private authService: AuthService,
+    private messageService: MessageService,
   ) {
 
   }
@@ -302,7 +304,7 @@ export class ContactCompanyPageComponent {
       this.propertyValueUpdate(this.createFormConfig);
     }
     else {
-      console.log(this.createFormGroup)
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Profile is not created. Please check again.' });
     }
   }
 
