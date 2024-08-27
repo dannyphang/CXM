@@ -27,7 +27,9 @@ export class ContactCompanyPageComponent implements OnChanges {
 
   CONTROL_TYPE_CODE = CONTROL_TYPE_CODE;
   propertiesList: PropertiesDto[] = [];
+  activeTabPanel: number = 0;
   tableConfig: any[] = []; // from table config
+  tableLoading: boolean[] = [];
   selectedProfile: ContactDto[] | CompanyDto[] = [];
   displayCreateDialog: boolean = false;
   createFormPropertyList: PropertiesDto[] = [];
@@ -41,7 +43,6 @@ export class ContactCompanyPageComponent implements OnChanges {
   filterList: Filter[] = [];
   filterPropList: any[] = [];
   filterSearch: FormControl = new FormControl("");
-  activeTabPanel: number = 0;
 
   constructor(
     private commonService: CommonService,
@@ -51,7 +52,20 @@ export class ContactCompanyPageComponent implements OnChanges {
     private messageService: MessageService,
     private authService: AuthService,
   ) {
+    if (this.router.url === '/contact') {
+      this.module = 'CONT';
+    }
+    else {
+      this.module = 'COMP';
+    }
 
+    this.panelList = [
+      {
+        headerLabel: this.module === 'CONT' ? this.translateService.instant("COMMON.CONTACT") : this.translateService.instant("COMMON.COMPANY"),
+        closable: false,
+        index: 0,
+      }
+    ];
   }
 
   async ngOnInit() {
@@ -62,7 +76,26 @@ export class ContactCompanyPageComponent implements OnChanges {
 
   }
 
+  initTableConfig() {
+    this.tableConfig[this.activeTabPanel] = [];
+    if (this.module === 'CONT') {
+      this.tableConfig[this.activeTabPanel].push({
+        header: "contactProfilePhotoUrl",
+        code: "contactProfilePhotoUrl",
+        order: 0
+      })
+    }
+    else {
+      this.tableConfig[this.activeTabPanel].push({
+        header: "companyProfilePhotoUrl",
+        code: "companyProfilePhotoUrl",
+        order: 0
+      })
+    }
+  }
+
   initCreateFormConfig() {
+    this.tableLoading[this.activeTabPanel] = true;
     let createPropCount = 0;
     let formsConfig: FormConfig[] = [];
 
@@ -75,26 +108,11 @@ export class ContactCompanyPageComponent implements OnChanges {
       this.getCompany();
     }
 
-    this.tableConfig = [];
-    if (this.module === 'CONT') {
-      this.tableConfig.push({
-        header: "contactProfilePhotoUrl",
-        code: "contactProfilePhotoUrl",
-        order: 0
-      })
-    }
-    else {
-      this.tableConfig.push({
-        header: "companyProfilePhotoUrl",
-        code: "companyProfilePhotoUrl",
-        order: 0
-      })
-    }
-
+    this.initTableConfig();
 
     this.commonService.getAllPropertiesByModule(this.module).subscribe((res) => {
       this.modulePropertyList = res;
-      console.log(this.modulePropertyList);
+
       res.forEach((item) => {
         item.propertiesList.forEach((prop) => {
           this.propertiesList.push(prop);
@@ -107,7 +125,7 @@ export class ContactCompanyPageComponent implements OnChanges {
               order: prop.order,
               type: prop.propertyType
             };
-            this.tableConfig.push(config);
+            this.tableConfig[this.activeTabPanel].push(config);
             this.profileProperty.push(prop);
           }
 
@@ -200,18 +218,15 @@ export class ContactCompanyPageComponent implements OnChanges {
 
             formsConfig.push(forms);
             createPropCount++;
-
           }
-
-
-
         });
       });
 
       this.createFormConfig = formsConfig;
 
       // sort table column
-      this.tableConfig = this.tableConfig.sort((a, b) => a.order - b.order);
+      this.tableConfig[this.activeTabPanel] = this.tableConfig[this.activeTabPanel].sort((a: any, b: any) => a.order - b.order);
+      this.tableLoading[this.activeTabPanel] = false;
     });
   }
 
@@ -449,12 +464,15 @@ export class ContactCompanyPageComponent implements OnChanges {
   }
 
   addTab() {
+    let newPanelIndex: number = this.panelList[this.panelList.length - 1].index + 1;
     this.panelList.push({
       headerLabel: 'TEST',
       closable: true,
-      index: this.panelList[this.panelList.length - 1].index + 1
+      index: newPanelIndex
     });
-    console.log(this.panelList);
+
+    this.activeTabPanel = newPanelIndex;
+    this.initCreateFormConfig();
   }
 
   returnFilterProperty(prop: PropertiesDto) {
@@ -677,8 +695,12 @@ export class ContactCompanyPageComponent implements OnChanges {
   }
 
   tabViewOnChange(event: any) {
-    console.log(event)
+    // console.log(event)
     this.activeTabPanel = event.index;
+  }
+
+  tabViewOnClose(event: any) {
+
   }
 }
 
