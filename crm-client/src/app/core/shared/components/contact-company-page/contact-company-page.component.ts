@@ -40,7 +40,8 @@ export class ContactCompanyPageComponent implements OnChanges {
   isShowFilter: boolean = false;
   filterFormGroup: FormGroup;
   conditionFormGroup: FormGroup;
-  filterList: Filter[] = [];
+  tabFilterList: any[] = [];
+  tempFilterList: any[] = [];
   filterPropList: any[] = [];
   filterSearch: FormControl = new FormControl("");
 
@@ -66,6 +67,8 @@ export class ContactCompanyPageComponent implements OnChanges {
         index: 0,
       }
     ];
+    this.tabFilterList[this.activeTabPanel] = [];
+    this.tempFilterList[this.activeTabPanel] = [];
   }
 
   async ngOnInit() {
@@ -464,15 +467,33 @@ export class ContactCompanyPageComponent implements OnChanges {
   }
 
   addTab() {
-    let newPanelIndex: number = this.panelList[this.panelList.length - 1].index + 1;
-    this.panelList.push({
-      headerLabel: 'TEST',
-      closable: true,
-      index: newPanelIndex
+    console.log(this.panelList)
+    let isBlock = false;
+    this.tableLoading.forEach(item => {
+      if (item) {
+        isBlock = true;
+      }
     });
 
-    this.activeTabPanel = newPanelIndex;
-    this.initCreateFormConfig();
+    if (!isBlock) {
+      let newPanelIndex: number = this.panelList[this.panelList.length - 1].index + 1;
+      this.panelList.push({
+        headerLabel: 'TEST__' + newPanelIndex,
+        closable: true,
+        index: newPanelIndex
+      });
+
+      this.activeTabPanel = newPanelIndex;
+      this.initCreateFormConfig();
+      this.tabFilterList[newPanelIndex] = [];
+    }
+    else {
+      this.messageService.add({
+        severity: 'info',
+        summary: this.translateService.instant('COMMON.DATA_LOADING'),
+        detail: this.translateService.instant('COMMON.DATA_LOADING')
+      });
+    }
   }
 
   returnFilterProperty(prop: PropertiesDto) {
@@ -480,13 +501,15 @@ export class ContactCompanyPageComponent implements OnChanges {
   }
 
   advanceFilterBtn() {
+    console.log(this.tabFilterList)
+    this.tempFilterList[this.activeTabPanel] = [];
     if (this.propertiesList.length > 0) {
       this.isShowFilter = true;
       this.filterFormGroup = this.formBuilder.group({});
       this.conditionFormGroup = this.formBuilder.group({});
       this.propertiesList.forEach(prop => {
-        let control = new FormControl();
-        let control2 = new FormControl();
+        let control = new FormControl(null);
+        let control2 = new FormControl(null, Validators.required);
         this.filterFormGroup.addControl(prop.propertyCode, control);
         this.conditionFormGroup.addControl(prop.propertyCode, control2);
         let icon = '';
@@ -528,6 +551,8 @@ export class ContactCompanyPageComponent implements OnChanges {
           condition: [],
           icon: icon,
         });
+
+        Object.assign(this.tempFilterList[this.activeTabPanel], this.tabFilterList[this.activeTabPanel]);
       });
     }
     else {
@@ -537,11 +562,11 @@ export class ContactCompanyPageComponent implements OnChanges {
 
   closeFilter() {
     this.isShowFilter = false;
-    this.filterList = [];
+    this.tempFilterList[this.activeTabPanel] = [];
   }
 
   filterClick(prop: PropertiesDto) {
-    if (!this.filterList.find(item => item.property === prop)) {
+    if (!this.tempFilterList[this.activeTabPanel]?.find((item: any) => item.property === prop)) {
 
       let mode = '';
       switch (prop.propertyType) {
@@ -573,7 +598,7 @@ export class ContactCompanyPageComponent implements OnChanges {
           break;
       }
 
-      this.filterList.push({
+      this.tempFilterList[this.activeTabPanel].push({
         property: prop,
         condition: this.getConditionList(prop),
         options: () => this.getValueList(prop),
@@ -586,9 +611,12 @@ export class ContactCompanyPageComponent implements OnChanges {
   }
 
   deleteFilter(prop: PropertiesDto) {
-    this.filterList = this.filterList.filter(item => {
+    this.tabFilterList[this.activeTabPanel] = this.tabFilterList[this.activeTabPanel].filter((item: any) => {
       item.property === prop
-    })
+    });
+    this.tempFilterList[this.activeTabPanel] = this.tempFilterList[this.activeTabPanel].filter((item: any) => {
+      item.property === prop
+    });
   }
 
   getConditionList(prop: PropertiesDto): OptionsModel[] {
@@ -681,17 +709,40 @@ export class ContactCompanyPageComponent implements OnChanges {
           value: item.uid
         }));
         break;
+      case CONTROL_TYPE_CODE.User:
+        list = this.propertiesList.find(prop1 => prop1.uid === prop.uid)!.propertyLookupList!.map(item => ({
+          label: `${(item as UserDto).displayName} (${(item as UserDto).email})`,
+          value: item.uid
+        }));
+        break;
     }
 
     return of(list);
   }
 
   filterSubmit() {
-    this.filterList.forEach(item => {
-      console.log("Condition: " + this.conditionFormGroup.controls[item.property.propertyCode].value);
-      console.log("filter: " + this.filterFormGroup.controls[item.property.propertyCode].value);
-      console.log('-----------');
-    })
+    this.filterFormGroup.markAllAsTouched();
+    this.conditionFormGroup.markAllAsTouched();
+    console.log(this.tempFilterList[this.activeTabPanel])
+
+    // let isValid = true;
+
+    // this.tempFilterList[this.activeTabPanel].forEach((item: Filter) => {
+    //   if (!this.conditionFormGroup.controls[item.property.propertyCode].valid) {
+    //     isValid = false;
+    //   }
+    // })
+
+    // if (this.conditionFormGroup.valid) {
+    //   this.tabFilterList[this.activeTabPanel].forEach((item: any) => {
+    //     console.log("Condition: " + this.conditionFormGroup.controls[item.property.propertyCode].value);
+    //     console.log("filter: " + this.filterFormGroup.controls[item.property.propertyCode].value);
+    //     console.log('-----------');
+    //   });
+    // }
+
+    Object.assign(this.tabFilterList[this.activeTabPanel], this.tempFilterList[this.activeTabPanel]);
+    this.closeFilter();
   }
 
   tabViewOnChange(event: any) {
@@ -700,7 +751,7 @@ export class ContactCompanyPageComponent implements OnChanges {
   }
 
   tabViewOnClose(event: any) {
-
+    this.panelList = this.panelList.filter(item => item.index !== event.index)
   }
 }
 

@@ -2,7 +2,8 @@
   "COMMON": {
     "CONTACT": "Contact",
     "COMPANY": "Company",
-    "DATA_LOADING": "Data loading..."
+    "DATA_LOADING": "Data loading...",
+    "LOADING": "Loading"
   },
   "HEADER": {
     "SETTING": "Setting"

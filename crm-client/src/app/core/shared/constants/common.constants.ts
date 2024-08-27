@@ -5,7 +5,7 @@ export const LoginMode = {
 }
 
 export const ROW_PER_PAGE_DEFAULT = 10;
-export const ROW_PER_PAGE_DEFAULT_LIST = [10, 20, 50, 100];
+export const ROW_PER_PAGE_DEFAULT_LIST = [5, 10, 20, 50, 100];
 
 export const DEFAULT_FORMAT_DATE = 'DD/MM/YYYY';
 export const DEFAULT_FORMAT_DATETIME = 'DD/MM/YYYY HH:mm:ss';

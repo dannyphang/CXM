@@ -46,12 +46,13 @@
     [draggable]="false"
     [resizable]="true"
     [header]="'PROFILE.ADVANCE_FILTER' | translate"
+    [modal]="true"
   >
     <ng-template pTemplate="content" class="tw-overflow-hidden">
       <div class="tw-flex tw-h-full">
         <p-scrollPanel class="filter-left tw-w-[50%] tw-overflow-auto">
           <div
-            *ngFor="let item of filterList"
+            *ngFor="let item of tempFilterList[this.activeTabPanel]"
             class="tw-border tw-border-[var(--primary-color)] tw-border-solid tw-mb-[var(--content-gap)] tw-mr-[var(--content-gap)] tw-p-[var(--content-gap)] tw-rounded-[var(--border-radius)]"
           >
             <div class="tw-flex tw-justify-between tw-items-center">
@@ -175,7 +176,7 @@
     <p-tabPanel
       *ngFor="let panel of panelList"
       [closable]="panel.closable"
-      [selected]="activeTabPanel === panel.index"
+      [selected]="panel.index === activeTabPanel"
     >
       <ng-template pTemplate="header" class="tab-view-header">
         {{ panel.headerLabel }}
@@ -203,7 +204,10 @@
                 <p-button
                   [label]="
                     'BUTTON.ADVANCE_FILTER'
-                      | translate : { numberOfFilter: filterList.length }
+                      | translate
+                        : {
+                            numberOfFilter: tabFilterList[activeTabPanel].length
+                          }
                   "
                   [text]="true"
                   [iconPos]="'left'"

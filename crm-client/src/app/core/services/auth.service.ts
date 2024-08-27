@@ -122,4 +122,15 @@ export class AuthService {
     getAllUser() {
         return this.http.get<any>(`${apiConfig.baseUrl}/${this.SERVICE_PATH}` + '/allUser').pipe();
     }
+
+    updateUser(updateData: any) {
+        if (this.auth.currentUser) {
+            updateProfile(this.auth.currentUser, updateData).then(res => {
+                console.log(res);
+            }).catch(error => {
+                console.log(error)
+            })
+        }
+
+    }
 }

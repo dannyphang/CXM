@@ -31,20 +31,10 @@
             [autoFocus]="isAutoFocus"
             [fieldControl]="searchFormControl"
           ></app-base-input>
-
-          <!-- <div class="setting-div">
-            <p-button
-              [rounded]="true"
-              [text]="true"
-              [icon]="'pi pi-cog'"
-              [pTooltip]="'HEADER.SETTING' | translate"
-            ></p-button>
-          </div> -->
-
           <div class="user-div tw-ml-[var(--content-gap-s)]">
             <div class="avatar-div" (click)="userMenu.toggle($event)">
               <p-avatar
-                icon="pi pi-user"
+                [image]="avatarImage ? avatarImage : DEFAULT_PROFILE_PIC_URL"
                 styleClass="tw-w-[40px] tw-h-[40px]"
                 shape="circle"
                 data-blobity-magnetic="true"
@@ -65,7 +55,11 @@
 >
   <ng-template pTemplate="start">
     <div class="user-menu-div">
-      <p-avatar icon="pi pi-user" class="user-menu-avatar" shape="circle" />
+      <p-avatar
+        [image]="avatarImage ? avatarImage : DEFAULT_PROFILE_PIC_URL"
+        class="user-menu-avatar"
+        shape="circle"
+      />
       <div class="user-menu-info-div">
         <div class="user-menu-name">
           {{ currentUser ? currentUser.displayName : "--" }}
