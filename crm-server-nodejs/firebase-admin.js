@@ -1,6 +1,7 @@
 import { initializeApp, applicationDefault, cert } from "firebase-admin/app";
 import { getFirestore } from "firebase-admin/firestore";
 import { getStorage } from "firebase-admin/storage";
+import { getAuth } from "firebase-admin/auth";
 import config from "./config.js";
 
 initializeApp({
@@ -10,5 +11,6 @@ initializeApp({
 
 const db = getFirestore();
 const bucket = getStorage().bucket();
+const auth = getAuth();
 
-export default { db, bucket };
+export default { db, bucket, auth };

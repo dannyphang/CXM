@@ -23,6 +23,7 @@ import apiConfig from "../../../environments/apiConfig";
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+    SERVICE_PATH = 'auth';
     app: FirebaseApp;
     auth: Auth;
     user: User | null;
@@ -116,6 +117,6 @@ export class AuthService {
     }
 
     getAllUser() {
-        return this.http.get<any>(apiConfig.baseUrl + '/common/allUser').pipe();
+        return this.http.get<any>(`${apiConfig.baseUrl}/${this.SERVICE_PATH}` + '/allUser').pipe();
     }
 }

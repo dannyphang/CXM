@@ -6,6 +6,7 @@ import companyRouter from "./api/company.js";
 import activityRouter from "./api/activity.js";
 import storageRouter from "./api/storage.js";
 import tokenRouter from "./api/token.js";
+import authRouter from "./api/auth.js";
 import cors from "cors";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
@@ -40,6 +41,7 @@ app.use("/company", companyRouter);
 app.use("/activity", activityRouter);
 app.use("/storage", storageRouter);
 app.use("/token", tokenRouter);
+app.use("/auth", authRouter);
 
 app.listen(port, () => {
   console.log(`server is running at port: ${port}...`);
