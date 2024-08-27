@@ -23,8 +23,8 @@ export class PropertyComponent {
 
   ngOnInit() {
     if (this.property.propertyLookupList.length > 0) {
-      this.property.propertyLookupList.forEach((item: PropertyLookupDto) => {
-        this.propertyLookUpList.push({ label: item.propertyLookupLabel, value: item.uid });
+      this.property.propertyLookupList.forEach((item) => {
+        this.propertyLookUpList.push({ label: (item as PropertyLookupDto).propertyLookupLabel, value: item.uid });
       });
     }
 

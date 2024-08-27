@@ -1,14 +1,16 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { BaseDataSourceActionEvent, CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel, TableConfig } from '../../../services/components.service';
-import { CommonService, CompanyDto, ContactDto, ModuleDto, PropertiesDto, PropertyDataDto, PropertyGroupDto } from '../../../services/common.service';
+import { CommonService, CompanyDto, ContactDto, ModuleDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, PropertyLookupDto, UserDto } from '../../../services/common.service';
 import { NavigationExtras, Router } from '@angular/router';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { DEFAULT_FORMAT_DATE, ROW_PER_PAGE_DEFAULT, ROW_PER_PAGE_DEFAULT_LIST } from '../../constants/common.constants';
 import * as ExcelJS from 'exceljs';
-import { saveAs } from 'file-saver';
+import saveAs from 'file-saver';
 import { TranslateService } from '@ngx-translate/core';
 import { MessageService } from 'primeng/api';
 import { Observable, of } from 'rxjs';
-import { ROW_PER_PAGE_DEFAULT, ROW_PER_PAGE_DEFAULT_LIST } from '../../constants/common.constants';
+import { AuthService } from '../../../services/auth.service';
+import { Properties } from 'xlsx';
 
 @Component({
   selector: 'app-contact-company-page',
@@ -46,22 +48,10 @@ export class ContactCompanyPageComponent implements OnChanges {
     private router: Router,
     private formBuilder: FormBuilder,
     private translateService: TranslateService,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private authService: AuthService,
   ) {
-    if (this.router.url === '/contact') {
-      this.module = 'CONT';
-    }
-    else {
-      this.module = 'COMP';
-    }
 
-    this.panelList = [
-      {
-        headerLabel: this.module === 'CONT' ? this.translateService.instant("COMMON.CONTACT") : this.translateService.instant("COMMON.COMPANY"),
-        closable: false,
-        index: 0,
-      }
-    ];
   }
 
   async ngOnInit() {
@@ -114,7 +104,8 @@ export class ContactCompanyPageComponent implements OnChanges {
             let config: any = {
               header: prop.propertyName,
               code: this.bindCode(prop.propertyCode),
-              order: prop.order
+              order: prop.order,
+              type: prop.propertyType
             };
             this.tableConfig.push(config);
             this.profileProperty.push(prop);
@@ -156,7 +147,7 @@ export class ContactCompanyPageComponent implements OnChanges {
             else if (prop.propertyType === CONTROL_TYPE_CODE.Checkbox || prop.propertyType === CONTROL_TYPE_CODE.MultiCheckbox || prop.propertyType === CONTROL_TYPE_CODE.Multiselect || prop.propertyType === CONTROL_TYPE_CODE.Dropdown || prop.propertyType === CONTROL_TYPE_CODE.Radio) {
               let propertyLookupList: OptionsModel[] = [];
               prop.propertyLookupList.forEach((item) => {
-                propertyLookupList.push({ label: item.propertyLookupLabel, value: item.uid });
+                propertyLookupList.push({ label: (item as PropertyLookupDto).propertyLookupLabel, value: item.uid });
               });
 
               forms = {
@@ -185,6 +176,25 @@ export class ContactCompanyPageComponent implements OnChanges {
                 },
                 timeOnly: prop.propertyType === CONTROL_TYPE_CODE.Time ? true : false,
                 showTime: prop.propertyType !== CONTROL_TYPE_CODE.Date ? true : false
+              }
+            }
+            else if (prop.propertyType === CONTROL_TYPE_CODE.User) {
+              let propertyLookupList: OptionsModel[] = [];
+              prop.propertyLookupList.forEach((item) => {
+                propertyLookupList.push({ label: `${(item as UserDto).displayName}`, value: item.uid });
+              });
+
+              forms = {
+                id: prop.uid,
+                name: prop.propertyCode,
+                type: CONTROL_TYPE.Dropdown,
+                label: prop.propertyName,
+                fieldControl: this.createFormGroup.controls[prop.propertyCode],
+                layoutDefine: {
+                  row: createPropCount,
+                  column: 0,
+                },
+                options: propertyLookupList
               }
             }
 
@@ -330,7 +340,9 @@ export class ContactCompanyPageComponent implements OnChanges {
   }
 
   toCreate() {
-    this.displayCreateDialog = true;
+    if (this.authService.currentUser()) {
+      this.displayCreateDialog = true;
+    }
   }
 
   create() {
@@ -338,7 +350,7 @@ export class ContactCompanyPageComponent implements OnChanges {
       this.propertyValueUpdate(this.createFormConfig);
     }
     else {
-      console.log(this.createFormGroup)
+      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Profile is not created. Please check again.' });
     }
   }
 
@@ -346,7 +358,6 @@ export class ContactCompanyPageComponent implements OnChanges {
     let newContact: ContactDto = new ContactDto();
     let newCompany: CompanyDto = new CompanyDto();
     let profileProperty: PropertyDataDto[] = [];
-
     this.createFormPropertyList.forEach(prop => {
       if (this.module === 'CONT') {
         switch (prop.propertyCode) {
@@ -371,7 +382,9 @@ export class ContactCompanyPageComponent implements OnChanges {
                 value: inputValue
               });
             }
-        }
+        };
+
+        newContact.contactOwnerUid = this.authService.currentUser()!.uid;
       }
       else {
         switch (prop.propertyCode) {
@@ -393,7 +406,9 @@ export class ContactCompanyPageComponent implements OnChanges {
                 value: inputValue
               });
             }
-        }
+        };
+
+        newCompany.companyOwnerUid = this.authService.currentUser()!.uid;
       }
     });
     if (this.module === "CONT") {
@@ -413,7 +428,6 @@ export class ContactCompanyPageComponent implements OnChanges {
       });
     }
 
-
     return;
   }
 
@@ -428,6 +442,10 @@ export class ContactCompanyPageComponent implements OnChanges {
         this.getContact();
       });
     }
+  }
+
+  returnUserLabelFromUid(uid: string): string {
+    return (this.propertiesList.find(item => item.propertyType === 'USR')!.propertyLookupList.find(item => item.uid === uid) as UserDto)?.displayName;
   }
 
   addTab() {
@@ -641,7 +659,7 @@ export class ContactCompanyPageComponent implements OnChanges {
       case CONTROL_TYPE_CODE.Checkbox:
       case CONTROL_TYPE_CODE.MultiCheckbox:
         list = this.propertiesList.find(prop1 => prop1.uid === prop.uid)!.propertyLookupList!.map(item => ({
-          label: item.propertyLookupLabel,
+          label: (item as PropertyLookupDto).propertyLookupLabel,
           value: item.uid
         }));
         break;

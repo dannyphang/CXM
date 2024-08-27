@@ -3,6 +3,8 @@ import { CONTROL_TYPE, FormConfig } from '../../core/services/components.service
 import { Observable, of } from 'rxjs';
 import { MessageService } from 'primeng/api';
 import { FormControl, FormGroup } from '@angular/forms';
+import { CommonService } from '../../core/services/common.service';
+import { AuthService } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-home',
@@ -22,7 +24,8 @@ export class HomeComponent implements OnInit {
   editorModel: string = 'testings';
 
   constructor(
-    private messageService: MessageService
+    private messageService: MessageService,
+    private authService: AuthService
   ) {
 
   }
@@ -181,5 +184,11 @@ export class HomeComponent implements OnInit {
     this.showSidePanel = true;
     this.sidePanelPosition = position;
     console.log('showSidePanel', this.showSidePanel)
+  }
+
+  getAllUser() {
+    this.authService.getAllUser().subscribe(res => {
+      console.log(res);
+    })
   }
 }

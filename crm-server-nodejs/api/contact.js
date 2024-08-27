@@ -1,19 +1,7 @@
 import { Router } from "express";
 import express from "express";
 const router = Router();
-import * as db from "../firebase.js";
-import {
-  collection,
-  getDocs,
-  doc,
-  getDoc,
-  setDoc,
-  updateDoc,
-  query,
-  orderBy,
-  where,
-  Timestamp,
-} from "firebase/firestore";
+import * as db from "../firebase-admin.js";
 
 router.use(express.json());
 
@@ -24,12 +12,12 @@ const associationCollection = "association";
 // get all contacts
 router.get("/", async (req, res) => {
   try {
-    const q = query(
-      collection(db.default.db, contactCollectionName),
-      orderBy("createdDate"),
-      where("statusId", "==", 1)
-    );
-    const snapshot = await getDocs(q);
+    const snapshot = await db.default.db
+      .collection(contactCollectionName)
+      .orderBy("createdDate")
+      .where("statusId", "==", 1)
+      .get();
+
     const contactList = snapshot.docs.map((doc) => {
       return doc.data();
     });
@@ -50,22 +38,24 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   const id = req.params.id;
   try {
-    let qu = query(doc(db.default.db, contactCollectionName, id));
-    const assoQuery = query(
-      collection(db.default.db, associationCollection),
-      orderBy("createdDate"),
-      where("statusId", "==", 1),
-      where("profileUid", "==", id)
-    );
-    const assoQuery2 = query(
-      collection(db.default.db, associationCollection),
-      orderBy("createdDate"),
-      where("statusId", "==", 1),
-      where("assoProfileUid", "==", id)
-    );
-    const snapshot = await getDoc(qu);
-    const assoSnapshot = await getDocs(assoQuery);
-    const assoSnapshot2 = await getDocs(assoQuery2);
+    const snapshot = await db.default.db
+      .collection(contactCollectionName)
+      .doc(id)
+      .get();
+
+    const assoSnapshot = await db.default.db
+      .collection(associationCollection)
+      .orderBy("createdDate")
+      .where("statusId", "==", 1)
+      .where("profileUid", "==", id)
+      .get();
+
+    const assoSnapshot2 = await db.default.db
+      .collection(associationCollection)
+      .orderBy("createdDate")
+      .where("statusId", "==", 1)
+      .where("assoProfileUid", "==", id)
+      .get();
 
     const contact = snapshot.data().statusId == 1 ? snapshot.data() : {};
     const assoList = assoSnapshot.docs.map((doc) => {
@@ -76,8 +66,12 @@ router.get("/:id", async (req, res) => {
     });
 
     let contactData = contact;
-    contactData.createdDate = convertFirebaseDateFormat(contactData.createdDate);
-    contactData.modifiedDate = convertFirebaseDateFormat(contactData.modifiedDate);
+    contactData.createdDate = convertFirebaseDateFormat(
+      contactData.createdDate
+    );
+    contactData.modifiedDate = convertFirebaseDateFormat(
+      contactData.modifiedDate
+    );
 
     if (assoList.length > 0 || assoList2.length > 0) {
       contactData.associationList = [];
@@ -88,9 +82,13 @@ router.get("/:id", async (req, res) => {
         }
         let count = 0;
         assoList.forEach(async (item) => {
-          let que = query(doc(db.default.db, companyCollectionName, item.assoProfileUid));
-          let contactSnapshot = await getDoc(que);
-          let cont = contactSnapshot.data()?.statusId == 1 ? contactSnapshot.data() : {};
+          let contactSnapshot = await db.default.db
+            .collection(companyCollectionName)
+            .doc(item.assoProfileUid)
+            .get();
+
+          let cont =
+            contactSnapshot.data()?.statusId == 1 ? contactSnapshot.data() : {};
           contactData.associationList.push(cont);
           count++;
 
@@ -106,9 +104,15 @@ router.get("/:id", async (req, res) => {
         }
         let count = 0;
         assoList2.forEach(async (item) => {
-          let que = query(doc(db.default.db, companyCollectionName, item.profileUid));
-          let contactSnapshot2 = await getDoc(que);
-          let cont2 = contactSnapshot2.data()?.statusId == 1 ? contactSnapshot2.data() : {};
+          let contactSnapshot2 = await db.default.db
+            .collection(companyCollectionName)
+            .doc(item.profileUid)
+            .get();
+
+          let cont2 =
+            contactSnapshot2.data()?.statusId == 1
+              ? contactSnapshot2.data()
+              : {};
           contactData.associationList.push(cont2);
           count++;
 
@@ -135,15 +139,17 @@ router.post("/", async (req, res) => {
   try {
     const contactList = JSON.parse(JSON.stringify(req.body.contactList));
     let createdContactList = [];
-    contactList.forEach((contact) => {
-      contact.uid = doc(collection(db.default.db, contactCollectionName)).id;
+
+    contactList.forEach(async (contact) => {
+      let newRef = db.default.db.collection(contactCollectionName).doc();
+      contact.uid = newRef.id;
       contact.createdDate = new Date();
       contact.modifiedDate = new Date();
       contact.statusId = 1;
 
       createdContactList.push(contact);
 
-      new setDoc(doc(db.default.db, contactCollectionName, contact.uid), contact);
+      await newRef.set(contact);
     });
 
     res.status(200).json(createdContactList);
@@ -157,9 +163,13 @@ router.post("/", async (req, res) => {
 router.put("/delete", async (req, res) => {
   try {
     req.body.contactList.forEach(async (contact) => {
-      let ref = doc(db.default.db, contactCollectionName, contact.uid);
-      await updateDoc(ref, {
+      let newRef = db.default.db
+        .collection(contactCollectionName)
+        .doc(contact.uid);
+
+      await newRef.update({
         statusId: 2,
+        modifiedDate: new Date(),
       });
     });
 
@@ -180,10 +190,15 @@ router.put("/", async (req, res) => {
 
   try {
     let updatedContactList = [];
+
     contactList.forEach(async (contact) => {
       contact.modifiedDate = new Date();
-      const docRef = doc(db.default.db, contactCollectionName, contact.uid);
-      const updatedContact = await updateDoc(docRef, contact);
+
+      let newRef = db.default.db
+        .collection(contactCollectionName)
+        .doc(contact.uid);
+
+      const updatedContact = await newRef.update(contact);
       updatedContactList.push(updatedContact);
     });
 

@@ -15,6 +15,8 @@ const upload = multer({
   limits: { fieldSize: 25 * 1024 * 1024 },
 }).single("file");
 
+const bucket = firebase.default.bucket;
+
 // upload files
 router.post("/file", upload, async (req, res) => {
   try {

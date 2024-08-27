@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonService, CompanyDto, ContactDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, UpdateCompanyDto, UpdateContactDto } from '../../../services/common.service';
+import { CommonService, CompanyDto, ContactDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, PropertyLookupDto, UpdateCompanyDto, UpdateContactDto, UserDto } from '../../../services/common.service';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../../../services/components.service';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
@@ -180,7 +180,7 @@ export class AllPropertiesPageComponent implements OnChanges {
           else if (prop.propertyType === CONTROL_TYPE_CODE.Checkbox || prop.propertyType === CONTROL_TYPE_CODE.MultiCheckbox || prop.propertyType === CONTROL_TYPE_CODE.Multiselect || prop.propertyType === CONTROL_TYPE_CODE.Dropdown || prop.propertyType === CONTROL_TYPE_CODE.Radio) {
             let propertyLookupList: OptionsModel[] = [];
             prop.propertyLookupList.forEach((item) => {
-              propertyLookupList.push({ label: item.propertyLookupLabel, value: item.uid });
+              propertyLookupList.push({ label: (item as PropertyLookupDto).propertyLookupLabel, value: item.uid });
             });
 
             forms = {
@@ -211,6 +211,25 @@ export class AllPropertiesPageComponent implements OnChanges {
               required: prop.isMandatory,
               timeOnly: prop.propertyType === CONTROL_TYPE_CODE.Time ? true : false,
               showTime: prop.propertyType !== CONTROL_TYPE_CODE.Date ? true : false
+            }
+          }
+          else if (prop.propertyType === CONTROL_TYPE_CODE.User) {
+            let propertyLookupList: OptionsModel[] = [];
+            prop.propertyLookupList.forEach((item) => {
+              propertyLookupList.push({ label: `${(item as UserDto).displayName} (${(item as UserDto).email})`, value: item.uid });
+            });
+
+            forms = {
+              id: prop.uid,
+              name: prop.propertyCode,
+              type: CONTROL_TYPE.Dropdown,
+              label: prop.propertyName,
+              fieldControl: this.profileFormGroup.controls[prop.propertyCode],
+              layoutDefine: {
+                row: propCount,
+                column: 0,
+              },
+              options: propertyLookupList
             }
           }
 
