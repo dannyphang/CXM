@@ -4,12 +4,14 @@ import { Observable } from "rxjs";
 import apiConfig from "../../../environments/apiConfig";
 import { CONTROL_TYPE_CODE } from "./components.service";
 import { MessageService } from "primeng/api";
+import { TranslateService } from "@ngx-translate/core";
 
 @Injectable({ providedIn: 'root' })
 export class CommonService {
     constructor(
         private http: HttpClient,
-        private messageService: MessageService
+        private messageService: MessageService,
+        private translateService: TranslateService
     ) {
     }
 
@@ -154,6 +156,10 @@ export class CommonService {
     createAssociation(asso: CreateAssociationDto): Observable<any> {
         return this.http.post<any>(apiConfig.baseUrl + '/common/asso', { asso }).pipe();
     }
+
+    translate(text: string): string {
+        return this.translateService.instant(text);
+    }
 }
 
 export class BasedDto {
@@ -218,10 +224,11 @@ export class ContactDto extends BasedDto {
     contactEmail: string;
     contactPhone: string;
     contactOwnerUid?: string;
-    contactLeadStatusId?: string;
+    contactLeadStatusUid?: string;
     contactProperties: string;
     contactProfilePhotoUrl?: string;
     associationList: CompanyDto[];
+    [key: string]: any;
 }
 
 export class UpdateContactDto {
@@ -231,7 +238,7 @@ export class UpdateContactDto {
     contactEmail?: string;
     contactPhone?: string;
     contactOwnerUid?: string;
-    contactLeadStatusId?: string;
+    contactLeadStatusUid?: string;
     contactProperties?: string;
     contactProfilePhotoUrl?: string;
 }

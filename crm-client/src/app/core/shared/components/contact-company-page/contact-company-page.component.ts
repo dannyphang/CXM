@@ -1,16 +1,15 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { BaseDataSourceActionEvent, CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel, TableConfig } from '../../../services/components.service';
-import { CommonService, CompanyDto, ContactDto, ModuleDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, PropertyLookupDto, UserDto } from '../../../services/common.service';
-import { NavigationExtras, Router } from '@angular/router';
+import { Component, OnChanges, SimpleChanges } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { DEFAULT_FORMAT_DATE, ROW_PER_PAGE_DEFAULT, ROW_PER_PAGE_DEFAULT_LIST } from '../../constants/common.constants';
+import { NavigationExtras, Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 import * as ExcelJS from 'exceljs';
 import saveAs from 'file-saver';
-import { TranslateService } from '@ngx-translate/core';
 import { MessageService } from 'primeng/api';
 import { Observable, of } from 'rxjs';
 import { AuthService } from '../../../services/auth.service';
-import { Properties } from 'xlsx';
+import { CommonService, CompanyDto, ContactDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, PropertyLookupDto, UserDto } from '../../../services/common.service';
+import { BaseDataSourceActionEvent, CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../../../services/components.service';
+import { ROW_PER_PAGE_DEFAULT, ROW_PER_PAGE_DEFAULT_LIST, EMPTY_VALUE_STRING } from '../../constants/common.constants';
 
 @Component({
   selector: 'app-contact-company-page',
@@ -20,6 +19,7 @@ import { Properties } from 'xlsx';
 export class ContactCompanyPageComponent implements OnChanges {
   ROW_PER_PAGE_DEFAULT = ROW_PER_PAGE_DEFAULT;
   ROW_PER_PAGE_DEFAULT_LIST = ROW_PER_PAGE_DEFAULT_LIST;
+  EMPTY_VALUE_STRING = EMPTY_VALUE_STRING;
   module: 'CONT' | 'COMP' = 'CONT';
   contactList: ContactDto[] = [];
   companyList: CompanyDto[] = [];
@@ -72,11 +72,17 @@ export class ContactCompanyPageComponent implements OnChanges {
   }
 
   async ngOnInit() {
+    this.initTableConfig();
     this.initCreateFormConfig();
+    this.filterTableConfig();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
 
+  }
+
+  returnTranslate(text: string): string {
+    return this.commonService.translate(text);
   }
 
   initTableConfig() {
@@ -111,8 +117,6 @@ export class ContactCompanyPageComponent implements OnChanges {
       this.getCompany();
     }
 
-    this.initTableConfig();
-
     this.commonService.getAllPropertiesByModule(this.module).subscribe((res) => {
       this.modulePropertyList = res;
 
@@ -120,17 +124,33 @@ export class ContactCompanyPageComponent implements OnChanges {
         item.propertiesList.forEach((prop) => {
           this.propertiesList.push(prop);
 
+          if (this.module === 'CONT') {
+            this.contactList.forEach(cont => {
+              let contactProp: PropertyDataDto[] = JSON.parse(cont.contactProperties);
+
+              contactProp.forEach(p => {
+                cont[p.propertyCode] = p.value;
+              });
+            })
+          }
+          else {
+
+          }
+
           // only display property that is system property which is not storing inside the properties column
           if (!prop.isDefaultProperty) {
-            let config: any = {
-              header: prop.propertyName,
-              code: this.bindCode(prop.propertyCode),
-              order: prop.order,
-              type: prop.propertyType
-            };
-            this.tableConfig[this.activeTabPanel].push(config);
             this.profileProperty.push(prop);
+            if (prop.isVisible) {
+              let config: any = {
+                header: prop.propertyName,
+                code: this.bindCode(prop.propertyCode),
+                order: prop.order,
+                type: prop.propertyType
+              };
+              this.tableConfig[this.activeTabPanel].push(config);
+            }
           }
+
 
           // for create contact/company properties
           if (prop.isMandatory && prop.isEditable) {
@@ -233,15 +253,161 @@ export class ContactCompanyPageComponent implements OnChanges {
     });
   }
 
+  filterTableConfig() {
+    if (this.tabFilterList[this.activeTabPanel].length > 0) {
+      this.tableConfig[this.activeTabPanel] = [];
+      this.initTableConfig();
+
+      this.tabFilterList[this.activeTabPanel].forEach((item: Filter) => {
+        let tConfig = {
+          header: item.property.propertyName,
+          code: this.bindCode(item.property.propertyCode),
+          order: item.property.order,
+          type: item.property.propertyType
+        }
+
+        this.tableConfig[this.activeTabPanel].push(tConfig);
+      });
+    }
+    else if (this.tabFilterList[this.activeTabPanel].length === 0) {
+      if (this.module === 'CONT') {
+        this.getContact();
+      }
+      else {
+        this.getCompany();
+      }
+    }
+  }
+
+  returnFilteredProfileList() {
+    if (this.module === 'CONT') {
+      let tempProfileList: ContactDto[] = [];
+      if (this.tabFilterList[this.activeTabPanel].length === 0) {
+        this.getContact();
+      }
+      else {
+        this.commonService.getAllContact().subscribe(res => {
+          this.tableLoading[this.activeTabPanel] = true;
+          this.tabFilterList[this.activeTabPanel].forEach((item: Filter) => {
+            res.forEach(cont => {
+              let proProp: PropertyDataDto[] = JSON.parse(cont.contactProperties);
+              proProp.push(
+                {
+                  uid: this.propertiesList.find(i => i.propertyCode === 'first_name')!.uid,
+                  propertyCode: 'first_name',
+                  value: cont.contactFirstName,
+                },
+                {
+                  uid: this.propertiesList.find(i => i.propertyCode === 'last_name')!.uid,
+                  propertyCode: 'last_name',
+                  value: cont.contactLastName,
+                },
+                {
+                  uid: this.propertiesList.find(i => i.propertyCode === 'email')!.uid,
+                  propertyCode: 'email',
+                  value: cont.contactEmail ?? '',
+                },
+                {
+                  uid: this.propertiesList.find(i => i.propertyCode === 'phone_number')!.uid,
+                  propertyCode: 'phone_number',
+                  value: cont.contactPhone ?? '',
+                },
+                {
+                  uid: this.propertiesList.find(i => i.propertyCode === 'created_date')!.uid,
+                  propertyCode: 'created_date',
+                  value: cont.createdDate!.toString(),
+                },
+                {
+                  uid: this.propertiesList.find(i => i.propertyCode === 'last_modified_date')!.uid,
+                  propertyCode: 'last_modified_date',
+                  value: cont.modifiedDate!.toString(),
+                },
+                {
+                  uid: this.propertiesList.find(i => i.propertyCode === 'created_by')!.uid,
+                  propertyCode: 'created_by',
+                  value: cont.createdBy ?? "",
+                },
+                {
+                  uid: this.propertiesList.find(i => i.propertyCode === 'last_modified_by')!.uid,
+                  propertyCode: 'last_modified_by',
+                  value: cont.modifiedBy ?? "",
+                },
+                {
+                  uid: this.propertiesList.find(i => i.propertyCode === 'lead_status')!.uid,
+                  propertyCode: 'lead_status',
+                  value: this.returnLeadStatusLabelFromId(cont.contactLeadStatusUid ?? ''),
+                },
+                {
+                  uid: this.propertiesList.find(i => i.propertyCode === 'contact_owner')!.uid,
+                  propertyCode: 'contact_owner',
+                  value: cont.contactOwnerUid ?? "",
+                },
+              );
+
+              if (item.conditionFieldControl.value === 'is_not_known') {
+                // for properties
+                if (!proProp.find(p => p.uid === item.property.uid)) {
+                  tempProfileList.push(cont);
+                }
+                // for default object like contact owner
+                else if (!proProp.find(p => p.uid === item.property.uid)?.value) {
+                  tempProfileList.push(cont);
+                }
+              }
+              else if (item.conditionFieldControl.value === 'not_equal_to') {
+                if (!proProp.find(p => p.uid === item.property.uid) || !proProp.find(p => p.uid === item.property.uid)?.value.toLowerCase().includes(item.filterFieldControl.value.toString().toLowerCase())) {
+                  tempProfileList.push(cont);
+                }
+              }
+              else {
+                proProp.forEach(propData => {
+                  switch (item.conditionFieldControl.value) {
+                    case 'equal_to':
+                      if (propData.uid === item.property.uid && propData.value.toLowerCase().includes(item.filterFieldControl.value.toString().toLowerCase())) {
+                        tempProfileList.push(cont);
+                      }
+                      break;
+                    case 'is_known':
+                      if (propData.uid === item.property.uid && propData.value) {
+                        tempProfileList.push(cont);
+                      }
+                      break;
+                  }
+                });
+              }
+            });
+          });
+          this.contactList = [];
+          tempProfileList.forEach(cont => {
+            if (!this.contactList.includes(cont)) {
+              this.contactList.push(cont);
+            }
+          });
+          this.tableLoading[this.activeTabPanel] = false;
+        });
+      }
+    }
+    else {
+
+    }
+
+
+    return [];
+  }
+
   getContact() {
+    this.tableLoading[this.activeTabPanel] = true;
     this.commonService.getAllContact().subscribe((res) => {
       this.contactList = res;
+      this.tableLoading[this.activeTabPanel] = false;
     });
   }
 
   getCompany() {
+    this.tableLoading[this.activeTabPanel] = true;
     this.commonService.getAllCompany().subscribe((res) => {
       this.companyList = res;
+      this.tableLoading[this.activeTabPanel] = false;
     });
   }
 
@@ -253,12 +419,12 @@ export class ContactCompanyPageComponent implements OnChanges {
         case 'last_name': return 'contactLastName';
         case 'email': return 'contactEmail';
         case 'phone_number': return 'contactPhone';
-        case 'lead_status': return 'contactLeadStatusId';
+        case 'lead_status': return 'contactLeadStatusUid';
         case 'created_date': return 'createdDate';
         case 'created_by': return 'createdBy';
         case 'last_modified_date': return 'modifiedDate';
         case 'last_modified_by': return 'modifiedBy';
-        default: return '';
+        default: return code;
       }
     }
     else {
@@ -272,7 +438,7 @@ export class ContactCompanyPageComponent implements OnChanges {
         case 'created_by': return 'createdBy';
         case 'last_modified_date': return 'modifiedDate';
         case 'last_modified_by': return 'modifiedBy';
-        default: return '';
+        default: return code;
       }
     }
   }
@@ -463,7 +629,11 @@ export class ContactCompanyPageComponent implements OnChanges {
   }
 
   returnUserLabelFromUid(uid: string): string {
-    return (this.propertiesList.find(item => item.propertyType === 'USR')!.propertyLookupList.find(item => item.uid === uid) as UserDto)?.displayName;
+    return (this.propertiesList.find(item => item.propertyType === 'USR')!.propertyLookupList.find(item => item.uid === uid) as UserDto)?.displayName ?? this.EMPTY_VALUE_STRING;
+  }
+
+  returnLeadStatusLabelFromId(id: string): string {
+    return (this.propertiesList.find(f => f.propertyCode === 'lead_status')?.propertyLookupList.find(p => p.uid === id) as PropertyLookupDto)?.propertyLookupLabel ?? this.EMPTY_VALUE_STRING;
   }
 
   addTab() {
@@ -501,7 +671,6 @@ export class ContactCompanyPageComponent implements OnChanges {
   }
 
   advanceFilterBtn() {
-    console.log(this.tabFilterList)
     this.tempFilterList[this.activeTabPanel] = [];
     if (this.propertiesList.length > 0) {
       this.isShowFilter = true;
@@ -723,35 +892,34 @@ export class ContactCompanyPageComponent implements OnChanges {
   filterSubmit() {
     this.filterFormGroup.markAllAsTouched();
     this.conditionFormGroup.markAllAsTouched();
-    console.log(this.tempFilterList[this.activeTabPanel])
-
-    // let isValid = true;
-
-    // this.tempFilterList[this.activeTabPanel].forEach((item: Filter) => {
-    //   if (!this.conditionFormGroup.controls[item.property.propertyCode].valid) {
-    //     isValid = false;
-    //   }
-    // })
-
-    // if (this.conditionFormGroup.valid) {
-    //   this.tabFilterList[this.activeTabPanel].forEach((item: any) => {
-    //     console.log("Condition: " + this.conditionFormGroup.controls[item.property.propertyCode].value);
-    //     console.log("filter: " + this.filterFormGroup.controls[item.property.propertyCode].value);
-    //     console.log('-----------');
-    //   });
-    // }
 
     Object.assign(this.tabFilterList[this.activeTabPanel], this.tempFilterList[this.activeTabPanel]);
+
+    // this.filterTableConfig();
+
+    console.log(this.tabFilterList[this.activeTabPanel]);
+    if (this.module === 'CONT') {
+      this.returnFilteredProfileList();
+    }
+    else {
+      this.returnFilteredProfileList();
+    }
     this.closeFilter();
   }
 
   tabViewOnChange(event: any) {
-    // console.log(event)
     this.activeTabPanel = event.index;
   }
 
   tabViewOnClose(event: any) {
     this.panelList = this.panelList.filter(item => item.index !== event.index)
+  }
+
+  testing(text: any) {
+    if (text === 'company_name') {
+      console.log(text);
+
+    }
   }
 }
 

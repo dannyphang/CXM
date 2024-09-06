@@ -7,6 +7,8 @@ export const LoginMode = {
 export const ROW_PER_PAGE_DEFAULT = 10;
 export const ROW_PER_PAGE_DEFAULT_LIST = [5, 10, 20, 50, 100];
 
+export const EMPTY_VALUE_STRING = '--';
+
 export const DEFAULT_FORMAT_DATE = 'DD/MM/YYYY';
 export const DEFAULT_FORMAT_DATETIME = 'DD/MM/YYYY HH:mm:ss';
 export const DATE_HOUR_MINUTES_UPPER_MERIDIEM = 'DD/MM/YYYY hh:mm A';

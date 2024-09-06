@@ -344,7 +344,7 @@ export class AllPropertiesPageComponent implements OnChanges {
             updateContact.contactOwnerUid = prop.value;
             break;
           case 'lead_status':
-            updateContact.contactLeadStatusId = prop.value;
+            updateContact.contactLeadStatusUid = prop.value;
             break;
           default:
             if (!profileProperty.find(item => item.uid === prop.property.uid)) {

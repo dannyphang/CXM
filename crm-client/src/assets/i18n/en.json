@@ -14,7 +14,8 @@
     "INVALID_DATE_RANGE": "From Date must before To Date.",
     "INVALID_EMAIL": "Invalid Email.",
     "INVALID_PASSWORD": "Invalid Password.",
-    "INVALID_URL": "Invalid Url."
+    "INVALID_URL": "Invalid Url.",
+    "NO_PROFILE_RECORD_FOUND": "No {{module}} match the current filters."
   },
   "BUTTON": {
     "SAVE": "Save",
@@ -33,6 +34,7 @@
     "DELETE": "Delete",
     "DOWNLOAD_TEMPLATE": "Download template",
     "ADVANCE_FILTER": "Advance filter ({{numberOfFilter}})",
+    "EDIT_COLUMN": "Edit columns ({{numberOfColumn}})",
     "SUBMIT": "Submit",
     "REMOVE_FILTER": "Remove Filter"
   },

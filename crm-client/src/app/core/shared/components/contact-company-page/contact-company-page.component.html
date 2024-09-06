@@ -125,6 +125,7 @@
           <app-base-input
             [placeholder]="'INPUT.SEARCH' | translate"
             [fieldControl]="filterSearch"
+            [autoFocus]="isShowFilter"
           ></app-base-input>
 
           <div
@@ -215,6 +216,21 @@
                   (onClick)="advanceFilterBtn()"
                   [loading]="!propertiesList"
                 ></p-button>
+                <p-button
+                  [label]="
+                    'BUTTON.EDIT_COLUMN'
+                      | translate
+                        : {
+                            numberOfColumn:
+                              tableConfig[this.activeTabPanel].length
+                          }
+                  "
+                  [text]="true"
+                  [iconPos]="'left'"
+                  [icon]="'pi pi-sliders-v'"
+                  (onClick)="filterTableConfig()"
+                  [loading]="!propertiesList"
+                ></p-button>
               </div>
 
               <div class="tw-flex">
@@ -259,7 +275,11 @@
           </ng-template>
           <ng-template pTemplate="header" let-columns>
             <tr>
-              <th><p-tableHeaderCheckbox /></th>
+              <th>
+                <div class="tw-flex tw-justify-center">
+                  <p-tableHeaderCheckbox />
+                </div>
+              </th>
               <th
                 *ngFor="let item of columns"
                 pSortableColumn="{{ item.code }}"
@@ -284,39 +304,57 @@
           </ng-template>
           <ng-template pTemplate="body" let-profile let-columns="columns">
             <tr>
-              <td><p-tableCheckbox [value]="profile" /></td>
-              <td *ngFor="let col of columns">
-                <div
-                  *ngIf="
-                    col.code === 'contactProfilePhotoUrl' ||
-                    col.code === 'companyProfilePhotoUrl'
-                  "
-                >
-                  <p-avatar
-                    *ngIf="profile[col.code]"
-                    [image]="profile[col.code]"
-                    shape="circle"
-                  ></p-avatar>
-                  <p-avatar
-                    *ngIf="!profile[col.code]"
-                    [icon]="'pi pi-user'"
-                    shape="circle"
-                  ></p-avatar>
+              <td>
+                <div class="tw-flex tw-justify-center">
+                  <p-tableCheckbox [value]="profile" />
                 </div>
+              </td>
+              <td *ngFor="let col of columns">
+                <div [ngSwitch]="col.code">
+                  <!-- avatar -->
+                  <div *ngSwitchCase="'contactProfilePhotoUrl'">
+                    <p-avatar
+                      *ngIf="profile[col.code]"
+                      [image]="profile[col.code]"
+                      shape="circle"
+                    ></p-avatar>
+                    <p-avatar
+                      *ngIf="!profile[col.code]"
+                      [icon]="'pi pi-user'"
+                      shape="circle"
+                    ></p-avatar>
+                  </div>
+                  <div *ngSwitchCase="'companyProfilePhotoUrl'">
+                    <p-avatar
+                      *ngIf="profile[col.code]"
+                      [image]="profile[col.code]"
+                      shape="circle"
+                    ></p-avatar>
+                    <p-avatar
+                      *ngIf="!profile[col.code]"
+                      [icon]="'pi pi-user'"
+                      shape="circle"
+                    ></p-avatar>
+                  </div>
 
-                <div
-                  *ngIf="
-                    col.code !== 'contactProfilePhotoUrl' &&
-                    col.code !== 'companyProfilePhotoUrl'
-                  "
-                >
-                  <div
-                    *ngIf="
-                      col.code === 'contactFirstName' ||
-                      col.code === 'contactLastName' ||
-                      col.code === 'companyName'
-                    "
-                  >
+                  <!-- profile name -->
+                  <div *ngSwitchCase="'contactFirstName'">
+                    <p-button
+                      [label]="profile[col.code]"
+                      [text]="true"
+                      [pTooltip]="profile[col.code]"
+                      (onClick)="toProfile(profile)"
+                    ></p-button>
+                  </div>
+                  <div *ngSwitchCase="'contactLastName'">
+                    <p-button
+                      [label]="profile[col.code]"
+                      [text]="true"
+                      [pTooltip]="profile[col.code]"
+                      (onClick)="toProfile(profile)"
+                    ></p-button>
+                  </div>
+                  <div *ngSwitchCase="'companyName'">
                     <p-button
                       [label]="profile[col.code]"
                       [text]="true"
@@ -325,33 +363,62 @@
                     ></p-button>
                   </div>
                   <div
-                    *ngIf="
-                      col.code !== 'contactFirstName' &&
-                      col.code !== 'contactLastName' &&
-                      col.code !== 'createdDate' &&
-                      col.code !== 'modifiedDate' &&
-                      col.code !== 'companyName' &&
-                      col.type !== 'USR'
-                    "
-                    [pTooltip]="profile[col.code]"
+                    *ngSwitchCase="'contactLeadStatusUid'"
+                    [pTooltip]="returnLeadStatusLabelFromId(profile[col.code])"
                   >
-                    {{ profile[col.code] }}
+                    {{ returnLeadStatusLabelFromId(profile[col.code]) }}
                   </div>
                   <div
-                    *ngIf="
-                      col.code === 'createdDate' || col.code === 'modifiedDate'
-                    "
-                    [pTooltip]="convertDateFormat(profile[col.code])"
+                    *ngSwitchCase="'companyLeadStatusUid'"
+                    [pTooltip]="returnLeadStatusLabelFromId(profile[col.code])"
                   >
-                    {{ convertDateFormat(profile[col.code]) }}
+                    {{ returnLeadStatusLabelFromId(profile[col.code]) }}
                   </div>
-                  <div
-                    *ngIf="col.type === 'USR'"
-                    [pTooltip]="returnUserLabelFromUid(profile[col.code])"
-                  >
-                    {{ returnUserLabelFromUid(profile[col.code]) }}
+
+                  <div *ngSwitchDefault>
+                    <div [ngSwitch]="col.type">
+                      <div
+                        *ngSwitchCase="'DATETIME' || 'DATETIME' || 'TIME'"
+                        [pTooltip]="convertDateFormat(profile[col.code])"
+                      >
+                        {{ convertDateFormat(profile[col.code]) }}
+                      </div>
+
+                      <div
+                        *ngSwitchCase="'USR'"
+                        [pTooltip]="returnUserLabelFromUid(profile[col.code])"
+                      >
+                        {{ returnUserLabelFromUid(profile[col.code]) }}
+                      </div>
+
+                      <div *ngSwitchDefault [pTooltip]="profile[col.code]">
+                        {{
+                          profile[col.code]
+                            ? profile[col.code]
+                            : EMPTY_VALUE_STRING
+                        }}
+                      </div>
+                    </div>
                   </div>
                 </div>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="8">
+                <h2 class="tw-flex tw-justify-center">
+                  {{
+                    "ERROR.NO_PROFILE_RECORD_FOUND"
+                      | translate
+                        : {
+                            module:
+                              module === "CONT"
+                                ? returnTranslate("PROFILE.CONTACTS")
+                                : returnTranslate("PROFILE.COMPANYS")
+                          }
+                  }}
+                </h2>
               </td>
             </tr>
           </ng-template>
