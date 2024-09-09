@@ -15,7 +15,13 @@
     "INVALID_EMAIL": "Invalid Email.",
     "INVALID_PASSWORD": "Invalid Password.",
     "INVALID_URL": "Invalid Url.",
-    "NO_PROFILE_RECORD_FOUND": "No {{module}} match the current filters."
+    "NO_PROFILE_RECORD_FOUND": "No {{module}} match the current filters.",
+    "INVALID_SELECTION": "Invalid Selection",
+    "INVALID_DATE": "Invalid Date",
+    "INVALID_NUMBER": "Invalid Number",
+    "INVALID_SELECTION_MSG": "Please enter a valid value from the list.",
+    "INVALID_DATE_MSG": "Please enter a correct date format.",
+    "INVALID_NUMBER_MSG": "Please enter a valid number."
   },
   "BUTTON": {
     "SAVE": "Save",
