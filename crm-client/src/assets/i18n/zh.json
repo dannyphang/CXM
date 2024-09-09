@@ -1,0 +1,53 @@
+{
+  "COMMON": {
+    "CONTACT": "联系人",
+    "COMPANY": "公司"
+  },
+  "HEADER": {
+    "SETTING": "设定",
+    "SEARCH": "搜索",
+    "LANGUAGE": {
+      "CHANGE": "更换语言",
+      "EN": "英文",
+      "CN": "中文"
+    },
+    "PROFILE": "个人资料"
+  },
+  "ERROR": {
+    "YOU_CANNOT_LEAVE_IT_BLANK": "您不能留空。",
+    "INVALID_FORMAT": "格式无效。",
+    "INVALID_DATE_RANGE": "开始日期必须在结束日期之前。",
+    "INVALID_EMAIL": "无效的邮箱。",
+    "INVALID_PASSWORD": "无效的密码。",
+    "INVALID_URL": "无效的链接。"
+  },
+  "BUTTON": {
+    "SAVE": "保存",
+    "CANCEL": "取消",
+    "EDIT": "编辑",
+    "UPDATE": "更新",
+    "ACTION": "操作",
+    "ATTACH_FILE": "附加文件",
+    "LOGIN": "登录",
+    "LOGOUT": "登出",
+    "UPLOAD": "上传",
+    "CREATE": "创建",
+    "IMPORT": "导入",
+    "EXPORT": "导出",
+    "ADD": "添加"
+  },
+  "ACTIVITY": {
+    "WORDS": "文字",
+    "EDITOR_PLACEHOLDER": "描述日志...",
+    "PINNED": "置顶",
+    "UPCOMING": "即将到来",
+    "OUTCOME": "结果",
+    "DIRECT": "方向"
+  },
+  "PROFILE": {
+    "AVATAR_EDIT": "编辑头像",
+    "CREATE_PROFILE": "创建个人资料",
+    "CONTACTS": "联系人",
+    "COMPANYS": "公司"
+  }
+}

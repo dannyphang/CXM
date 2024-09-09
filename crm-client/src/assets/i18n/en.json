@@ -5,7 +5,13 @@
   },
   "HEADER": {
     "SETTING": "Setting",
-    "SEARCH": "Search"
+    "SEARCH": "Search",
+    "LANGUAGE": {
+      "CHANGE": "Change Language",
+      "EN": "English",
+      "CN": "Chinese"
+    },
+    "PROFILE": "Profile"
   },
   "ERROR": {
     "YOU_CANNOT_LEAVE_IT_BLANK": "You cannot leave it blank.",

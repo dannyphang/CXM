@@ -36,8 +36,8 @@
             <p-button
               [rounded]="true"
               [text]="true"
-              [icon]="'pi pi-cog'"
-              [pTooltip]="'HEADER.SETTING' | translate"
+              [icon]="'pi pi-language'"
+              [pTooltip]="'HEADER.LANGUAGE' | translate"
             ></p-button>
           </div> -->
 
@@ -57,29 +57,37 @@
   </div>
 </div>
 
-<p-menu
+<p-tieredMenu
   #userMenu
   [model]="userMenuItem"
   [popup]="true"
   class="user-menu-container"
 >
-  <ng-template pTemplate="start">
-    <div class="user-menu-div">
-      <p-avatar icon="pi pi-user" class="user-menu-avatar" shape="circle" />
-      <div class="user-menu-info-div">
-        <div class="user-menu-name">
-          {{ currentUser ? currentUser.displayName : "--" }}
-        </div>
-        <div class="user-menu-email">
-          {{ currentUser ? currentUser.email : "--" }}
+  <ng-template pTemplate="item" let-item let-hasSubmenu="hasSubmenu">
+    <ng-container *ngIf="item.label !== ''; else notProfileLabel">
+      <div>
+        <a pRipple class="flex align-items-center p-menuitem-link">
+          <span [class]="item.icon"></span>
+          <span class="ml-2">{{ item.label }}</span>
+          <i
+            *ngIf="hasSubmenu"
+            class="pi pi-angle-right ml-auto text-primary"
+          ></i>
+        </a>
+      </div>
+    </ng-container>
+    <ng-template #notProfileLabel>
+      <div class="user-menu-div">
+        <p-avatar icon="pi pi-user" class="user-menu-avatar" shape="circle" />
+        <div class="user-menu-info-div">
+          <div class="user-menu-name">
+            {{ currentUser ? currentUser.displayName : "--" }}
+          </div>
+          <div class="user-menu-email">
+            {{ currentUser ? currentUser.email : "--" }}
+          </div>
         </div>
       </div>
-    </div>
+    </ng-template>
   </ng-template>
-  <ng-template pTemplate="item" let-item>
-    <a pRipple class="flex align-items-center p-menuitem-link">
-      <span [class]="item.icon"></span>
-      <span class="ml-2">{{ item.label }}</span>
-    </a>
-  </ng-template>
-</p-menu>
+</p-tieredMenu>

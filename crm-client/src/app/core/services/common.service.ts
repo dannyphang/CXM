@@ -7,6 +7,7 @@ import { MessageService } from "primeng/api";
 
 @Injectable({ providedIn: 'root' })
 export class CommonService {
+    language: string = 'en';
     constructor(
         private http: HttpClient,
         private messageService: MessageService
@@ -15,6 +16,14 @@ export class CommonService {
 
     getEnvToken(): Observable<any> {
         return this.http.get<any>(apiConfig.baseUrl + '/token').pipe();
+    }
+
+    setLanguage(lang: string) {
+        this.language = lang;
+    }
+
+    getLanguage(): string {
+        return this.language;
     }
 
     popMessage(message: string, title: string, severity: string = 'success',) {
