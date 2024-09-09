@@ -362,6 +362,22 @@ export class ContactCompanyPageComponent implements OnChanges {
               }
               else {
                 proProp.forEach(propData => {
+                  let propValue: any;
+                  let itemValue: any;
+
+                  switch (item.mode) {
+                    case 'date':
+                    case 'datetime':
+                    case 'time':
+                      itemValue = new Date(item.filterFieldControl.value);
+                      propValue = new Date(propData.value);
+                      break;
+                    default:
+                      itemValue = item.filterFieldControl.value;
+                      propValue = propData.value;
+                      break;
+                  }
+
                   switch (item.conditionFieldControl.value) {
                     case 'equal_to':
                       if (propData.uid === item.property.uid && propData.value.toLowerCase().includes(item.filterFieldControl.value.toString().toLowerCase())) {
@@ -370,6 +386,31 @@ export class ContactCompanyPageComponent implements OnChanges {
                       break;
                     case 'is_known':
                       if (propData.uid === item.property.uid && propData.value) {
+                        tempProfileList.push(cont);
+                      }
+                      break;
+                    case 'more_than_equal_to':
+                      if (propData.uid === item.property.uid && propValue >= itemValue) {
+                        tempProfileList.push(cont);
+                      }
+                      break;
+                    case 'less_than_equal_to':
+                      if (propData.uid === item.property.uid && propValue <= itemValue) {
+                        tempProfileList.push(cont);
+                      }
+                      break;
+                    case 'more_than':
+                      if (propData.uid === item.property.uid) {
+                        console.log(propValue)
+                        console.log(itemValue)
+                        console.log(propValue > itemValue)
+                      }
+                      if (propData.uid === item.property.uid && propValue > itemValue) {
+                        tempProfileList.push(cont);
+                      }
+                      break;
+                    case 'less_than':
+                      if (propData.uid === item.property.uid && propValue < itemValue) {
                         tempProfileList.push(cont);
                       }
                       break;
@@ -463,6 +504,14 @@ export class ContactCompanyPageComponent implements OnChanges {
     return date ? new Date(date).toLocaleDateString() : '';
   }
 
+  convertDateTimeFormat(date: any) {
+    return date ? new Date(date).toLocaleString() : '';
+  }
+
+  convertTimeFormat(date: any) {
+    return date ? new Date(date).toLocaleTimeString() : '';
+  }
+
   getColumnLetter(index: number): string {
     let letter: string = '';
     while (index >= 0) {
@@ -518,7 +567,7 @@ export class ContactCompanyPageComponent implements OnChanges {
         }
       })
 
-      if (item.propertyType === CONTROL_TYPE_CODE.Radio || item.propertyType === CONTROL_TYPE_CODE.MultiCheckbox || item.propertyType === CONTROL_TYPE_CODE.Multiselect || item.propertyType === CONTROL_TYPE_CODE.Dropdown) {
+      if (item.propertyType === CONTROL_TYPE_CODE.Radio || item.propertyType === CONTROL_TYPE_CODE.MultiCheckbox || item.propertyType === CONTROL_TYPE_CODE.Multiselect || item.propertyType === CONTROL_TYPE_CODE.Dropdown || item.propertyType === CONTROL_TYPE_CODE.Checkbox) {
         let list = (item.propertyLookupList as PropertyLookupDto[])
           .map(dp => dp.propertyLookupLabel)
           .join(',');
@@ -886,9 +935,13 @@ export class ContactCompanyPageComponent implements OnChanges {
           mode = CONTROL_TYPE.Multiselect;
           break;
         case CONTROL_TYPE_CODE.Time:
+          mode = 'time';
+          break;
         case CONTROL_TYPE_CODE.Date:
-        case CONTROL_TYPE_CODE.DateTime:
           mode = 'date';
+          break;
+        case CONTROL_TYPE_CODE.DateTime:
+          mode = 'datetime';
           break;
         case CONTROL_TYPE_CODE.Country:
         case CONTROL_TYPE_CODE.City:
@@ -940,6 +993,7 @@ export class ContactCompanyPageComponent implements OnChanges {
       case CONTROL_TYPE_CODE.Multiselect:
       case CONTROL_TYPE_CODE.Checkbox:
       case CONTROL_TYPE_CODE.MultiCheckbox:
+      case CONTROL_TYPE_CODE.Radio:
       case CONTROL_TYPE_CODE.Country:
       case CONTROL_TYPE_CODE.State:
       case CONTROL_TYPE_CODE.City:
@@ -1001,6 +1055,44 @@ export class ContactCompanyPageComponent implements OnChanges {
           }
         ];
         break;
+      case CONTROL_TYPE_CODE.Date:
+      case CONTROL_TYPE_CODE.DateTime:
+      case CONTROL_TYPE_CODE.Time:
+        conditionList = [
+          {
+            label: `${this.translateService.instant("INPUT.EQUAL_TO")} (==)`,
+            value: 'equal_to',
+          },
+          {
+            label: `${this.translateService.instant("INPUT.NOT_EQUAL_TO")} (!=)`,
+            value: 'not_equal_to',
+          },
+          {
+            label: `${this.translateService.instant("INPUT.MORE_THAN_EQUAL_TO")} (>=)`,
+            value: 'more_than_equal_to',
+          },
+          {
+            label: `${this.translateService.instant("INPUT.MORE_THAN")} (>)`,
+            value: 'more_than',
+          },
+          {
+            label: `${this.translateService.instant("INPUT.LESS_THAN_EQUAL_TO")} (<=)`,
+            value: 'less_than_equal_to',
+          },
+          {
+            label: `${this.translateService.instant("INPUT.LESS_THAN")} (<)`,
+            value: 'less_than',
+          },
+          {
+            label: this.translateService.instant("INPUT.IS_KNOWN"),
+            value: 'is_known',
+          },
+          {
+            label: this.translateService.instant("INPUT.IS_NOT_KNOWN"),
+            value: 'is_not_known',
+          }
+        ];
+        break;
     }
     return conditionList;
   }
@@ -1013,6 +1105,7 @@ export class ContactCompanyPageComponent implements OnChanges {
       case CONTROL_TYPE_CODE.Multiselect:
       case CONTROL_TYPE_CODE.Checkbox:
       case CONTROL_TYPE_CODE.MultiCheckbox:
+      case CONTROL_TYPE_CODE.Radio:
         list = this.propertiesList.find(prop1 => prop1.uid === prop.uid)!.propertyLookupList!.map(item => ({
           label: (item as PropertyLookupDto).propertyLookupLabel,
           value: item.uid
@@ -1036,8 +1129,6 @@ export class ContactCompanyPageComponent implements OnChanges {
     Object.assign(this.tabFilterList[this.activeTabPanel], this.tempFilterList[this.activeTabPanel]);
 
     // this.filterTableConfig();
-
-    console.log(this.tabFilterList[this.activeTabPanel]);
     if (this.module === 'CONT') {
       this.returnFilteredProfileList();
     }

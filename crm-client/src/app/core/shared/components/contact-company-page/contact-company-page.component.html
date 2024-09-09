@@ -79,42 +79,76 @@
               "
               class="tw-mt-[var(--content-gap-xs)]"
             >
-              <app-base-multiselect
+              <ng-container
                 *ngIf="
                   item.property.propertyType === CONTROL_TYPE_CODE.Dropdown ||
-                  item.property.propertyType ===
-                    CONTROL_TYPE_CODE.Multiselect ||
-                  item.property.propertyType === CONTROL_TYPE_CODE.Checkbox ||
-                  item.property.propertyType ===
-                    CONTROL_TYPE_CODE.MultiCheckbox ||
-                  item.property.propertyType === CONTROL_TYPE_CODE.Country ||
-                  item.property.propertyType === CONTROL_TYPE_CODE.State ||
-                  item.property.propertyType === CONTROL_TYPE_CODE.City ||
-                  item.property.propertyType === CONTROL_TYPE_CODE.Postcode ||
-                  item.property.propertyType === CONTROL_TYPE_CODE.User
+                    item.property.propertyType ===
+                      CONTROL_TYPE_CODE.Multiselect ||
+                    item.property.propertyType === CONTROL_TYPE_CODE.Checkbox ||
+                    item.property.propertyType ===
+                      CONTROL_TYPE_CODE.MultiCheckbox ||
+                    item.property.propertyType === CONTROL_TYPE_CODE.Radio ||
+                    item.property.propertyType === CONTROL_TYPE_CODE.Country ||
+                    item.property.propertyType === CONTROL_TYPE_CODE.State ||
+                    item.property.propertyType === CONTROL_TYPE_CODE.City ||
+                    item.property.propertyType === CONTROL_TYPE_CODE.Postcode ||
+                    item.property.propertyType === CONTROL_TYPE_CODE.User;
+                  else notDropdown
                 "
-                [dataSourceAction]="item.options"
-                [label]="'PROFILE.VALUE' | translate"
-                [fieldControl]="item.filterFieldControl"
-              ></app-base-multiselect>
-              <app-base-input
-                *ngIf="
-                  item.property.propertyType !== CONTROL_TYPE_CODE.Dropdown &&
-                  item.property.propertyType !==
-                    CONTROL_TYPE_CODE.Multiselect &&
-                  item.property.propertyType !== CONTROL_TYPE_CODE.Checkbox &&
-                  item.property.propertyType !==
-                    CONTROL_TYPE_CODE.MultiCheckbox &&
-                  item.property.propertyType !== CONTROL_TYPE_CODE.Country &&
-                  item.property.propertyType !== CONTROL_TYPE_CODE.State &&
-                  item.property.propertyType !== CONTROL_TYPE_CODE.City &&
-                  item.property.propertyType !== CONTROL_TYPE_CODE.Postcode &&
-                  item.property.propertyType !== CONTROL_TYPE_CODE.User
-                "
-                [label]="'PROFILE.VALUE' | translate"
-                [mode]="item.mode"
-                [fieldControl]="item.filterFieldControl"
-              ></app-base-input>
+              >
+                <app-base-multiselect
+                  [dataSourceAction]="item.options"
+                  [label]="'PROFILE.VALUE' | translate"
+                  [fieldControl]="item.filterFieldControl"
+                ></app-base-multiselect>
+              </ng-container>
+              <ng-template #notDropdown>
+                <ng-container
+                  *ngIf="
+                    item.property.propertyType === CONTROL_TYPE_CODE.Date ||
+                      item.property.propertyType ===
+                        CONTROL_TYPE_CODE.DateTime ||
+                      item.property.propertyType === CONTROL_TYPE_CODE.Time;
+                    else defaultType
+                  "
+                >
+                  <app-base-datepicker
+                    [label]="'PROFILE.VALUE' | translate"
+                    [fieldControl]="item.filterFieldControl"
+                    [showTime]="
+                      item.property.propertyType !== CONTROL_TYPE_CODE.Date
+                    "
+                    [timeOnly]="
+                      item.property.propertyType === CONTROL_TYPE_CODE.Time
+                    "
+                  ></app-base-datepicker>
+                </ng-container>
+                <ng-template #defaultType>
+                  <app-base-input
+                    *ngIf="
+                      item.property.propertyType !==
+                        CONTROL_TYPE_CODE.Dropdown &&
+                      item.property.propertyType !==
+                        CONTROL_TYPE_CODE.Multiselect &&
+                      item.property.propertyType !==
+                        CONTROL_TYPE_CODE.Checkbox &&
+                      item.property.propertyType !==
+                        CONTROL_TYPE_CODE.MultiCheckbox &&
+                      item.property.propertyType !== CONTROL_TYPE_CODE.Radio &&
+                      item.property.propertyType !==
+                        CONTROL_TYPE_CODE.Country &&
+                      item.property.propertyType !== CONTROL_TYPE_CODE.State &&
+                      item.property.propertyType !== CONTROL_TYPE_CODE.City &&
+                      item.property.propertyType !==
+                        CONTROL_TYPE_CODE.Postcode &&
+                      item.property.propertyType !== CONTROL_TYPE_CODE.User
+                    "
+                    [label]="'PROFILE.VALUE' | translate"
+                    [mode]="item.mode"
+                    [fieldControl]="item.filterFieldControl"
+                  ></app-base-input>
+                </ng-template>
+              </ng-template>
             </div>
           </div>
         </p-scrollPanel>
