@@ -203,6 +203,59 @@
     </ng-template>
   </p-dialog>
 
+  <!-- Table Column filtering -->
+  <p-dialog
+    [(visible)]="isShowTableColumnFilter"
+    [position]="'right'"
+    styleClass="tw-h-full tw-w-[70%]"
+    [draggable]="false"
+    [resizable]="true"
+    [header]="'PROFILE.COLUMN_FILTER' | translate"
+    [modal]="true"
+  >
+    <p-pickList
+      [source]="propertiesList2"
+      [target]="columnPropertiesList[activeTabPanel]"
+      [targetHeader]="'PROFILE.SELECTED_COLUMN' | translate"
+      [dragdrop]="true"
+      [responsive]="true"
+      filterBy="propertyName"
+      showTargetFilter="false"
+      [sourceStyle]="{ height: '30rem' }"
+      [targetStyle]="{ height: '30rem' }"
+      (onMoveToTarget)="onMoveToTarget($event)"
+      (onTargetReorder)="reorderTarget($event)"
+      [showSourceControls]="false"
+      [showTargetControls]="false"
+      [rightButtonAriaLabel]="'BUTTON.TO_RIGHT' | translate"
+      [leftButtonAriaLabel]="'BUTTON.TO_LEFT' | translate"
+      [allRightButtonAriaLabel]="'BUTTON.ALL_TO_RIGHT' | translate"
+      [allLeftButtonAriaLabel]="'BUTTON.ALL_TO_LEFT' | translate"
+    >
+      <ng-template let-prop pTemplate="item">
+        <div>
+          {{ prop?.propertyName }}
+        </div>
+      </ng-template>
+      
+      
+    </p-pickList>
+
+    <ng-template pTemplate="footer">
+      <div class="tw-flex tw-justify-between">
+        <p-button
+          [label]="'BUTTON.CANCEL' | translate"
+          [outlined]="true"
+          (onClick)="closeTableColumnFilter()"
+        ></p-button>
+        <p-button
+          [label]="'BUTTON.SUBMIT' | translate"
+          (onClick)="tableColumnFilterSubmit()"
+        ></p-button>
+      </div>
+    </ng-template>
+  </p-dialog>
+
   <p-tabView
     class="contact-company-tab-view"
     (onChange)="tabViewOnChange($event)"
@@ -255,14 +308,13 @@
                     'BUTTON.EDIT_COLUMN'
                       | translate
                         : {
-                            numberOfColumn:
-                              tableConfig[this.activeTabPanel].length
+                            numberOfColumn: tableConfig[activeTabPanel].length
                           }
                   "
                   [text]="true"
                   [iconPos]="'left'"
                   [icon]="'pi pi-sliders-v'"
-                  (onClick)="filterTableConfig()"
+                  (onClick)="tableColumnFilterBtn()"
                   [loading]="!propertiesList"
                 ></p-button>
               </div>

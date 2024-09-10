@@ -39,6 +39,8 @@ import { FileUploadModule } from 'primeng/fileupload';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { MenubarModule } from 'primeng/menubar';
 import { MenuModule } from 'primeng/menu';
+import { DragDropModule } from 'primeng/dragdrop';
+import { PickListModule } from 'primeng/picklist';
 
 import { MessageService } from 'primeng/api';
 
@@ -84,6 +86,8 @@ const PRIMENG_MODULES = [
     ScrollPanelModule,
     MenubarModule,
     MenuModule,
+    DragDropModule,
+    PickListModule,
 ]
 
 @NgModule({

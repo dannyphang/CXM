@@ -28,7 +28,9 @@ export class ContactCompanyPageComponent implements OnChanges {
 
   CONTROL_TYPE_CODE = CONTROL_TYPE_CODE;
   propertiesList: PropertiesDto[] = [];
+  propertiesList2: PropertiesDto[] = [];
   activeTabPanel: number = 0;
+  columnPropertiesList: any[][] = [];
   tableConfig: any[] = []; // from table config
   tableLoading: boolean[] = [];
   selectedProfile: ContactDto[] | CompanyDto[] = [];
@@ -39,10 +41,12 @@ export class ContactCompanyPageComponent implements OnChanges {
   profileProperty: PropertiesDto[] = [];
   panelList: any[] = [];
   isShowFilter: boolean = false;
+  isShowTableColumnFilter: boolean = false;
   filterFormGroup: FormGroup;
   conditionFormGroup: FormGroup;
   tabFilterList: any[] = [];
   tempFilterList: any[] = [];
+  tempColumnFilterList: PropertiesDto[] = [];
   filterPropList: any[] = [];
   filterSearch: FormControl = new FormControl("");
 
@@ -70,12 +74,13 @@ export class ContactCompanyPageComponent implements OnChanges {
     ];
     this.tabFilterList[this.activeTabPanel] = [];
     this.tempFilterList[this.activeTabPanel] = [];
+    this.columnPropertiesList[this.activeTabPanel] = [];
   }
 
   async ngOnInit() {
     this.initTableConfig();
     this.initCreateFormConfig();
-    this.filterTableConfig();
+    // this.filterTableConfig();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -124,6 +129,7 @@ export class ContactCompanyPageComponent implements OnChanges {
       res.forEach((item) => {
         item.propertiesList.forEach((prop) => {
           this.propertiesList.push(prop);
+          this.propertiesList2.push(prop);
 
           if (this.module === 'CONT') {
             this.contactList.forEach(cont => {
@@ -252,32 +258,6 @@ export class ContactCompanyPageComponent implements OnChanges {
       this.tableConfig[this.activeTabPanel] = this.tableConfig[this.activeTabPanel].sort((a: any, b: any) => a.order - b.order);
       this.tableLoading[this.activeTabPanel] = false;
     });
-  }
-
-  filterTableConfig() {
-    if (this.tabFilterList[this.activeTabPanel].length > 0) {
-      this.tableConfig[this.activeTabPanel] = [];
-      this.initTableConfig();
-
-      this.tabFilterList[this.activeTabPanel].forEach((item: Filter) => {
-        let tConfig = {
-          header: item.property.propertyName,
-          code: this.bindCode(item.property.propertyCode),
-          order: item.property.order,
-          type: item.property.propertyType
-        }
-
-        this.tableConfig[this.activeTabPanel].push(tConfig);
-      });
-    }
-    else if (this.tabFilterList[this.activeTabPanel].length === 0) {
-      if (this.module === 'CONT') {
-        this.getContact();
-      }
-      else {
-        this.getCompany();
-      }
-    }
   }
 
   returnFilteredProfileList() {
@@ -877,6 +857,7 @@ export class ContactCompanyPageComponent implements OnChanges {
     this.tempFilterList[this.activeTabPanel] = [];
     if (this.propertiesList.length > 0) {
       this.isShowFilter = true;
+      this.isShowTableColumnFilter = false;
       this.filterFormGroup = this.formBuilder.group({});
       this.conditionFormGroup = this.formBuilder.group({});
       this.propertiesList.forEach(prop => {
@@ -932,9 +913,28 @@ export class ContactCompanyPageComponent implements OnChanges {
     }
   }
 
+  tableColumnFilterBtn() {
+    this.isShowTableColumnFilter = true;
+
+    this.columnPropertiesList[this.activeTabPanel] = [];
+
+    this.tableConfig[this.activeTabPanel].forEach((i: any) => {
+      let property = this.propertiesList.find(f => this.bindCode(f.propertyCode) === i.code);
+      if (property) {
+        this.columnPropertiesList[this.activeTabPanel].push(property);
+      }
+    });
+
+    this.tableConfig[this.activeTabPanel].sort((a: any, b: any) => a.order - b.order);
+  }
+
   closeFilter() {
     this.isShowFilter = false;
     this.tempFilterList[this.activeTabPanel] = [];
+  }
+
+  closeTableColumnFilter() {
+    this.isShowTableColumnFilter = false;
   }
 
   filterClick(prop: PropertiesDto) {
@@ -1161,10 +1161,6 @@ export class ContactCompanyPageComponent implements OnChanges {
   }
 
   testing(text: any) {
-    if (text === 'gender') {
-      console.log(text);
-      return text;
-    }
     console.log(text);
     return text;
   }
@@ -1190,6 +1186,41 @@ export class ContactCompanyPageComponent implements OnChanges {
       default:
         return value;
     }
+  }
+
+  onMoveToTarget(event: any) {
+    console.log(event)
+    event.items.forEach((p: PropertiesDto) => {
+      if (!this.tempColumnFilterList.find(i => i.propertyCode === p.propertyCode)) {
+        this.tempColumnFilterList.push(p);
+      }
+    })
+
+  }
+
+  reorderTarget(event: any) {
+    console.log(event)
+  }
+
+  tableColumnFilterSubmit() {
+    this.tempColumnFilterList.forEach(p => {
+      this.columnPropertiesList[this.activeTabPanel].push(p)
+    });
+
+    this.tempColumnFilterList = [];
+
+    this.columnPropertiesList[this.activeTabPanel].forEach((p: PropertiesDto) => {
+      if (p && !this.tableConfig[this.activeTabPanel].find((i: any) => i.code === this.bindCode(p.propertyCode))) {
+        this.tableConfig[this.activeTabPanel].push({
+          header: p.propertyName,
+          code: this.bindCode(p.propertyCode),
+          order: p.order,
+          type: p.propertyType
+        });
+      }
+    });
+
+    this.closeTableColumnFilter();
   }
 }
 

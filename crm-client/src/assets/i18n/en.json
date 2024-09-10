@@ -42,7 +42,11 @@
     "ADVANCE_FILTER": "Advance filter ({{numberOfFilter}})",
     "EDIT_COLUMN": "Edit columns ({{numberOfColumn}})",
     "SUBMIT": "Submit",
-    "REMOVE_FILTER": "Remove Filter"
+    "REMOVE_FILTER": "Remove Filter",
+    "ALL_TO_RIGHT": "Add all properties to column.",
+    "ALL_TO_Left": "Remove all properties from column.",
+    "TO_RIGHT": "Add properties to column.",
+    "TO_Left": "Remove properties from column."
   },
   "INPUT": {
     "SEARCH": "Search",
@@ -72,6 +76,8 @@
     "ADVANCE_FILTER": "Advance filter",
     "PROPERTY": "Property",
     "CONDITION": "Condition",
-    "VALUE": "Value"
+    "VALUE": "Value",
+    "COLUMN_FILTER": "Table Column filter",
+    "SELECTED_COLUMN": "Selected Columns"
   }
 }
