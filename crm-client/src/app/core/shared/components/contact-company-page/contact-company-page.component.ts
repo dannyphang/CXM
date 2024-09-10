@@ -10,6 +10,7 @@ import { AuthService } from '../../../services/auth.service';
 import { CommonService, CompanyDto, ContactDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, PropertyLookupDto, UserDto } from '../../../services/common.service';
 import { BaseDataSourceActionEvent, CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../../../services/components.service';
 import { ROW_PER_PAGE_DEFAULT, ROW_PER_PAGE_DEFAULT_LIST, EMPTY_VALUE_STRING, NUMBER_OF_EXCEL_INSERT_ROW } from '../../constants/common.constants';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-contact-company-page',
@@ -49,6 +50,7 @@ export class ContactCompanyPageComponent implements OnChanges {
   tempColumnFilterList: PropertiesDto[] = [];
   filterPropList: any[] = [];
   filterSearch: FormControl = new FormControl("");
+  headerKeyMapping: { [header: string]: string } = {};
 
   constructor(
     private commonService: CommonService,
@@ -130,6 +132,7 @@ export class ContactCompanyPageComponent implements OnChanges {
         item.propertiesList.forEach((prop) => {
           this.propertiesList.push(prop);
           this.propertiesList2.push(prop);
+          this.headerKeyMapping[prop.propertyName] = prop.propertyCode;
 
           if (this.module === 'CONT') {
             this.contactList.forEach(cont => {
@@ -479,6 +482,25 @@ export class ContactCompanyPageComponent implements OnChanges {
     }
   }
 
+  mapToContactDto(mappedData: any): ContactDto[] {
+    return mappedData.map((data: any) => {
+      let contactDto: ContactDto = new ContactDto();
+      console.log(data);
+
+      // Iterate through each key-value pair in the data object
+      Object.keys(data).forEach(key => {
+        // Use bindCode to get the ContactDto property name
+        const dtoKey = this.bindCode(key);
+        if (dtoKey) {
+          // Assign the value from mappedData to the ContactDto object
+          contactDto[dtoKey as keyof ContactDto] = data[key];
+        }
+      });
+
+      return contactDto;
+    });
+  }
+
   returnTextMode(type: string): any {
     switch (type) {
       case CONTROL_TYPE_CODE.Email:
@@ -638,7 +660,48 @@ export class ContactCompanyPageComponent implements OnChanges {
     });
   }
 
-  importFile() {
+  importFile(event: any) {
+    if (event.target.files.length === 0) {
+      return;
+    }
+    else {
+      const reader: FileReader = new FileReader();
+      reader.onload = (e: any) => {
+        // Read the Excel data as binary string
+        const binaryString: string = e.target.result;
+
+        // Parse the binary string using XLSX
+        const workbook: XLSX.WorkBook = XLSX.read(binaryString, { type: 'binary' });
+
+        // Get the first sheet name from the workbook
+        const sheetName: string = workbook.SheetNames[0];
+
+        // Get the sheet data from the workbook
+        const worksheet: XLSX.WorkSheet = workbook.Sheets[sheetName];
+
+        // Convert the worksheet data into a JSON array
+        const row: any = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+        const headers = row[0] as string[];
+
+        const mappedData = row.slice(1).map((row: any) => {
+          const rowObject: any = {};
+          headers.forEach((header: string, index: number) => {
+            // Use the mapping to get the key corresponding to the header
+            const key = this.headerKeyMapping[header];
+            if (key) {
+              rowObject[key] = row[index]; // Assign the value using the key
+            }
+          });
+          return rowObject;
+        });
+
+        let contactList: ContactDto[] = [];
+        contactList = this.mapToContactDto(mappedData)
+        console.log(contactList);
+      }
+      reader.readAsBinaryString(event.target.files[0]);
+    }
 
   }
 

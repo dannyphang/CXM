@@ -330,7 +330,7 @@
                   rounded="true"
                   [text]="true"
                   [pTooltip]="'BUTTON.IMPORT' | translate"
-                  (onClick)="importFile()"
+                  (onClick)="uploader.click()"
                 ></p-button>
                 <p-button
                   [icon]="'pi pi-cloud-download'"
@@ -518,3 +518,12 @@
     </p-tabPanel>
   </p-tabView>
 </div>
+
+<input
+  type="file"
+  id="file-input"
+  #uploader
+  hidden
+  (change)="importFile($event)"
+  multiple
+/>
