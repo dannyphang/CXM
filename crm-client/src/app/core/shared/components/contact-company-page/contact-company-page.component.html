@@ -237,8 +237,6 @@
           {{ prop?.propertyName }}
         </div>
       </ng-template>
-      
-      
     </p-pickList>
 
     <ng-template pTemplate="footer">
@@ -370,6 +368,11 @@
                 *ngFor="let item of columns"
                 pSortableColumn="{{ item.code }}"
                 pReorderableColumn
+                [ngClass]="{
+                  'tw-w-0':
+                    item.code === 'contactProfilePhotoUrl' ||
+                    item.code === 'companyProfilePhotoUrl'
+                }"
               >
                 <div
                   *ngIf="
@@ -403,11 +406,13 @@
                       *ngIf="profile[col.code]"
                       [image]="profile[col.code]"
                       shape="circle"
+                      class="tw-w-[max-content]"
                     ></p-avatar>
                     <p-avatar
                       *ngIf="!profile[col.code]"
                       [icon]="'pi pi-user'"
                       shape="circle"
+                      class="tw-w-[max-content]"
                     ></p-avatar>
                   </div>
                   <div *ngSwitchCase="'companyProfilePhotoUrl'">
@@ -415,11 +420,13 @@
                       *ngIf="profile[col.code]"
                       [image]="profile[col.code]"
                       shape="circle"
+                      class="tw-w-[max-content]"
                     ></p-avatar>
                     <p-avatar
                       *ngIf="!profile[col.code]"
                       [icon]="'pi pi-user'"
                       shape="circle"
+                      class="tw-w-[max-content]"
                     ></p-avatar>
                   </div>
 
