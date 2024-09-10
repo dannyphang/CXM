@@ -292,6 +292,10 @@ export class ContactCompanyPageComponent implements OnChanges {
           this.tabFilterList[this.activeTabPanel].forEach((item: Filter) => {
             res.forEach(cont => {
               let proProp: PropertyDataDto[] = JSON.parse(cont.contactProperties);
+              proProp.forEach(p => {
+                cont[p.propertyCode] = p.value;
+              });
+
               proProp.push(
                 {
                   uid: this.propertiesList.find(i => i.propertyCode === 'first_name')!.uid,
@@ -418,6 +422,8 @@ export class ContactCompanyPageComponent implements OnChanges {
                 });
               }
             });
+
+            tempProfileList
           });
           this.contactList = [];
           tempProfileList.forEach(cont => {
@@ -440,6 +446,14 @@ export class ContactCompanyPageComponent implements OnChanges {
   getContact() {
     this.tableLoading[this.activeTabPanel] = true;
     this.commonService.getAllContact().subscribe((res) => {
+      res.forEach(cont => {
+        let prop: PropertyDataDto[] = JSON.parse(cont.contactProperties);
+
+        prop.forEach(p => {
+          cont[p.propertyCode] = p.value;
+        });
+      })
+
       this.contactList = res;
       this.tableLoading[this.activeTabPanel] = false;
     });
@@ -1147,9 +1161,34 @@ export class ContactCompanyPageComponent implements OnChanges {
   }
 
   testing(text: any) {
-    if (text === 'company_name') {
+    if (text === 'gender') {
       console.log(text);
+      return text;
+    }
+    console.log(text);
+    return text;
+  }
 
+  returnPropertyValue(prop: any, value: string) {
+    // console.log(prop)
+    // console.log(value)
+    switch (prop.type) {
+      case CONTROL_TYPE_CODE.Radio:
+      case CONTROL_TYPE_CODE.Dropdown:
+      case CONTROL_TYPE_CODE.Multiselect:
+      case CONTROL_TYPE_CODE.Checkbox:
+      case CONTROL_TYPE_CODE.MultiCheckbox:
+        return (this.propertiesList.find(p => p.propertyCode === prop.code)?.propertyLookupList as PropertyLookupDto[]).find(l => l.uid === value)?.propertyLookupLabel;
+      case CONTROL_TYPE_CODE.User:
+        return this.returnUserLabelFromUid(value);
+      case CONTROL_TYPE_CODE.Date:
+        return this.convertDateFormat(value);
+      case CONTROL_TYPE_CODE.DateTime:
+        return this.convertDateTimeFormat(value);
+      case CONTROL_TYPE_CODE.Time:
+        return this.convertTimeFormat(value);
+      default:
+        return value;
     }
   }
 }

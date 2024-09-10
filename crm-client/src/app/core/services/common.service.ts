@@ -260,12 +260,12 @@ export class AttachmentDto extends BasedDto {
 
 export class CompanyDto extends BasedDto {
     uid: string;
-    companyId: number;
+    companyId?: number;
     companyName: string;
     companyEmail: string;
     companyWebsite: string;
-    companyOwnerUid: string;
-    companyLeadStatusId: string;
+    companyOwnerUid?: string;
+    companyLeadStatusId?: string;
     companyProperties: string;
     companyProfilePhotoUrl?: string;
     associationList: ContactDto[];

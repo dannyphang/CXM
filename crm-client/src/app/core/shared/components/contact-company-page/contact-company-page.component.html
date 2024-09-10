@@ -410,28 +410,14 @@
                   </div>
 
                   <div *ngSwitchDefault>
-                    <div [ngSwitch]="col.type">
-                      <div
-                        *ngSwitchCase="'DATETIME' || 'DATETIME' || 'TIME'"
-                        [pTooltip]="convertDateFormat(profile[col.code])"
-                      >
-                        {{ convertDateFormat(profile[col.code]) }}
-                      </div>
-
-                      <div
-                        *ngSwitchCase="'USR'"
-                        [pTooltip]="returnUserLabelFromUid(profile[col.code])"
-                      >
-                        {{ returnUserLabelFromUid(profile[col.code]) }}
-                      </div>
-
-                      <div *ngSwitchDefault [pTooltip]="profile[col.code]">
-                        {{
-                          profile[col.code]
-                            ? profile[col.code]
-                            : EMPTY_VALUE_STRING
-                        }}
-                      </div>
+                    <div
+                      [pTooltip]="returnPropertyValue(col, profile[col.code])"
+                    >
+                      {{
+                        returnPropertyValue(col, profile[col.code])
+                          ? returnPropertyValue(col, profile[col.code])
+                          : EMPTY_VALUE_STRING
+                      }}
                     </div>
                   </div>
                 </div>
