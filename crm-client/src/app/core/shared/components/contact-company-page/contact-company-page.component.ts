@@ -485,7 +485,8 @@ export class ContactCompanyPageComponent implements OnChanges {
   mapToContactDto(mappedData: any): ContactDto[] {
     return mappedData.map((data: any) => {
       let contactDto: ContactDto = new ContactDto();
-      console.log(data);
+
+      let prop: PropertyDataDto[] = [];
 
       // Iterate through each key-value pair in the data object
       Object.keys(data).forEach(key => {
@@ -493,11 +494,61 @@ export class ContactCompanyPageComponent implements OnChanges {
         const dtoKey = this.bindCode(key);
         if (dtoKey) {
           // Assign the value from mappedData to the ContactDto object
-          contactDto[dtoKey as keyof ContactDto] = data[key];
+          this.propertiesList.forEach(p => {
+            if (p.propertyCode === dtoKey && p.isDefaultProperty) {
+              prop.push({
+                uid: p.uid,
+                propertyCode: p.propertyCode,
+                value: (p.propertyLookupList as PropertyLookupDto[]) ? (p.propertyLookupList as PropertyLookupDto[]).find(l => l.propertyLookupLabel === data[key])?.uid : data[key]
+              });
+            }
+          });
+
+          if (this.propertiesList.find(p => p.isDefaultProperty && p.propertyCode === dtoKey)) {
+            contactDto.contactProperties = JSON.stringify(prop);
+          }
+          else {
+            contactDto[dtoKey as keyof ContactDto] = data[key];
+          }
         }
       });
 
       return contactDto;
+    });
+  }
+
+  mapToCompanyDto(mappedData: any): CompanyDto[] {
+    return mappedData.map((data: any) => {
+      let companyDto: CompanyDto = new CompanyDto();
+
+      let prop: PropertyDataDto[] = [];
+
+      // Iterate through each key-value pair in the data object
+      Object.keys(data).forEach(key => {
+        // Use bindCode to get the ContactDto property name
+        const dtoKey = this.bindCode(key);
+        if (dtoKey) {
+          // Assign the value from mappedData to the ContactDto object
+          this.propertiesList.forEach(p => {
+            if (p.propertyCode === dtoKey && p.isDefaultProperty) {
+              prop.push({
+                uid: p.uid,
+                propertyCode: p.propertyCode,
+                value: (p.propertyLookupList as PropertyLookupDto[]) ? (p.propertyLookupList as PropertyLookupDto[]).find(l => l.propertyLookupLabel === data[key])?.uid : data[key]
+              });
+            }
+          });
+
+          if (this.propertiesList.find(p => p.isDefaultProperty && p.propertyCode === dtoKey)) {
+            companyDto.companyProperties = JSON.stringify(prop);
+          }
+          else {
+            companyDto[dtoKey as keyof CompanyDto] = data[key];
+          }
+        }
+      });
+
+      return companyDto;
     });
   }
 
@@ -696,9 +747,22 @@ export class ContactCompanyPageComponent implements OnChanges {
           return rowObject;
         });
 
-        let contactList: ContactDto[] = [];
-        contactList = this.mapToContactDto(mappedData)
-        console.log(contactList);
+        if (this.module === 'CONT') {
+          let contactList: ContactDto[] = [];
+          contactList = this.mapToContactDto(mappedData);
+          this.commonService.createContact(contactList).subscribe(res => {
+            this.getContact();
+          })
+        }
+        else {
+          let companyList: CompanyDto[] = [];
+          companyList = this.mapToCompanyDto(mappedData);
+          this.commonService.createCompany(companyList).subscribe(res => {
+            this.getCompany();
+          })
+        }
+
+
       }
       reader.readAsBinaryString(event.target.files[0]);
     }

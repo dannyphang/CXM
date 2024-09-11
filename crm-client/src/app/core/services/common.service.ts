@@ -269,6 +269,7 @@ export class CompanyDto extends BasedDto {
     companyProperties: string;
     companyProfilePhotoUrl?: string;
     associationList: ContactDto[];
+    [key: string]: any;
 }
 
 export class UpdateCompanyDto {
