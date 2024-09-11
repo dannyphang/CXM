@@ -100,7 +100,7 @@ export class AllPropertiesPageComponent implements OnChanges {
             required: prop.isMandatory
           };
 
-          if (prop.propertyType === CONTROL_TYPE_CODE.Textbox || prop.propertyType === CONTROL_TYPE_CODE.Textarea || prop.propertyType === CONTROL_TYPE_CODE.Email || prop.propertyType === CONTROL_TYPE_CODE.Phone || prop.propertyType === CONTROL_TYPE_CODE.Url || prop.propertyType === CONTROL_TYPE_CODE.Number) {
+          if (prop.propertyType === CONTROL_TYPE_CODE.Textbox || prop.propertyType === CONTROL_TYPE_CODE.Textarea) {
             forms = {
               id: prop.uid,
               name: prop.propertyCode,
@@ -112,6 +112,69 @@ export class AllPropertiesPageComponent implements OnChanges {
                 column: 0,
               },
               required: prop.isMandatory
+            }
+          }
+          if (prop.propertyType === CONTROL_TYPE_CODE.Url) {
+            forms = {
+              id: prop.uid,
+              name: prop.propertyCode,
+              type: CONTROL_TYPE.Textbox,
+              label: prop.propertyName,
+              fieldControl: this.profileFormGroup.controls[prop.propertyCode],
+              layoutDefine: {
+                row: propCount,
+                column: 0,
+              },
+              required: prop.isMandatory,
+              mode: 'url'
+            }
+          }
+          if (prop.propertyType === CONTROL_TYPE_CODE.Phone) {
+            forms = {
+              id: prop.uid,
+              name: prop.propertyCode,
+              type: CONTROL_TYPE.Textbox,
+              label: prop.propertyName,
+              fieldControl: this.profileFormGroup.controls[prop.propertyCode],
+              layoutDefine: {
+                row: propCount,
+                column: 0,
+              },
+              required: prop.isMandatory,
+              mode: 'phone'
+            }
+          }
+          if (prop.propertyType === CONTROL_TYPE_CODE.Number || prop.propertyType === CONTROL_TYPE_CODE.Year) {
+            forms = {
+              id: prop.uid,
+              name: prop.propertyCode,
+              type: CONTROL_TYPE.Textbox,
+              label: prop.propertyName,
+              fieldControl: this.profileFormGroup.controls[prop.propertyCode],
+              layoutDefine: {
+                row: propCount,
+                column: 0,
+              },
+              required: prop.isMandatory,
+              mode: 'number',
+              maxLength: prop.propertyType === CONTROL_TYPE_CODE.Year ? 4 : undefined,
+              min: prop.propertyType === CONTROL_TYPE_CODE.Year ? 1000 : undefined,
+              useGrouping: prop.propertyType === CONTROL_TYPE_CODE.Year ? false : true
+            }
+          }
+          if (prop.propertyType === CONTROL_TYPE_CODE.Email) {
+            forms = {
+              id: prop.uid,
+              name: prop.propertyCode,
+              type: CONTROL_TYPE.Textbox,
+              label: prop.propertyName,
+              fieldControl: this.profileFormGroup.controls[prop.propertyCode],
+              layoutDefine: {
+                row: propCount,
+                column: 0,
+              },
+              required: prop.isMandatory,
+              mode: 'email',
             }
           }
           else if (prop.propertyType === CONTROL_TYPE_CODE.Checkbox || prop.propertyType === CONTROL_TYPE_CODE.MultiCheckbox || prop.propertyType === CONTROL_TYPE_CODE.Multiselect || prop.propertyType === CONTROL_TYPE_CODE.Dropdown || prop.propertyType === CONTROL_TYPE_CODE.Radio) {
@@ -281,7 +344,7 @@ export class AllPropertiesPageComponent implements OnChanges {
             updateContact.contactOwnerUid = prop.value;
             break;
           case 'lead_status':
-            updateContact.contactLeadStatusId = prop.value;
+            updateContact.contactLeadStatusUid = prop.value;
             break;
           default:
             if (!profileProperty.find(item => item.uid === prop.property.uid)) {

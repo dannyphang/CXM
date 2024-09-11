@@ -75,13 +75,32 @@ router.get("/" + propertiesCollection + "/module", async (req, res) => {
 
       for (let j = 0; j < propertyLookupList.length; j++) {
         if (propertyList[i].propertyId === propertyLookupList[j].propertyId) {
-          propertyLookupList[i].createdDate = convertFirebaseDateFormat(
-            propertyLookupList[i].createdDate
+          propertyLookupList[j].createdDate = convertFirebaseDateFormat(
+            propertyLookupList[j].createdDate
           );
           propertyLookupList[i].modifiedDate = convertFirebaseDateFormat(
-            propertyLookupList[i].modifiedDate
+            propertyLookupList[j].modifiedDate
           );
           propertyList[i].propertyLookupList.push(propertyLookupList[j]);
+        }
+        if (propertyList[i].propertyType === "CBX_S") {
+          if (propertyLookupList[j].propertyLookupCode === "true") {
+            propertyLookupList[j].createdDate = convertFirebaseDateFormat(
+              propertyLookupList[j].createdDate
+            );
+            propertyLookupList[j].modifiedDate = convertFirebaseDateFormat(
+              propertyLookupList[j].modifiedDate
+            );
+            propertyList[i].propertyLookupList.push(propertyLookupList[j]);
+          } else if (propertyLookupList[j].propertyLookupCode === "false") {
+            propertyLookupList[j].createdDate = convertFirebaseDateFormat(
+              propertyLookupList[j].createdDate
+            );
+            propertyLookupList[j].modifiedDate = convertFirebaseDateFormat(
+              propertyLookupList[j].modifiedDate
+            );
+            propertyList[i].propertyLookupList.push(propertyLookupList[j]);
+          }
         }
       }
     }
@@ -191,14 +210,6 @@ router.post("/" + propertiesCollection, async (req, res) => {
 // get all properties lookup
 router.get("/" + propertiesLookupCollection, async (req, res) => {
   try {
-    // let q = query(
-    //   collection(db.default.db, propertiesLookupCollection),
-    //   where("statusId", "==", 1),
-    //   orderBy("propertityLookupId")
-    // );
-    // const snapshot = await getDocs(q);
-    // const list = snapshot.docs.map((doc) => doc.data());
-
     const snapshot = await db.default.db
       .collection(propertiesLookupCollection)
       .where("statusId", "==", 1)

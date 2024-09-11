@@ -4,17 +4,27 @@ import { Observable } from "rxjs";
 import apiConfig from "../../../environments/apiConfig";
 import { CONTROL_TYPE_CODE } from "./components.service";
 import { MessageService } from "primeng/api";
+import { TranslateService } from "@ngx-translate/core";
 
 @Injectable({ providedIn: 'root' })
 export class CommonService {
     constructor(
         private http: HttpClient,
-        private messageService: MessageService
+        private messageService: MessageService,
+        private translateService: TranslateService
     ) {
     }
 
     getEnvToken(): Observable<any> {
         return this.http.get<any>(apiConfig.baseUrl + '/token').pipe();
+    }
+
+    generateGUID(): string {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            var r = Math.random() * 16 | 0,
+                v = c === 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
     }
 
     popMessage(message: string, title: string, severity: string = 'success',) {
@@ -146,6 +156,10 @@ export class CommonService {
     createAssociation(asso: CreateAssociationDto): Observable<any> {
         return this.http.post<any>(apiConfig.baseUrl + '/common/asso', { asso }).pipe();
     }
+
+    translate(text: string): string {
+        return this.translateService.instant(text);
+    }
 }
 
 export class BasedDto {
@@ -210,10 +224,11 @@ export class ContactDto extends BasedDto {
     contactEmail: string;
     contactPhone: string;
     contactOwnerUid?: string;
-    contactLeadStatusId?: string;
+    contactLeadStatusUid?: string;
     contactProperties: string;
     contactProfilePhotoUrl?: string;
     associationList: CompanyDto[];
+    [key: string]: any;
 }
 
 export class UpdateContactDto {
@@ -223,7 +238,7 @@ export class UpdateContactDto {
     contactEmail?: string;
     contactPhone?: string;
     contactOwnerUid?: string;
-    contactLeadStatusId?: string;
+    contactLeadStatusUid?: string;
     contactProperties?: string;
     contactProfilePhotoUrl?: string;
 }
@@ -245,15 +260,16 @@ export class AttachmentDto extends BasedDto {
 
 export class CompanyDto extends BasedDto {
     uid: string;
-    companyId: number;
+    companyId?: number;
     companyName: string;
     companyEmail: string;
     companyWebsite: string;
-    companyOwnerUid: string;
-    companyLeadStatusId: string;
+    companyOwnerUid?: string;
+    companyLeadStatusId?: string;
     companyProperties: string;
     companyProfilePhotoUrl?: string;
     associationList: ContactDto[];
+    [key: string]: any;
 }
 
 export class UpdateCompanyDto {

@@ -19,11 +19,11 @@ import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 export class BaseDropdownComponent
   extends BaseFieldDataSourceControl
   implements OnInit {
-  @Input() override placeholder: string = 'Select';
+  @Input() override placeholder: string = 'INPUT.SELECT';
   @Input() searchable!: boolean;
   @Output() onItemSelected: EventEmitter<any> = new EventEmitter();
   @Input() defaultValue: any = null;
-  @Input() showClear: boolean = false;
+  @Input() showClear: boolean = true;
   @Input() containerClass = '';
 
   @ViewChild('dropdown') dropdown!: Dropdown;

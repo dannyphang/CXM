@@ -1,11 +1,12 @@
 import { DatePipe } from '@angular/common';
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, HostListener, Output } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { User } from 'firebase/auth';
+import { DEFAULT_PROFILE_PIC_URL } from '../../core/shared/constants/common.constants';
 
 @Component({
   selector: 'app-header',
@@ -17,21 +18,15 @@ export class HeaderComponent {
   searchFormControl: FormControl = new FormControl("");
   userMenuItem: MenuItem[] | undefined;
   currentUser: User | null;
+  isAutoFocus: boolean = false;
+  DEFAULT_PROFILE_PIC_URL = DEFAULT_PROFILE_PIC_URL;
+  avatarImage: string | null = this.DEFAULT_PROFILE_PIC_URL;
 
   constructor(
     private router: Router,
     private authService: AuthService
   ) {
-
-
     this.authService.getCurrentUser().then(res => {
-      // if (!res) {
-      //   this.router.navigate(["/signin"]);
-      // }
-      // else {
-      //   this.currentUser = res;
-      // }
-
       this.currentUser = res;
       this.userMenuItem = [
         {
@@ -43,6 +38,10 @@ export class HeaderComponent {
             {
               label: 'Settings',
               icon: 'pi pi-cog',
+              command: () => {
+                console.log(this.authService.currentUser());
+                this.authService.updateUser({ photoURL: 'https://firebasestorage.googleapis.com/v0/b/crm-project-9b8c9.appspot.com/o/Image%2FContact%2FScreenshot%202024-07-26%20110655.png?alt=media&token=b0d38285-3a20-49c0-8ae9-008362959147' });
+              }
             }
           ]
         },
@@ -78,7 +77,10 @@ export class HeaderComponent {
             }
           ]
         }
-      ]
+      ];
+      if (this.currentUser) {
+        this.avatarImage = this.currentUser.photoURL;
+      }
     });
   }
 

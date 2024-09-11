@@ -180,7 +180,7 @@ export class LeftPanelComponent implements OnChanges {
                 required: prop.isMandatory
               }
             }
-            if (prop.propertyType === CONTROL_TYPE_CODE.Url) {
+            else if (prop.propertyType === CONTROL_TYPE_CODE.Url) {
               forms = {
                 id: prop.uid,
                 name: prop.propertyCode,
@@ -195,7 +195,7 @@ export class LeftPanelComponent implements OnChanges {
                 mode: 'url'
               }
             }
-            if (prop.propertyType === CONTROL_TYPE_CODE.Phone) {
+            else if (prop.propertyType === CONTROL_TYPE_CODE.Phone) {
               forms = {
                 id: prop.uid,
                 name: prop.propertyCode,
@@ -210,7 +210,7 @@ export class LeftPanelComponent implements OnChanges {
                 mode: 'phone'
               }
             }
-            if (prop.propertyType === CONTROL_TYPE_CODE.Number || prop.propertyType === CONTROL_TYPE_CODE.Year) {
+            else if (prop.propertyType === CONTROL_TYPE_CODE.Number || prop.propertyType === CONTROL_TYPE_CODE.Year) {
               forms = {
                 id: prop.uid,
                 name: prop.propertyCode,
@@ -223,11 +223,12 @@ export class LeftPanelComponent implements OnChanges {
                 },
                 required: prop.isMandatory,
                 mode: 'number',
-                max: prop.propertyType === CONTROL_TYPE_CODE.Year ? 4 : undefined,
-                min: prop.propertyType === CONTROL_TYPE_CODE.Year ? 4 : undefined,
+                maxLength: prop.propertyType === CONTROL_TYPE_CODE.Year ? 4 : undefined,
+                min: prop.propertyType === CONTROL_TYPE_CODE.Year ? 1000 : undefined,
+                useGrouping: prop.propertyType === CONTROL_TYPE_CODE.Year ? false : true
               }
             }
-            if (prop.propertyType === CONTROL_TYPE_CODE.Email) {
+            else if (prop.propertyType === CONTROL_TYPE_CODE.Email) {
               forms = {
                 id: prop.uid,
                 name: prop.propertyCode,
@@ -402,7 +403,7 @@ export class LeftPanelComponent implements OnChanges {
             updateContact.contactOwnerUid = prop.value;
             break;
           case 'lead_status':
-            updateContact.contactLeadStatusId = prop.value;
+            updateContact.contactLeadStatusUid = prop.value;
             break;
           default:
             if (!profileProperty.find(item => item.uid === prop.property.uid)) {
