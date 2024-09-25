@@ -1401,7 +1401,7 @@ export class ContactCompanyPageComponent implements OnChanges {
       case CONTROL_TYPE_CODE.Multiselect:
       case CONTROL_TYPE_CODE.Checkbox:
       case CONTROL_TYPE_CODE.MultiCheckbox:
-        return (this.propertiesList.find(p => p.propertyCode === prop.code)?.propertyLookupList as PropertyLookupDto[]).find(l => l.uid === value)?.propertyLookupLabel;
+        return (this.propertiesList.find(p => p.propertyCode === prop.code)?.propertyLookupList as PropertyLookupDto[])?.find(l => l.uid === value)?.propertyLookupLabel;
       case CONTROL_TYPE_CODE.User:
         return this.returnUserLabelFromUid(value);
       case CONTROL_TYPE_CODE.Date:
