@@ -123,7 +123,7 @@ export class CommonService {
         else if (type === CONTROL_TYPE_CODE.Radio) {
             return false;
         }
-        return {};
+        return null;
     }
 
     setPropertyDataValue(prop: PropertiesDto, value: any): string {
@@ -175,6 +175,14 @@ export class CommonService {
 
     getCityByStateId(stateId: string): Observable<CityDto[]> {
         return this.http.get<CityDto[]>(apiConfig.baseUrl + '/location/city/' + stateId);
+    }
+
+    getStateByStateName(stateName: string): Observable<StateDto[]> {
+        return this.http.get<StateDto[]>(apiConfig.baseUrl + '/location/state/name/' + stateName);
+    }
+
+    getCityByCityName(cityName: string): Observable<CityDto[]> {
+        return this.http.get<CityDto[]>(apiConfig.baseUrl + '/location/city/name/' + cityName);
     }
 }
 

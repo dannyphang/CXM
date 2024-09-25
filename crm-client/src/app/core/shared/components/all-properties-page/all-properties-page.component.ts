@@ -290,6 +290,19 @@ export class AllPropertiesPageComponent implements OnChanges {
               dataSourceAction: () => this.getCityList()
             }
           }
+          else if (prop.propertyType === CONTROL_TYPE_CODE.Postcode) {
+            forms = {
+              id: prop.uid,
+              name: prop.propertyCode,
+              type: CONTROL_TYPE.Textbox,
+              label: prop.propertyName,
+              fieldControl: this.profileFormGroup.controls[prop.propertyCode],
+              layoutDefine: {
+                row: propCount,
+                column: 0,
+              }
+            }
+          }
 
           this.profileFormGroup.controls[prop.propertyCode].valueChanges.pipe(
             debounceTime(2000),

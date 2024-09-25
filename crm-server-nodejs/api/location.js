@@ -123,10 +123,7 @@ router.get("/state/:id", async (req, res) => {
   try {
     const countryUid = req.params.id;
 
-    const snapshot = await db.default.db
-      .collection(countryCollectionName)
-      .doc(countryUid)
-      .get();
+    const snapshot = await db.default.db.collection(countryCollectionName).doc(countryUid).get();
 
     if (snapshot.data().statusId === 1) {
       const snapshot2 = await db.default.db
@@ -191,10 +188,7 @@ router.get("/city/:id", async (req, res) => {
   try {
     const stateUid = req.params.id;
 
-    const snapshot = await db.default.db
-      .collection(stateCollectionName)
-      .doc(stateUid)
-      .get();
+    const snapshot = await db.default.db.collection(stateCollectionName).doc(stateUid).get();
 
     if (snapshot.data().statusId === 1) {
       const snapshot2 = await db.default.db
@@ -217,6 +211,72 @@ router.get("/city/:id", async (req, res) => {
     } else {
       res.status(400).json({
         errorMessage: "The state is not available.",
+      });
+    }
+  } catch (error) {
+    console.log("error", error);
+    res.status(400).json(error);
+  }
+});
+
+// get state by name
+router.get("/state/name/:stateName", async (req, res) => {
+  try {
+    const stateName = req.params.stateName;
+
+    const snapshot = await db.default.db
+      .collection(stateCollectionName)
+      .where("name", "==", stateName)
+      .where("statusId", "==", 1)
+      .get();
+
+    if (snapshot.docs.length > 0) {
+      const list = snapshot.docs.map((doc) => {
+        return doc.data();
+      });
+
+      list.forEach((item) => {
+        item.createdDate = convertFirebaseDateFormat(item.createdDate);
+        item.modifiedDate = convertFirebaseDateFormat(item.modifiedDate);
+      });
+
+      res.status(200).json(list);
+    } else {
+      res.status(400).json({
+        errorMessage: "The state is not found.",
+      });
+    }
+  } catch (error) {
+    console.log("error", error);
+    res.status(400).json(error);
+  }
+});
+
+// get city by name
+router.get("/city/name/:cityName", async (req, res) => {
+  try {
+    const cityName = req.params.cityName;
+
+    const snapshot = await db.default.db
+      .collection(cityCollectionName)
+      .where("name", "==", cityName)
+      .where("statusId", "==", 1)
+      .get();
+
+    if (snapshot.docs.length > 0) {
+      const list = snapshot.docs.map((doc) => {
+        return doc.data();
+      });
+
+      list.forEach((item) => {
+        item.createdDate = convertFirebaseDateFormat(item.createdDate);
+        item.modifiedDate = convertFirebaseDateFormat(item.modifiedDate);
+      });
+
+      res.status(200).json(list);
+    } else {
+      res.status(400).json({
+        errorMessage: "The city is not found.",
       });
     }
   } catch (error) {
