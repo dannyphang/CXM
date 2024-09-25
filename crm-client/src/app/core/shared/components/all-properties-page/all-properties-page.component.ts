@@ -1,8 +1,8 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonService, CompanyDto, ContactDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, PropertyLookupDto, UpdateCompanyDto, UpdateContactDto, UserDto } from '../../../services/common.service';
+import { CommonService, CompanyDto, ContactDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, PropertyLookupDto, StateDto, UpdateCompanyDto, UpdateContactDto, UserDto } from '../../../services/common.service';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../../../services/components.service';
-import { debounceTime, distinctUntilChanged } from 'rxjs';
+import { debounceTime, distinctUntilChanged, map, Observable, ObservableLike, of } from 'rxjs';
 
 @Component({
   selector: 'app-all-properties-page',
@@ -17,11 +17,15 @@ export class AllPropertiesPageComponent implements OnChanges {
 
   searchControl: FormControl = new FormControl('');
   hideEmptySearchCheckbox = [{ label: 'Hide blank properties', value: true }];
-  profileFormGroup: FormGroup;
+  profileFormGroup: FormGroup = new FormGroup({});
   propertyConfig: any[] = [];
   showFormUpdateSidebar: boolean = false;
   propUpdateList: profileUpdateDto[] = [];
   hideCheckFormControl: FormControl = new FormControl();
+  countryFormId: string = "";
+  stateFormId: string = "";
+  countryOptionList: OptionsModel[] = [];
+  stateList: Observable<OptionsModel[]>;
 
   constructor(
     private formBuilder: FormBuilder,
@@ -33,7 +37,15 @@ export class AllPropertiesPageComponent implements OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['propertyList'] && changes['propertyList'].currentValue && changes['module'] && changes['module'].currentValue) {
       this.propertyList = changes['propertyList'].currentValue;
-      this.initProfileFormConfig();
+      this.commonService.getAllCountry().subscribe(res => {
+        this.countryOptionList = res.map(c => {
+          return {
+            label: c.name,
+            value: c.uid
+          }
+        });
+        this.initProfileFormConfig();
+      });
     }
   }
 
@@ -70,7 +82,7 @@ export class AllPropertiesPageComponent implements OnChanges {
           })
         })
       }
-    })
+    });
   }
 
   initProfileFormConfig() {
@@ -114,7 +126,7 @@ export class AllPropertiesPageComponent implements OnChanges {
               required: prop.isMandatory
             }
           }
-          if (prop.propertyType === CONTROL_TYPE_CODE.Url) {
+          else if (prop.propertyType === CONTROL_TYPE_CODE.Url) {
             forms = {
               id: prop.uid,
               name: prop.propertyCode,
@@ -129,7 +141,7 @@ export class AllPropertiesPageComponent implements OnChanges {
               mode: 'url'
             }
           }
-          if (prop.propertyType === CONTROL_TYPE_CODE.Phone) {
+          else if (prop.propertyType === CONTROL_TYPE_CODE.Phone) {
             forms = {
               id: prop.uid,
               name: prop.propertyCode,
@@ -144,7 +156,7 @@ export class AllPropertiesPageComponent implements OnChanges {
               mode: 'phone'
             }
           }
-          if (prop.propertyType === CONTROL_TYPE_CODE.Number || prop.propertyType === CONTROL_TYPE_CODE.Year) {
+          else if (prop.propertyType === CONTROL_TYPE_CODE.Number || prop.propertyType === CONTROL_TYPE_CODE.Year) {
             forms = {
               id: prop.uid,
               name: prop.propertyCode,
@@ -162,7 +174,7 @@ export class AllPropertiesPageComponent implements OnChanges {
               useGrouping: prop.propertyType === CONTROL_TYPE_CODE.Year ? false : true
             }
           }
-          if (prop.propertyType === CONTROL_TYPE_CODE.Email) {
+          else if (prop.propertyType === CONTROL_TYPE_CODE.Email) {
             forms = {
               id: prop.uid,
               name: prop.propertyCode,
@@ -232,6 +244,65 @@ export class AllPropertiesPageComponent implements OnChanges {
               options: propertyLookupList
             }
           }
+          else if (prop.propertyType === CONTROL_TYPE_CODE.Country) {
+            this.countryFormId = prop.uid;
+            forms = {
+              id: prop.uid,
+              name: prop.propertyCode,
+              type: CONTROL_TYPE.Dropdown,
+              label: prop.propertyName,
+              fieldControl: this.profileFormGroup.controls[prop.propertyCode],
+              layoutDefine: {
+                row: propCount,
+                column: 0,
+              },
+              options: this.countryOptionList
+            }
+          }
+          else if (prop.propertyType === CONTROL_TYPE_CODE.State) {
+            this.stateFormId = prop.uid;
+            forms = {
+              id: prop.uid,
+              name: prop.propertyCode,
+              type: CONTROL_TYPE.Dropdown,
+              label: prop.propertyName,
+              fieldControl: this.profileFormGroup.controls[prop.propertyCode],
+              layoutDefine: {
+                row: propCount,
+                column: 0,
+              },
+              dataSourceDependOn: [this.countryFormId],
+              dataSourceAction: () => this.getStateList()
+            }
+          }
+          else if (prop.propertyType === CONTROL_TYPE_CODE.City) {
+            forms = {
+              id: prop.uid,
+              name: prop.propertyCode,
+              type: CONTROL_TYPE.Dropdown,
+              label: prop.propertyName,
+              fieldControl: this.profileFormGroup.controls[prop.propertyCode],
+              layoutDefine: {
+                row: propCount,
+                column: 0,
+              },
+              dataSourceDependOn: [this.stateFormId],
+              dataSourceAction: () => this.getCityList()
+            }
+          }
+          else if (prop.propertyType === CONTROL_TYPE_CODE.Postcode) {
+            forms = {
+              id: prop.uid,
+              name: prop.propertyCode,
+              type: CONTROL_TYPE.Textbox,
+              label: prop.propertyName,
+              fieldControl: this.profileFormGroup.controls[prop.propertyCode],
+              layoutDefine: {
+                row: propCount,
+                column: 0,
+              }
+            }
+          }
 
           this.profileFormGroup.controls[prop.propertyCode].valueChanges.pipe(
             debounceTime(2000),
@@ -252,7 +323,7 @@ export class AllPropertiesPageComponent implements OnChanges {
             else {
               this.propUpdateList.find(item => item.property === prop)!.value = value;
             }
-          })
+          });
 
           formsConfig.push(forms);
           propCount++;
@@ -314,6 +385,37 @@ export class AllPropertiesPageComponent implements OnChanges {
 
   returnProfileFormConfig(code: string): FormConfig[] {
     return this.propertyConfig.find(item => item.moduleCode === code).list;
+  }
+
+  getStateList(): Observable<any[]> {
+    if (!this.profileFormGroup.controls['country'].value.length) {
+      return of([]);
+    }
+
+    return this.commonService.getStateByCountryId(this.profileFormGroup.controls['country'].value).pipe(
+      map(res => {
+        return res.map(val => ({
+          value: val.uid,
+          label: val.name
+        }))
+      })
+    );
+  }
+
+  getCityList(): Observable<any[]> {
+    if (!this.profileFormGroup.controls['state'].value.length) {
+      return of([]);
+    }
+
+    return this.commonService.getCityByStateId(this.profileFormGroup.controls['state'].value).pipe(
+      map(res => {
+        console.log(res)
+        return res.map(val => ({
+          value: val.uid,
+          label: val.name
+        }))
+      })
+    );
   }
 
   cancelButton() {

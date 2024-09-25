@@ -5,7 +5,7 @@ import { TranslateService } from '@ngx-translate/core';
 import * as ExcelJS from 'exceljs';
 import saveAs from 'file-saver';
 import { MessageService } from 'primeng/api';
-import { Observable, of } from 'rxjs';
+import { debounceTime, distinctUntilChanged, map, Observable, of } from 'rxjs';
 import { AuthService } from '../../../services/auth.service';
 import { CommonService, CompanyDto, ContactDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, PropertyLookupDto, UserDto } from '../../../services/common.service';
 import { BaseDataSourceActionEvent, CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../../../services/components.service';
@@ -51,6 +51,10 @@ export class ContactCompanyPageComponent implements OnChanges {
   filterPropList: any[] = [];
   filterSearch: FormControl = new FormControl("");
   headerKeyMapping: { [header: string]: string } = {};
+  countryFormId: string = "";
+  stateFormId: string = "";
+  countryOptionList: OptionsModel[] = [];
+  stateList: Observable<OptionsModel[]>;
 
   constructor(
     private commonService: CommonService,
@@ -80,6 +84,14 @@ export class ContactCompanyPageComponent implements OnChanges {
   }
 
   async ngOnInit() {
+    this.commonService.getAllCountry().subscribe(res => {
+      this.countryOptionList = res.map(c => {
+        return {
+          label: c.name,
+          value: c.uid
+        }
+      });
+    });
     this.initTableConfig();
     this.initCreateFormConfig();
     // this.filterTableConfig();
@@ -248,6 +260,65 @@ export class ContactCompanyPageComponent implements OnChanges {
                 options: propertyLookupList
               }
             }
+            else if (prop.propertyType === CONTROL_TYPE_CODE.Country) {
+              this.countryFormId = prop.uid;
+              forms = {
+                id: prop.uid,
+                name: prop.propertyCode,
+                type: CONTROL_TYPE.Dropdown,
+                label: prop.propertyName,
+                fieldControl: this.createFormGroup.controls[prop.propertyCode],
+                layoutDefine: {
+                  row: createPropCount,
+                  column: 0,
+                },
+                options: this.countryOptionList
+              }
+            }
+            else if (prop.propertyType === CONTROL_TYPE_CODE.State) {
+              this.stateFormId = prop.uid;
+              forms = {
+                id: prop.uid,
+                name: prop.propertyCode,
+                type: CONTROL_TYPE.Dropdown,
+                label: prop.propertyName,
+                fieldControl: this.createFormGroup.controls[prop.propertyCode],
+                layoutDefine: {
+                  row: createPropCount,
+                  column: 0,
+                },
+                dataSourceDependOn: [this.countryFormId],
+                dataSourceAction: () => this.getStateList()
+              }
+            }
+            else if (prop.propertyType === CONTROL_TYPE_CODE.City) {
+              forms = {
+                id: prop.uid,
+                name: prop.propertyCode,
+                type: CONTROL_TYPE.Dropdown,
+                label: prop.propertyName,
+                fieldControl: this.createFormGroup.controls[prop.propertyCode],
+                layoutDefine: {
+                  row: createPropCount,
+                  column: 0,
+                },
+                dataSourceDependOn: [this.stateFormId],
+                dataSourceAction: () => this.getCityList()
+              }
+            }
+            else if (prop.propertyType === CONTROL_TYPE_CODE.Postcode) {
+              forms = {
+                id: prop.uid,
+                name: prop.propertyCode,
+                type: CONTROL_TYPE.Textbox,
+                label: prop.propertyName,
+                fieldControl: this.createFormGroup.controls[prop.propertyCode],
+                layoutDefine: {
+                  row: createPropCount,
+                  column: 0,
+                }
+              }
+            }
 
             formsConfig.push(forms);
             createPropCount++;
@@ -273,6 +344,28 @@ export class ContactCompanyPageComponent implements OnChanges {
         this.commonService.getAllContact().subscribe(res => {
           this.tableLoading[this.activeTabPanel] = true;
           this.tabFilterList[this.activeTabPanel].forEach((item: Filter) => {
+            // get state and city uid from input name 
+            if (item.property.propertyCode === 'state') {
+              this.commonService.getStateByStateName(item.filterFieldControl.value).subscribe(res => {
+                if (res.length == 1) {
+                  item.filterFieldControl.setValue(res[0].uid);
+                }
+                else {
+                  this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Something wrong on searching of State' });
+                }
+              });
+            }
+            else if (item.property.propertyCode === 'city') {
+              this.commonService.getCityByCityName(item.filterFieldControl.value).subscribe(res => {
+                if (res.length == 1) {
+                  item.filterFieldControl.setValue(res[0].uid);
+                }
+                else {
+                  this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Something wrong on searching of City' });
+                }
+              });
+            }
+
             res.forEach(cont => {
               let proProp: PropertyDataDto[] = JSON.parse(cont.contactProperties);
               proProp.forEach(p => {
@@ -1085,10 +1178,19 @@ export class ContactCompanyPageComponent implements OnChanges {
           mode = 'datetime';
           break;
         case CONTROL_TYPE_CODE.Country:
-        case CONTROL_TYPE_CODE.City:
-        case CONTROL_TYPE_CODE.State:
-        case CONTROL_TYPE_CODE.Postcode:
           mode = CONTROL_TYPE.Multiselect;
+          break;
+        case CONTROL_TYPE_CODE.State:
+          this.filterFormGroup.controls[prop.propertyCode].valueChanges.pipe(
+            debounceTime(2000),
+            distinctUntilChanged()
+          ).subscribe(val => {
+            this.commonService.getStateByStateName(val).subscribe(res => {
+              if (res.length > 0) {
+
+              }
+            })
+          });
           break;
         case CONTROL_TYPE_CODE.Number:
           mode = 'number'
@@ -1109,6 +1211,8 @@ export class ContactCompanyPageComponent implements OnChanges {
         conditionFieldControl: <FormControl>this.conditionFormGroup.controls[prop.propertyCode],
         mode: mode,
       });
+
+      console.log(this.tempFilterList[this.activeTabPanel]);
     }
 
   }
@@ -1258,6 +1362,9 @@ export class ContactCompanyPageComponent implements OnChanges {
           value: item.uid
         }));
         break;
+      case CONTROL_TYPE_CODE.Country:
+        list = this.countryOptionList;
+        break;
     }
 
     return of(list);
@@ -1287,14 +1394,7 @@ export class ContactCompanyPageComponent implements OnChanges {
     this.panelList = this.panelList.filter(item => item.index !== event.index)
   }
 
-  testing(text: any) {
-    console.log(text);
-    return text;
-  }
-
   returnPropertyValue(prop: any, value: string) {
-    // console.log(prop)
-    // console.log(value)
     switch (prop.type) {
       case CONTROL_TYPE_CODE.Radio:
       case CONTROL_TYPE_CODE.Dropdown:
@@ -1348,6 +1448,37 @@ export class ContactCompanyPageComponent implements OnChanges {
     });
 
     this.closeTableColumnFilter();
+  }
+
+  getStateList(): Observable<any[]> {
+    if (!this.createFormGroup.controls['country'].value.length) {
+      return of([]);
+    }
+
+    return this.commonService.getStateByCountryId(this.createFormGroup.controls['country'].value).pipe(
+      map(res => {
+        return res.map(val => ({
+          value: val.uid,
+          label: val.name
+        }))
+      })
+    );
+  }
+
+  getCityList(): Observable<any[]> {
+    if (!this.createFormGroup.controls['state'].value.length) {
+      return of([]);
+    }
+
+    return this.commonService.getCityByStateId(this.createFormGroup.controls['state'].value).pipe(
+      map(res => {
+        console.log(res)
+        return res.map(val => ({
+          value: val.uid,
+          label: val.name
+        }))
+      })
+    );
   }
 }
 

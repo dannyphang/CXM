@@ -89,9 +89,6 @@
                       CONTROL_TYPE_CODE.MultiCheckbox ||
                     item.property.propertyType === CONTROL_TYPE_CODE.Radio ||
                     item.property.propertyType === CONTROL_TYPE_CODE.Country ||
-                    item.property.propertyType === CONTROL_TYPE_CODE.State ||
-                    item.property.propertyType === CONTROL_TYPE_CODE.City ||
-                    item.property.propertyType === CONTROL_TYPE_CODE.Postcode ||
                     item.property.propertyType === CONTROL_TYPE_CODE.User;
                   else notDropdown
                 "
@@ -137,10 +134,6 @@
                       item.property.propertyType !== CONTROL_TYPE_CODE.Radio &&
                       item.property.propertyType !==
                         CONTROL_TYPE_CODE.Country &&
-                      item.property.propertyType !== CONTROL_TYPE_CODE.State &&
-                      item.property.propertyType !== CONTROL_TYPE_CODE.City &&
-                      item.property.propertyType !==
-                        CONTROL_TYPE_CODE.Postcode &&
                       item.property.propertyType !== CONTROL_TYPE_CODE.User
                     "
                     [label]="'PROFILE.VALUE' | translate"

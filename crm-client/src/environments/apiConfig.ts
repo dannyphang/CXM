@@ -1,8 +1,10 @@
 import env from './environment.json';
 import { isDevMode } from '@angular/core';
 
-const isDev = isDevMode();
+const isProd = !isDevMode();
+const isServerConnect = false;
+
 const apiConfig = {
-    baseUrl: isDev ? env.localBaseUrl : env.serverBaseUrl
+    baseUrl: isProd || isServerConnect ? env.serverBaseUrl : env.localBaseUrl
 };
 export default apiConfig;

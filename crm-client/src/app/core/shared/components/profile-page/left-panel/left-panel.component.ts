@@ -4,7 +4,7 @@ import { NavigationExtras, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { CommonService, CompanyDto, ContactDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, PropertyLookupDto, UpdateCompanyDto, UpdateContactDto } from '../../../../services/common.service';
 import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../../../../services/components.service';
-import { debounceTime, distinctUntilChanged } from 'rxjs';
+import { debounceTime, distinctUntilChanged, map, Observable, of } from 'rxjs';
 import { StorageService } from '../../../../services/storage.service';
 import { DEFAULT_PROFILE_PIC_URL } from '../../../constants/common.constants';
 
@@ -52,6 +52,10 @@ export class LeftPanelComponent implements OnChanges {
   profilePhotoFile: File | null;
   profilePhotoFileBlob: Blob;
   profileImg: string = DEFAULT_PROFILE_PIC_URL;
+  countryFormId: string = "";
+  stateFormId: string = "";
+  countryOptionList: OptionsModel[] = [];
+  stateList: Observable<OptionsModel[]>;
 
   constructor(
     private commonService: CommonService,
@@ -69,40 +73,10 @@ export class LeftPanelComponent implements OnChanges {
 
       if (this.contactProfile || this.companyProfile) {
         this.returnProfileFormConfig();
+
       }
 
-      // check fieldcontrol update value
-      this.profileFormGroup.valueChanges.pipe(
-        debounceTime(2000),
-        distinctUntilChanged()
-      ).subscribe(changedValue => {
-        this.propertiesList.forEach(item => {
-          if (item.moduleCode === "CONT_INFO" || item.moduleCode === "COMP_INFO") {
-            item.propertiesList.forEach(prop => {
-              this.profileFormGroup.controls[prop.propertyCode].valueChanges.pipe(
-                debounceTime(2000),
-                distinctUntilChanged()
-              ).forEach(value => {
-                console.log(value)
-                this.showFormUpdateSidebar = true;
-
-                let profileUpdateObj: profileUpdateDto = {
-                  property: prop,
-                  value: value
-                };
-
-                // add to the list if not exist else replace the value
-                if (!this.propUpdateList.find(item => item.property === prop)) {
-                  this.propUpdateList.push(profileUpdateObj);
-                }
-                else {
-                  this.propUpdateList.find(item => item.property === prop)!.value = value;
-                }
-              })
-            })
-          }
-        })
-      });
+      this.checkFormValueChange();
     }
 
     if (changes['contactProfile'] && changes['contactProfile'].currentValue) {
@@ -112,6 +86,8 @@ export class LeftPanelComponent implements OnChanges {
       if (this.contactProfile.contactProfilePhotoUrl) {
         this.profileImg = this.contactProfile.contactProfilePhotoUrl;
       }
+
+      this.checkFormValueChange();
     }
 
     if (changes['companyProfile'] && changes['companyProfile'].currentValue) {
@@ -121,12 +97,55 @@ export class LeftPanelComponent implements OnChanges {
       if (this.companyProfile.companyProfilePhotoUrl) {
         this.profileImg = this.companyProfile.companyProfilePhotoUrl;
       }
+
+      this.checkFormValueChange();
     }
+  }
 
+  checkFormValueChange() {
+    // check fieldcontrol update value
+    this.profileFormGroup.valueChanges.pipe(
+      debounceTime(2000),
+      distinctUntilChanged()
+    ).subscribe(changedValue => {
+      this.propertiesList.forEach(item => {
+        if (item.moduleCode === "CONT_INFO" || item.moduleCode === "COMP_INFO") {
+          item.propertiesList.forEach(prop => {
+            this.profileFormGroup.controls[prop.propertyCode].valueChanges.pipe(
+              debounceTime(2000),
+              distinctUntilChanged()
+            ).forEach(value => {
+              console.log(value)
+              this.showFormUpdateSidebar = true;
 
+              let profileUpdateObj: profileUpdateDto = {
+                property: prop,
+                value: value
+              };
+
+              // add to the list if not exist else replace the value
+              if (!this.propUpdateList.find(item => item.property === prop)) {
+                this.propUpdateList.push(profileUpdateObj);
+              }
+              else {
+                this.propUpdateList.find(item => item.property === prop)!.value = value;
+              }
+            })
+          })
+        }
+      })
+    });
   }
 
   ngOnInit() {
+    this.commonService.getAllCountry().subscribe(res => {
+      this.countryOptionList = res.map(c => {
+        return {
+          label: c.name,
+          value: c.uid
+        }
+      });
+    });
 
   }
 
@@ -139,6 +158,7 @@ export class LeftPanelComponent implements OnChanges {
     initial property form
   **/
   returnProfileFormConfig() {
+
     let propCount = 0;
     let formsConfig: FormConfig[] = [];
 
@@ -277,6 +297,65 @@ export class LeftPanelComponent implements OnChanges {
                 required: prop.isMandatory,
                 timeOnly: prop.propertyType === CONTROL_TYPE_CODE.Time ? true : false,
                 showTime: prop.propertyType !== CONTROL_TYPE_CODE.Date ? true : false
+              }
+            }
+            else if (prop.propertyType === CONTROL_TYPE_CODE.Country) {
+              this.countryFormId = prop.uid;
+              forms = {
+                id: prop.uid,
+                name: prop.propertyCode,
+                type: CONTROL_TYPE.Dropdown,
+                label: prop.propertyName,
+                fieldControl: this.profileFormGroup.controls[prop.propertyCode],
+                layoutDefine: {
+                  row: propCount,
+                  column: 0,
+                },
+                options: this.countryOptionList
+              }
+            }
+            else if (prop.propertyType === CONTROL_TYPE_CODE.State) {
+              this.stateFormId = prop.uid;
+              forms = {
+                id: prop.uid,
+                name: prop.propertyCode,
+                type: CONTROL_TYPE.Dropdown,
+                label: prop.propertyName,
+                fieldControl: this.profileFormGroup.controls[prop.propertyCode],
+                layoutDefine: {
+                  row: propCount,
+                  column: 0,
+                },
+                dataSourceDependOn: [this.countryFormId],
+                dataSourceAction: () => this.getStateList()
+              }
+            }
+            else if (prop.propertyType === CONTROL_TYPE_CODE.City) {
+              forms = {
+                id: prop.uid,
+                name: prop.propertyCode,
+                type: CONTROL_TYPE.Dropdown,
+                label: prop.propertyName,
+                fieldControl: this.profileFormGroup.controls[prop.propertyCode],
+                layoutDefine: {
+                  row: propCount,
+                  column: 0,
+                },
+                dataSourceDependOn: [this.stateFormId],
+                dataSourceAction: () => this.getCityList()
+              }
+            }
+            else if (prop.propertyType === CONTROL_TYPE_CODE.Postcode) {
+              forms = {
+                id: prop.uid,
+                name: prop.propertyCode,
+                type: CONTROL_TYPE.Textbox,
+                label: prop.propertyName,
+                fieldControl: this.profileFormGroup.controls[prop.propertyCode],
+                layoutDefine: {
+                  row: propCount,
+                  column: 0,
+                }
               }
             }
 
@@ -524,6 +603,37 @@ export class LeftPanelComponent implements OnChanges {
   onCloseProfileDialog() {
     this.profileImg = this.contactProfile.contactProfilePhotoUrl ? this.contactProfile.contactProfilePhotoUrl : DEFAULT_PROFILE_PIC_URL;
     this.profilePhotoFile = null;
+  }
+
+  getStateList(): Observable<any[]> {
+    if (!this.profileFormGroup.controls['country'].value.length) {
+      return of([]);
+    }
+
+    return this.commonService.getStateByCountryId(this.profileFormGroup.controls['country'].value).pipe(
+      map(res => {
+        return res.map(val => ({
+          value: val.uid,
+          label: val.name
+        }))
+      })
+    );
+  }
+
+  getCityList(): Observable<any[]> {
+    if (!this.profileFormGroup.controls['state'].value?.length) {
+      return of([]);
+    }
+
+    return this.commonService.getCityByStateId(this.profileFormGroup.controls['state'].value).pipe(
+      map(res => {
+        console.log(res)
+        return res.map(val => ({
+          value: val.uid,
+          label: val.name
+        }))
+      })
+    );
   }
 }
 
