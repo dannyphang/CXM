@@ -160,6 +160,22 @@ export class CommonService {
     translate(text: string): string {
         return this.translateService.instant(text);
     }
+
+    getAllCountry(): Observable<CountryDto[]> {
+        return this.http.get<CountryDto[]>(apiConfig.baseUrl + '/location/country').pipe();
+    }
+
+    getAllState(): Observable<StateDto[]> {
+        return this.http.get<StateDto[]>(apiConfig.baseUrl + '/location/state').pipe();
+    }
+
+    getStateByCountryId(countryId: string): Observable<StateDto[]> {
+        return this.http.get<StateDto[]>(apiConfig.baseUrl + '/location/state/' + countryId);
+    }
+
+    getCityByStateId(stateId: string): Observable<CityDto[]> {
+        return this.http.get<CityDto[]>(apiConfig.baseUrl + '/location/city/' + stateId);
+    }
 }
 
 export class BasedDto {
@@ -303,4 +319,54 @@ export class UserDto {
     displayName: string;
     email: string;
     emailVerified: boolean;
+}
+
+export class CountryDto extends BasedDto {
+    uid: string;
+    countryId: number;
+    name: string;
+    iso3: string;
+    numericCode: number;
+    iso2: string;
+    phoneCode: number;
+    capital: string;
+    currency: string;
+    currencyName: string;
+    currencySymbol: string;
+    tld: string;
+    native: string;
+    region: string;
+    regionId: number;
+    subregion: string;
+    subregionId: number;
+    nationality: string;
+    timezones: string;
+    translations: string;
+    latitude: number;
+    longtitude: number;
+}
+
+export class StateDto extends BasedDto {
+    uid: string;
+    countryId: number;
+    stateId: number;
+    name: string;
+    countryCode: string;
+    fipsCode: number;
+    iso2: string;
+    type: string;
+    latitude: number;
+    longtitude: number;
+}
+
+export class CityDto extends BasedDto {
+    uid: string;
+    cityId: number;
+    countryId: number;
+    stateId: number;
+    name: string;
+    countryCode: string;
+    stateCode: string;
+    latitude: number;
+    longtitude: number;
 }
