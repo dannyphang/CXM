@@ -463,7 +463,11 @@
 
                   <div *ngSwitchDefault>
                     <div
-                      [pTooltip]="returnPropertyValue(col, profile[col.code])"
+                      [pTooltip]="
+                        returnPropertyValue(col, profile[col.code])
+                          ? returnPropertyValue(col, profile[col.code])
+                          : EMPTY_VALUE_STRING
+                      "
                     >
                       {{
                         returnPropertyValue(col, profile[col.code])
