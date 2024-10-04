@@ -359,9 +359,6 @@ export class LeftPanelComponent implements OnChanges {
               }
             }
 
-            // insert profile value into form
-            // this.bindProfileValue(prop);
-
             formsConfig.push(forms);
             propCount++;
           }

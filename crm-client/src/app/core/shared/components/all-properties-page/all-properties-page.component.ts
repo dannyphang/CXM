@@ -19,6 +19,7 @@ export class AllPropertiesPageComponent implements OnChanges {
   hideEmptySearchCheckbox = [{ label: 'Hide blank properties', value: true }];
   profileFormGroup: FormGroup = new FormGroup({});
   propertyConfig: any[] = [];
+  tempPropertyConfigNumber: any = {};
   showFormUpdateSidebar: boolean = false;
   propUpdateList: profileUpdateDto[] = [];
   hideCheckFormControl: FormControl = new FormControl();
@@ -50,20 +51,6 @@ export class AllPropertiesPageComponent implements OnChanges {
   }
 
   ngOnInit() {
-    this.searchControl.valueChanges.subscribe((value) => {
-      this.propertyConfig.forEach(item => {
-        item.list.forEach((prop: FormConfig) => {
-          document.getElementById(prop.id!)!.style.display = 'none';
-          if (prop.label!.toString().toLowerCase().includes(value.toLowerCase())) {
-            document.getElementById(prop.id!)!.style.display = 'block';
-          }
-          if (value.toLowerCase().length === 0) {
-            document.getElementById(prop.id!)!.style.display = 'block';
-          }
-        })
-      })
-    });
-
     this.hideCheckFormControl.valueChanges.subscribe(item => {
       if (item[0] === true) {
         this.propertyList.forEach(group => {
@@ -82,6 +69,32 @@ export class AllPropertiesPageComponent implements OnChanges {
           })
         })
       }
+    });
+
+    this.searchControl.valueChanges.pipe(
+      debounceTime(2000),
+      distinctUntilChanged()
+    ).subscribe((value) => {
+
+      this.tempPropertyConfigNumber = {};
+      this.propertyConfig.forEach(item => {
+        item.list.forEach((prop: FormConfig) => {
+          if (value.length === 0) {
+            // the div set to display none and now cannot find the div with the id after html filtered 
+            this.tempPropertyConfigNumber[item.moduleCode] = 1;
+            document.getElementById(prop.id!)!.style.display = 'block';
+          }
+          else {
+            if (prop.label!.toString().toLowerCase().includes(value.toLowerCase())) {
+              this.tempPropertyConfigNumber[item.moduleCode] = 1;
+              document.getElementById(prop.id!)!.style.display = 'block';
+            }
+            else {
+              document.getElementById(prop.id!)!.style.display = 'none';
+            }
+          }
+        })
+      });
     });
   }
 
@@ -334,11 +347,13 @@ export class AllPropertiesPageComponent implements OnChanges {
         moduleCode: item.moduleCode,
         list: formsConfig
       });
+
+      this.tempPropertyConfigNumber[item.moduleCode] = 1;
     });
   }
 
-  returnProfileValue(prop: PropertiesDto) {
-    if (this.contactProfile) {
+  returnProfileValue(prop: PropertiesDto): string | Date | null {
+    if (this.contactProfile || this.companyProfile) {
       if (this.module === 'CONT') {
         switch (prop.propertyCode) {
           case 'first_name':
@@ -350,13 +365,13 @@ export class AllPropertiesPageComponent implements OnChanges {
           case 'phone_number':
             return this.contactProfile.contactPhone;
           case 'contact_owner':
-            return this.contactProfile.contactOwnerUid
+            return this.contactProfile.contactOwnerUid ?? null
           default:
-            let contactProp: PropertyDataDto[] = JSON.parse(this.contactProfile.contactProperties ?? '{}');
+            let contactProp: PropertyDataDto[] = JSON.parse(this.contactProfile.contactProperties ?? '[]');
             if (contactProp.find(item => item.uid === prop.uid) && (prop.propertyType === CONTROL_TYPE_CODE.Date || prop.propertyType === CONTROL_TYPE_CODE.DateTime || prop.propertyType === CONTROL_TYPE_CODE.Time)) {
               return new Date(contactProp.find(item => item.uid === prop.uid)!.value);
             }
-            return contactProp.find(item => item.uid === prop.uid)?.value;
+            return contactProp.find(item => item.uid === prop.uid) ? contactProp.find(item => item.uid === prop.uid)!.value : null;
         }
       }
       else {
@@ -368,18 +383,19 @@ export class AllPropertiesPageComponent implements OnChanges {
           case 'company_email':
             return this.companyProfile.companyEmail;
           case 'company_owner':
-            return this.companyProfile.companyOwnerUid
+            return this.companyProfile.companyOwnerUid ?? null;
           default:
-            let companyProp: PropertyDataDto[] = JSON.parse(this.companyProfile.companyProperties);
+            let companyProp: PropertyDataDto[] = JSON.parse(this.companyProfile.companyProperties ?? "[]");
             if (companyProp.find(item => item.uid === prop.uid) && (prop.propertyType === CONTROL_TYPE_CODE.Date || prop.propertyType === CONTROL_TYPE_CODE.DateTime || prop.propertyType === CONTROL_TYPE_CODE.Time)) {
+              console.log(new Date(companyProp.find(item => item.uid === prop.uid)!.value))
               return new Date(companyProp.find(item => item.uid === prop.uid)!.value);
             }
-            return companyProp.find(item => item.uid === prop.uid)?.value;
+            return companyProp.find(item => item.uid === prop.uid) ? companyProp.find(item => item.uid === prop.uid)!.value : null;
         }
       }
     }
     else {
-      return;
+      return null;
     }
   }
 
@@ -387,8 +403,13 @@ export class AllPropertiesPageComponent implements OnChanges {
     return this.propertyConfig.find(item => item.moduleCode === code).list;
   }
 
+  isShowModulePanel(moduleCode: string): boolean {
+    // console.log(this.propertyList.length)
+    return this.tempPropertyConfigNumber[moduleCode] > 0;
+  }
+
   getStateList(): Observable<any[]> {
-    if (!this.profileFormGroup.controls['country'].value.length) {
+    if (!this.profileFormGroup.controls['country'].value) {
       return of([]);
     }
 
@@ -403,7 +424,7 @@ export class AllPropertiesPageComponent implements OnChanges {
   }
 
   getCityList(): Observable<any[]> {
-    if (!this.profileFormGroup.controls['state'].value.length) {
+    if (!this.profileFormGroup.controls['state'].value) {
       return of([]);
     }
 

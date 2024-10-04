@@ -15,21 +15,22 @@
       [fieldControl]="hideCheckFormControl"
     ></app-base-checkbox>
   </div>
-  <div
-    class="panel-div"
-    *ngFor="let propertyGroup of propertyList"
-    class="tw-mt-[15px]"
-  >
-    <app-accordion-panel *ngIf="!propertyGroup.isHide" [iconPos]="'start'">
-      <div acc-panel-header>
-        {{ propertyGroup.moduleName }}
-      </div>
-      <div acc-panel-body>
-        <app-base-form
-          [formConfig]="returnProfileFormConfig(propertyGroup.moduleCode)"
-        ></app-base-form>
-      </div>
-    </app-accordion-panel>
+  <div class="panel-div" *ngFor="let propertyGroup of propertyList">
+    <div
+      *ngIf="tempPropertyConfigNumber[propertyGroup.moduleCode] > 0"
+      class="tw-mt-[15px]"
+    >
+      <app-accordion-panel [iconPos]="'start'">
+        <div acc-panel-header>
+          {{ propertyGroup.moduleName }}
+        </div>
+        <div acc-panel-body>
+          <app-base-form
+            [formConfig]="returnProfileFormConfig(propertyGroup.moduleCode)"
+          ></app-base-form>
+        </div>
+      </app-accordion-panel>
+    </div>
   </div>
 </div>
 

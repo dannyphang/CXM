@@ -100,7 +100,7 @@ export class CommonService {
             return null;
         }
         else if (type === CONTROL_TYPE_CODE.Date || type === CONTROL_TYPE_CODE.DateTime || type === CONTROL_TYPE_CODE.Time) {
-            return new Date();
+            return null;
         }
         else if (type === CONTROL_TYPE_CODE.Number) {
             return 0;
