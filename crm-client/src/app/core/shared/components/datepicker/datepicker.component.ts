@@ -51,8 +51,6 @@ export class BaseDatepickerComponent
 
   ngOnInit(): void {
     if (this.mode === 'range_2') {
-
-
       const _this = this;
 
       const func = FormControl.prototype.markAsTouched;
@@ -78,7 +76,7 @@ export class BaseDatepickerComponent
       this.date_from.updateValueAndValidity();
       this.date_to.updateValueAndValidity();
       if (typeof this.fieldControl.value === 'string') {
-        this.fieldControl = new FormControl([]);
+        this.fieldControl = new FormControl();
         this.date_from = new FormControl(new Date());
         this.date_from.markAsTouched();
       } else {

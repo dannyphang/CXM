@@ -16,7 +16,7 @@
           [label]="'BUTTON.SAVE'"
           styleClass=""
           class="tw-w-full"
-          (onClick)="saveButton()"
+          (onClick)="saveButton(module, contactProfile, companyProfile)"
         ></app-base-button>
         <app-base-button
           [label]="'BUTTON.CANCEL'"
@@ -250,7 +250,7 @@
       </div>
       <div acc-panel-body class="panel-content-div">
         <app-base-form
-          [formConfig]="profileFormConfig"
+          [formConfig]="returnProfileFormConfig(propertyGroup.moduleCode)"
           class="left-profile-form"
         ></app-base-form>
       </div>

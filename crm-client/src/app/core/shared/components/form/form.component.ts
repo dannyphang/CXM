@@ -2,6 +2,7 @@ import {
   AfterContentChecked,
   ChangeDetectorRef,
   Component,
+  effect,
   Input,
   OnChanges,
   SimpleChanges,
@@ -26,7 +27,11 @@ export class BaseFormComponent implements OnChanges, AfterContentChecked {
   constructor(
     private cfr: ChangeDetectorRef,
     private sanitized: DomSanitizer,
-  ) { }
+  ) {
+    // effect(() => { }, {
+    //   allowSignalWrites: true
+    // });
+  }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['formConfig']) {

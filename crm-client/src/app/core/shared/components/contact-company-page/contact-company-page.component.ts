@@ -1376,7 +1376,6 @@ export class ContactCompanyPageComponent implements OnChanges {
 
     Object.assign(this.tabFilterList[this.activeTabPanel], this.tempFilterList[this.activeTabPanel]);
 
-    // this.filterTableConfig();
     if (this.module === 'CONT') {
       this.returnFilteredProfileList();
     }
