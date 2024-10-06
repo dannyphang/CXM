@@ -6,6 +6,7 @@ import { Input } from "@angular/core";
 
 export abstract class BasePropertyAbstract {
     profileFormGroup: FormGroup = new FormGroup({});
+    initProfileFormGroup: FormGroup = new FormGroup({});
     countryFormId: string = "";
     countryOptionList: OptionsModel[] = [];
     stateFormId: string = "";
@@ -27,7 +28,6 @@ export abstract class BasePropertyAbstract {
       initial property form
     **/
     initProfileFormConfig(propertyList: PropertyGroupDto[], module: 'CONT' | 'COMP', contactProfile: ContactDto, companyProfile: CompanyDto, isLeftPanel = false) {
-
         let propCount = 0;
 
         this.profileFormGroup = this.formBuilder.group({});
@@ -261,6 +261,8 @@ export abstract class BasePropertyAbstract {
             });
             this.tempPropertyConfigNumber[item.moduleCode] = 1;
         });
+
+        this.initProfileFormGroup = this.profileFormGroup.value;
     }
 
     returnProfileValue(prop: PropertiesDto, module: 'CONT' | 'COMP', contactProfile: ContactDto, companyProfile: CompanyDto): string | Date | null {
@@ -372,13 +374,14 @@ export abstract class BasePropertyAbstract {
                         else {
                             this.propUpdateList.find(item => item.property === prop)!.value = value;
                         }
-                    })
+                    });
                 });
-            })
+            });
         });
     }
 
     cancelButton() {
+        this.profileFormGroup.reset(this.initProfileFormGroup, { emitEvent: false });
         this.showFormUpdateSidebar = false;
     }
 
