@@ -378,3 +378,8 @@ export class CityDto extends BasedDto {
     latitude: number;
     longtitude: number;
 }
+
+export class profileUpdateDto {
+    property: PropertiesDto;
+    value: string;
+}

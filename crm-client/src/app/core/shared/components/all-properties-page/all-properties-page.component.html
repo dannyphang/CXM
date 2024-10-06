@@ -1,4 +1,7 @@
+<app-toast></app-toast>
+
 <div class="tw-grid tw-p-[15px] allProp-div" *ngIf="propertyConfig.length > 0">
+  <!-- search bar -->
   <div
     class="search-div tw-mt-[15px] tw-mb-0 tw-flex tw-flex-wrap tw-items-center"
   >
@@ -15,10 +18,15 @@
       [fieldControl]="hideCheckFormControl"
     ></app-base-checkbox>
   </div>
+
+  <!-- property form -->
   <div class="panel-div" *ngFor="let propertyGroup of propertyList">
     <div
-      *ngIf="tempPropertyConfigNumber[propertyGroup.moduleCode] > 0"
       class="tw-mt-[15px]"
+      [ngClass]="{
+        'tw-block': tempPropertyConfigNumber[propertyGroup.moduleCode] === 1,
+        'tw-hidden': tempPropertyConfigNumber[propertyGroup.moduleCode] !== 1
+      }"
     >
       <app-accordion-panel [iconPos]="'start'">
         <div acc-panel-header>
@@ -50,7 +58,7 @@
           [label]="'BUTTON.SAVE'"
           styleClass=""
           class="tw-w-full"
-          (onClick)="saveButton()"
+          (onClick)="saveButton(module, contactProfile, companyProfile)"
         ></app-base-button>
         <app-base-button
           [label]="'BUTTON.CANCEL'"
