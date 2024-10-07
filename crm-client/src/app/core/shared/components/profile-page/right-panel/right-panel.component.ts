@@ -3,13 +3,15 @@ import { ActivityService } from '../../../../services/activity.service';
 import { PropertyGroupDto, ContactDto, CompanyDto, CommonService, CreateAssociationDto } from '../../../../services/common.service';
 import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../../../../services/components.service';
 import { FormControl } from '@angular/forms';
+import { MessageService } from 'primeng/api';
+import { BaseCoreAbstract } from '../../../base/base-core.abstract';
 
 @Component({
   selector: 'app-right-panel',
   templateUrl: './right-panel.component.html',
   styleUrl: './right-panel.component.scss'
 })
-export class RightPanelComponent {
+export class RightPanelComponent extends BaseCoreAbstract {
   @Input() propertiesList: PropertyGroupDto[] = [];
   @Input() module: 'CONT' | 'COMP' = 'CONT';
   @Input() contactProfile: ContactDto = new ContactDto();
@@ -22,9 +24,10 @@ export class RightPanelComponent {
 
   constructor(
     private commonService: CommonService,
-    private activityService: ActivityService
+    private activityService: ActivityService,
+    protected override messageService: MessageService,
   ) {
-
+    super(messageService);
   }
 
   ngOnInit() {
@@ -37,50 +40,62 @@ export class RightPanelComponent {
       case 'asso':
         if (this.module === 'COMP') {
           this.commonService.getAllContact().subscribe(res => {
-            let contList: OptionsModel[] = []
-            res.data.forEach(cont => {
-              contList.push({
-                label: `${cont.contactFirstName} ${cont.contactLastName} (${cont.contactEmail})`,
-                value: cont.uid
+            if (res.isSuccess) {
+              let contList: OptionsModel[] = [];
+              res.data.forEach(cont => {
+                contList.push({
+                  label: `${cont.contactFirstName} ${cont.contactLastName} (${cont.contactEmail})`,
+                  value: cont.uid
+                })
               })
-            })
-            this.assoFormConfig = [
-              {
-                id: 'CONTACT_ASSO',
-                label: "Contact",
-                type: CONTROL_TYPE.Multiselect,
-                layoutDefine: {
-                  row: 0,
-                  column: 0
-                },
-                options: contList,
-                fieldControl: this.assoFormControl
-              }
-            ]
+              this.assoFormConfig = [
+                {
+                  id: 'CONTACT_ASSO',
+                  label: "Contact",
+                  type: CONTROL_TYPE.Multiselect,
+                  layoutDefine: {
+                    row: 0,
+                    column: 0
+                  },
+                  options: contList,
+                  fieldControl: this.assoFormControl
+                }
+              ];
+            }
+            else {
+              this.popMessage(res.responseMessage, "Error", "error");
+            }
+
           });
         }
         else {
           this.commonService.getAllCompany().subscribe(res => {
-            let compList: OptionsModel[] = []
-            res.data.forEach(comp => {
-              compList.push({
-                label: `${comp.companyName} (${comp.companyEmail})`,
-                value: comp.uid
+            if (res.isSuccess) {
+              let compList: OptionsModel[] = [];
+              res.data.forEach(comp => {
+                compList.push({
+                  label: `${comp.companyName} (${comp.companyEmail})`,
+                  value: comp.uid
+                })
               })
-            })
-            this.assoFormConfig = [
-              {
-                id: 'COMPANY_ASSO',
-                label: "Company",
-                type: CONTROL_TYPE.Multiselect,
-                layoutDefine: {
-                  row: 0,
-                  column: 0
-                },
-                options: compList,
-                fieldControl: this.assoFormControl
-              }
-            ]
+              this.assoFormConfig = [
+                {
+                  id: 'COMPANY_ASSO',
+                  label: "Company",
+                  type: CONTROL_TYPE.Multiselect,
+                  layoutDefine: {
+                    row: 0,
+                    column: 0
+                  },
+                  options: compList,
+                  fieldControl: this.assoFormControl
+                }
+              ];
+            }
+            else {
+              this.popMessage(res.responseMessage, "Error", "error");
+            }
+
           });
         }
         break;
@@ -109,7 +124,9 @@ export class RightPanelComponent {
       companyAssoList: this.module === 'CONT' ? this.assoFormControl.value : [],
     }
     this.commonService.createAssociation(createAsso).subscribe(res => {
-      console.log(res)
+      if (!res.isSuccess) {
+        this.popMessage(res.responseMessage, "Error", "error");
+      }
     })
   }
 }

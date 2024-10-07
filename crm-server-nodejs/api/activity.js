@@ -2,6 +2,7 @@ import { Router } from "express";
 import express from "express";
 const router = Router();
 import * as db from "../firebase-admin.js";
+import responseModel from "./shared.js";
 
 router.use(express.json());
 
@@ -22,9 +23,7 @@ router.get("/", async (req, res) => {
 
     if (list.length > 0) {
       for (let i = 0; i < list.length; i++) {
-        list[i].activityDatetime = convertFirebaseDateFormat(
-          list[i].activityDatetime
-        );
+        list[i].activityDatetime = convertFirebaseDateFormat(list[i].activityDatetime);
         list[i].createdDate = convertFirebaseDateFormat(list[i].createdDate);
         list[i].modifiedDate = convertFirebaseDateFormat(list[i].modifiedDate);
 
@@ -39,15 +38,18 @@ router.get("/", async (req, res) => {
 
         // return status at the last loop
         if (i === list.length - 1) {
-          res.status(200).json(list);
+          res.status(200).json(responseModel({ data: list }));
         }
       }
     } else {
-      res.status(200).json(list);
+      res.status(200).json(responseModel({ data: list }));
     }
   } catch (error) {
     console.log("error", error);
-    res.status(400).json(error);
+    responseModel({
+      isSuccess: false,
+      responseMessage: error,
+    });
   }
 });
 
@@ -68,10 +70,13 @@ router.post("/getActivitiesByProfileId", async (req, res) => {
     //   return a.propertyId - b.propertyId;
     // });
 
-    res.status(200).json(list);
+    res.status(200).json(responseModel({ data: list }));
   } catch (error) {
     console.log("error", error);
-    res.status(400).json(error);
+    responseModel({
+      isSuccess: false,
+      responseMessage: error,
+    });
   }
 });
 
@@ -98,9 +103,7 @@ router.get("/activityModule", async (req, res) => {
 
     const activityModuleList = snapshot.docs.map((doc) => doc.data());
     const activityControlList = actCtrSnapshot.docs.map((doc) => doc.data());
-    const subActivityControlList = subActCtrSnapshot.docs.map((doc) =>
-      doc.data()
-    );
+    const subActivityControlList = subActCtrSnapshot.docs.map((doc) => doc.data());
 
     activityControlList.forEach((item) => {
       item.subActivityControl = [];
@@ -119,13 +122,20 @@ router.get("/activityModule", async (req, res) => {
       return a.moduleId - b.moduleId;
     });
 
-    res.status(200).json({
-      activityModuleList,
-      activityControlList,
-    });
+    res.status(200).json(
+      responseModel({
+        data: {
+          activityModuleList,
+          activityControlList,
+        },
+      })
+    );
   } catch (error) {
     console.log("error", error);
-    res.status(400).json(error);
+    responseModel({
+      isSuccess: false,
+      responseMessage: error,
+    });
   }
 });
 
@@ -146,10 +156,13 @@ router.post("/", async (req, res) => {
 
       await newRef.set(prop);
     });
-    res.status(200).json(list);
-  } catch (e) {
-    console.log(e);
-    res.status(400).json(e);
+    res.status(200).json(responseModel({ data: list }));
+  } catch (error) {
+    console.log(error);
+    responseModel({
+      isSuccess: false,
+      responseMessage: error,
+    });
   }
 });
 
@@ -170,42 +183,63 @@ router.post("/upload", async (req, res) => {
 
       await newRef.set(prop).doc(prop.uid);
     });
-    res.status(200).json(list);
-  } catch (e) {
-    console.log(e);
-    res.status(400).json(e);
+    res.status(200).json(responseModel({ data: list }));
+  } catch (error) {
+    console.log(error);
+    responseModel({
+      isSuccess: false,
+      responseMessage: error,
+    });
   }
 });
 
 // delete activity (update status to 2)
 router.delete("/:uid", async (req, res) => {
-  const uid = req.params.uid;
-  let actRef = db.default.db.collection(activityCollection).doc(uid);
+  try {
+    const uid = req.params.uid;
+    let actRef = db.default.db.collection(activityCollection).doc(uid);
 
-  await actRef.update({
-    statusId: 2,
-    modifiedDate: new Date(),
-  });
+    await actRef.update({
+      statusId: 2,
+      modifiedDate: new Date(),
+    });
 
-  res.status(200).json({
-    uid: uid,
-  });
+    res.status(200).json(
+      responseModel({
+        data: {
+          uid: uid,
+        },
+      })
+    );
+  } catch (error) {
+    console.log(error);
+    responseModel({
+      isSuccess: false,
+      responseMessage: error,
+    });
+  }
 });
 
 // update activity
 router.put("/:uid", async (req, res) => {
-  const uid = req.params.uid;
-  let updateBody = req.body;
+  try {
+    const uid = req.params.uid;
+    let updateBody = req.body;
 
-  updateBody.modifiedDate = new Date();
+    updateBody.modifiedDate = new Date();
 
-  let actRef = db.default.db.collection(activityCollection).doc(uid);
+    let actRef = db.default.db.collection(activityCollection).doc(uid);
 
-  const updatedContact = await actRef.update(updateBody);
+    const updatedContact = await actRef.update(updateBody);
 
-  res.status(200).json({
-    updatedContact,
-  });
+    res.status(200).json(responseModel({ data: updatedContact }));
+  } catch (error) {
+    console.log(error);
+    responseModel({
+      isSuccess: false,
+      responseMessage: error,
+    });
+  }
 });
 
 function convertFirebaseDateFormat(date) {

@@ -2,13 +2,15 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange
 import { CommonService, CompanyDto, ContactDto, ModuleDto } from '../../../../services/common.service';
 import { FormControl } from '@angular/forms';
 import { ActivityDto, ActivityModuleDto, ActivityService } from '../../../../services/activity.service';
+import { MessageService } from 'primeng/api';
+import { BaseCoreAbstract } from '../../../base/base-core.abstract';
 
 @Component({
   selector: 'app-middle-panel',
   templateUrl: './middle-panel.component.html',
   styleUrl: './middle-panel.component.scss'
 })
-export class MiddlePanelComponent implements OnInit, OnChanges {
+export class MiddlePanelComponent extends BaseCoreAbstract implements OnInit, OnChanges {
   @Input() propertiesList: ModuleDto[] = [];
   @Input() module: 'CONT' | 'COMP' = 'CONT';
   @Input() contactProfile: ContactDto = new ContactDto();
@@ -47,8 +49,10 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
 
   constructor(
     private commonService: CommonService,
-    private activityService: ActivityService
+    private activityService: ActivityService,
+    protected override messageService: MessageService,
   ) {
+    super(messageService);
 
   }
 
@@ -63,7 +67,7 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
         this.activityControlList = res.data.activityControlList;
       }
       else {
-        this.commonService.popMessage(res.responseMessage, "Error", "Error")
+        this.popMessage(res.responseMessage, "Error", "Error");
       }
     });
 

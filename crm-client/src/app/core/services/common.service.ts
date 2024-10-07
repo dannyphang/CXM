@@ -10,7 +10,6 @@ import { TranslateService } from "@ngx-translate/core";
 export class CommonService {
     constructor(
         private http: HttpClient,
-        private messageService: MessageService,
         private translateService: TranslateService
     ) {
     }
@@ -25,10 +24,6 @@ export class CommonService {
                 v = c === 'x' ? r : (r & 0x3 | 0x8);
             return v.toString(16);
         });
-    }
-
-    popMessage(message: string, title: string, severity: string = 'success',) {
-        this.messageService.add({ severity: severity, summary: title, detail: message });
     }
 
     getAllContact(): Observable<ResponseModel<ContactDto[]>> {
