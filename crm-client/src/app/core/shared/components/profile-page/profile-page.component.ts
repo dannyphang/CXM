@@ -50,20 +50,20 @@ export class ProfilePageComponent implements OnChanges {
 
   getProperties() {
     this.commonService.getAllPropertiesByModule(this.module).subscribe((res) => {
-      this.propertiesList = res;
+      this.propertiesList = res.data;
     });
   }
 
   getContact() {
     this.commonService.getContactById(this.profileId).subscribe((res) => {
-      this.contactProfile = res;
+      this.contactProfile = res.data;
       this.titleService.setTitle(`${this.contactProfile.contactFirstName} ${this.contactProfile.contactLastName}`)
     });
   }
 
   getCompany() {
     this.commonService.getCompanyById(this.profileId).subscribe((res) => {
-      this.companyProfile = res;
+      this.companyProfile = res.data;
       this.titleService.setTitle(`${this.companyProfile.companyName}`)
     });
   }
@@ -74,7 +74,7 @@ export class ProfilePageComponent implements OnChanges {
       companyId: this.module === 'COMP' ? this.contactProfile.uid : '',
     }
     this.activityService.getAllActivities().subscribe(res => {
-      this.activitiesList = res;
+      this.activitiesList = res.data;
     })
   }
 

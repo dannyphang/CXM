@@ -96,7 +96,7 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
 
   ngOnInit() {
     this.commonService.getAllCountry().subscribe(res => {
-      this.countryOptionList = res.map(c => {
+      this.countryOptionList = res.data.map(c => {
         return {
           label: c.name,
           value: c.uid

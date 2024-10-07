@@ -38,7 +38,7 @@ export class RightPanelComponent {
         if (this.module === 'COMP') {
           this.commonService.getAllContact().subscribe(res => {
             let contList: OptionsModel[] = []
-            res.forEach(cont => {
+            res.data.forEach(cont => {
               contList.push({
                 label: `${cont.contactFirstName} ${cont.contactLastName} (${cont.contactEmail})`,
                 value: cont.uid
@@ -62,7 +62,7 @@ export class RightPanelComponent {
         else {
           this.commonService.getAllCompany().subscribe(res => {
             let compList: OptionsModel[] = []
-            res.forEach(comp => {
+            res.data.forEach(comp => {
               compList.push({
                 label: `${comp.companyName} (${comp.companyEmail})`,
                 value: comp.uid

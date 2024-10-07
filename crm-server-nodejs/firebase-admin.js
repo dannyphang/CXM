@@ -3,10 +3,9 @@ import { getFirestore } from "firebase-admin/firestore";
 import { getStorage } from "firebase-admin/storage";
 import { getAuth } from "firebase-admin/auth";
 import config from "./config.js";
-import fs from "./crm-service-acc-key.json" with {type: "json"};
 
 initializeApp({
-  credential: cert(fs),
+  credential: cert(config.serviceAcc),
   storageBucket: config.firebaseConfig.storageBucket,
 });
 

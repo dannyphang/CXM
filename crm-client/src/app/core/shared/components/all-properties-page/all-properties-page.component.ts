@@ -32,7 +32,7 @@ export class AllPropertiesPageComponent extends BasePropertyAbstract implements 
     if (changes['propertyList'] && changes['propertyList'].currentValue && changes['module'] && changes['module'].currentValue) {
       this.propertyList = changes['propertyList'].currentValue;
       this.commonService.getAllCountry().subscribe(res => {
-        this.countryOptionList = res.map(c => {
+        this.countryOptionList = res.data.map(c => {
           return {
             label: c.name,
             value: c.uid

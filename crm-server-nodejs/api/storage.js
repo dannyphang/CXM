@@ -1,27 +1,25 @@
 import { Router } from "express";
 const router = Router();
 import * as firebase from "../firebase.js";
-import {
-  ref,
-  uploadBytes,
-  getDownloadURL,
-  listAll,
-  uploadString,
-} from "firebase/storage";
+import { ref, uploadBytes, getDownloadURL, listAll, uploadString } from "firebase/storage";
 import multer from "multer";
+import responseModel from "./shared.js";
 
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: { fieldSize: 25 * 1024 * 1024 },
 }).single("file");
 
-const bucket = firebase.default.bucket;
-
 // upload files
 router.post("/file", upload, async (req, res) => {
   try {
     if (req.file == undefined) {
-      return res.status(400).send({ message: "Please upload a file!" });
+      return res.status(400).json(
+        responseModel({
+          isSuccess: false,
+          responseMessage: "Please upload a file!",
+        })
+      );
     }
     const storageRef = ref(
       firebase.default.storage,
@@ -29,15 +27,25 @@ router.post("/file", upload, async (req, res) => {
     );
     uploadBytes(storageRef, req.file).then((up) => {
       getDownloadURL(storageRef).then((url) => {
-        res.status(200).json({
-          file: req.file,
-          downloadUrl: url,
-          metadata: up.metadata,
-        });
+        res.status(200).json(
+          responseModel({
+            data: {
+              file: req.file,
+              downloadUrl: url,
+              metadata: up.metadata,
+            },
+          })
+        );
       });
     });
   } catch (err) {
-    res.status(400).json(err);
+    console.log(error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
   }
 });
 

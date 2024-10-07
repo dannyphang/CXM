@@ -85,7 +85,7 @@ export class ContactCompanyPageComponent implements OnChanges {
 
   async ngOnInit() {
     this.commonService.getAllCountry().subscribe(res => {
-      this.countryOptionList = res.map(c => {
+      this.countryOptionList = res.data.map(c => {
         return {
           label: c.name,
           value: c.uid
@@ -138,9 +138,9 @@ export class ContactCompanyPageComponent implements OnChanges {
     }
 
     this.commonService.getAllPropertiesByModule(this.module).subscribe((res) => {
-      this.modulePropertyList = res;
+      this.modulePropertyList = res.data;
 
-      res.forEach((item) => {
+      res.data.forEach((item) => {
         item.propertiesList.forEach((prop) => {
           this.propertiesList.push(prop);
           this.propertiesList2.push(prop);
@@ -347,8 +347,8 @@ export class ContactCompanyPageComponent implements OnChanges {
             // get state and city uid from input name 
             if (item.property.propertyCode === 'state') {
               this.commonService.getStateByStateName(item.filterFieldControl.value).subscribe(res => {
-                if (res.length == 1) {
-                  item.filterFieldControl.setValue(res[0].uid);
+                if (res.data.length == 1) {
+                  item.filterFieldControl.setValue(res.data[0].uid);
                 }
                 else {
                   this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Something wrong on searching of State' });
@@ -357,8 +357,8 @@ export class ContactCompanyPageComponent implements OnChanges {
             }
             else if (item.property.propertyCode === 'city') {
               this.commonService.getCityByCityName(item.filterFieldControl.value).subscribe(res => {
-                if (res.length == 1) {
-                  item.filterFieldControl.setValue(res[0].uid);
+                if (res.data.length == 1) {
+                  item.filterFieldControl.setValue(res.data[0].uid);
                 }
                 else {
                   this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Something wrong on searching of City' });
@@ -366,7 +366,7 @@ export class ContactCompanyPageComponent implements OnChanges {
               });
             }
 
-            res.forEach(cont => {
+            res.data.forEach(cont => {
               let proProp: PropertyDataDto[] = JSON.parse(cont.contactProperties);
               proProp.forEach(p => {
                 cont[p.propertyCode] = p.value;
@@ -522,7 +522,7 @@ export class ContactCompanyPageComponent implements OnChanges {
   getContact() {
     this.tableLoading[this.activeTabPanel] = true;
     this.commonService.getAllContact().subscribe((res) => {
-      res.forEach(cont => {
+      res.data.forEach(cont => {
         let prop: PropertyDataDto[] = JSON.parse(cont.contactProperties);
 
         prop.forEach(p => {
@@ -530,7 +530,7 @@ export class ContactCompanyPageComponent implements OnChanges {
         });
       })
 
-      this.contactList = res;
+      this.contactList = res.data;
       this.tableLoading[this.activeTabPanel] = false;
     });
   }
@@ -538,7 +538,7 @@ export class ContactCompanyPageComponent implements OnChanges {
   getCompany() {
     this.tableLoading[this.activeTabPanel] = true;
     this.commonService.getAllCompany().subscribe((res) => {
-      this.companyList = res;
+      this.companyList = res.data;
       this.tableLoading[this.activeTabPanel] = false;
     });
   }
@@ -1186,7 +1186,7 @@ export class ContactCompanyPageComponent implements OnChanges {
             distinctUntilChanged()
           ).subscribe(val => {
             this.commonService.getStateByStateName(val).subscribe(res => {
-              if (res.length > 0) {
+              if (res.data.length > 0) {
 
               }
             })
@@ -1456,7 +1456,7 @@ export class ContactCompanyPageComponent implements OnChanges {
 
     return this.commonService.getStateByCountryId(this.createFormGroup.controls['country'].value).pipe(
       map(res => {
-        return res.map(val => ({
+        return res.data.map(val => ({
           value: val.uid,
           label: val.name
         }))
@@ -1472,7 +1472,7 @@ export class ContactCompanyPageComponent implements OnChanges {
     return this.commonService.getCityByStateId(this.createFormGroup.controls['state'].value).pipe(
       map(res => {
         console.log(res)
-        return res.map(val => ({
+        return res.data.map(val => ({
           value: val.uid,
           label: val.name
         }))
