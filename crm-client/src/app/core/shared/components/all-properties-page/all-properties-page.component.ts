@@ -4,6 +4,7 @@ import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../../../services/components.service';
 import { debounceTime, distinctUntilChanged, map, Observable, ObservableLike, of } from 'rxjs';
 import { BasePropertyAbstract } from '../../base/base-property.abstract';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-all-properties-page',
@@ -24,22 +25,29 @@ export class AllPropertiesPageComponent extends BasePropertyAbstract implements 
   constructor(
     protected override formBuilder: FormBuilder,
     protected override commonService: CommonService,
+    protected override messageService: MessageService,
   ) {
-    super(formBuilder, commonService);
+    super(formBuilder, commonService, messageService);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['propertyList'] && changes['propertyList'].currentValue && changes['module'] && changes['module'].currentValue) {
       this.propertyList = changes['propertyList'].currentValue;
       this.commonService.getAllCountry().subscribe(res => {
-        this.countryOptionList = res.data.map(c => {
-          return {
-            label: c.name,
-            value: c.uid
-          }
-        });
-        this.initProfileFormConfig(this.propertyList, this.module, this.contactProfile, this.companyProfile);
-        this.checkFormValueChange(this.propertyList);
+        if (res.isSuccess) {
+          this.countryOptionList = res.data.map(c => {
+            return {
+              label: c.name,
+              value: c.uid
+            }
+          });
+          this.initProfileFormConfig(this.propertyList, this.module, this.contactProfile, this.companyProfile);
+          this.checkFormValueChange(this.propertyList);
+        }
+        else {
+          this.popMessage(res.responseMessage, "Error", "error");
+        }
+
       });
     }
   }

@@ -6,13 +6,14 @@ import { ActivityDto, ActivityModuleDto, ActivityService, CreateActivityDto } fr
 import { EDITOR_CONTENT_LIMIT, ATTACHMENT_MAX_SIZE } from '../../constants/common.constants';
 import { FileSelectEvent, UploadEvent } from 'primeng/fileupload';
 import { MessageService } from 'primeng/api';
+import { BaseCoreAbstract } from '../../base/base-core.abstract';
 
 @Component({
   selector: 'app-activity-dialog',
   templateUrl: './activity-dialog.component.html',
   styleUrl: './activity-dialog.component.scss'
 })
-export class ActivityDialogComponent implements OnChanges {
+export class ActivityDialogComponent extends BaseCoreAbstract implements OnChanges {
   @Input() contactProfile: ContactDto = new ContactDto();
   @Input() companyProfile: CompanyDto = new CompanyDto();
   @Input() module: "CONT" | "COMP" = "CONT";
@@ -53,9 +54,9 @@ export class ActivityDialogComponent implements OnChanges {
     private formBuilder: FormBuilder,
     private activityService: ActivityService,
     private ngZone: NgZone,
-    private messageService: MessageService
+    protected override messageService: MessageService
   ) {
-
+    super(messageService);
   }
 
   ngOnInit() {
@@ -358,28 +359,39 @@ export class ActivityDialogComponent implements OnChanges {
       }
 
       this.activityService.createActivity([createActivity]).subscribe(res => {
-        this.attachmentList.forEach(file => {
-          this.commonService.uploadFile(file, "Activity").subscribe(res2 => {
-            let uploadAttach: AttachmentDto = {
-              activityUid: res.data[0].uid!,
-              folderName: "Activity",
-              fileName: res2.data.metadata.name,
-              fullPath: res2.data.metadata.fullPath,
-              fileSize: res2.data.metadata.size
-            }
+        if (res.isSuccess) {
+          this.attachmentList.forEach(file => {
+            this.commonService.uploadFile(file, "Activity").subscribe(res2 => {
+              if (res2.isSuccess) {
+                let uploadAttach: AttachmentDto = {
+                  activityUid: res.data[0].uid!,
+                  folderName: "Activity",
+                  fileName: res2.data.metadata.name,
+                  fullPath: res2.data.metadata.fullPath,
+                  fileSize: res2.data.metadata.size
+                }
 
-            this.activityService.uploadAttachment([uploadAttach]).subscribe(res3 => {
-
-              this.closeDialog();
+                this.activityService.uploadAttachment([uploadAttach]).subscribe(res3 => {
+                  if (res3.isSuccess) {
+                    this.closeDialog();
+                  }
+                  else {
+                    this.popMessage(res.responseMessage, "Error", "error");
+                  }
+                });
+              }
+              else {
+                this.popMessage(res.responseMessage, "Error", "error");
+              }
             });
           });
-        });
+        }
+        else {
+          this.popMessage(res.responseMessage, "Error", "error");
+        }
+
       });
 
     }
-  }
-
-  popMessage(message: string, title: string, severity: string = 'success',) {
-    this.messageService.add({ severity: severity, summary: title, detail: message });
   }
 }

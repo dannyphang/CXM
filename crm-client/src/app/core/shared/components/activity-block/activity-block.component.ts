@@ -62,10 +62,12 @@ export class ActivityBlockComponent implements OnChanges {
         switch (comp) {
           case 'CONT':
             break;
-          case 'DATE' || 'TIME':
+          case 'DATE':
+          case 'TIME':
             updateAct.activityDatetime = new Date(value);
             break;
-          case 'OUTCOME_C' || 'OUTCOME_M':
+          case 'OUTCOME_C':
+          case 'OUTCOME_M':
             updateAct.activityOutcomeId = value;
             break;
           case 'DIRECT':
@@ -79,7 +81,9 @@ export class ActivityBlockComponent implements OnChanges {
         }
 
         this.activityService.updateActivity(updateAct).subscribe(res => {
-          // console.log(res);
+          if (!res.isSuccess) {
+            this.popMessage(res.responseMessage, "Error", "error");
+          }
         });
       })
     })
@@ -104,7 +108,12 @@ export class ActivityBlockComponent implements OnChanges {
               uid: this.activity.uid,
               isPinned: this.activity.isPinned
             }).subscribe(res => {
-              this.activityReload.emit();
+              if (res.isSuccess) {
+                this.activityReload.emit();
+              }
+              else {
+                this.popMessage(res.responseMessage, "Error", "error");
+              }
             })
           }
         },
@@ -116,7 +125,12 @@ export class ActivityBlockComponent implements OnChanges {
               uid: this.activity.uid,
               statusId: 2
             }).subscribe(res => {
-              this.activityReload.emit();
+              if (res.isSuccess) {
+                this.activityReload.emit();
+              }
+              else {
+                this.popMessage(res.responseMessage, "Error", "error");
+              }
             })
           }
         }
@@ -318,9 +332,15 @@ export class ActivityBlockComponent implements OnChanges {
       uid: this.activity.uid,
       activityContent: this.editorFormControl.value
     }).subscribe(res => {
-      this.editorFormControl = new FormControl(this.editorFormControl.value);
-      this.activity.activityContent = this.editorFormControl.value;
-      this.readonly = true
+      if (res.isSuccess) {
+        this.editorFormControl = new FormControl(this.editorFormControl.value);
+        this.activity.activityContent = this.editorFormControl.value;
+        this.readonly = true;
+      }
+      else {
+        this.popMessage(res.responseMessage, "Error", "error");
+      }
+
     });
   }
 

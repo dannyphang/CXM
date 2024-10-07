@@ -3,13 +3,15 @@ import { CommonService, CompanyDto, ContactDto, PropertyGroupDto } from '../../.
 import { ActivatedRoute } from '@angular/router';
 import { ActivityDto, ActivityService } from '../../../services/activity.service';
 import { Title } from '@angular/platform-browser';
+import { BaseCoreAbstract } from '../../base/base-core.abstract';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-profile-page',
   templateUrl: './profile-page.component.html',
   styleUrl: './profile-page.component.scss'
 })
-export class ProfilePageComponent implements OnChanges {
+export class ProfilePageComponent extends BaseCoreAbstract implements OnChanges {
   @Input() module: 'CONT' | 'COMP' = 'CONT';
   @Input() propertiesList: PropertyGroupDto[] = [];
   @Input() profileId: string = '';
@@ -22,8 +24,11 @@ export class ProfilePageComponent implements OnChanges {
     private commonService: CommonService,
     private activityService: ActivityService,
     private route: ActivatedRoute,
-    private titleService: Title
+    private titleService: Title,
+    protected override messageService: MessageService,
   ) {
+    super(messageService);
+
     this.route.params.subscribe((params) => {
       this.profileId = params['id'];
     });
@@ -50,21 +55,36 @@ export class ProfilePageComponent implements OnChanges {
 
   getProperties() {
     this.commonService.getAllPropertiesByModule(this.module).subscribe((res) => {
-      this.propertiesList = res.data;
+      if (res.isSuccess) {
+        this.propertiesList = res.data;
+      }
+      else {
+        this.popMessage(res.responseMessage, "Error", "error");
+      }
     });
   }
 
   getContact() {
     this.commonService.getContactById(this.profileId).subscribe((res) => {
-      this.contactProfile = res.data;
-      this.titleService.setTitle(`${this.contactProfile.contactFirstName} ${this.contactProfile.contactLastName}`)
+      if (res.isSuccess) {
+        this.contactProfile = res.data;
+        this.titleService.setTitle(`${this.contactProfile.contactFirstName} ${this.contactProfile.contactLastName}`);
+      }
+      else {
+        this.popMessage(res.responseMessage, "Error", "error");
+      }
     });
   }
 
   getCompany() {
     this.commonService.getCompanyById(this.profileId).subscribe((res) => {
-      this.companyProfile = res.data;
-      this.titleService.setTitle(`${this.companyProfile.companyName}`)
+      if (res.isSuccess) {
+        this.companyProfile = res.data;
+        this.titleService.setTitle(`${this.companyProfile.companyName}`);
+      }
+      else {
+        this.popMessage(res.responseMessage, "Error", "error");
+      }
     });
   }
 
@@ -74,7 +94,12 @@ export class ProfilePageComponent implements OnChanges {
       companyId: this.module === 'COMP' ? this.contactProfile.uid : '',
     }
     this.activityService.getAllActivities().subscribe(res => {
-      this.activitiesList = res.data;
+      if (res.isSuccess) {
+        this.activitiesList = res.data;
+      }
+      else {
+        this.popMessage(res.responseMessage, "Error", "error");
+      }
     })
   }
 
