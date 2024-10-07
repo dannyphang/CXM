@@ -20,7 +20,7 @@ export class ContactComponent {
 
   ngOnInit() {
     this.commonService.getAllContact().subscribe((res) => {
-      this.contactList = res;
+      this.contactList = res.data;
     });
   }
 }

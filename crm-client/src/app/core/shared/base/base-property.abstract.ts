@@ -319,7 +319,7 @@ export abstract class BasePropertyAbstract {
 
         return this.commonService.getStateByCountryId(this.profileFormGroup.controls['country'].value).pipe(
             map(res => {
-                return res.map(val => ({
+                return res.data.map(val => ({
                     value: val.uid,
                     label: val.name
                 }))
@@ -334,8 +334,7 @@ export abstract class BasePropertyAbstract {
 
         return this.commonService.getCityByStateId(this.profileFormGroup.controls['state'].value).pipe(
             map(res => {
-                console.log(res)
-                return res.map(val => ({
+                return res.data.map(val => ({
                     value: val.uid,
                     label: val.name
                 }))

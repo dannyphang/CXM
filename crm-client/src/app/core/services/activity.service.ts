@@ -2,7 +2,7 @@ import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import apiConfig from "../../../environments/apiConfig";
-import { AttachmentDto, BasedDto, ModuleDto } from "./common.service";
+import { AttachmentDto, BasedDto, ModuleDto, ResponseModel } from "./common.service";
 import { DateFilterFn } from "@angular/material/datepicker";
 import { producerAccessed } from "@angular/core/primitives/signals";
 
@@ -13,39 +13,39 @@ export class ActivityService {
     ) {
     }
 
-    getAllActivityModule(): Observable<ActivitiesModuleListDto> {
-        return this.http.get<ActivitiesModuleListDto>(apiConfig.baseUrl + '/activity/activityModule').pipe();
+    getAllActivityModule(): Observable<ResponseModel<ActivitiesModuleListDto>> {
+        return this.http.get<ResponseModel<ActivitiesModuleListDto>>(apiConfig.baseUrl + '/activity/activityModule').pipe();
     }
 
-    getAllActivities(): Observable<ActivityDto[]> {
-        return this.http.get<ActivityDto[]>(apiConfig.baseUrl + '/activity').pipe();
+    getAllActivities(): Observable<ResponseModel<ActivityDto[]>> {
+        return this.http.get<ResponseModel<ActivityDto[]>>(apiConfig.baseUrl + '/activity').pipe();
     }
 
     getAllActivitiesByProfileId(profile: {
         contactId?: string,
         companyId?: string
-    }): Observable<ActivityDto> {
-        return this.http.post<ActivityDto>(apiConfig.baseUrl + '/activity/getActivitiesByProfileId', { profile }).pipe();
+    }): Observable<ResponseModel<ActivityDto>> {
+        return this.http.post<ResponseModel<ActivityDto>>(apiConfig.baseUrl + '/activity/getActivitiesByProfileId', { profile }).pipe();
     }
 
-    getActivityById(id: string): Observable<ActivityDto> {
-        return this.http.get<ActivityDto>(apiConfig.baseUrl + '/activity/' + id).pipe();
+    getActivityById(id: string): Observable<ResponseModel<ActivityDto>> {
+        return this.http.get<ResponseModel<ActivityDto>>(apiConfig.baseUrl + '/activity/' + id).pipe();
     }
 
-    createActivity(createdActivitiesList: CreateActivityDto[]): Observable<CreateActivityDto[]> {
-        return this.http.post<CreateActivityDto[]>(apiConfig.baseUrl + '/activity', { createdActivitiesList }).pipe();
+    createActivity(createdActivitiesList: CreateActivityDto[]): Observable<ResponseModel<CreateActivityDto[]>> {
+        return this.http.post<ResponseModel<CreateActivityDto[]>>(apiConfig.baseUrl + '/activity', { createdActivitiesList }).pipe();
     }
 
-    uploadAttachment(attachmentList: AttachmentDto[]): Observable<AttachmentDto> {
-        return this.http.post<AttachmentDto>(apiConfig.baseUrl + '/activity/upload', { attachmentList }).pipe();
+    uploadAttachment(attachmentList: AttachmentDto[]): Observable<ResponseModel<AttachmentDto>> {
+        return this.http.post<ResponseModel<AttachmentDto>>(apiConfig.baseUrl + '/activity/upload', { attachmentList }).pipe();
     }
 
-    deleteActivity(activityUid: string): Observable<any> {
-        return this.http.delete<AttachmentDto>(apiConfig.baseUrl + '/activity/' + activityUid).pipe();
+    deleteActivity(activityUid: string): Observable<ResponseModel<ActivityDto>> {
+        return this.http.delete<ResponseModel<ActivityDto>>(apiConfig.baseUrl + '/activity/' + activityUid).pipe();
     }
 
-    updateActivity(updateActivity: UpdateActivityDto): Observable<any> {
-        return this.http.put<AttachmentDto>(apiConfig.baseUrl + '/activity/' + updateActivity.uid, updateActivity).pipe();
+    updateActivity(updateActivity: UpdateActivityDto): Observable<ResponseModel<ActivityDto>> {
+        return this.http.put<ResponseModel<ActivityDto>>(apiConfig.baseUrl + '/activity/' + updateActivity.uid, updateActivity).pipe();
     }
 }
 

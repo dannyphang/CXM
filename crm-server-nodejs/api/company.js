@@ -2,6 +2,7 @@ import { Router } from "express";
 import express from "express";
 const router = Router();
 import * as db from "../firebase-admin.js";
+import responseModel from "./shared.js";
 
 router.use(express.json());
 
@@ -27,10 +28,15 @@ router.get("/", async (req, res) => {
       item.modifiedDate = convertFirebaseDateFormat(item.modifiedDate);
     });
 
-    res.status(200).json(companyList);
+    res.status(200).json(responseModel({ data: companyList }));
   } catch (error) {
     console.log("error", error);
-    res.status(400).json(error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
   }
 });
 
@@ -38,10 +44,7 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   const id = req.params.id;
   try {
-    const snapshot = await db.default.db
-      .collection(companyCollectionName)
-      .doc(id)
-      .get();
+    const snapshot = await db.default.db.collection(companyCollectionName).doc(id).get();
 
     const assoSnapshot = await db.default.db
       .collection(associationCollection)
@@ -66,12 +69,8 @@ router.get("/:id", async (req, res) => {
     });
 
     let companyData = company;
-    companyData.createdDate = convertFirebaseDateFormat(
-      companyData.createdDate
-    );
-    companyData.modifiedDate = convertFirebaseDateFormat(
-      companyData.modifiedDate
-    );
+    companyData.createdDate = convertFirebaseDateFormat(companyData.createdDate);
+    companyData.modifiedDate = convertFirebaseDateFormat(companyData.modifiedDate);
 
     if (assoList.length > 0 || assoList2.length > 0) {
       companyData.associationList = [];
@@ -87,8 +86,7 @@ router.get("/:id", async (req, res) => {
             .doc(item.assoProfileUid)
             .get();
 
-          let comp =
-            companySnapshot.data()?.statusId == 1 ? companySnapshot.data() : {};
+          let comp = companySnapshot.data()?.statusId == 1 ? companySnapshot.data() : {};
           companyData.associationList.push(comp);
           count++;
 
@@ -108,10 +106,7 @@ router.get("/:id", async (req, res) => {
             .collection(contactCollectionName)
             .doc(item.profileUid)
             .get();
-          let comp2 =
-            companySnapshot2.data()?.statusId == 1
-              ? companySnapshot2.data()
-              : {};
+          let comp2 = companySnapshot2.data()?.statusId == 1 ? companySnapshot2.data() : {};
           companyData.associationList.push(comp2);
           count++;
 
@@ -122,14 +117,19 @@ router.get("/:id", async (req, res) => {
       });
 
       Promise.all([p1, p2]).then((_) => {
-        res.status(200).json(companyData);
+        res.status(200).json(responseModel({ data: companyData }));
       });
     } else {
-      res.status(200).json(companyData);
+      res.status(200).json(responseModel({ data: companyData }));
     }
   } catch (error) {
     console.log("error", error);
-    res.status(400).json(error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
   }
 });
 
@@ -151,10 +151,15 @@ router.post("/", async (req, res) => {
       await newRef.set(company);
     });
 
-    res.status(200).json(createdCompanyList);
+    res.status(200).json(responseModel({ data: createdCompanyList }));
   } catch (error) {
     console.log("error", error);
-    res.status(400).json(error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
   }
 });
 
@@ -162,9 +167,7 @@ router.post("/", async (req, res) => {
 router.put("/delete", async (req, res) => {
   try {
     req.body.companyList.forEach(async (company) => {
-      let newRef = db.default.db
-        .collection(companyCollectionName)
-        .doc(company.uid);
+      let newRef = db.default.db.collection(companyCollectionName).doc(company.uid);
 
       await newRef.update({
         statusId: 2,
@@ -172,14 +175,17 @@ router.put("/delete", async (req, res) => {
       });
     });
 
-    res.status(200).json({
-      message: "Deleted successfully",
-    });
+    res.status(200).json(responseModel({ responseMessage: "Deleted successfully" }));
 
     // res.status(200).json(req.body.companyList);
-  } catch (e) {
-    console.log(e);
-    res.status(400).json(e);
+  } catch (error) {
+    console.log(error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
   }
 });
 
@@ -192,18 +198,21 @@ router.put("/", async (req, res) => {
     companyList.forEach(async (company) => {
       company.modifiedDate = new Date();
 
-      let newRef = db.default.db
-        .collection(companyCollectionName)
-        .doc(company.uid);
+      let newRef = db.default.db.collection(companyCollectionName).doc(company.uid);
 
       const updatedCompany = await newRef.update(company);
       updatedCompanyList.push(updatedCompany);
     });
 
-    res.status(200).json(updatedCompanyList);
+    res.status(200).json(responseModel({ data: updatedCompanyList }));
   } catch (error) {
     console.log("error", error);
-    res.status(400).json(error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
   }
 });
 

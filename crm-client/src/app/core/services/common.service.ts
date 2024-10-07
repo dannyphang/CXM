@@ -31,55 +31,55 @@ export class CommonService {
         this.messageService.add({ severity: severity, summary: title, detail: message });
     }
 
-    getAllContact(): Observable<ContactDto[]> {
-        return this.http.get<ContactDto[]>(apiConfig.baseUrl + '/contact').pipe();
+    getAllContact(): Observable<ResponseModel<ContactDto[]>> {
+        return this.http.get<ResponseModel<ContactDto[]>>(apiConfig.baseUrl + '/contact').pipe();
     }
 
-    getContactById(id: string): Observable<ContactDto> {
-        return this.http.get<ContactDto>(apiConfig.baseUrl + '/contact/' + id).pipe();
+    getContactById(id: string): Observable<ResponseModel<ContactDto>> {
+        return this.http.get<ResponseModel<ContactDto>>(apiConfig.baseUrl + '/contact/' + id).pipe();
     }
 
-    createContact(contactList: ContactDto[]): Observable<ContactDto[]> {
-        return this.http.post<ContactDto[]>(apiConfig.baseUrl + '/contact', { contactList }).pipe();
+    createContact(contactList: ContactDto[]): Observable<ResponseModel<ContactDto[]>> {
+        return this.http.post<ResponseModel<ContactDto[]>>(apiConfig.baseUrl + '/contact', { contactList }).pipe();
     }
 
-    updateContact(contactList: UpdateContactDto[]): Observable<UpdateContactDto[]> {
-        return this.http.put<UpdateContactDto[]>(apiConfig.baseUrl + '/contact', { contactList }).pipe();
+    updateContact(contactList: UpdateContactDto[]): Observable<ResponseModel<UpdateContactDto[]>> {
+        return this.http.put<ResponseModel<UpdateContactDto[]>>(apiConfig.baseUrl + '/contact', { contactList }).pipe();
     }
 
-    deleteContact(contactList: ContactDto[]): Observable<ContactDto> {
-        return this.http.put<ContactDto>(apiConfig.baseUrl + '/contact/delete', { contactList }).pipe();
+    deleteContact(contactList: ContactDto[]): Observable<ResponseModel<ContactDto>> {
+        return this.http.put<ResponseModel<ContactDto>>(apiConfig.baseUrl + '/contact/delete', { contactList }).pipe();
     }
 
-    getAllProperties(): Observable<PropertiesDto[]> {
-        return this.http.get<PropertiesDto[]>(apiConfig.baseUrl + '/common/properties').pipe();
+    getAllProperties(): Observable<ResponseModel<PropertiesDto[]>> {
+        return this.http.get<ResponseModel<PropertiesDto[]>>(apiConfig.baseUrl + '/common/properties').pipe();
     }
 
-    getAllPropertiesByModule(module: string): Observable<PropertyGroupDto[]> {
+    getAllPropertiesByModule(module: string): Observable<ResponseModel<PropertyGroupDto[]>> {
         let headers = {
             'moduleCode': module
         }
-        return this.http.get<PropertyGroupDto[]>((apiConfig.baseUrl + '/common/properties/module'), { headers }).pipe();
+        return this.http.get<ResponseModel<PropertyGroupDto[]>>((apiConfig.baseUrl + '/common/properties/module'), { headers }).pipe();
     }
 
-    getAllCreateFormPropertiesByModule(module: string): Observable<PropertyGroupDto[]> {
+    getAllCreateFormPropertiesByModule(module: string): Observable<ResponseModel<PropertyGroupDto[]>> {
         let headers = {
             'moduleCode': module
         }
-        return this.http.get<PropertyGroupDto[]>((apiConfig.baseUrl + '/common/properties/module/create'), { headers }).pipe();
+        return this.http.get<ResponseModel<PropertyGroupDto[]>>((apiConfig.baseUrl + '/common/properties/module/create'), { headers }).pipe();
     }
 
-    createProperties(properties: PropertiesDto): Observable<PropertiesDto> {
-        return this.http.post<PropertiesDto>(apiConfig.baseUrl + '/common/properties', properties).pipe();
+    createProperties(properties: PropertiesDto): Observable<ResponseModel<PropertyGroupDto>> {
+        return this.http.post<ResponseModel<PropertyGroupDto>>(apiConfig.baseUrl + '/common/properties', properties).pipe();
     }
 
-    uploadFile(file: File, folderName: string): Observable<any> {
+    uploadFile(file: File, folderName: string): Observable<ResponseModel<any>> {
         const formData: FormData = new FormData();
 
         formData.append('file', file);
         formData.append('folderName', folderName);
 
-        return this.http.post<any>(apiConfig.baseUrl + '/storage/file', formData, {
+        return this.http.post<ResponseModel<any>>(apiConfig.baseUrl + '/storage/file', formData, {
             reportProgress: true,
             responseType: 'json'
         }).pipe();
@@ -133,57 +133,63 @@ export class CommonService {
         return value.toString();
     }
 
-    getAllCompany(): Observable<CompanyDto[]> {
-        return this.http.get<CompanyDto[]>(apiConfig.baseUrl + '/company').pipe();
+    getAllCompany(): Observable<ResponseModel<CompanyDto[]>> {
+        return this.http.get<ResponseModel<CompanyDto[]>>(apiConfig.baseUrl + '/company').pipe();
     }
 
-    getCompanyById(id: string): Observable<CompanyDto> {
-        return this.http.get<CompanyDto>(apiConfig.baseUrl + '/company/' + id).pipe();
+    getCompanyById(id: string): Observable<ResponseModel<CompanyDto>> {
+        return this.http.get<ResponseModel<CompanyDto>>(apiConfig.baseUrl + '/company/' + id).pipe();
     }
 
-    createCompany(companyList: CompanyDto[]): Observable<CompanyDto[]> {
-        return this.http.post<CompanyDto[]>(apiConfig.baseUrl + '/company', { companyList }).pipe();
+    createCompany(companyList: CompanyDto[]): Observable<ResponseModel<CompanyDto[]>> {
+        return this.http.post<ResponseModel<CompanyDto[]>>(apiConfig.baseUrl + '/company', { companyList }).pipe();
     }
 
-    updateCompany(companyList: UpdateCompanyDto[]): Observable<UpdateCompanyDto[]> {
-        return this.http.put<UpdateCompanyDto[]>(apiConfig.baseUrl + '/company', { companyList }).pipe();
+    updateCompany(companyList: UpdateCompanyDto[]): Observable<ResponseModel<UpdateCompanyDto[]>> {
+        return this.http.put<ResponseModel<UpdateCompanyDto[]>>(apiConfig.baseUrl + '/company', { companyList }).pipe();
     }
 
-    deleteCompany(companyList: CompanyDto[]): Observable<CompanyDto> {
-        return this.http.put<CompanyDto>(apiConfig.baseUrl + '/company/delete', { companyList }).pipe();
+    deleteCompany(companyList: CompanyDto[]): Observable<ResponseModel<CompanyDto[]>> {
+        return this.http.put<ResponseModel<CompanyDto[]>>(apiConfig.baseUrl + '/company/delete', { companyList }).pipe();
     }
 
-    createAssociation(asso: CreateAssociationDto): Observable<any> {
-        return this.http.post<any>(apiConfig.baseUrl + '/common/asso', { asso }).pipe();
+    createAssociation(asso: CreateAssociationDto): Observable<ResponseModel<any>> {
+        return this.http.post<ResponseModel<any>>(apiConfig.baseUrl + '/common/asso', { asso }).pipe();
     }
 
     translate(text: string): string {
         return this.translateService.instant(text);
     }
 
-    getAllCountry(): Observable<CountryDto[]> {
-        return this.http.get<CountryDto[]>(apiConfig.baseUrl + '/location/country').pipe();
+    getAllCountry(): Observable<ResponseModel<CountryDto[]>> {
+        return this.http.get<ResponseModel<CountryDto[]>>(apiConfig.baseUrl + '/location/country').pipe();
     }
 
-    getAllState(): Observable<StateDto[]> {
-        return this.http.get<StateDto[]>(apiConfig.baseUrl + '/location/state').pipe();
+    getAllState(): Observable<ResponseModel<StateDto[]>> {
+        return this.http.get<ResponseModel<StateDto[]>>(apiConfig.baseUrl + '/location/state').pipe();
     }
 
-    getStateByCountryId(countryId: string): Observable<StateDto[]> {
-        return this.http.get<StateDto[]>(apiConfig.baseUrl + '/location/state/' + countryId);
+    getStateByCountryId(countryId: string): Observable<ResponseModel<StateDto[]>> {
+        return this.http.get<ResponseModel<StateDto[]>>(apiConfig.baseUrl + '/location/state/' + countryId);
     }
 
-    getCityByStateId(stateId: string): Observable<CityDto[]> {
-        return this.http.get<CityDto[]>(apiConfig.baseUrl + '/location/city/' + stateId);
+    getCityByStateId(stateId: string): Observable<ResponseModel<CityDto[]>> {
+        return this.http.get<ResponseModel<CityDto[]>>(apiConfig.baseUrl + '/location/city/' + stateId);
     }
 
-    getStateByStateName(stateName: string): Observable<StateDto[]> {
-        return this.http.get<StateDto[]>(apiConfig.baseUrl + '/location/state/name/' + stateName);
+    getStateByStateName(stateName: string): Observable<ResponseModel<StateDto[]>> {
+        return this.http.get<ResponseModel<StateDto[]>>(apiConfig.baseUrl + '/location/state/name/' + stateName);
     }
 
-    getCityByCityName(cityName: string): Observable<CityDto[]> {
-        return this.http.get<CityDto[]>(apiConfig.baseUrl + '/location/city/name/' + cityName);
+    getCityByCityName(cityName: string): Observable<ResponseModel<CityDto[]>> {
+        return this.http.get<ResponseModel<CityDto[]>>(apiConfig.baseUrl + '/location/city/name/' + cityName);
     }
+}
+
+export class ResponseModel<T> {
+    data: T;
+    isSuccess: boolean;
+    responseMessage: string;
 }
 
 export class BasedDto {

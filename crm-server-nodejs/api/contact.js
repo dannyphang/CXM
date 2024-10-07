@@ -2,6 +2,7 @@ import { Router } from "express";
 import express from "express";
 const router = Router();
 import * as db from "../firebase-admin.js";
+import responseModel from "./shared.js";
 
 router.use(express.json());
 
@@ -27,10 +28,15 @@ router.get("/", async (req, res) => {
       item.modifiedDate = convertFirebaseDateFormat(item.modifiedDate);
     });
 
-    res.status(200).json(contactList);
+    res.status(200).json(responseModel({ data: contactList }));
   } catch (error) {
     console.log("error", error);
-    res.status(400).json(error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
   }
 });
 
@@ -38,10 +44,7 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   const id = req.params.id;
   try {
-    const snapshot = await db.default.db
-      .collection(contactCollectionName)
-      .doc(id)
-      .get();
+    const snapshot = await db.default.db.collection(contactCollectionName).doc(id).get();
 
     const assoSnapshot = await db.default.db
       .collection(associationCollection)
@@ -66,12 +69,8 @@ router.get("/:id", async (req, res) => {
     });
 
     let contactData = contact;
-    contactData.createdDate = convertFirebaseDateFormat(
-      contactData.createdDate
-    );
-    contactData.modifiedDate = convertFirebaseDateFormat(
-      contactData.modifiedDate
-    );
+    contactData.createdDate = convertFirebaseDateFormat(contactData.createdDate);
+    contactData.modifiedDate = convertFirebaseDateFormat(contactData.modifiedDate);
 
     if (assoList.length > 0 || assoList2.length > 0) {
       contactData.associationList = [];
@@ -87,8 +86,7 @@ router.get("/:id", async (req, res) => {
             .doc(item.assoProfileUid)
             .get();
 
-          let cont =
-            contactSnapshot.data()?.statusId == 1 ? contactSnapshot.data() : {};
+          let cont = contactSnapshot.data()?.statusId == 1 ? contactSnapshot.data() : {};
           contactData.associationList.push(cont);
           count++;
 
@@ -109,10 +107,7 @@ router.get("/:id", async (req, res) => {
             .doc(item.profileUid)
             .get();
 
-          let cont2 =
-            contactSnapshot2.data()?.statusId == 1
-              ? contactSnapshot2.data()
-              : {};
+          let cont2 = contactSnapshot2.data()?.statusId == 1 ? contactSnapshot2.data() : {};
           contactData.associationList.push(cont2);
           count++;
 
@@ -123,14 +118,19 @@ router.get("/:id", async (req, res) => {
       });
 
       Promise.all([p1, p2]).then((_) => {
-        res.status(200).json(contactData);
+        res.status(200).json(responseModel({ data: contactData }));
       });
     } else {
       res.status(200).json(contactData);
     }
   } catch (error) {
     console.log("error", error);
-    res.status(400).json(error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
   }
 });
 
@@ -152,10 +152,15 @@ router.post("/", async (req, res) => {
       await newRef.set(contact);
     });
 
-    res.status(200).json(createdContactList);
+    res.status(200).json(responseModel({ data: createdContactList }));
   } catch (error) {
     console.log("error", error);
-    res.status(400).json(error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
   }
 });
 
@@ -163,9 +168,7 @@ router.post("/", async (req, res) => {
 router.put("/delete", async (req, res) => {
   try {
     req.body.contactList.forEach(async (contact) => {
-      let newRef = db.default.db
-        .collection(contactCollectionName)
-        .doc(contact.uid);
+      let newRef = db.default.db.collection(contactCollectionName).doc(contact.uid);
 
       await newRef.update({
         statusId: 2,
@@ -173,11 +176,7 @@ router.put("/delete", async (req, res) => {
       });
     });
 
-    res.status(200).json({
-      message: "Deleted successfully",
-    });
-
-    // res.status(200).json(req.body.contactList);
+    res.status(200).json(responseModel({ responseMessage: "Deleted successfully" }));
   } catch (e) {
     console.log(e);
     res.status(400).json(e);
@@ -194,18 +193,21 @@ router.put("/", async (req, res) => {
     contactList.forEach(async (contact) => {
       contact.modifiedDate = new Date();
 
-      let newRef = db.default.db
-        .collection(contactCollectionName)
-        .doc(contact.uid);
+      let newRef = db.default.db.collection(contactCollectionName).doc(contact.uid);
 
       const updatedContact = await newRef.update(contact);
       updatedContactList.push(updatedContact);
     });
 
-    res.status(200).json(updatedContactList);
+    res.status(200).json(responseModel({ data: updatedContactList }));
   } catch (error) {
     console.log("error", error);
-    res.status(400).json(error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
   }
 });
 
