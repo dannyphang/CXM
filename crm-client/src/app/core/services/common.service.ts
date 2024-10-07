@@ -4,17 +4,27 @@ import { Observable } from "rxjs";
 import apiConfig from "../../../environments/apiConfig";
 import { CONTROL_TYPE_CODE } from "./components.service";
 import { MessageService } from "primeng/api";
+import { TranslateService } from "@ngx-translate/core";
 
 @Injectable({ providedIn: 'root' })
 export class CommonService {
     constructor(
         private http: HttpClient,
-        private messageService: MessageService
+        private messageService: MessageService,
+        private translateService: TranslateService
     ) {
     }
 
     getEnvToken(): Observable<any> {
         return this.http.get<any>(apiConfig.baseUrl + '/token').pipe();
+    }
+
+    generateGUID(): string {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+            var r = Math.random() * 16 | 0,
+                v = c === 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
     }
 
     popMessage(message: string, title: string, severity: string = 'success',) {
@@ -90,7 +100,7 @@ export class CommonService {
             return null;
         }
         else if (type === CONTROL_TYPE_CODE.Date || type === CONTROL_TYPE_CODE.DateTime || type === CONTROL_TYPE_CODE.Time) {
-            return new Date();
+            return null;
         }
         else if (type === CONTROL_TYPE_CODE.Number) {
             return 0;
@@ -101,9 +111,9 @@ export class CommonService {
                 value: ''
             };
             prop.propertyLookupList.forEach((item) => {
-                if (item.isDefault) {
+                if ((item as PropertyLookupDto).isDefault) {
                     lookup = {
-                        label: item.propertyLookupLabel,
+                        label: (item as PropertyLookupDto).propertyLookupLabel,
                         value: item.uid
                     }
                 }
@@ -113,7 +123,7 @@ export class CommonService {
         else if (type === CONTROL_TYPE_CODE.Radio) {
             return false;
         }
-        return {};
+        return null;
     }
 
     setPropertyDataValue(prop: PropertiesDto, value: any): string {
@@ -145,6 +155,34 @@ export class CommonService {
 
     createAssociation(asso: CreateAssociationDto): Observable<any> {
         return this.http.post<any>(apiConfig.baseUrl + '/common/asso', { asso }).pipe();
+    }
+
+    translate(text: string): string {
+        return this.translateService.instant(text);
+    }
+
+    getAllCountry(): Observable<CountryDto[]> {
+        return this.http.get<CountryDto[]>(apiConfig.baseUrl + '/location/country').pipe();
+    }
+
+    getAllState(): Observable<StateDto[]> {
+        return this.http.get<StateDto[]>(apiConfig.baseUrl + '/location/state').pipe();
+    }
+
+    getStateByCountryId(countryId: string): Observable<StateDto[]> {
+        return this.http.get<StateDto[]>(apiConfig.baseUrl + '/location/state/' + countryId);
+    }
+
+    getCityByStateId(stateId: string): Observable<CityDto[]> {
+        return this.http.get<CityDto[]>(apiConfig.baseUrl + '/location/city/' + stateId);
+    }
+
+    getStateByStateName(stateName: string): Observable<StateDto[]> {
+        return this.http.get<StateDto[]>(apiConfig.baseUrl + '/location/state/name/' + stateName);
+    }
+
+    getCityByCityName(cityName: string): Observable<CityDto[]> {
+        return this.http.get<CityDto[]>(apiConfig.baseUrl + '/location/city/name/' + cityName);
     }
 }
 
@@ -186,7 +224,7 @@ export class PropertiesDto extends BasedDto {
     moduleCat: string;
     moduleCode: string;
     order: number;
-    propertyLookupList: PropertyLookupDto[];
+    propertyLookupList: PropertyLookupDto[] | UserDto[];
     isHide: boolean;
 }
 
@@ -210,10 +248,11 @@ export class ContactDto extends BasedDto {
     contactEmail: string;
     contactPhone: string;
     contactOwnerUid?: string;
-    contactLeadStatusId?: string;
+    contactLeadStatusUid?: string;
     contactProperties: string;
     contactProfilePhotoUrl?: string;
     association: AssociationDto;
+    [key: string]: any;
 }
 
 export class UpdateContactDto {
@@ -223,7 +262,7 @@ export class UpdateContactDto {
     contactEmail?: string;
     contactPhone?: string;
     contactOwnerUid?: string;
-    contactLeadStatusId?: string;
+    contactLeadStatusUid?: string;
     contactProperties?: string;
     contactProfilePhotoUrl?: string;
 }
@@ -245,15 +284,16 @@ export class AttachmentDto extends BasedDto {
 
 export class CompanyDto extends BasedDto {
     uid: string;
-    companyId: number;
+    companyId?: number;
     companyName: string;
     companyEmail: string;
     companyWebsite: string;
-    companyOwnerUid: string;
-    companyLeadStatusId: string;
+    companyOwnerUid?: string;
+    companyLeadStatusId?: string;
     companyProperties: string;
     companyProfilePhotoUrl?: string;
     association: AssociationDto;
+    [key: string]: any;
 }
 
 export class UpdateCompanyDto {
@@ -277,4 +317,66 @@ export class CreateAssociationDto {
     companyAssoList?: CompanyDto[];
     module: 'CONT' | 'COMP';
     profileUid: string;
+}
+
+export class UserDto {
+    uid: string;
+    displayName: string;
+    email: string;
+    emailVerified: boolean;
+}
+
+export class CountryDto extends BasedDto {
+    uid: string;
+    countryId: number;
+    name: string;
+    iso3: string;
+    numericCode: number;
+    iso2: string;
+    phoneCode: number;
+    capital: string;
+    currency: string;
+    currencyName: string;
+    currencySymbol: string;
+    tld: string;
+    native: string;
+    region: string;
+    regionId: number;
+    subregion: string;
+    subregionId: number;
+    nationality: string;
+    timezones: string;
+    translations: string;
+    latitude: number;
+    longtitude: number;
+}
+
+export class StateDto extends BasedDto {
+    uid: string;
+    countryId: number;
+    stateId: number;
+    name: string;
+    countryCode: string;
+    fipsCode: number;
+    iso2: string;
+    type: string;
+    latitude: number;
+    longtitude: number;
+}
+
+export class CityDto extends BasedDto {
+    uid: string;
+    cityId: number;
+    countryId: number;
+    stateId: number;
+    name: string;
+    countryCode: string;
+    stateCode: string;
+    latitude: number;
+    longtitude: number;
+}
+
+export class profileUpdateDto {
+    property: PropertiesDto;
+    value: string;
 }

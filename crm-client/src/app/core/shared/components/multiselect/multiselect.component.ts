@@ -1,4 +1,4 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { BaseFieldDataSourceControl } from '../base-field-control/base-data-source-control';
 import { MultiSelect } from 'primeng/multiselect';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
@@ -11,6 +11,7 @@ import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
 export class BaseMultiselectComponent
   extends BaseFieldDataSourceControl
   implements OnInit {
+  @Input() showClear: boolean = true;
   @ViewChild('multiselect') multiselect!: MultiSelect;
   filterChange = new Subject<string>();
 

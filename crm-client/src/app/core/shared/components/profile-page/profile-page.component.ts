@@ -16,7 +16,7 @@ export class ProfilePageComponent implements OnChanges {
   contactProfile: ContactDto = new ContactDto();
   companyProfile: CompanyDto = new CompanyDto();
   activitiesList: ActivityDto[] = [];
-  isRightPanelShow: boolean = true;
+  isRightPanelShow: boolean = false;
 
   constructor(
     private commonService: CommonService,

@@ -1,5 +1,6 @@
+<app-toast></app-toast>
 <div class="page-container tw-m-[15px]">
-  <div class="tw-flex">
+  <!-- <div class="tw-flex">
     <div class="tw-justify-between tw-w-full tw-grid tw-items-center">
       <app-base-label
         [label]="'COMMON.COMPANY' | translate"
@@ -10,37 +11,17 @@
         *ngIf="module === 'CONT'"
       ></app-base-label>
     </div>
-    <div class="action-div tw-flex">
-      <p-button
-        [icon]="'pi pi-upload'"
-        rounded="true"
-        [text]="true"
-        [pTooltip]="'BUTTON.EXPORT' | translate"
-        (onClick)="exportFile(dt.processedData)"
-      ></p-button>
-      <p-button
-        [icon]="'pi pi-download'"
-        rounded="true"
-        [text]="true"
-        [pTooltip]="'BUTTON.IMPORT' | translate"
-        (onClick)="importFile()"
-      ></p-button>
-      <p-button
-        [icon]="'pi pi-plus'"
-        rounded="true"
-        [text]="true"
-        [pTooltip]="'BUTTON.CREATE' | translate"
-        (onClick)="toCreate()"
-      ></p-button>
-    </div>
-  </div>
+    <div class="action-div tw-flex"></div>
+  </div> -->
 
+  <!-- create dialog -->
   <p-dialog
     [header]="'PROFILE.CREATE_PROFILE' | translate"
     [(visible)]="displayCreateDialog"
     [style]="{ width: '70%' }"
   >
     <app-base-form [formConfig]="createFormConfig"></app-base-form>
+
     <ng-template pTemplate="footer">
       <p-button
         [label]="'BUTTON.CANCEL' | translate"
@@ -56,115 +37,488 @@
     </ng-template>
   </p-dialog>
 
-  <p-tabView class="">
-    <p-tabPanel header="Contact" [selected]="true" [closable]="true">
-      <p-table
-        #dt
-        [columns]="tableConfig"
-        [value]="module === 'CONT' ? contactList : companyList"
-        [(selection)]="selectedProfile"
-        [resizableColumns]="true"
-        styleClass="p-datatable-gridlines p-datatable-striped"
-        class="profile-company-table"
-      >
-        <ng-template pTemplate="caption">
-          <div class="tw-flex tw-items-center tw-justify-end">
-            <p-button
-              icon="pi pi-trash"
-              [rounded]="true"
-              [text]="true"
-              (onClick)="delete()"
-            />
+  <!-- advance filter dialog -->
+  <p-dialog
+    [(visible)]="isShowFilter"
+    [position]="'right'"
+    styleClass="tw-h-full tw-w-[50%]"
+    [draggable]="false"
+    [resizable]="true"
+    [header]="'PROFILE.ADVANCE_FILTER' | translate"
+    [modal]="true"
+  >
+    <ng-template pTemplate="content" class="tw-overflow-hidden">
+      <div class="tw-flex tw-h-full">
+        <p-scrollPanel class="filter-left tw-w-[50%] tw-overflow-auto">
+          <div
+            *ngFor="let item of tempFilterList[this.activeTabPanel]"
+            class="tw-border tw-border-[var(--primary-color)] tw-border-solid tw-mb-[var(--content-gap)] tw-mr-[var(--content-gap)] tw-p-[var(--content-gap)] tw-rounded-[var(--border-radius)]"
+          >
+            <div class="tw-flex tw-justify-between tw-items-center">
+              <h3>{{ item.property.propertyName }}</h3>
+              <p-button
+                [text]="true"
+                [icon]="'pi pi-trash'"
+                [rounded]="true"
+                (onClick)="deleteFilter(item.property)"
+                [pTooltip]="'BUTTON.REMOVE_FILTER' | translate"
+              ></p-button>
+            </div>
+
+            <app-base-dropdown
+              [options]="item.condition"
+              [label]="'PROFILE.CONDITION' | translate"
+              [fieldControl]="item.conditionFieldControl"
+            ></app-base-dropdown>
+
+            <div
+              *ngIf="
+                item.conditionFieldControl.value !== 'is_known' &&
+                item.conditionFieldControl.value !== 'is_not_known'
+              "
+              class="tw-mt-[var(--content-gap-xs)]"
+            >
+              <ng-container
+                *ngIf="
+                  item.property.propertyType === CONTROL_TYPE_CODE.Dropdown ||
+                    item.property.propertyType ===
+                      CONTROL_TYPE_CODE.Multiselect ||
+                    item.property.propertyType === CONTROL_TYPE_CODE.Checkbox ||
+                    item.property.propertyType ===
+                      CONTROL_TYPE_CODE.MultiCheckbox ||
+                    item.property.propertyType === CONTROL_TYPE_CODE.Radio ||
+                    item.property.propertyType === CONTROL_TYPE_CODE.Country ||
+                    item.property.propertyType === CONTROL_TYPE_CODE.User;
+                  else notDropdown
+                "
+              >
+                <app-base-multiselect
+                  [dataSourceAction]="item.options"
+                  [label]="'PROFILE.VALUE' | translate"
+                  [fieldControl]="item.filterFieldControl"
+                ></app-base-multiselect>
+              </ng-container>
+              <ng-template #notDropdown>
+                <ng-container
+                  *ngIf="
+                    item.property.propertyType === CONTROL_TYPE_CODE.Date ||
+                      item.property.propertyType ===
+                        CONTROL_TYPE_CODE.DateTime ||
+                      item.property.propertyType === CONTROL_TYPE_CODE.Time;
+                    else defaultType
+                  "
+                >
+                  <app-base-datepicker
+                    [label]="'PROFILE.VALUE' | translate"
+                    [fieldControl]="item.filterFieldControl"
+                    [showTime]="
+                      item.property.propertyType !== CONTROL_TYPE_CODE.Date
+                    "
+                    [timeOnly]="
+                      item.property.propertyType === CONTROL_TYPE_CODE.Time
+                    "
+                  ></app-base-datepicker>
+                </ng-container>
+                <ng-template #defaultType>
+                  <app-base-input
+                    *ngIf="
+                      item.property.propertyType !==
+                        CONTROL_TYPE_CODE.Dropdown &&
+                      item.property.propertyType !==
+                        CONTROL_TYPE_CODE.Multiselect &&
+                      item.property.propertyType !==
+                        CONTROL_TYPE_CODE.Checkbox &&
+                      item.property.propertyType !==
+                        CONTROL_TYPE_CODE.MultiCheckbox &&
+                      item.property.propertyType !== CONTROL_TYPE_CODE.Radio &&
+                      item.property.propertyType !==
+                        CONTROL_TYPE_CODE.Country &&
+                      item.property.propertyType !== CONTROL_TYPE_CODE.User
+                    "
+                    [label]="'PROFILE.VALUE' | translate"
+                    [mode]="item.mode"
+                    [fieldControl]="item.filterFieldControl"
+                  ></app-base-input>
+                </ng-template>
+              </ng-template>
+            </div>
           </div>
-        </ng-template>
-        <ng-template pTemplate="header" let-columns>
-          <tr>
-            <th><p-tableHeaderCheckbox /></th>
-            <th *ngFor="let item of columns" pSortableColumn="{{ item.code }}">
-              <div
+        </p-scrollPanel>
+
+        <p-scrollPanel
+          class="filter-right tw-border-0 tw-border-l tw-border-[var(--primary-color)] tw-border-solid tw-w-[50%] tw-overflow-auto tw-pl-[var(--content-gap)]"
+        >
+          <app-base-input
+            [placeholder]="'INPUT.SEARCH' | translate"
+            [fieldControl]="filterSearch"
+            [autoFocus]="isShowFilter"
+          ></app-base-input>
+
+          <div
+            *ngFor="let grp of modulePropertyList"
+            class="tw-mt-[var(--content-gap-s)]"
+          >
+            <app-base-label [label]="grp.moduleName"></app-base-label>
+            <div *ngFor="let prop of grp.propertiesList">
+              <p-button
+                [text]="true"
+                [label]="returnFilterProperty(prop).property.propertyName"
+                styleClass="tw-w-full tw-text-left"
+                (onClick)="filterClick(returnFilterProperty(prop).property)"
+                [iconPos]="'left'"
+                [icon]="returnFilterProperty(prop).icon"
                 *ngIf="
-                  item.code !== 'contactProfilePhotoUrl' &&
-                  item.code !== 'companyProfilePhotoUrl'
+                  filterSearch.value === '' ||
+                  prop.propertyName
+                    .toLowerCase()
+                    .includes(filterSearch.value.toLowerCase())
                 "
-              >
-                {{ item.header }} <p-sortIcon field="{{ item.code }}" />
-              </div>
-              <div
-                *ngIf="
-                  item.code === 'contactProfilePhotoUrl' ||
-                  item.code !== 'companyProfilePhotoUrl'
-                "
-              ></div>
-            </th>
-          </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-profile let-columns="columns">
-          <tr>
-            <td><p-tableCheckbox [value]="profile" /></td>
-            <td *ngFor="let col of columns">
-              <div
-                *ngIf="
-                  col.code === 'contactProfilePhotoUrl' ||
-                  col.code === 'companyProfilePhotoUrl'
-                "
-              >
-                <p-avatar
-                  *ngIf="profile[col.code]"
-                  [image]="profile[col.code]"
-                  shape="circle"
-                ></p-avatar>
-                <p-avatar
-                  *ngIf="!profile[col.code]"
-                  [icon]="'pi pi-user'"
-                  shape="circle"
-                ></p-avatar>
+              ></p-button>
+            </div>
+          </div>
+        </p-scrollPanel>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="footer">
+      <div class="tw-flex tw-justify-between">
+        <p-button
+          [label]="'BUTTON.CANCEL' | translate"
+          [outlined]="true"
+          (onClick)="closeFilter()"
+        ></p-button>
+        <p-button
+          [label]="'BUTTON.SUBMIT' | translate"
+          (onClick)="filterSubmit()"
+        ></p-button>
+      </div>
+    </ng-template>
+  </p-dialog>
+
+  <!-- Table Column filtering -->
+  <p-dialog
+    [(visible)]="isShowTableColumnFilter"
+    [position]="'right'"
+    styleClass="tw-h-full tw-w-[70%]"
+    [draggable]="false"
+    [resizable]="true"
+    [header]="'PROFILE.COLUMN_FILTER' | translate"
+    [modal]="true"
+  >
+    <p-pickList
+      [source]="propertiesList2"
+      [target]="columnPropertiesList[activeTabPanel]"
+      [targetHeader]="'PROFILE.SELECTED_COLUMN' | translate"
+      [dragdrop]="true"
+      [responsive]="true"
+      filterBy="propertyName"
+      showTargetFilter="false"
+      [sourceStyle]="{ height: '30rem' }"
+      [targetStyle]="{ height: '30rem' }"
+      (onMoveToTarget)="onMoveToTarget($event)"
+      (onTargetReorder)="reorderTarget($event)"
+      [showSourceControls]="false"
+      [showTargetControls]="false"
+      [rightButtonAriaLabel]="'BUTTON.TO_RIGHT' | translate"
+      [leftButtonAriaLabel]="'BUTTON.TO_LEFT' | translate"
+      [allRightButtonAriaLabel]="'BUTTON.ALL_TO_RIGHT' | translate"
+      [allLeftButtonAriaLabel]="'BUTTON.ALL_TO_LEFT' | translate"
+    >
+      <ng-template let-prop pTemplate="item">
+        <div>
+          {{ prop?.propertyName }}
+        </div>
+      </ng-template>
+    </p-pickList>
+
+    <ng-template pTemplate="footer">
+      <div class="tw-flex tw-justify-between">
+        <p-button
+          [label]="'BUTTON.CANCEL' | translate"
+          [outlined]="true"
+          (onClick)="closeTableColumnFilter()"
+        ></p-button>
+        <p-button
+          [label]="'BUTTON.SUBMIT' | translate"
+          (onClick)="tableColumnFilterSubmit()"
+        ></p-button>
+      </div>
+    </ng-template>
+  </p-dialog>
+
+  <p-tabView
+    class="contact-company-tab-view"
+    (onChange)="tabViewOnChange($event)"
+    (onClose)="tabViewOnClose($event)"
+  >
+    <p-tabPanel
+      *ngFor="let panel of panelList"
+      [closable]="panel.closable"
+      [selected]="panel.index === activeTabPanel"
+    >
+      <ng-template pTemplate="header" class="tab-view-header">
+        {{ panel.headerLabel }}
+      </ng-template>
+
+      <ng-template pTemplate="content">
+        <p-table
+          #dt
+          [columns]="tableConfig[activeTabPanel]"
+          [value]="module === 'CONT' ? contactList : companyList"
+          [(selection)]="selectedProfile"
+          [resizableColumns]="true"
+          [reorderableColumns]="true"
+          [rowHover]="true"
+          styleClass="p-datatable-gridlines p-datatable-striped"
+          class="profile-company-table"
+          [paginator]="true"
+          [rows]="ROW_PER_PAGE_DEFAULT"
+          [rowsPerPageOptions]="ROW_PER_PAGE_DEFAULT_LIST"
+          [loading]="tableLoading[activeTabPanel]"
+        >
+          <ng-template pTemplate="caption">
+            <div class="tw-flex tw-justify-between">
+              <div class="tw-flex">
+                <p-button
+                  [label]="
+                    'BUTTON.ADVANCE_FILTER'
+                      | translate
+                        : {
+                            numberOfFilter: tabFilterList[activeTabPanel].length
+                          }
+                  "
+                  [text]="true"
+                  [iconPos]="'left'"
+                  [icon]="'pi pi-sliders-h'"
+                  (onClick)="advanceFilterBtn()"
+                  [loading]="!propertiesList"
+                ></p-button>
+                <p-button
+                  [label]="
+                    'BUTTON.EDIT_COLUMN'
+                      | translate
+                        : {
+                            numberOfColumn: tableConfig[activeTabPanel].length
+                          }
+                  "
+                  [text]="true"
+                  [iconPos]="'left'"
+                  [icon]="'pi pi-sliders-v'"
+                  (onClick)="tableColumnFilterBtn()"
+                  [loading]="!propertiesList"
+                ></p-button>
               </div>
 
-              <div
-                *ngIf="
-                  col.code !== 'contactProfilePhotoUrl' &&
-                  col.code !== 'companyProfilePhotoUrl'
-                "
+              <div class="tw-flex">
+                <p-button
+                  [icon]="'pi pi-upload'"
+                  rounded="true"
+                  [text]="true"
+                  [pTooltip]="'BUTTON.EXPORT' | translate"
+                  (onClick)="exportFile(dt.processedData)"
+                ></p-button>
+                <p-button
+                  [icon]="'pi pi-download'"
+                  rounded="true"
+                  [text]="true"
+                  [pTooltip]="'BUTTON.IMPORT' | translate"
+                  (onClick)="uploader.click()"
+                ></p-button>
+                <p-button
+                  [icon]="'pi pi-cloud-download'"
+                  rounded="true"
+                  [text]="true"
+                  [pTooltip]="'BUTTON.DOWNLOAD_TEMPLATE' | translate"
+                  (onClick)="downloadTemplate()"
+                ></p-button>
+                <p-button
+                  [icon]="'pi pi-plus'"
+                  rounded="true"
+                  [text]="true"
+                  [pTooltip]="'BUTTON.CREATE' | translate"
+                  (onClick)="toCreate()"
+                ></p-button>
+                <p-button
+                  icon="pi pi-trash"
+                  [rounded]="true"
+                  [text]="true"
+                  (onClick)="delete()"
+                  *ngIf="selectedProfile.length > 0"
+                  [pTooltip]="'BUTTON.DELETE' | translate"
+                />
+              </div>
+            </div>
+          </ng-template>
+          <ng-template pTemplate="header" let-columns>
+            <tr>
+              <th>
+                <div class="tw-flex tw-justify-center">
+                  <p-tableHeaderCheckbox />
+                </div>
+              </th>
+              <th
+                *ngFor="let item of columns"
+                pSortableColumn="{{ item.code }}"
+                pReorderableColumn
+                [ngClass]="{
+                  'tw-w-0':
+                    item.code === 'contactProfilePhotoUrl' ||
+                    item.code === 'companyProfilePhotoUrl'
+                }"
               >
                 <div
                   *ngIf="
-                    col.code === 'contactFirstName' ||
-                    col.code === 'contactLastName' ||
-                    col.code === 'companyName'
+                    item.code !== 'contactProfilePhotoUrl' &&
+                    item.code !== 'companyProfilePhotoUrl'
                   "
                 >
-                  <p-button
-                    [label]="profile[col.code]"
-                    [text]="true"
-                    [pTooltip]="profile[col.code]"
-                    (onClick)="toProfile(profile)"
-                  ></p-button>
+                  {{ item.header }} <p-sortIcon field="{{ item.code }}" />
                 </div>
                 <div
                   *ngIf="
-                    col.code !== 'contactFirstName' &&
-                    col.code !== 'contactLastName' &&
-                    col.code !== 'createdDate' &&
-                    col.code !== 'modifiedDate' &&
-                    col.code !== 'companyName'
+                    item.code === 'contactProfilePhotoUrl' ||
+                    item.code === 'companyProfilePhotoUrl'
                   "
-                  [pTooltip]="profile[col.code]"
-                >
-                  {{ profile[col.code] }}
+                ></div>
+              </th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-profile let-columns="columns">
+            <tr>
+              <td>
+                <div class="tw-flex tw-justify-center">
+                  <p-tableCheckbox [value]="profile" />
                 </div>
-                <div
-                  *ngIf="
-                    col.code === 'createdDate' || col.code === 'modifiedDate'
-                  "
-                  [pTooltip]="profile[col.code]"
-                >
-                  {{ convertDateFormat(profile[col.code]) }}
+              </td>
+              <td *ngFor="let col of columns">
+                <div [ngSwitch]="col.code">
+                  <!-- avatar -->
+                  <div *ngSwitchCase="'contactProfilePhotoUrl'">
+                    <p-avatar
+                      *ngIf="profile[col.code]"
+                      [image]="profile[col.code]"
+                      shape="circle"
+                      class="tw-w-[max-content]"
+                    ></p-avatar>
+                    <p-avatar
+                      *ngIf="!profile[col.code]"
+                      [icon]="'pi pi-user'"
+                      shape="circle"
+                      class="tw-w-[max-content]"
+                    ></p-avatar>
+                  </div>
+                  <div *ngSwitchCase="'companyProfilePhotoUrl'">
+                    <p-avatar
+                      *ngIf="profile[col.code]"
+                      [image]="profile[col.code]"
+                      shape="circle"
+                      class="tw-w-[max-content]"
+                    ></p-avatar>
+                    <p-avatar
+                      *ngIf="!profile[col.code]"
+                      [icon]="'pi pi-user'"
+                      shape="circle"
+                      class="tw-w-[max-content]"
+                    ></p-avatar>
+                  </div>
+
+                  <!-- profile name -->
+                  <div *ngSwitchCase="'contactFirstName'">
+                    <p-button
+                      [label]="profile[col.code]"
+                      [text]="true"
+                      [pTooltip]="profile[col.code]"
+                      (onClick)="toProfile(profile)"
+                    ></p-button>
+                  </div>
+                  <div *ngSwitchCase="'contactLastName'">
+                    <p-button
+                      [label]="profile[col.code]"
+                      [text]="true"
+                      [pTooltip]="profile[col.code]"
+                      (onClick)="toProfile(profile)"
+                    ></p-button>
+                  </div>
+                  <div *ngSwitchCase="'companyName'">
+                    <p-button
+                      [label]="profile[col.code]"
+                      [text]="true"
+                      [pTooltip]="profile[col.code]"
+                      (onClick)="toProfile(profile)"
+                    ></p-button>
+                  </div>
+                  <div
+                    *ngSwitchCase="'contactLeadStatusUid'"
+                    [pTooltip]="returnLeadStatusLabelFromId(profile[col.code])"
+                  >
+                    {{ returnLeadStatusLabelFromId(profile[col.code]) }}
+                  </div>
+                  <div
+                    *ngSwitchCase="'companyLeadStatusUid'"
+                    [pTooltip]="returnLeadStatusLabelFromId(profile[col.code])"
+                  >
+                    {{ returnLeadStatusLabelFromId(profile[col.code]) }}
+                  </div>
+
+                  <div *ngSwitchDefault>
+                    <div
+                      [pTooltip]="
+                        returnPropertyValue(col, profile[col.code])
+                          ? returnPropertyValue(col, profile[col.code])
+                          : EMPTY_VALUE_STRING
+                      "
+                    >
+                      {{
+                        returnPropertyValue(col, profile[col.code])
+                          ? returnPropertyValue(col, profile[col.code])
+                          : EMPTY_VALUE_STRING
+                      }}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="emptymessage">
+            <tr>
+              <td colspan="8">
+                <h2 class="tw-flex tw-justify-center">
+                  {{
+                    "ERROR.NO_PROFILE_RECORD_FOUND"
+                      | translate
+                        : {
+                            module:
+                              module === "CONT"
+                                ? returnTranslate("PROFILE.CONTACTS")
+                                : returnTranslate("PROFILE.COMPANYS")
+                          }
+                  }}
+                </h2>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </ng-template>
+    </p-tabPanel>
+
+    <p-tabPanel>
+      <ng-template pTemplate="header" class="tw-p-0">
+        <p-button
+          icon="pi pi-plus"
+          (click)="addTab(); $event.stopPropagation()"
+          styleClass="tw-w-[52px] tw-h-[52px] "
+          [text]="true"
+        >
+        </p-button>
+      </ng-template>
     </p-tabPanel>
   </p-tabView>
 </div>
+
+<input
+  type="file"
+  id="file-input"
+  #uploader
+  hidden
+  (change)="importFile($event)"
+/>
