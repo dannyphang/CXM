@@ -54,10 +54,10 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
     private router: Router,
     protected override formBuilder: FormBuilder,
     protected override commonService: CommonService,
-    private messageService: MessageService,
+    protected override messageService: MessageService,
     private storageService: StorageService
   ) {
-    super(formBuilder, commonService);
+    super(formBuilder, commonService, messageService);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -96,12 +96,17 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
 
   ngOnInit() {
     this.commonService.getAllCountry().subscribe(res => {
-      this.countryOptionList = res.data.map(c => {
-        return {
-          label: c.name,
-          value: c.uid
-        }
-      });
+      if (res.isSuccess) {
+        this.countryOptionList = res.data.map(c => {
+          return {
+            label: c.name,
+            value: c.uid
+          }
+        });
+      }
+      else {
+        this.popMessage(res.responseMessage, "Error", "error");
+      }
     });
 
   }
@@ -142,9 +147,13 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
             contactProfilePhotoUrl: this.profileImg
           }
           this.commonService.updateContact([updateContact]).subscribe(res => {
-            console.log(res);
-            this.isShowAvatarEditDialog = false;
-            this.profileUpdateEmit.emit(updateContact);
+            if (res.isSuccess) {
+              this.isShowAvatarEditDialog = false;
+              this.profileUpdateEmit.emit(updateContact);
+            }
+            else {
+              this.popMessage(res.responseMessage, "Error", "error");
+            }
           })
         }
         else {
@@ -153,9 +162,14 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
             companyProfilePhotoUrl: this.profileImg
           }
           this.commonService.updateCompany([updateCompany]).subscribe(res => {
-            console.log(res);
-            this.isShowAvatarEditDialog = false;
-            this.profileUpdateEmit.emit(updateCompany);
+            if (res.isSuccess) {
+              this.isShowAvatarEditDialog = false;
+              this.profileUpdateEmit.emit(updateCompany);
+            }
+            else {
+              this.popMessage(res.responseMessage, "Error", "error");
+            }
+
           })
         }
       });
