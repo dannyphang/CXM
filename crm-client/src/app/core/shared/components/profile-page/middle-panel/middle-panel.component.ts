@@ -58,8 +58,8 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
     });
 
     this.activityService.getAllActivityModule().subscribe((res) => {
-      this.activityModuleList = res.activityModuleList;
-      this.activityControlList = res.activityControlList;
+      this.activityModuleList = res.data.activityModuleList;
+      this.activityControlList = res.data.activityControlList;
     });
 
 

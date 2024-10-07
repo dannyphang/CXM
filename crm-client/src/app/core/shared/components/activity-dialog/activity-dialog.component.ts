@@ -361,11 +361,11 @@ export class ActivityDialogComponent implements OnChanges {
         this.attachmentList.forEach(file => {
           this.commonService.uploadFile(file, "Activity").subscribe(res2 => {
             let uploadAttach: AttachmentDto = {
-              activityUid: res[0].uid!,
+              activityUid: res.data[0].uid!,
               folderName: "Activity",
-              fileName: res2.metadata.name,
-              fullPath: res2.metadata.fullPath,
-              fileSize: res2.metadata.size
+              fileName: res2.data.metadata.name,
+              fullPath: res2.data.metadata.fullPath,
+              fileSize: res2.data.metadata.size
             }
 
             this.activityService.uploadAttachment([uploadAttach]).subscribe(res3 => {

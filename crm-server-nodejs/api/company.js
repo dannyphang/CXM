@@ -2,6 +2,7 @@ import { Router } from "express";
 import express from "express";
 const router = Router();
 import * as db from "../firebase-admin.js";
+import responseModel from "./shared.js";
 
 router.use(express.json());
 
@@ -27,10 +28,15 @@ router.get("/", async (req, res) => {
       item.modifiedDate = convertFirebaseDateFormat(item.modifiedDate);
     });
 
-    res.status(200).json(companyList);
+    res.status(200).json(responseModel({ data: companyList }));
   } catch (error) {
     console.log("error", error);
-    res.status(400).json(error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
   }
 });
 
@@ -112,14 +118,19 @@ router.get("/:id", async (req, res) => {
       });
 
       Promise.all([p1, p2]).then((_) => {
-        res.status(200).json(companyData);
+        res.status(200).json(responseModel({ data: companyData }));
       });
     } else {
-      res.status(200).json(companyData);
+      res.status(200).json(responseModel({ data: companyData }));
     }
   } catch (error) {
     console.log("error", error);
-    res.status(400).json(error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
   }
 });
 
@@ -141,10 +152,15 @@ router.post("/", async (req, res) => {
       await newRef.set(company);
     });
 
-    res.status(200).json(createdCompanyList);
+    res.status(200).json(responseModel({ data: createdCompanyList }));
   } catch (error) {
     console.log("error", error);
-    res.status(400).json(error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
   }
 });
 
@@ -160,14 +176,17 @@ router.put("/delete", async (req, res) => {
       });
     });
 
-    res.status(200).json({
-      message: "Deleted successfully",
-    });
+    res.status(200).json(responseModel({ responseMessage: "Deleted successfully" }));
 
     // res.status(200).json(req.body.companyList);
-  } catch (e) {
-    console.log(e);
-    res.status(400).json(e);
+  } catch (error) {
+    console.log(error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
   }
 });
 
@@ -186,10 +205,15 @@ router.put("/", async (req, res) => {
       updatedCompanyList.push(updatedCompany);
     });
 
-    res.status(200).json(updatedCompanyList);
+    res.status(200).json(responseModel({ data: updatedCompanyList }));
   } catch (error) {
     console.log("error", error);
-    res.status(400).json(error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
   }
 });
 

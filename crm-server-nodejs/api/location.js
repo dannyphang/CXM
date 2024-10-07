@@ -2,6 +2,7 @@ import { Router } from "express";
 import express from "express";
 const router = Router();
 import * as db from "../firebase-admin.js";
+import responseModel from "./shared.js";
 import bodyParser from "body-parser";
 
 // router.use(express.json());
@@ -36,10 +37,15 @@ router.post("/country", async (req, res) => {
       await newRef.set(loc);
     });
 
-    res.status(200).json(createdList);
+    res.status(200).json(responseModel({ data: createdList }));
   } catch (error) {
     console.log("error", error);
-    res.status(400).json(error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
   }
 });
 
@@ -61,10 +67,15 @@ router.get("/country", async (req, res) => {
       item.modifiedDate = convertFirebaseDateFormat(item.modifiedDate);
     });
 
-    res.status(200).json(list);
+    res.status(200).json(responseModel({ data: list }));
   } catch (error) {
     console.log("error", error);
-    res.status(400).json(error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
   }
 });
 
@@ -86,10 +97,15 @@ router.post("/state", async (req, res) => {
       await newRef.set(loc);
     });
 
-    res.status(200).json({ updatedLength: createdList.length });
+    res.status(200).json(responseModel({ data: { updatedLength: createdList.length } }));
   } catch (error) {
     console.log("error", error);
-    res.status(400).json(error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
   }
 });
 
@@ -111,10 +127,15 @@ router.get("/state", async (req, res) => {
       item.modifiedDate = convertFirebaseDateFormat(item.modifiedDate);
     });
 
-    res.status(200).json(list);
+    res.status(200).json(responseModel({ data: list }));
   } catch (error) {
     console.log("error", error);
-    res.status(400).json(error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
   }
 });
 
@@ -142,15 +163,24 @@ router.get("/state/:id", async (req, res) => {
         item.modifiedDate = convertFirebaseDateFormat(item.modifiedDate);
       });
 
-      res.status(200).json(list);
+      res.status(200).json(responseModel({ data: list }));
     } else {
-      res.status(400).json({
-        errorMessage: "The country is not available.",
-      });
+      res
+        .status(400)
+        .json(
+          res
+            .status(400)
+            .json(responseModel({ isSuccess: false, responseMessage: "The country is not found." }))
+        );
     }
   } catch (error) {
     console.log("error", error);
-    res.status(400).json(error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
   }
 });
 
@@ -176,10 +206,15 @@ router.post("/city", async (req, res) => {
       }
     });
 
-    res.status(200).json({ updatedLength: createdList.length });
+    res.status(200).json(responseModel({ data: { updatedLength: createdList.length } }));
   } catch (error) {
     console.log("error", error);
-    res.status(400).json(error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
   }
 });
 
@@ -207,15 +242,24 @@ router.get("/city/:id", async (req, res) => {
         item.modifiedDate = convertFirebaseDateFormat(item.modifiedDate);
       });
 
-      res.status(200).json(list);
+      res.status(200).json(responseModel({ data: list }));
     } else {
-      res.status(400).json({
-        errorMessage: "The state is not available.",
-      });
+      res
+        .status(400)
+        .json(
+          res
+            .status(400)
+            .json(responseModel({ isSuccess: false, responseMessage: "The state is not found." }))
+        );
     }
   } catch (error) {
     console.log("error", error);
-    res.status(400).json(error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
   }
 });
 
@@ -240,15 +284,24 @@ router.get("/state/name/:stateName", async (req, res) => {
         item.modifiedDate = convertFirebaseDateFormat(item.modifiedDate);
       });
 
-      res.status(200).json(list);
+      res.status(200).json(responseModel({ data: list }));
     } else {
-      res.status(400).json({
-        errorMessage: "The state is not found.",
-      });
+      res
+        .status(400)
+        .json(
+          res
+            .status(400)
+            .json(responseModel({ isSuccess: false, responseMessage: "The state is not found." }))
+        );
     }
   } catch (error) {
     console.log("error", error);
-    res.status(400).json(error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
   }
 });
 
@@ -273,15 +326,20 @@ router.get("/city/name/:cityName", async (req, res) => {
         item.modifiedDate = convertFirebaseDateFormat(item.modifiedDate);
       });
 
-      res.status(200).json(list);
+      res.status(200).json(responseModel({ data: list }));
     } else {
-      res.status(400).json({
-        errorMessage: "The city is not found.",
-      });
+      res
+        .status(400)
+        .json(responseModel({ isSuccess: false, responseMessage: "The city is not found." }));
     }
   } catch (error) {
     console.log("error", error);
-    res.status(400).json(error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
   }
 });
 

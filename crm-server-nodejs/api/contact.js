@@ -2,6 +2,7 @@ import { Router } from "express";
 import express from "express";
 const router = Router();
 import * as db from "../firebase-admin.js";
+import responseModel from "./shared.js";
 
 router.use(express.json());
 
@@ -27,10 +28,15 @@ router.get("/", async (req, res) => {
       item.modifiedDate = convertFirebaseDateFormat(item.modifiedDate);
     });
 
-    res.status(200).json(contactList);
+    res.status(200).json(responseModel({ data: contactList }));
   } catch (error) {
     console.log("error", error);
-    res.status(400).json(error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
   }
 });
 
@@ -113,14 +119,19 @@ router.get("/:id", async (req, res) => {
       });
 
       Promise.all([p1, p2]).then((_) => {
-        res.status(200).json(contactData);
+        res.status(200).json(responseModel({ data: contactData }));
       });
     } else {
       res.status(200).json(contactData);
     }
   } catch (error) {
     console.log("error", error);
-    res.status(400).json(error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
   }
 });
 
@@ -142,10 +153,15 @@ router.post("/", async (req, res) => {
       await newRef.set(contact);
     });
 
-    res.status(200).json(createdContactList);
+    res.status(200).json(responseModel({ data: createdContactList }));
   } catch (error) {
     console.log("error", error);
-    res.status(400).json(error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
   }
 });
 
@@ -161,11 +177,7 @@ router.put("/delete", async (req, res) => {
       });
     });
 
-    res.status(200).json({
-      message: "Deleted successfully",
-    });
-
-    // res.status(200).json(req.body.contactList);
+    res.status(200).json(responseModel({ responseMessage: "Deleted successfully" }));
   } catch (e) {
     console.log(e);
     res.status(400).json(e);
@@ -188,10 +200,15 @@ router.put("/", async (req, res) => {
       updatedContactList.push(updatedContact);
     });
 
-    res.status(200).json(updatedContactList);
+    res.status(200).json(responseModel({ data: updatedContactList }));
   } catch (error) {
     console.log("error", error);
-    res.status(400).json(error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
   }
 });
 

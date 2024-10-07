@@ -3,7 +3,7 @@ import express from "express";
 const router = Router();
 import * as db from "../firebase-admin.js";
 import pkg from "firebase-admin";
-const { auth } = pkg;
+import responseModel from "./shared.js";
 
 router.use(express.json());
 
@@ -23,10 +23,15 @@ router.get("/" + propertiesCollection, async (req, res) => {
 
     const list = snapshot.docs.map((doc) => doc.data());
 
-    res.status(200).json(list);
+    res.status(200).json(responseModel({ data: list }));
   } catch (error) {
     console.log("error", error);
-    res.status(400).json(error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
   }
 });
 
@@ -61,12 +66,8 @@ router.get("/" + propertiesCollection + "/module", async (req, res) => {
     for (let i = 0; i < propertyList.length; i++) {
       propertyList[i].propertyLookupList = [];
 
-      propertyList[i].createdDate = convertFirebaseDateFormat(
-        propertyList[i].createdDate
-      );
-      propertyList[i].modifiedDate = convertFirebaseDateFormat(
-        propertyList[i].modifiedDate
-      );
+      propertyList[i].createdDate = convertFirebaseDateFormat(propertyList[i].createdDate);
+      propertyList[i].modifiedDate = convertFirebaseDateFormat(propertyList[i].modifiedDate);
 
       // assign user list into lookup property
       if (propertyList[i].propertyType === "USR") {
@@ -116,10 +117,15 @@ router.get("/" + propertiesCollection + "/module", async (req, res) => {
       }
     });
 
-    res.status(200).json(moduleList);
+    res.status(200).json(responseModel({ data: moduleList }));
   } catch (error) {
     console.log("error", error);
-    res.status(400).json(error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
   }
 });
 
@@ -152,12 +158,8 @@ router.get("/" + propertiesCollection + "/module/create", async (req, res) => {
 
     for (let i = 0; i < propertyList.length; i++) {
       propertyList[i].propertyLookupList = [];
-      propertyList[i].createdDate = convertFirebaseDateFormat(
-        propertyList[i].createdDate
-      );
-      propertyList[i].modifiedDate = convertFirebaseDateFormat(
-        propertyList[i].modifiedDate
-      );
+      propertyList[i].createdDate = convertFirebaseDateFormat(propertyList[i].createdDate);
+      propertyList[i].modifiedDate = convertFirebaseDateFormat(propertyList[i].modifiedDate);
 
       for (let j = 0; j < propertyLookupList.length; j++) {
         if (propertyList[i].propertyId === propertyLookupList[j].propertyId) {
@@ -175,10 +177,15 @@ router.get("/" + propertiesCollection + "/module/create", async (req, res) => {
       }
     });
 
-    res.status(200).json(moduleList);
+    res.status(200).json(responseModel({ data: moduleList }));
   } catch (error) {
     console.log("error", error);
-    res.status(400).json(error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
   }
 });
 
@@ -200,10 +207,15 @@ router.post("/" + propertiesCollection, async (req, res) => {
       await newRef.set(prop);
     });
 
-    res.status(200).json(createDoc);
-  } catch (e) {
-    console.log(e);
-    res.status(400).json(e);
+    res.status(200).json(responseModel({ data: createDoc }));
+  } catch (error) {
+    console.log(error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
   }
 });
 
@@ -217,10 +229,15 @@ router.get("/" + propertiesLookupCollection, async (req, res) => {
       .get();
     const list = snapshot.docs.map((doc) => doc.data());
 
-    res.status(200).json(list);
+    res.status(200).json(responseModel({ data: list }));
   } catch (error) {
     console.log("error", error);
-    res.status(400).json(error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
   }
 });
 
@@ -242,10 +259,15 @@ router.post("/" + propertiesLookupCollection, async (req, res) => {
       await newRef.set(prop);
     });
 
-    res.status(200).json(createDoc);
-  } catch (e) {
-    console.log(e);
-    res.status(400).json(e);
+    res.status(200).json(responseModel({ data: createDoc }));
+  } catch (error) {
+    console.log(error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
   }
 });
 
@@ -260,10 +282,15 @@ router.get("/" + moduleCodeCollection, async (req, res) => {
 
     const list = snapshot.docs.map((doc) => doc.data());
 
-    res.status(200).json(list);
+    res.status(200).json(responseModel({ data: list }));
   } catch (error) {
     console.log("error", error);
-    res.status(400).json(error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
   }
 });
 
@@ -290,9 +317,7 @@ router.get("/activityModule", async (req, res) => {
 
     const activityModuleList = snapshot.docs.map((doc) => doc.data());
     const activityControlList = actCtrSnapshot.docs.map((doc) => doc.data());
-    const subActivityControlList = subActCtrSnapshot.docs.map((doc) =>
-      doc.data()
-    );
+    const subActivityControlList = subActCtrSnapshot.docs.map((doc) => doc.data());
 
     activityControlList.forEach((item) => {
       item.subActivityControl = [];
@@ -303,13 +328,22 @@ router.get("/activityModule", async (req, res) => {
       });
     });
 
-    res.status(200).json({
-      activityModuleList,
-      activityControlList,
-    });
+    res.status(200).json(
+      responseModel({
+        data: {
+          activityModuleList,
+          activityControlList,
+        },
+      })
+    );
   } catch (error) {
     console.log("error", error);
-    res.status(400).json(error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
   }
 });
 
@@ -331,10 +365,15 @@ router.post("/" + moduleCodeCollection, async (req, res) => {
       await newRef.set(prop);
     });
 
-    res.status(200).json(createDoc);
-  } catch (e) {
-    console.log(e);
-    res.status(400).json(e);
+    res.status(200).json(responseModel({ data: createDoc }));
+  } catch (error) {
+    console.log(error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
   }
 });
 
@@ -385,10 +424,15 @@ router.post("/asso", async (req, res) => {
       });
     }
 
-    res.status(200).json(createDoc);
-  } catch (e) {
-    console.log(e);
-    res.status(400).json(e);
+    res.status(200).json(responseModel({ data: createDoc }));
+  } catch (error) {
+    console.log(error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
   }
 });
 
