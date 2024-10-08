@@ -266,6 +266,7 @@ export class UpdateContactDto {
     contactLeadStatusUid?: string;
     contactProperties?: string;
     contactProfilePhotoUrl?: string;
+    modifiedBy: string;
 }
 
 export class PropertyDataDto {
@@ -306,6 +307,7 @@ export class UpdateCompanyDto {
     companyLeadStatusId?: string;
     companyProperties?: string;
     companyProfilePhotoUrl?: string;
+    modifiedBy: string;
 }
 
 export class AssociationDto {

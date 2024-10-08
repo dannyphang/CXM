@@ -8,6 +8,8 @@ import { debounceTime, distinctUntilChanged, map, Observable, of } from 'rxjs';
 import { StorageService } from '../../../../services/storage.service';
 import { DEFAULT_PROFILE_PIC_URL } from '../../../constants/common.constants';
 import { BasePropertyAbstract } from '../../../base/base-property.abstract';
+import { AuthService } from '../../../../services/auth.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-left-panel',
@@ -55,9 +57,11 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
     protected override formBuilder: FormBuilder,
     protected override commonService: CommonService,
     protected override messageService: MessageService,
-    private storageService: StorageService
+    private storageService: StorageService,
+    protected override authService: AuthService,
+    protected override translateService: TranslateService
   ) {
-    super(formBuilder, commonService, messageService);
+    super(formBuilder, commonService, messageService, authService, translateService);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -144,7 +148,8 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
         if (this.module === 'CONT') {
           let updateContact: UpdateContactDto = {
             uid: this.contactProfile.uid,
-            contactProfilePhotoUrl: this.profileImg
+            contactProfilePhotoUrl: this.profileImg,
+            modifiedBy: this.authService.user!.uid
           }
           this.commonService.updateContact([updateContact]).subscribe(res => {
             if (res.isSuccess) {
@@ -159,7 +164,8 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
         else {
           let updateCompany: UpdateCompanyDto = {
             uid: this.companyProfile.uid,
-            companyProfilePhotoUrl: this.profileImg
+            companyProfilePhotoUrl: this.profileImg,
+            modifiedBy: this.authService.user!.uid
           }
           this.commonService.updateCompany([updateCompany]).subscribe(res => {
             if (res.isSuccess) {

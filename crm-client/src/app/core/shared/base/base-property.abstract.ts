@@ -5,6 +5,8 @@ import { FormConfig, CONTROL_TYPE, CONTROL_TYPE_CODE, OptionsModel } from "../..
 import { Input } from "@angular/core";
 import { BaseCoreAbstract } from "./base-core.abstract";
 import { MessageService } from "primeng/api";
+import { AuthService } from "../../services/auth.service";
+import { TranslateService } from "@ngx-translate/core";
 
 export abstract class BasePropertyAbstract extends BaseCoreAbstract {
     profileFormGroup: FormGroup = new FormGroup({});
@@ -23,6 +25,8 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
         protected formBuilder: FormBuilder,
         protected commonService: CommonService,
         protected override messageService: MessageService,
+        protected authService: AuthService,
+        protected translateService: TranslateService
     ) {
         super(messageService);
     }
@@ -56,6 +60,7 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
                     required: prop.isMandatory
                 };
 
+                // check if its not left panel (AKA all properties) or its on left panel (then only show the property when isVisible == true)
                 if (prop.isVisible || !isLeftPanel) {
                     if (prop.propertyType === CONTROL_TYPE_CODE.Textbox || prop.propertyType === CONTROL_TYPE_CODE.Textarea) {
                         forms = {
@@ -281,7 +286,15 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
                     case 'phone_number':
                         return contactProfile.contactPhone;
                     case 'contact_owner':
-                        return contactProfile.contactOwnerUid ?? null
+                        return contactProfile.contactOwnerUid ?? null;
+                    case 'created_date':
+                        return contactProfile.createdDate ? new Date(contactProfile.createdDate) : null;
+                    case 'created_by':
+                        return contactProfile.createdBy ?? null;
+                    case 'last_modified_date':
+                        return contactProfile.modifiedDate ? new Date(contactProfile.modifiedDate) : null;
+                    case 'last_modified_by':
+                        return contactProfile.modifiedBy ?? null;
                     default:
                         let contactProp: PropertyDataDto[] = JSON.parse(contactProfile.contactProperties ?? '[]');
                         if (contactProp.find(item => item.uid === prop.uid) && (prop.propertyType === CONTROL_TYPE_CODE.Date || prop.propertyType === CONTROL_TYPE_CODE.DateTime || prop.propertyType === CONTROL_TYPE_CODE.Time)) {
@@ -300,6 +313,14 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
                         return companyProfile.companyEmail;
                     case 'company_owner':
                         return companyProfile.companyOwnerUid ?? null;
+                    case 'created_date':
+                        return companyProfile.modifiedDate ? new Date(companyProfile.modifiedDate) : null;
+                    case 'created_by':
+                        return companyProfile.createdBy ?? null;
+                    case 'last_modified_date':
+                        return companyProfile.modifiedDate ? new Date(companyProfile.modifiedDate) : null;
+                    case 'last_modified_by':
+                        return companyProfile.modifiedBy ?? null;
                     default:
                         let companyProp: PropertyDataDto[] = JSON.parse(companyProfile.companyProperties ?? "[]");
                         if (companyProp.find(item => item.uid === prop.uid) && (prop.propertyType === CONTROL_TYPE_CODE.Date || prop.propertyType === CONTROL_TYPE_CODE.DateTime || prop.propertyType === CONTROL_TYPE_CODE.Time)) {
@@ -393,6 +414,7 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
             let updateContact: UpdateContactDto = new UpdateContactDto();
             let profileProperty: PropertyDataDto[] = JSON.parse(contactProfile.contactProperties);
             updateContact.uid = contactProfile.uid;
+            updateContact.modifiedBy = this.authService.user!.uid
             this.propUpdateList.forEach(prop => {
                 switch (prop.property.propertyCode) {
                     case 'first_name':
@@ -429,45 +451,53 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
             });
 
             this.commonService.updateContact([updateContact]).subscribe(res => {
-                this.propUpdateList = [];
-                this.showFormUpdateSidebar = false;
+                if (res.isSuccess) {
+                    this.propUpdateList = [];
+                    this.popMessage(res.responseMessage, this.translateService.instant("MESSAGE.UPDATED_SUCCESSFULLY"));
+                    this.showFormUpdateSidebar = false;
+                }
+                else {
+                    this.popMessage(res.responseMessage, "Error", "error");
+                }
             });
         }
         else {
             let updateCompany: UpdateCompanyDto = new UpdateCompanyDto();
             let profileProperty: PropertyDataDto[] = JSON.parse(companyProfile.companyProperties);
             updateCompany.uid = companyProfile.uid;
-            this.propUpdateList.forEach(prop => {
-                switch (prop.property.propertyCode) {
-                    case 'company_name':
-                        updateCompany.companyName = prop.value;
-                        break;
-                    case 'company_website_url':
-                        updateCompany.companyWebsite = prop.value;
-                        break;
-                    case 'company_email':
-                        updateCompany.companyEmail = prop.value;
-                        break;
-                    case 'company_owner':
-                        updateCompany.companyOwnerUid = prop.value;
-                        break;
-                    case 'lead_status':
-                        updateCompany.companyLeadStatusId = prop.value;
-                        break;
-                    default:
-                        if (!profileProperty.find(item => item.uid === prop.property.uid)) {
-                            profileProperty.push({
-                                uid: prop.property.uid,
-                                propertyCode: prop.property.propertyCode,
-                                value: this.commonService.setPropertyDataValue(prop.property, prop.value)
-                            });
-                        }
-                        else {
-                            profileProperty.find(item => item.uid === prop.property.uid)!.value = this.commonService.setPropertyDataValue(prop.property, prop.value);
-                        }
-                        updateCompany.companyProperties = JSON.stringify(profileProperty);
-                }
-            });
+            updateCompany.modifiedBy = this.authService.user!.uid,
+
+                this.propUpdateList.forEach(prop => {
+                    switch (prop.property.propertyCode) {
+                        case 'company_name':
+                            updateCompany.companyName = prop.value;
+                            break;
+                        case 'company_website_url':
+                            updateCompany.companyWebsite = prop.value;
+                            break;
+                        case 'company_email':
+                            updateCompany.companyEmail = prop.value;
+                            break;
+                        case 'company_owner':
+                            updateCompany.companyOwnerUid = prop.value;
+                            break;
+                        case 'lead_status':
+                            updateCompany.companyLeadStatusId = prop.value;
+                            break;
+                        default:
+                            if (!profileProperty.find(item => item.uid === prop.property.uid)) {
+                                profileProperty.push({
+                                    uid: prop.property.uid,
+                                    propertyCode: prop.property.propertyCode,
+                                    value: this.commonService.setPropertyDataValue(prop.property, prop.value)
+                                });
+                            }
+                            else {
+                                profileProperty.find(item => item.uid === prop.property.uid)!.value = this.commonService.setPropertyDataValue(prop.property, prop.value);
+                            }
+                            updateCompany.companyProperties = JSON.stringify(profileProperty);
+                    }
+                });
 
             this.commonService.updateCompany([updateCompany]).subscribe(res => {
                 this.propUpdateList = [];

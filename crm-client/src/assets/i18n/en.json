@@ -23,6 +23,11 @@
     "INVALID_DATE_MSG": "Please enter a correct date format.",
     "INVALID_NUMBER_MSG": "Please enter a valid number."
   },
+  "MESSAGE": {
+    "DELETED_SUCCESSFULLY": "The {{module}}(s) are deleted successfully.",
+    "DELETED": "Deleted",
+    "UPDATED_SUCCESSFULLY": "Updated successfully."
+  },
   "BUTTON": {
     "SAVE": "Save",
     "CANCEL": "Cancel",
