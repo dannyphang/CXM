@@ -39,8 +39,7 @@ export class HeaderComponent {
               label: 'Settings',
               icon: 'pi pi-cog',
               command: () => {
-                console.log(this.authService.currentUser());
-                this.authService.updateUser({ photoURL: 'https://firebasestorage.googleapis.com/v0/b/crm-project-9b8c9.appspot.com/o/Image%2FContact%2FScreenshot%202024-07-26%20110655.png?alt=media&token=b0d38285-3a20-49c0-8ae9-008362959147' });
+                this.router.navigate(['/setting']);
               }
             }
           ]

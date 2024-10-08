@@ -26,7 +26,8 @@
   "MESSAGE": {
     "DELETED_SUCCESSFULLY": "The {{module}}(s) are deleted successfully.",
     "DELETED": "Deleted",
-    "UPDATED_SUCCESSFULLY": "Updated successfully."
+    "UPDATED_SUCCESSFULLY": "Updated successfully.",
+    "CANNOT_DELETE_SYSTEM_PROPERTY": "System property is not allow to delete."
   },
   "BUTTON": {
     "SAVE": "Save",
@@ -84,5 +85,10 @@
     "VALUE": "Value",
     "COLUMN_FILTER": "Table Column filter",
     "SELECTED_COLUMN": "Selected Columns"
+  },
+  "SETTING": {
+    "GENERAL": "General",
+    "PROPERTY": "Property",
+    "SELECT_MODULE": "Select a module"
   }
 }
