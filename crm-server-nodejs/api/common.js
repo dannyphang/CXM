@@ -72,12 +72,8 @@ router.get("/" + propertiesCollection + "/module", async (req, res) => {
     for (let i = 0; i < propertyList.length; i++) {
       propertyList[i].propertyLookupList = [];
 
-      propertyList[i].createdDate = convertFirebaseDateFormat(
-        propertyList[i].createdDate
-      );
-      propertyList[i].modifiedDate = convertFirebaseDateFormat(
-        propertyList[i].modifiedDate
-      );
+      propertyList[i].createdDate = convertFirebaseDateFormat(propertyList[i].createdDate);
+      propertyList[i].modifiedDate = convertFirebaseDateFormat(propertyList[i].modifiedDate);
 
       // assign user list into lookup property
       if (propertyList[i].propertyType === "USR") {
@@ -168,12 +164,8 @@ router.get("/" + propertiesCollection + "/module/create", async (req, res) => {
 
     for (let i = 0; i < propertyList.length; i++) {
       propertyList[i].propertyLookupList = [];
-      propertyList[i].createdDate = convertFirebaseDateFormat(
-        propertyList[i].createdDate
-      );
-      propertyList[i].modifiedDate = convertFirebaseDateFormat(
-        propertyList[i].modifiedDate
-      );
+      propertyList[i].createdDate = convertFirebaseDateFormat(propertyList[i].createdDate);
+      propertyList[i].modifiedDate = convertFirebaseDateFormat(propertyList[i].modifiedDate);
 
       for (let j = 0; j < propertyLookupList.length; j++) {
         if (propertyList[i].propertyId === propertyLookupList[j].propertyId) {
@@ -308,6 +300,61 @@ router.get("/" + moduleCodeCollection, async (req, res) => {
   }
 });
 
+// get module code by module type
+router.get("/" + moduleCodeCollection + "/moduleType", async (req, res) => {
+  try {
+    const moduleType = req.headers.moduletype;
+
+    const snapshot = await db.default.db
+      .collection(moduleCodeCollection)
+      .where("statusId", "==", 1)
+      .where("moduleType", "==", moduleType)
+      .orderBy("moduleId")
+      .get();
+
+    const list = snapshot.docs.map((doc) => doc.data());
+
+    res.status(200).json(responseModel({ data: list }));
+  } catch (error) {
+    console.log("error", error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
+  }
+});
+
+// get module code by module type
+router.get("/" + moduleCodeCollection + "/subModule/code", async (req, res) => {
+  try {
+    const submoduleCode = req.headers.submodulecode;
+
+    console.log(req.headers);
+
+    const snapshot = await db.default.db
+      .collection(moduleCodeCollection)
+      .where("statusId", "==", 1)
+      .where("moduleType", "==", "SUBMODULE")
+      .where("moduleSubCode", "==", submoduleCode)
+      .orderBy("moduleId")
+      .get();
+
+    const list = snapshot.docs.map((doc) => doc.data());
+
+    res.status(200).json(responseModel({ data: list }));
+  } catch (error) {
+    console.log("error", error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
+  }
+});
+
 // get all activities code by module code
 router.get("/activityModule", async (req, res) => {
   try {
@@ -331,9 +378,7 @@ router.get("/activityModule", async (req, res) => {
 
     const activityModuleList = snapshot.docs.map((doc) => doc.data());
     const activityControlList = actCtrSnapshot.docs.map((doc) => doc.data());
-    const subActivityControlList = subActCtrSnapshot.docs.map((doc) =>
-      doc.data()
-    );
+    const subActivityControlList = subActCtrSnapshot.docs.map((doc) => doc.data());
 
     activityControlList.forEach((item) => {
       item.subActivityControl = [];

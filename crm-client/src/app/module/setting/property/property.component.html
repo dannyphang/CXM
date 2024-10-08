@@ -82,3 +82,27 @@
     </p-table>
   </div>
 </div>
+
+<p-dialog
+  [(visible)]="isPropertyDialogVisible"
+  [header]="'SETTING.CREATE_PROPERTY' | translate"
+>
+  <ng-template pTemplate="content">
+    <app-base-form [formConfig]="propertyCreateFormConfig"></app-base-form>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      [label]="'BUTTON.CANCEL' | translate"
+      [text]="true"
+      severity="secondary"
+      (click)="closeDialog()"
+    />
+    <p-button
+      [label]="'BUTTON.CREATE' | translate"
+      [outlined]="true"
+      severity="primary"
+      (click)="create()"
+    />
+  </ng-template>
+</p-dialog>

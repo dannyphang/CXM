@@ -50,6 +50,20 @@ export class CommonService {
         return this.http.get<ResponseModel<PropertiesDto[]>>(apiConfig.baseUrl + '/common/properties').pipe();
     }
 
+    getAllModuleByModuleType(moduleType: string): Observable<ResponseModel<ModuleDto[]>> {
+        let headers = {
+            'moduleType': moduleType
+        }
+        return this.http.get<ResponseModel<ModuleDto[]>>((apiConfig.baseUrl + '/common/moduleCode/moduleType'), { headers }).pipe();
+    }
+
+    getSubModuleByModule(submoduleCode: string): Observable<ResponseModel<ModuleDto[]>> {
+        let headers = {
+            'submoduleCode': submoduleCode
+        }
+        return this.http.get<ResponseModel<ModuleDto[]>>((apiConfig.baseUrl + '/common/moduleCode/subModule/code'), { headers }).pipe();
+    }
+
     getAllPropertiesByModule(module: string): Observable<ResponseModel<PropertyGroupDto[]>> {
         let headers = {
             'moduleCode': module

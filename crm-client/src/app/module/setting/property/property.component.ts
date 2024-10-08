@@ -3,9 +3,10 @@ import { ROW_PER_PAGE_DEFAULT, ROW_PER_PAGE_DEFAULT_LIST } from '../../../core/s
 import { CommonService, PropertiesDto, PropertyGroupDto } from '../../../core/services/common.service';
 import { BaseCoreAbstract } from '../../../core/shared/base/base-core.abstract';
 import { MessageService } from 'primeng/api';
-import { FormControl } from '@angular/forms';
-import { CONTROL_TYPE_CODE, OptionsModel } from '../../../core/services/components.service';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../../../core/services/components.service';
 import { TranslateService } from '@ngx-translate/core';
+import { map, Observable } from 'rxjs';
 
 interface Column {
   field: string;
@@ -48,6 +49,19 @@ export class PropertyComponent extends BaseCoreAbstract {
     },
   ];
   tableLoading: boolean = false;
+  isPropertyDialogVisible: boolean = false;
+  propertyCreateFormConfig: FormConfig[] = [];
+  propertyCreateFormGroup: FormGroup = new FormGroup({
+    label: new FormControl('', Validators.required),
+    code: new FormControl('', Validators.required),
+    module: new FormControl('', Validators.required),
+    group: new FormControl('', Validators.required),
+    type: new FormControl('', Validators.required),
+    isUnique: new FormControl(false, Validators.required),
+    isMandatory: new FormControl(false, Validators.required),
+    isEditable: new FormControl(false, Validators.required),
+    isVisible: new FormControl(false, Validators.required),
+  })
 
   constructor(
     private commonService: CommonService,
@@ -58,21 +72,26 @@ export class PropertyComponent extends BaseCoreAbstract {
   }
 
   ngOnInit() {
-    this.moduleOptions = [
-      {
-        label: this.translateService.instant('COMMON.CONTACT'),
-        value: 'CONT',
-      },
-      {
-        label: this.translateService.instant('COMMON.COMPANY'),
-        value: 'COMP',
-      },
-    ];
-
     this.getAllProperties('CONT');
 
     this.moduleFormControl.valueChanges.subscribe(val => {
       this.getAllProperties(val);
+    });
+
+    this.commonService.getAllModuleByModuleType('MODULE').subscribe(res => {
+      if (res.isSuccess) {
+        this.moduleOptions = res.data.map(i => ({
+          label: i.moduleName,
+          value: i.moduleCode
+        }))
+      }
+      else {
+        this.popMessage(res.responseMessage, "Error", "error");
+      }
+    });
+
+    this.propertyCreateFormGroup.controls['label'].valueChanges.subscribe(val => {
+      this.propertyCreateFormGroup.controls['code'].setValue(val.toLowerCase().trim().replace(/ /g, '_'));
     })
   }
 
@@ -157,8 +176,86 @@ export class PropertyComponent extends BaseCoreAbstract {
     return this.propertyModule.find(p => p.moduleCode === code)!.moduleName;
   }
 
-  toCreate() {
+  initPropertyForm() {
+    this.propertyCreateFormConfig = [
+      {
+        label: 'SETTING.PROPERTY_LABEL',
+        type: CONTROL_TYPE.Textbox,
+        fieldControl: this.propertyCreateFormGroup.controls['label'],
+        layoutDefine: {
+          row: 0,
+          column: 0
+        }
+      },
+      {
+        label: 'SETTING.PROPERTY_CODE',
+        type: CONTROL_TYPE.Textbox,
+        fieldControl: this.propertyCreateFormGroup.controls['code'],
+        layoutDefine: {
+          row: 1,
+          column: 0
+        }
+      },
+      {
+        id: 'PROPERTY_MODULE',
+        label: 'SETTING.PROPERTY_MODULE',
+        type: CONTROL_TYPE.Dropdown,
+        fieldControl: this.propertyCreateFormGroup.controls['module'],
+        layoutDefine: {
+          row: 2,
+          column: 0
+        },
+        options: this.moduleOptions
+      },
+      {
+        label: 'SETTING.PROPERTY_GROUP',
+        type: CONTROL_TYPE.Dropdown,
+        fieldControl: this.propertyCreateFormGroup.controls['group'],
+        layoutDefine: {
+          row: 3,
+          column: 0
+        },
+        dataSourceDependOn: ['PROPERTY_MODULE'],
+        dataSourceAction: () => this.getModuleGroupList()
+      },
+      {
+        label: 'SETTING.PROPERTY_TYPE',
+        type: CONTROL_TYPE.Dropdown,
+        fieldControl: this.propertyCreateFormGroup.controls['type'],
+        layoutDefine: {
+          row: 4,
+          column: 0
+        },
+        dataSourceAction: () => this.getModuleListByModuleType('CONTROLTYPE')
+      },
+    ]
+  }
 
+  getModuleListByModuleType(moduleType: string): Observable<OptionsModel[]> {
+    return this.commonService.getAllModuleByModuleType(moduleType).pipe(
+      map(res => {
+        return res.data.map(val => ({
+          value: val.moduleCode,
+          label: val.moduleName
+        }));
+      })
+    )
+  }
+
+  getModuleGroupList(): Observable<any[]> {
+    return this.commonService.getSubModuleByModule(this.propertyCreateFormGroup.controls['module'].value).pipe(
+      map(res => {
+        return res.data.map(val => ({
+          value: val.moduleCode,
+          label: val.moduleName
+        }));
+      })
+    );
+  }
+
+  toCreate() {
+    this.initPropertyForm();
+    this.isPropertyDialogVisible = true;
   }
 
   delete() {
@@ -168,5 +265,14 @@ export class PropertyComponent extends BaseCoreAbstract {
     else {
       // TODO: delete property
     }
+  }
+
+  closeDialog() {
+    this.isPropertyDialogVisible = false;
+    this.propertyCreateFormGroup.reset({ emitEvent: false })
+  }
+
+  create() {
+
   }
 }

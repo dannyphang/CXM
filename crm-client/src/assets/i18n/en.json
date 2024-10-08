@@ -89,6 +89,12 @@
   "SETTING": {
     "GENERAL": "General",
     "PROPERTY": "Property",
-    "SELECT_MODULE": "Select a module"
+    "SELECT_MODULE": "Select a module",
+    "CREATE_PROPERTY": "Create property",
+    "PROPERTY_LABEL": "Property Label",
+    "PROPERTY_CODE": "Code",
+    "PROPERTY_MODULE": "Module",
+    "PROPERTY_GROUP": "Group",
+    "PROPERTY_TYPE": "Control Type"
   }
 }
