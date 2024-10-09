@@ -105,7 +105,7 @@ export class CommonService {
         if (type === CONTROL_TYPE_CODE.Textbox || type === CONTROL_TYPE_CODE.Textarea || type === CONTROL_TYPE_CODE.Email || type === CONTROL_TYPE_CODE.Phone || type === CONTROL_TYPE_CODE.Url) {
             return '';
         }
-        else if (type === CONTROL_TYPE_CODE.Checkbox || type === CONTROL_TYPE_CODE.Multiselect) {
+        else if (type === CONTROL_TYPE_CODE.MultiCheckbox || type === CONTROL_TYPE_CODE.Multiselect || type === CONTROL_TYPE_CODE.Dropdown) {
             return null;
         }
         else if (type === CONTROL_TYPE_CODE.Date || type === CONTROL_TYPE_CODE.DateTime || type === CONTROL_TYPE_CODE.Time) {
@@ -114,7 +114,7 @@ export class CommonService {
         else if (type === CONTROL_TYPE_CODE.Number) {
             return 0;
         }
-        else if (type === CONTROL_TYPE_CODE.Dropdown) {
+        else if (type === CONTROL_TYPE_CODE.MultiCheckbox || type === CONTROL_TYPE_CODE.Dropdown || type === CONTROL_TYPE_CODE.Multiselect) {
             let lookup = {
                 label: '',
                 value: ''
@@ -136,10 +136,10 @@ export class CommonService {
     }
 
     setPropertyDataValue(prop: PropertiesDto, value: any): string {
-        if (prop.propertyType === CONTROL_TYPE_CODE.Checkbox || prop.propertyType === CONTROL_TYPE_CODE.MultiCheckbox || prop.propertyType === CONTROL_TYPE_CODE.Multiselect) {
+        if (prop.propertyType === CONTROL_TYPE_CODE.MultiCheckbox || prop.propertyType === CONTROL_TYPE_CODE.Multiselect) {
             return value.filter((item: any) => item.length > 0).toString();
         }
-        return value.toString();
+        return value;
     }
 
     getAllCompany(): Observable<ResponseModel<CompanyDto[]>> {
@@ -240,7 +240,20 @@ export class PropertiesDto extends BasedDto {
     moduleCode: string;
     order: number;
     propertyLookupList: PropertyLookupDto[] | UserDto[];
-    isHide: boolean;
+    minLength?: number;
+    maxLength?: number;
+    minValue?: number;
+    maxValue?: number;
+    maxDecimal?: number;
+    numberOnly?: boolean;
+    noSpecialChar?: boolean;
+    futureDateOnly?: boolean;
+    pastDateOnly?: boolean;
+    dateRangeStart?: Date;
+    dateRangeEnd?: Date;
+    weekdayOnly?: boolean;
+    weekendOnly?: boolean;
+    regaxFormat?: string;
 }
 
 export class PropertyLookupDto extends BasedDto {

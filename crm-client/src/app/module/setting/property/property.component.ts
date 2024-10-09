@@ -3,7 +3,7 @@ import { ROW_PER_PAGE_DEFAULT, ROW_PER_PAGE_DEFAULT_LIST } from '../../../core/s
 import { CommonService, PropertiesDto, PropertyGroupDto } from '../../../core/services/common.service';
 import { BaseCoreAbstract } from '../../../core/shared/base/base-core.abstract';
 import { MessageService } from 'primeng/api';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../../../core/services/components.service';
 import { TranslateService } from '@ngx-translate/core';
 import { map, Observable } from 'rxjs';
@@ -51,7 +51,8 @@ export class PropertyComponent extends BaseCoreAbstract {
   tableLoading: boolean = false;
   isPropertyDialogVisible: boolean = false;
   propertyCreateFormConfig: FormConfig[] = [];
-  propertyCreateFormGroup: FormGroup = new FormGroup({
+  propertyTypeFormConfig: FormConfig[] = [];
+  propertyDetailFormGroup: FormGroup = new FormGroup({
     label: new FormControl('', Validators.required),
     code: new FormControl('', Validators.required),
     module: new FormControl('', Validators.required),
@@ -61,12 +62,34 @@ export class PropertyComponent extends BaseCoreAbstract {
     isMandatory: new FormControl(false, Validators.required),
     isEditable: new FormControl(false, Validators.required),
     isVisible: new FormControl(false, Validators.required),
-  })
+  });
+  propertyTypeFormGroup: FormGroup = new FormGroup({
+    isUnique: new FormControl(false),
+    isMandatory: new FormControl(false),
+    isEditable: new FormControl(false),
+    isVisible: new FormControl(false),
+    minLength: new FormControl(null),
+    maxLength: new FormControl(null),
+    minValue: new FormControl(null),
+    maxValue: new FormControl(null),
+    maxDecimal: new FormControl(null),
+    numberOnly: new FormControl(false),
+    noSpecialChar: new FormControl(false),
+    futureDateOnly: new FormControl(false),
+    pastDateOnly: new FormControl(false),
+    weekdayOnly: new FormControl(false),
+    weekendOnly: new FormControl(false),
+    dateRangeStart: new FormControl(new Date()),
+    dateRangeEnd: new FormControl(new Date()),
+    regaxFormat: new FormControl(''),
+    propertiesLookup: this.formBuilder.array([])
+  });
 
   constructor(
     private commonService: CommonService,
     protected override messageService: MessageService,
-    private translateService: TranslateService
+    private translateService: TranslateService,
+    private formBuilder: FormBuilder,
   ) {
     super(messageService);
   }
@@ -90,9 +113,13 @@ export class PropertyComponent extends BaseCoreAbstract {
       }
     });
 
-    this.propertyCreateFormGroup.controls['label'].valueChanges.subscribe(val => {
-      this.propertyCreateFormGroup.controls['code'].setValue(val.toLowerCase().trim().replace(/ /g, '_'));
+    this.propertyDetailFormGroup.controls['label'].valueChanges.subscribe(val => {
+      this.propertyDetailFormGroup.controls['code'].setValue(val.toLowerCase().trim().replace(/ /g, '_'));
     })
+  }
+
+  get propertiesLookup(): FormArray {
+    return this.propertyTypeFormGroup.controls['propertiesLookup'] as FormArray;
   }
 
   getAllProperties(module: string) {
@@ -181,16 +208,16 @@ export class PropertyComponent extends BaseCoreAbstract {
       {
         label: 'SETTING.PROPERTY_LABEL',
         type: CONTROL_TYPE.Textbox,
-        fieldControl: this.propertyCreateFormGroup.controls['label'],
+        fieldControl: this.propertyDetailFormGroup.controls['label'],
         layoutDefine: {
           row: 0,
           column: 0
-        }
+        },
       },
       {
         label: 'SETTING.PROPERTY_CODE',
         type: CONTROL_TYPE.Textbox,
-        fieldControl: this.propertyCreateFormGroup.controls['code'],
+        fieldControl: this.propertyDetailFormGroup.controls['code'],
         layoutDefine: {
           row: 1,
           column: 0
@@ -200,7 +227,7 @@ export class PropertyComponent extends BaseCoreAbstract {
         id: 'PROPERTY_MODULE',
         label: 'SETTING.PROPERTY_MODULE',
         type: CONTROL_TYPE.Dropdown,
-        fieldControl: this.propertyCreateFormGroup.controls['module'],
+        fieldControl: this.propertyDetailFormGroup.controls['module'],
         layoutDefine: {
           row: 2,
           column: 0
@@ -210,7 +237,7 @@ export class PropertyComponent extends BaseCoreAbstract {
       {
         label: 'SETTING.PROPERTY_GROUP',
         type: CONTROL_TYPE.Dropdown,
-        fieldControl: this.propertyCreateFormGroup.controls['group'],
+        fieldControl: this.propertyDetailFormGroup.controls['group'],
         layoutDefine: {
           row: 3,
           column: 0
@@ -221,14 +248,285 @@ export class PropertyComponent extends BaseCoreAbstract {
       {
         label: 'SETTING.PROPERTY_TYPE',
         type: CONTROL_TYPE.Dropdown,
-        fieldControl: this.propertyCreateFormGroup.controls['type'],
+        fieldControl: this.propertyDetailFormGroup.controls['type'],
         layoutDefine: {
           row: 4,
           column: 0
         },
         dataSourceAction: () => this.getModuleListByModuleType('CONTROLTYPE')
       },
-    ]
+    ];
+    this.propertyDetailFormGroup.controls['type'].valueChanges.subscribe(val => {
+      console.log(val);
+      let form: FormConfig[] = [];
+
+      form = [
+        {
+          id: 'IS_UNIQUE',
+          label: 'SETTING.IS_UNIQUE',
+          type: CONTROL_TYPE.Checkbox,
+          fieldControl: this.propertyTypeFormGroup.controls['isUnique'],
+          layoutDefine: {
+            row: 0,
+            column: 0
+          },
+          options: [],
+          switchInput: true,
+          iconLabelTooltip: '// TODO: descibe the field'
+        },
+        {
+          id: 'IS_MANDATORY',
+          label: 'SETTING.IS_MANDATORY',
+          type: CONTROL_TYPE.Checkbox,
+          fieldControl: this.propertyTypeFormGroup.controls['isMandatory'],
+          layoutDefine: {
+            row: 1,
+            column: 0
+          },
+          options: [],
+          switchInput: true,
+          iconLabelTooltip: '// TODO: descibe the field',
+        },
+        {
+          id: 'IS_EDITABLE',
+          label: 'SETTING.IS_EDITABLE',
+          type: CONTROL_TYPE.Checkbox,
+          fieldControl: this.propertyTypeFormGroup.controls['isEditable'],
+          layoutDefine: {
+            row: 2,
+            column: 0
+          },
+          options: [],
+          switchInput: true,
+          iconLabelTooltip: '// TODO: descibe the field',
+        },
+        {
+          id: 'IS_VISIBLE',
+          label: 'SETTING.IS_VISIBLE',
+          type: CONTROL_TYPE.Checkbox,
+          fieldControl: this.propertyTypeFormGroup.controls['isVisible'],
+          layoutDefine: {
+            row: 3,
+            column: 0
+          },
+          options: [],
+          switchInput: true,
+          iconLabelTooltip: '// TODO: descibe the field',
+        },
+        {
+          id: 'REGAX_FORMAT',
+          label: 'SETTING.REGAX_FORMAT',
+          type: CONTROL_TYPE.Textbox,
+          fieldControl: this.propertyTypeFormGroup.controls['regaxFormat'],
+          layoutDefine: {
+            row: 4,
+            column: 0
+          },
+          iconLabelTooltip: '// TODO: descibe the field',
+        },
+      ];
+
+      switch (val) {
+        case 'TXT_S':
+        case 'TXT_M':
+          form = form.concat(
+            [
+              {
+                id: 'MIN_LENGTH',
+                label: 'SETTING.MIN_LENGTH',
+                type: CONTROL_TYPE.Textbox,
+                fieldControl: this.propertyTypeFormGroup.controls['minLength'],
+                layoutDefine: {
+                  row: 5,
+                  column: 0
+                },
+                onlyNumber: true,
+                min: 0,
+                iconLabelTooltip: '// TODO: descibe the field',
+              },
+              {
+                id: 'MAX_LENGTH',
+                label: 'SETTING.MAX_LENGTH',
+                type: CONTROL_TYPE.Textbox,
+                fieldControl: this.propertyTypeFormGroup.controls['maxLength'],
+                layoutDefine: {
+                  row: 6,
+                  column: 0
+                },
+                onlyNumber: true,
+                min: 0,
+                iconLabelTooltip: '// TODO: descibe the field',
+              },
+              {
+                id: 'NUMBER_ONLY',
+                label: 'SETTING.NUMBER_ONLY',
+                type: CONTROL_TYPE.Checkbox,
+                fieldControl: this.propertyTypeFormGroup.controls['numberOnly'],
+                layoutDefine: {
+                  row: 7,
+                  column: 0
+                },
+                options: [],
+                switchInput: true,
+                iconLabelTooltip: '// TODO: descibe the field',
+              },
+              {
+                id: 'NO_SPECIAL_CHAR',
+                label: 'SETTING.NO_SPECIAL_CHAR',
+                type: CONTROL_TYPE.Checkbox,
+                fieldControl: this.propertyTypeFormGroup.controls['noSpecialChar'],
+                layoutDefine: {
+                  row: 8,
+                  column: 0
+                },
+                options: [],
+                switchInput: true,
+                iconLabelTooltip: '// TODO: descibe the field',
+              }
+            ]
+          )
+          break;
+        case 'NUM':
+          form = form.concat(
+            [
+              {
+                id: 'MIN_VALUE',
+                label: 'SETTING.MIN_VALUE',
+                type: CONTROL_TYPE.Textbox,
+                fieldControl: this.propertyTypeFormGroup.controls['minValue'],
+                layoutDefine: {
+                  row: 9,
+                  column: 0
+                },
+                onlyNumber: true,
+                iconLabelTooltip: '// TODO: descibe the field',
+              },
+              {
+                id: 'MAX_VALUE',
+                label: 'SETTING.MAX_VALUE',
+                type: CONTROL_TYPE.Textbox,
+                fieldControl: this.propertyTypeFormGroup.controls['maxValue'],
+                layoutDefine: {
+                  row: 10,
+                  column: 0
+                },
+                onlyNumber: true,
+                iconLabelTooltip: '// TODO: descibe the field',
+              },
+              {
+                id: 'MAX_DECIMAL',
+                label: 'SETTING.MAX_DECIMAL',
+                type: CONTROL_TYPE.Textbox,
+                fieldControl: this.propertyTypeFormGroup.controls['maxDecimal'],
+                layoutDefine: {
+                  row: 11,
+                  column: 0
+                },
+                onlyNumber: true,
+                min: 0,
+                iconLabelTooltip: '// TODO: descibe the field',
+              },
+            ]
+          );
+          break;
+        case 'DATE':
+        case 'DATETIME':
+        case 'TIME':
+          form = form.concat(
+            [
+              {
+                id: 'FUTURE_DATE_ONLY',
+                label: 'SETTING.FUTURE_DATE_ONLY',
+                type: CONTROL_TYPE.Checkbox,
+                fieldControl: this.propertyTypeFormGroup.controls['futureDateOnly'],
+                layoutDefine: {
+                  row: 12,
+                  column: 0
+                },
+                options: [],
+                switchInput: true,
+                iconLabelTooltip: '// TODO: descibe the field',
+              },
+              {
+                id: 'PAST_DATE_ONLY',
+                label: 'SETTING.PAST_DATE_ONLY',
+                type: CONTROL_TYPE.Checkbox,
+                fieldControl: this.propertyTypeFormGroup.controls['pastDateOnly'],
+                layoutDefine: {
+                  row: 13,
+                  column: 0
+                },
+                options: [],
+                switchInput: true,
+                iconLabelTooltip: '// TODO: descibe the field',
+              },
+              {
+                id: 'WEEKDAY_ONLY',
+                label: 'SETTING.WEEKDAY_ONLY',
+                type: CONTROL_TYPE.Checkbox,
+                fieldControl: this.propertyTypeFormGroup.controls['weekdayOnly'],
+                layoutDefine: {
+                  row: 14,
+                  column: 0
+                },
+                options: [],
+                switchInput: true,
+                iconLabelTooltip: '// TODO: descibe the field',
+              },
+              {
+                id: 'WEEKEND_ONLY',
+                label: 'SETTING.WEEKEND_ONLY',
+                type: CONTROL_TYPE.Checkbox,
+                fieldControl: this.propertyTypeFormGroup.controls['weekendOnly'],
+                layoutDefine: {
+                  row: 15,
+                  column: 0
+                },
+                options: [],
+                switchInput: true,
+                iconLabelTooltip: '// TODO: descibe the field',
+              },
+              {
+                id: 'DATE_RANGE_START',
+                label: 'SETTING.DATE_RANGE_START',
+                type: CONTROL_TYPE.Calendar,
+                fieldControl: this.propertyTypeFormGroup.controls['dateRangeStart'],
+                layoutDefine: {
+                  row: 16,
+                  column: 0
+                },
+                iconLabelTooltip: '// TODO: descibe the field',
+              },
+              {
+                id: 'DATE_RANGE_END',
+                label: 'SETTING.DATE_RANGE_END',
+                type: CONTROL_TYPE.Calendar,
+                fieldControl: this.propertyTypeFormGroup.controls['dateRangeEnd'],
+                layoutDefine: {
+                  row: 16,
+                  column: 1
+                },
+                iconLabelTooltip: '// TODO: descibe the field',
+              },
+            ]
+          );
+          break;
+        case 'SEL_S':
+        case 'SEL_M':
+        case 'CBX_M':
+        case 'RAD':
+          form = form.concat(
+            [
+
+            ]
+          );
+          break
+        default: break;
+      }
+      this.propertyTypeFormConfig = form;
+    });
+
+
   }
 
   getModuleListByModuleType(moduleType: string): Observable<OptionsModel[]> {
@@ -243,7 +541,7 @@ export class PropertyComponent extends BaseCoreAbstract {
   }
 
   getModuleGroupList(): Observable<any[]> {
-    return this.commonService.getSubModuleByModule(this.propertyCreateFormGroup.controls['module'].value).pipe(
+    return this.commonService.getSubModuleByModule(this.propertyDetailFormGroup.controls['module'].value).pipe(
       map(res => {
         return res.data.map(val => ({
           value: val.moduleCode,
@@ -251,6 +549,19 @@ export class PropertyComponent extends BaseCoreAbstract {
         }));
       })
     );
+  }
+
+  addLookup() {
+    let lookupForm = this.formBuilder.group({
+      lookupName: new FormControl('', Validators.required),
+      lookupCode: new FormControl('', Validators.required),
+    });
+
+    this.propertiesLookup.push(lookupForm)
+  }
+
+  deleteLookup(index: number) {
+    this.propertiesLookup.removeAt(index);
   }
 
   toCreate() {
@@ -269,10 +580,22 @@ export class PropertyComponent extends BaseCoreAbstract {
 
   closeDialog() {
     this.isPropertyDialogVisible = false;
-    this.propertyCreateFormGroup.reset({ emitEvent: false })
+    this.propertyDetailFormGroup.reset({ emitEvent: false })
   }
 
   create() {
+    console.log(this.propertyTypeFormGroup.controls['propertiesLookup'].value)
+  }
 
+  test(obj: any) {
+    console.log(obj)
+  }
+
+  returnFormControlLookUpName(form: any) {
+    return (form as FormGroup).controls['lookupName'] as FormControl;
+  }
+
+  returnFormControlLookUpCode(form: any) {
+    return (form as FormGroup).controls['lookupCode'] as FormControl;
   }
 }

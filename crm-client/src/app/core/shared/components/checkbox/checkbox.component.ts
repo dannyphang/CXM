@@ -15,6 +15,7 @@ export class BaseCheckboxComponent
   @Input() optionsContainerClass = '';
   @Input() singleSelect = false;
   @Input() override dataSourceAction: (() => Observable<any>) | null = null;
+  @Input() switchInput = false;
   @Output() onChange: EventEmitter<any> = new EventEmitter();
   constructor() {
     super();

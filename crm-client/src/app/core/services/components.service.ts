@@ -156,6 +156,7 @@ export type BaseSelectFormConfig = Omit<BaseFormConfig, 'dependOnFields'> &
         direction?: 'row' | 'column';
         optionsContainerClass?: string;
         singleSelect?: boolean;
+        switchInput?: boolean;
         defaultValue?: any;
         containerClass?: string;
         inputContainerClass?: string;

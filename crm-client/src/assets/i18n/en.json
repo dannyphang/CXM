@@ -95,6 +95,24 @@
     "PROPERTY_CODE": "Code",
     "PROPERTY_MODULE": "Module",
     "PROPERTY_GROUP": "Group",
-    "PROPERTY_TYPE": "Control Type"
+    "PROPERTY_TYPE": "Control Type",
+    "IS_UNIQUE": "Unique Value",
+    "IS_MANDATORY": "Mandatory",
+    "IS_EDITABLE": "Editable",
+    "IS_VISIBLE": "Visibility",
+    "REGAX_FORMAT": "Regax format",
+    "MIN_LENGTH": "Minimun Length",
+    "MAX_LENGTH": "Maximun Length",
+    "NUMBER_ONLY": "Only Number",
+    "NO_SPECIAL_CHAR": "No special character",
+    "MIN_VALUE": "Minimum value",
+    "MAX_VALUE": "Maximum value",
+    "MAX_DECIMAL": "Set maximum number of decimal places",
+    "FUTURE_DATE_ONLY": "Future dates only",
+    "PAST_DATE_ONLY": "Past Date only",
+    "WEEKDAY_ONLY": "Weekday only",
+    "WEEKEND_ONLY": "Weekend only",
+    "DATE_RANGE_START": "From Date",
+    "DATE_RANGE_END": "End Date"
   }
 }

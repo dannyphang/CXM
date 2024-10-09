@@ -1,11 +1,6 @@
 <div class="tw-flex">
-  <app-base-label
-    *ngIf="label != ''"
-    [label]="label"
-    class="tw-mr-[15px]"
-  ></app-base-label>
   <p-inputSwitch
-    [(ngModel)]="isChecked"
     (onChange)="inputSwitchOnClick()"
+    [formControl]="fieldControl"
   ></p-inputSwitch>
 </div>

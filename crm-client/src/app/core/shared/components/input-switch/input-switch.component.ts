@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-input-switch',
@@ -6,10 +7,8 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
   styleUrl: './input-switch.component.scss'
 })
 export class InputSwitchComponent {
-  @Input() isChecked = false;
-  @Input() label: string = '';
   @Output() switchUpdate: EventEmitter<any> = new EventEmitter<any>();
-
+  @Input() fieldControl: FormControl = new FormControl(false);
   constructor() {
 
   }
