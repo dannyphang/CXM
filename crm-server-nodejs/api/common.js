@@ -331,8 +331,6 @@ router.get("/" + moduleCodeCollection + "/subModule/code", async (req, res) => {
   try {
     const submoduleCode = req.headers.submodulecode;
 
-    console.log(req.headers);
-
     const snapshot = await db.default.db
       .collection(moduleCodeCollection)
       .where("statusId", "==", 1)

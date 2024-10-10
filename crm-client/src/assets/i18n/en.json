@@ -113,6 +113,8 @@
     "WEEKDAY_ONLY": "Weekday only",
     "WEEKEND_ONLY": "Weekend only",
     "DATE_RANGE_START": "From Date",
-    "DATE_RANGE_END": "End Date"
+    "DATE_RANGE_END": "End Date",
+    "OPTIONS_LABEL": "Option Name",
+    "OPTIONS_CODE": "Internal Code"
   }
 }

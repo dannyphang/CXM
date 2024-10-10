@@ -58,12 +58,6 @@ export class PropertyComponent extends BaseCoreAbstract {
     module: new FormControl('', Validators.required),
     group: new FormControl('', Validators.required),
     type: new FormControl('', Validators.required),
-    isUnique: new FormControl(false, Validators.required),
-    isMandatory: new FormControl(false, Validators.required),
-    isEditable: new FormControl(false, Validators.required),
-    isVisible: new FormControl(false, Validators.required),
-  });
-  propertyTypeFormGroup: FormGroup = new FormGroup({
     isUnique: new FormControl(false),
     isMandatory: new FormControl(false),
     isEditable: new FormControl(false),
@@ -114,12 +108,17 @@ export class PropertyComponent extends BaseCoreAbstract {
     });
 
     this.propertyDetailFormGroup.controls['label'].valueChanges.subscribe(val => {
-      this.propertyDetailFormGroup.controls['code'].setValue(val.toLowerCase().trim().replace(/ /g, '_'));
-    })
+      if (val) {
+        this.propertyDetailFormGroup.controls['code'].setValue(val.toLowerCase().trim().replace(/ /g, '_'), { emitEvent: false });
+      }
+    });
+
+    // init 1st lookup 
+    this.addLookup();
   }
 
   get propertiesLookup(): FormArray {
-    return this.propertyTypeFormGroup.controls['propertiesLookup'] as FormArray;
+    return this.propertyDetailFormGroup.controls['propertiesLookup'] as FormArray;
   }
 
   getAllProperties(module: string) {
@@ -219,8 +218,8 @@ export class PropertyComponent extends BaseCoreAbstract {
         type: CONTROL_TYPE.Textbox,
         fieldControl: this.propertyDetailFormGroup.controls['code'],
         layoutDefine: {
-          row: 1,
-          column: 0
+          row: 0,
+          column: 1
         }
       },
       {
@@ -229,7 +228,7 @@ export class PropertyComponent extends BaseCoreAbstract {
         type: CONTROL_TYPE.Dropdown,
         fieldControl: this.propertyDetailFormGroup.controls['module'],
         layoutDefine: {
-          row: 2,
+          row: 1,
           column: 0
         },
         options: this.moduleOptions
@@ -239,8 +238,8 @@ export class PropertyComponent extends BaseCoreAbstract {
         type: CONTROL_TYPE.Dropdown,
         fieldControl: this.propertyDetailFormGroup.controls['group'],
         layoutDefine: {
-          row: 3,
-          column: 0
+          row: 1,
+          column: 2
         },
         dataSourceDependOn: ['PROPERTY_MODULE'],
         dataSourceAction: () => this.getModuleGroupList()
@@ -250,24 +249,23 @@ export class PropertyComponent extends BaseCoreAbstract {
         type: CONTROL_TYPE.Dropdown,
         fieldControl: this.propertyDetailFormGroup.controls['type'],
         layoutDefine: {
-          row: 4,
+          row: 2,
           column: 0
         },
         dataSourceAction: () => this.getModuleListByModuleType('CONTROLTYPE')
       },
     ];
     this.propertyDetailFormGroup.controls['type'].valueChanges.subscribe(val => {
-      console.log(val);
       let form: FormConfig[] = [];
-
+      let rowCount = 0;
       form = [
         {
           id: 'IS_UNIQUE',
           label: 'SETTING.IS_UNIQUE',
           type: CONTROL_TYPE.Checkbox,
-          fieldControl: this.propertyTypeFormGroup.controls['isUnique'],
+          fieldControl: this.propertyDetailFormGroup.controls['isUnique'],
           layoutDefine: {
-            row: 0,
+            row: ++rowCount,
             column: 0
           },
           options: [],
@@ -278,10 +276,10 @@ export class PropertyComponent extends BaseCoreAbstract {
           id: 'IS_MANDATORY',
           label: 'SETTING.IS_MANDATORY',
           type: CONTROL_TYPE.Checkbox,
-          fieldControl: this.propertyTypeFormGroup.controls['isMandatory'],
+          fieldControl: this.propertyDetailFormGroup.controls['isMandatory'],
           layoutDefine: {
-            row: 1,
-            column: 0
+            row: rowCount,
+            column: 1
           },
           options: [],
           switchInput: true,
@@ -291,9 +289,9 @@ export class PropertyComponent extends BaseCoreAbstract {
           id: 'IS_EDITABLE',
           label: 'SETTING.IS_EDITABLE',
           type: CONTROL_TYPE.Checkbox,
-          fieldControl: this.propertyTypeFormGroup.controls['isEditable'],
+          fieldControl: this.propertyDetailFormGroup.controls['isEditable'],
           layoutDefine: {
-            row: 2,
+            row: ++rowCount,
             column: 0
           },
           options: [],
@@ -304,10 +302,10 @@ export class PropertyComponent extends BaseCoreAbstract {
           id: 'IS_VISIBLE',
           label: 'SETTING.IS_VISIBLE',
           type: CONTROL_TYPE.Checkbox,
-          fieldControl: this.propertyTypeFormGroup.controls['isVisible'],
+          fieldControl: this.propertyDetailFormGroup.controls['isVisible'],
           layoutDefine: {
-            row: 3,
-            column: 0
+            row: rowCount,
+            column: 1
           },
           options: [],
           switchInput: true,
@@ -317,9 +315,9 @@ export class PropertyComponent extends BaseCoreAbstract {
           id: 'REGAX_FORMAT',
           label: 'SETTING.REGAX_FORMAT',
           type: CONTROL_TYPE.Textbox,
-          fieldControl: this.propertyTypeFormGroup.controls['regaxFormat'],
+          fieldControl: this.propertyDetailFormGroup.controls['regaxFormat'],
           layoutDefine: {
-            row: 4,
+            row: ++rowCount,
             column: 0
           },
           iconLabelTooltip: '// TODO: descibe the field',
@@ -335,9 +333,9 @@ export class PropertyComponent extends BaseCoreAbstract {
                 id: 'MIN_LENGTH',
                 label: 'SETTING.MIN_LENGTH',
                 type: CONTROL_TYPE.Textbox,
-                fieldControl: this.propertyTypeFormGroup.controls['minLength'],
+                fieldControl: this.propertyDetailFormGroup.controls['minLength'],
                 layoutDefine: {
-                  row: 5,
+                  row: ++rowCount,
                   column: 0
                 },
                 onlyNumber: true,
@@ -348,10 +346,10 @@ export class PropertyComponent extends BaseCoreAbstract {
                 id: 'MAX_LENGTH',
                 label: 'SETTING.MAX_LENGTH',
                 type: CONTROL_TYPE.Textbox,
-                fieldControl: this.propertyTypeFormGroup.controls['maxLength'],
+                fieldControl: this.propertyDetailFormGroup.controls['maxLength'],
                 layoutDefine: {
-                  row: 6,
-                  column: 0
+                  row: rowCount,
+                  column: 1
                 },
                 onlyNumber: true,
                 min: 0,
@@ -361,9 +359,9 @@ export class PropertyComponent extends BaseCoreAbstract {
                 id: 'NUMBER_ONLY',
                 label: 'SETTING.NUMBER_ONLY',
                 type: CONTROL_TYPE.Checkbox,
-                fieldControl: this.propertyTypeFormGroup.controls['numberOnly'],
+                fieldControl: this.propertyDetailFormGroup.controls['numberOnly'],
                 layoutDefine: {
-                  row: 7,
+                  row: ++rowCount,
                   column: 0
                 },
                 options: [],
@@ -374,10 +372,10 @@ export class PropertyComponent extends BaseCoreAbstract {
                 id: 'NO_SPECIAL_CHAR',
                 label: 'SETTING.NO_SPECIAL_CHAR',
                 type: CONTROL_TYPE.Checkbox,
-                fieldControl: this.propertyTypeFormGroup.controls['noSpecialChar'],
+                fieldControl: this.propertyDetailFormGroup.controls['noSpecialChar'],
                 layoutDefine: {
-                  row: 8,
-                  column: 0
+                  row: rowCount,
+                  column: 1
                 },
                 options: [],
                 switchInput: true,
@@ -393,9 +391,9 @@ export class PropertyComponent extends BaseCoreAbstract {
                 id: 'MIN_VALUE',
                 label: 'SETTING.MIN_VALUE',
                 type: CONTROL_TYPE.Textbox,
-                fieldControl: this.propertyTypeFormGroup.controls['minValue'],
+                fieldControl: this.propertyDetailFormGroup.controls['minValue'],
                 layoutDefine: {
-                  row: 9,
+                  row: ++rowCount,
                   column: 0
                 },
                 onlyNumber: true,
@@ -405,10 +403,10 @@ export class PropertyComponent extends BaseCoreAbstract {
                 id: 'MAX_VALUE',
                 label: 'SETTING.MAX_VALUE',
                 type: CONTROL_TYPE.Textbox,
-                fieldControl: this.propertyTypeFormGroup.controls['maxValue'],
+                fieldControl: this.propertyDetailFormGroup.controls['maxValue'],
                 layoutDefine: {
-                  row: 10,
-                  column: 0
+                  row: rowCount,
+                  column: 1
                 },
                 onlyNumber: true,
                 iconLabelTooltip: '// TODO: descibe the field',
@@ -417,9 +415,9 @@ export class PropertyComponent extends BaseCoreAbstract {
                 id: 'MAX_DECIMAL',
                 label: 'SETTING.MAX_DECIMAL',
                 type: CONTROL_TYPE.Textbox,
-                fieldControl: this.propertyTypeFormGroup.controls['maxDecimal'],
+                fieldControl: this.propertyDetailFormGroup.controls['maxDecimal'],
                 layoutDefine: {
-                  row: 11,
+                  row: ++rowCount,
                   column: 0
                 },
                 onlyNumber: true,
@@ -438,9 +436,9 @@ export class PropertyComponent extends BaseCoreAbstract {
                 id: 'FUTURE_DATE_ONLY',
                 label: 'SETTING.FUTURE_DATE_ONLY',
                 type: CONTROL_TYPE.Checkbox,
-                fieldControl: this.propertyTypeFormGroup.controls['futureDateOnly'],
+                fieldControl: this.propertyDetailFormGroup.controls['futureDateOnly'],
                 layoutDefine: {
-                  row: 12,
+                  row: ++rowCount,
                   column: 0
                 },
                 options: [],
@@ -451,10 +449,10 @@ export class PropertyComponent extends BaseCoreAbstract {
                 id: 'PAST_DATE_ONLY',
                 label: 'SETTING.PAST_DATE_ONLY',
                 type: CONTROL_TYPE.Checkbox,
-                fieldControl: this.propertyTypeFormGroup.controls['pastDateOnly'],
+                fieldControl: this.propertyDetailFormGroup.controls['pastDateOnly'],
                 layoutDefine: {
-                  row: 13,
-                  column: 0
+                  row: rowCount,
+                  column: 1
                 },
                 options: [],
                 switchInput: true,
@@ -464,9 +462,9 @@ export class PropertyComponent extends BaseCoreAbstract {
                 id: 'WEEKDAY_ONLY',
                 label: 'SETTING.WEEKDAY_ONLY',
                 type: CONTROL_TYPE.Checkbox,
-                fieldControl: this.propertyTypeFormGroup.controls['weekdayOnly'],
+                fieldControl: this.propertyDetailFormGroup.controls['weekdayOnly'],
                 layoutDefine: {
-                  row: 14,
+                  row: ++rowCount,
                   column: 0
                 },
                 options: [],
@@ -477,10 +475,10 @@ export class PropertyComponent extends BaseCoreAbstract {
                 id: 'WEEKEND_ONLY',
                 label: 'SETTING.WEEKEND_ONLY',
                 type: CONTROL_TYPE.Checkbox,
-                fieldControl: this.propertyTypeFormGroup.controls['weekendOnly'],
+                fieldControl: this.propertyDetailFormGroup.controls['weekendOnly'],
                 layoutDefine: {
-                  row: 15,
-                  column: 0
+                  row: rowCount,
+                  column: 1
                 },
                 options: [],
                 switchInput: true,
@@ -490,9 +488,9 @@ export class PropertyComponent extends BaseCoreAbstract {
                 id: 'DATE_RANGE_START',
                 label: 'SETTING.DATE_RANGE_START',
                 type: CONTROL_TYPE.Calendar,
-                fieldControl: this.propertyTypeFormGroup.controls['dateRangeStart'],
+                fieldControl: this.propertyDetailFormGroup.controls['dateRangeStart'],
                 layoutDefine: {
-                  row: 16,
+                  row: ++rowCount,
                   column: 0
                 },
                 iconLabelTooltip: '// TODO: descibe the field',
@@ -501,9 +499,9 @@ export class PropertyComponent extends BaseCoreAbstract {
                 id: 'DATE_RANGE_END',
                 label: 'SETTING.DATE_RANGE_END',
                 type: CONTROL_TYPE.Calendar,
-                fieldControl: this.propertyTypeFormGroup.controls['dateRangeEnd'],
+                fieldControl: this.propertyDetailFormGroup.controls['dateRangeEnd'],
                 layoutDefine: {
-                  row: 16,
+                  row: rowCount,
                   column: 1
                 },
                 iconLabelTooltip: '// TODO: descibe the field',
@@ -525,8 +523,6 @@ export class PropertyComponent extends BaseCoreAbstract {
       }
       this.propertyTypeFormConfig = form;
     });
-
-
   }
 
   getModuleListByModuleType(moduleType: string): Observable<OptionsModel[]> {
@@ -557,7 +553,7 @@ export class PropertyComponent extends BaseCoreAbstract {
       lookupCode: new FormControl('', Validators.required),
     });
 
-    this.propertiesLookup.push(lookupForm)
+    this.propertiesLookup.push(lookupForm);
   }
 
   deleteLookup(index: number) {
@@ -580,15 +576,12 @@ export class PropertyComponent extends BaseCoreAbstract {
 
   closeDialog() {
     this.isPropertyDialogVisible = false;
-    this.propertyDetailFormGroup.reset({ emitEvent: false })
+    this.propertyDetailFormGroup.reset({ emitEvent: false });
+    this.propertyTypeFormConfig = [];
   }
 
   create() {
-    console.log(this.propertyTypeFormGroup.controls['propertiesLookup'].value)
-  }
-
-  test(obj: any) {
-    console.log(obj)
+    console.log(this.propertyDetailFormGroup.controls['propertiesLookup'].value)
   }
 
   returnFormControlLookUpName(form: any) {
@@ -596,6 +589,13 @@ export class PropertyComponent extends BaseCoreAbstract {
   }
 
   returnFormControlLookUpCode(form: any) {
-    return (form as FormGroup).controls['lookupCode'] as FormControl;
+    let fc: FormControl = ((form as FormGroup).controls['lookupCode'] as FormControl);
+    let fcNameValue: string = ((form as FormGroup).controls['lookupName'] as FormControl).value;
+
+    if (fcNameValue) {
+      fc.setValue(fcNameValue.toLowerCase().trim().replace(/ /g, '_'), { emitEvent: false });
+    }
+
+    return fc;
   }
 }

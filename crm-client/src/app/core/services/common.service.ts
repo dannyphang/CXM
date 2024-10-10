@@ -59,7 +59,7 @@ export class CommonService {
 
     getSubModuleByModule(submoduleCode: string): Observable<ResponseModel<ModuleDto[]>> {
         let headers = {
-            'submoduleCode': submoduleCode
+            'submoduleCode': submoduleCode ?? ''
         }
         return this.http.get<ResponseModel<ModuleDto[]>>((apiConfig.baseUrl + '/common/moduleCode/subModule/code'), { headers }).pipe();
     }
