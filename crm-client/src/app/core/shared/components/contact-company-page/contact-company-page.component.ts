@@ -1078,7 +1078,7 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
 
   delete() {
     if (this.module === 'CONT') {
-      this.commonService.deleteContact(this.selectedProfile as ContactDto[]).subscribe(res => {
+      this.commonService.deleteContact(this.selectedProfile as ContactDto[], this.authService.user?.uid ?? 'SYSTEM').subscribe(res => {
         if (res.isSuccess) {
           this.popMessage(this.translateService.instant("MESSAGE.DELETED_SUCCESSFULLY", { module: this.translateService.instant("COMMON.CONTACT") }), this.translateService.instant("MESSAGE.DELETED"), "success");
           this.getContact();
@@ -1089,7 +1089,7 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
       });
     }
     else {
-      this.commonService.deleteCompany(this.selectedProfile as CompanyDto[]).subscribe(res => {
+      this.commonService.deleteCompany(this.selectedProfile as CompanyDto[], this.authService.user?.uid ?? 'SYSTEM').subscribe(res => {
         if (res.isSuccess) {
           this.popMessage(this.translateService.instant("MESSAGE.DELETED_SUCCESSFULLY", { module: this.translateService.instant("COMMON.COMPANY") }), this.translateService.instant("MESSAGE.DELETED"), "success");
           this.getCompany();

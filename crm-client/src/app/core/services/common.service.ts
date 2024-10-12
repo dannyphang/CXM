@@ -1,9 +1,8 @@
-import { HttpClient, HttpHeaders } from "@angular/common/http";
+import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import apiConfig from "../../../environments/apiConfig";
 import { CONTROL_TYPE_CODE } from "./components.service";
-import { MessageService } from "primeng/api";
 import { TranslateService } from "@ngx-translate/core";
 
 @Injectable({ providedIn: 'root' })
@@ -38,12 +37,12 @@ export class CommonService {
         return this.http.post<ResponseModel<ContactDto[]>>(apiConfig.baseUrl + '/contact', { contactList }).pipe();
     }
 
-    updateContact(contactList: UpdateContactDto[]): Observable<ResponseModel<UpdateContactDto[]>> {
-        return this.http.put<ResponseModel<UpdateContactDto[]>>(apiConfig.baseUrl + '/contact', { contactList }).pipe();
+    updateContact(contactList: UpdateContactDto[], userUid: string): Observable<ResponseModel<UpdateContactDto[]>> {
+        return this.http.put<ResponseModel<UpdateContactDto[]>>(apiConfig.baseUrl + '/contact', { contactList, user: userUid }).pipe();
     }
 
-    deleteContact(contactList: ContactDto[]): Observable<ResponseModel<ContactDto>> {
-        return this.http.put<ResponseModel<ContactDto>>(apiConfig.baseUrl + '/contact/delete', { contactList }).pipe();
+    deleteContact(contactList: ContactDto[], userUid: string): Observable<ResponseModel<ContactDto>> {
+        return this.http.put<ResponseModel<ContactDto>>(apiConfig.baseUrl + '/contact/delete', { contactList, user: userUid }).pipe();
     }
 
     getAllProperties(): Observable<ResponseModel<PropertiesDto[]>> {
@@ -78,8 +77,16 @@ export class CommonService {
         return this.http.get<ResponseModel<PropertyGroupDto[]>>((apiConfig.baseUrl + '/common/properties/module/create'), { headers }).pipe();
     }
 
-    createProperties(properties: PropertiesDto): Observable<ResponseModel<PropertyGroupDto>> {
-        return this.http.post<ResponseModel<PropertyGroupDto>>(apiConfig.baseUrl + '/common/properties', properties).pipe();
+    createProperties(properties: CreatePropertyDto[]): Observable<ResponseModel<PropertiesDto[]>> {
+        return this.http.post<ResponseModel<PropertiesDto[]>>(apiConfig.baseUrl + '/common/properties', properties).pipe();
+    }
+
+    createPropertyLookup(lookup: CreatePropertyLookupDto[]): Observable<ResponseModel<PropertyLookupDto[]>> {
+        return this.http.post<ResponseModel<PropertyLookupDto[]>>(apiConfig.baseUrl + '/common/propertiesLookup', lookup).pipe();
+    }
+
+    deleteProperty(propertyList: PropertiesDto[], userUid: string): Observable<ResponseModel<any>> {
+        return this.http.put<ResponseModel<any>>(apiConfig.baseUrl + '/common/properties/delete', { propertyList, user: userUid }).pipe();
     }
 
     uploadFile(file: File, folderName: string): Observable<ResponseModel<any>> {
@@ -154,12 +161,12 @@ export class CommonService {
         return this.http.post<ResponseModel<CompanyDto[]>>(apiConfig.baseUrl + '/company', { companyList }).pipe();
     }
 
-    updateCompany(companyList: UpdateCompanyDto[]): Observable<ResponseModel<UpdateCompanyDto[]>> {
-        return this.http.put<ResponseModel<UpdateCompanyDto[]>>(apiConfig.baseUrl + '/company', { companyList }).pipe();
+    updateCompany(companyList: UpdateCompanyDto[], userUid: string): Observable<ResponseModel<UpdateCompanyDto[]>> {
+        return this.http.put<ResponseModel<UpdateCompanyDto[]>>(apiConfig.baseUrl + '/company', { companyList, user: userUid }).pipe();
     }
 
-    deleteCompany(companyList: CompanyDto[]): Observable<ResponseModel<CompanyDto[]>> {
-        return this.http.put<ResponseModel<CompanyDto[]>>(apiConfig.baseUrl + '/company/delete', { companyList }).pipe();
+    deleteCompany(companyList: CompanyDto[], userUid: string): Observable<ResponseModel<CompanyDto[]>> {
+        return this.http.put<ResponseModel<CompanyDto[]>>(apiConfig.baseUrl + '/company/delete', { companyList, user: userUid }).pipe();
     }
 
     createAssociation(asso: CreateAssociationDto): Observable<ResponseModel<any>> {
@@ -226,7 +233,7 @@ export class PropertyGroupDto extends ModuleDto {
 }
 
 export class PropertiesDto extends BasedDto {
-    propertyId: string;
+    propertyId: number;
     uid: string;
     propertyName: string;
     propertyCode: string;
@@ -412,4 +419,42 @@ export class CityDto extends BasedDto {
 export class profileUpdateDto {
     property: PropertiesDto;
     value: string;
+}
+
+export class CreatePropertyDto extends BasedDto {
+    propertyName: string;
+    propertyCode: string;
+    moduleCode: string;
+    moduleCat: string;
+    propertyType: string;
+    isMandatory: boolean;
+    isEditable: boolean;
+    isVisible: boolean;
+    isUnique: boolean;
+    regaxFormat?: string;
+    minLength?: number;
+    maxLength?: number;
+    minValue?: number;
+    maxValue?: number;
+    maxDecimal?: number;
+    numberOnly?: boolean;
+    noSpecialChar?: boolean;
+    futureDateOnly?: boolean;
+    pastDateOnly?: boolean;
+    dateRangeStart?: Date;
+    dateRangeEnd?: Date;
+    weekdayOnly?: boolean;
+    weekendOnly?: boolean;
+    dealOwner: string;
+    // propertyLookupList: CreatePropertyLookupDto[];
+}
+
+export class CreatePropertyLookupDto extends BasedDto {
+    propertyId: number;
+    propertyLookupLabel: string;
+    propertyLookupCode: string;
+    moduleCode: string;
+    isDefault: boolean;
+    isSystem: boolean;
+    isVisible: boolean;
 }

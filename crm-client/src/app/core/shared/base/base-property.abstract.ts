@@ -451,7 +451,7 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
                 }
             });
 
-            this.commonService.updateContact([updateContact]).subscribe(res => {
+            this.commonService.updateContact([updateContact], this.authService.user?.uid ?? 'SYSTEM').subscribe(res => {
                 if (res.isSuccess) {
                     this.propUpdateList = [];
                     this.popMessage(res.responseMessage, this.translateService.instant("MESSAGE.UPDATED_SUCCESSFULLY"));
@@ -500,7 +500,7 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
                     }
                 });
 
-            this.commonService.updateCompany([updateCompany]).subscribe(res => {
+            this.commonService.updateCompany([updateCompany], this.authService.user?.uid ?? 'SYSTEM').subscribe(res => {
                 this.propUpdateList = [];
                 this.showFormUpdateSidebar = false;
             });

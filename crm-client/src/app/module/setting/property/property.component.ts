@@ -1,12 +1,14 @@
 import { Component } from '@angular/core';
 import { ROW_PER_PAGE_DEFAULT, ROW_PER_PAGE_DEFAULT_LIST } from '../../../core/shared/constants/common.constants';
-import { CommonService, PropertiesDto, PropertyGroupDto } from '../../../core/services/common.service';
+import { CommonService, CreatePropertyDto, CreatePropertyLookupDto, PropertiesDto, PropertyGroupDto } from '../../../core/services/common.service';
 import { BaseCoreAbstract } from '../../../core/shared/base/base-core.abstract';
 import { MessageService } from 'primeng/api';
 import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../../../core/services/components.service';
 import { TranslateService } from '@ngx-translate/core';
-import { map, Observable } from 'rxjs';
+import { map, Observable, pairwise } from 'rxjs';
+import { list } from 'firebase/storage';
+import { AuthService } from '../../../core/services/auth.service';
 
 interface Column {
   field: string;
@@ -60,8 +62,8 @@ export class PropertyComponent extends BaseCoreAbstract {
     type: new FormControl('', Validators.required),
     isUnique: new FormControl(false),
     isMandatory: new FormControl(false),
-    isEditable: new FormControl(false),
-    isVisible: new FormControl(false),
+    isEditable: new FormControl(true),
+    isVisible: new FormControl(true),
     minLength: new FormControl(null),
     maxLength: new FormControl(null),
     minValue: new FormControl(null),
@@ -78,12 +80,15 @@ export class PropertyComponent extends BaseCoreAbstract {
     regaxFormat: new FormControl(''),
     propertiesLookup: this.formBuilder.array([])
   });
+  filterField: string[] = ['propertyName', 'propertyType', 'moduleCat', 'dealOwner', 'createdBy'];
+  propertySearchFormControl: FormControl = new FormControl("");
 
   constructor(
     private commonService: CommonService,
     protected override messageService: MessageService,
     private translateService: TranslateService,
     private formBuilder: FormBuilder,
+    private authService: AuthService
   ) {
     super(messageService);
   }
@@ -113,8 +118,26 @@ export class PropertyComponent extends BaseCoreAbstract {
       }
     });
 
-    // init 1st lookup 
-    this.addLookup();
+    this.propertyDetailFormGroup.controls['propertiesLookup'].valueChanges
+      .pipe(pairwise()).subscribe(([prev, next]) => {
+        let defaultCount = 0;
+        next.forEach((obj: {
+          lookupName: string,
+          lookupCode: string,
+          isVisible: boolean,
+          isDefault: boolean
+        }) => {
+          if (obj.isDefault) {
+            defaultCount++;
+          }
+        });
+
+        if (defaultCount > 1) {
+          this.propertyDetailFormGroup.controls['propertiesLookup'].setValue(prev, { emitEvent: false });
+
+          this.popMessage(this.translateService.instant('MESSAGE.ONLY_ONE_DEFAULT'), this.translateService.instant('MESSAGE.INVALID_FORM'), 'error');
+        }
+      });
   }
 
   get propertiesLookup(): FormArray {
@@ -130,8 +153,9 @@ export class PropertyComponent extends BaseCoreAbstract {
           this.propertyModule.push(group);
           group.propertiesList.forEach(prop => {
             this.propertiesList.push(prop);
-          })
-        })
+          });
+        });
+        this.propertiesList.sort((a, b) => a.order - b.order);
       }
       else {
         this.popMessage(res.responseMessage, "Error", "error");
@@ -311,17 +335,6 @@ export class PropertyComponent extends BaseCoreAbstract {
           switchInput: true,
           iconLabelTooltip: '// TODO: descibe the field',
         },
-        {
-          id: 'REGAX_FORMAT',
-          label: 'SETTING.REGAX_FORMAT',
-          type: CONTROL_TYPE.Textbox,
-          fieldControl: this.propertyDetailFormGroup.controls['regaxFormat'],
-          layoutDefine: {
-            row: ++rowCount,
-            column: 0
-          },
-          iconLabelTooltip: '// TODO: descibe the field',
-        },
       ];
 
       switch (val) {
@@ -380,7 +393,18 @@ export class PropertyComponent extends BaseCoreAbstract {
                 options: [],
                 switchInput: true,
                 iconLabelTooltip: '// TODO: descibe the field',
-              }
+              },
+              {
+                id: 'REGAX_FORMAT',
+                label: 'SETTING.REGAX_FORMAT',
+                type: CONTROL_TYPE.Textbox,
+                fieldControl: this.propertyDetailFormGroup.controls['regaxFormat'],
+                layoutDefine: {
+                  row: ++rowCount,
+                  column: 0
+                },
+                iconLabelTooltip: '// TODO: descibe the field',
+              },
             ]
           )
           break;
@@ -551,6 +575,8 @@ export class PropertyComponent extends BaseCoreAbstract {
     let lookupForm = this.formBuilder.group({
       lookupName: new FormControl('', Validators.required),
       lookupCode: new FormControl('', Validators.required),
+      isVisible: new FormControl(true, Validators.required),
+      isDefault: new FormControl(false, Validators.required),
     });
 
     this.propertiesLookup.push(lookupForm);
@@ -563,6 +589,9 @@ export class PropertyComponent extends BaseCoreAbstract {
   toCreate() {
     this.initPropertyForm();
     this.isPropertyDialogVisible = true;
+
+    // init 1st lookup 
+    this.addLookup();
   }
 
   delete() {
@@ -570,7 +599,15 @@ export class PropertyComponent extends BaseCoreAbstract {
       this.popMessage(this.translateService.instant("MESSAGE.CANNOT_DELETE_SYSTEM_PROPERTY"), "Error", "error");
     }
     else {
-      // TODO: delete property
+      this.commonService.deleteProperty(this.selectedProperty, this.authService.user?.uid ?? 'SYSTEM').subscribe(res => {
+        if (res.isSuccess) {
+          this.popMessage(res.responseMessage, this.translateService.instant('MESSAGE.SUCCESS'));
+          this.getAllProperties(this.moduleFormControl.value ?? 'CONT');
+        }
+        else {
+          this.popMessage(res.responseMessage, "Error", "error");
+        }
+      })
     }
   }
 
@@ -578,24 +615,108 @@ export class PropertyComponent extends BaseCoreAbstract {
     this.isPropertyDialogVisible = false;
     this.propertyDetailFormGroup.reset({ emitEvent: false });
     this.propertyTypeFormConfig = [];
+    this.propertiesLookup.reset({ emitEvent: false });
+    this.propertiesLookup.clear({ emitEvent: false });
+    this.getAllProperties(this.moduleFormControl.value ?? 'CONT');
   }
 
   create() {
-    console.log(this.propertyDetailFormGroup.controls['propertiesLookup'].value)
-  }
+    this.propertyDetailFormGroup.markAllAsTouched();
+    if (this.propertyDetailFormGroup.valid) {
+      let createPropertyObj: CreatePropertyDto = {
+        propertyName: this.propertyDetailFormGroup.controls['label'].value,
+        propertyCode: this.propertyDetailFormGroup.controls['code'].value,
+        moduleCode: this.propertyDetailFormGroup.controls['module'].value,
+        moduleCat: this.propertyDetailFormGroup.controls['group'].value,
+        propertyType: this.propertyDetailFormGroup.controls['type'].value,
+        isUnique: this.propertyDetailFormGroup.controls['isUnique'].value,
+        isMandatory: this.propertyDetailFormGroup.controls['isMandatory'].value,
+        isEditable: this.propertyDetailFormGroup.controls['isEditable'].value,
+        isVisible: this.propertyDetailFormGroup.controls['isVisible'].value,
+        minLength: this.propertyDetailFormGroup.controls['minLength'].value,
+        maxLength: this.propertyDetailFormGroup.controls['maxLength'].value,
+        minValue: this.propertyDetailFormGroup.controls['minValue'].value,
+        maxValue: this.propertyDetailFormGroup.controls['maxValue'].value,
+        maxDecimal: this.propertyDetailFormGroup.controls['maxDecimal'].value,
+        numberOnly: this.propertyDetailFormGroup.controls['numberOnly'].value,
+        noSpecialChar: this.propertyDetailFormGroup.controls['noSpecialChar'].value,
+        futureDateOnly: this.propertyDetailFormGroup.controls['futureDateOnly'].value,
+        pastDateOnly: this.propertyDetailFormGroup.controls['pastDateOnly'].value,
+        weekdayOnly: this.propertyDetailFormGroup.controls['weekdayOnly'].value,
+        weekendOnly: this.propertyDetailFormGroup.controls['weekendOnly'].value,
+        dateRangeStart: this.propertyDetailFormGroup.controls['dateRangeStart'].value,
+        dateRangeEnd: this.propertyDetailFormGroup.controls['dateRangeEnd'].value,
+        regaxFormat: this.propertyDetailFormGroup.controls['regaxFormat'].value,
+        createdBy: this.authService.user?.uid,
+        modifiedBy: this.authService.user?.uid,
+        statusId: 1,
+        dealOwner: this.authService.user?.uid ?? 'SYSTEM'
+      }
 
-  returnFormControlLookUpName(form: any) {
-    return (form as FormGroup).controls['lookupName'] as FormControl;
-  }
+      this.commonService.createProperties([createPropertyObj]).subscribe(res => {
+        if (res.isSuccess) {
+          // check if need to call another API to create lookup property list
+          if (this.propertyDetailFormGroup.controls['propertiesLookup'].value?.length > 0) {
+            let propertyId: number = res.data[0].propertyId;
+            let createPropLookup: CreatePropertyLookupDto[] = (this.propertyDetailFormGroup.controls['propertiesLookup'].value as {
+              lookupName: string,
+              lookupCode: string,
+              isVisible: boolean,
+              isDefault: boolean
+            }[]).map(item => ({
+              propertyId: propertyId,
+              propertyLookupLabel: item.lookupName,
+              propertyLookupCode: item.lookupCode,
+              moduleCode: this.propertyDetailFormGroup.controls['module'].value,
+              isVisible: item.isVisible,
+              isDefault: item.isDefault,
+              isSystem: false,
+              createdBy: this.authService.user?.uid,
+              modifiedBy: this.authService.user?.uid,
+              statusId: 1,
+            }) as CreatePropertyLookupDto);
 
-  returnFormControlLookUpCode(form: any) {
-    let fc: FormControl = ((form as FormGroup).controls['lookupCode'] as FormControl);
-    let fcNameValue: string = ((form as FormGroup).controls['lookupName'] as FormControl).value;
-
-    if (fcNameValue) {
-      fc.setValue(fcNameValue.toLowerCase().trim().replace(/ /g, '_'), { emitEvent: false });
+            this.commonService.createPropertyLookup(createPropLookup).subscribe(res => {
+              if (res.isSuccess) {
+                this.popMessage(res.responseMessage, this.translateService.instant('MESSAGE.SUCCESS'));
+                this.closeDialog();
+              }
+              else {
+                this.popMessage(res.responseMessage, "Error", "error");
+              }
+            });
+          }
+          else {
+            this.popMessage(res.responseMessage, this.translateService.instant('MESSAGE.SUCCESS'));
+            this.closeDialog();
+          }
+        }
+        else {
+          this.popMessage(res.responseMessage, "Error", "error");
+        }
+      });
     }
+  }
 
-    return fc;
+  returnFormControlLookupObj(name: string, form: any): FormControl {
+    switch (name) {
+      case 'name':
+        return (form as FormGroup).controls['lookupName'] as FormControl;
+      case 'code':
+        let fc: FormControl = ((form as FormGroup).controls['lookupCode'] as FormControl);
+        let fcNameValue: string = ((form as FormGroup).controls['lookupName'] as FormControl).value;
+
+        if (fcNameValue) {
+          fc.setValue(fcNameValue.toLowerCase().trim().replace(/ /g, '_'), { emitEvent: false });
+        }
+
+        return fc;
+      case 'visible':
+        return (form as FormGroup).controls['isVisible'] as FormControl;
+      case 'default':
+        return (form as FormGroup).controls['isDefault'] as FormControl;
+      default:
+        return new FormControl();
+    }
   }
 }

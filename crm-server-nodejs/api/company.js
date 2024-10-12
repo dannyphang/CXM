@@ -172,6 +172,7 @@ router.put("/delete", async (req, res) => {
       await newRef.update({
         statusId: 2,
         modifiedDate: new Date(),
+        modifiedBy: req.body.user,
       });
     });
 

@@ -151,7 +151,7 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
             contactProfilePhotoUrl: this.profileImg,
             modifiedBy: this.authService.user!.uid
           }
-          this.commonService.updateContact([updateContact]).subscribe(res => {
+          this.commonService.updateContact([updateContact], this.authService.user?.uid ?? 'SYSTEM').subscribe(res => {
             if (res.isSuccess) {
               this.isShowAvatarEditDialog = false;
               this.profileUpdateEmit.emit(updateContact);
@@ -167,7 +167,7 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
             companyProfilePhotoUrl: this.profileImg,
             modifiedBy: this.authService.user!.uid
           }
-          this.commonService.updateCompany([updateCompany]).subscribe(res => {
+          this.commonService.updateCompany([updateCompany], this.authService.user?.uid ?? 'SYSTEM').subscribe(res => {
             if (res.isSuccess) {
               this.isShowAvatarEditDialog = false;
               this.profileUpdateEmit.emit(updateCompany);

@@ -26,6 +26,7 @@
   "MESSAGE": {
     "DELETED_SUCCESSFULLY": "The {{module}}(s) are deleted successfully.",
     "DELETED": "Deleted",
+    "SUCCESS": "Success",
     "UPDATED_SUCCESSFULLY": "Updated successfully.",
     "CANNOT_DELETE_SYSTEM_PROPERTY": "System property is not allow to delete."
   },
@@ -115,6 +116,8 @@
     "DATE_RANGE_START": "From Date",
     "DATE_RANGE_END": "End Date",
     "OPTIONS_LABEL": "Option Name",
-    "OPTIONS_CODE": "Internal Code"
+    "OPTIONS_CODE": "Internal Code",
+    "OPTIONS_VISIBLE": "Visible",
+    "OPTIONS_DEFAULT": "Default"
   }
 }

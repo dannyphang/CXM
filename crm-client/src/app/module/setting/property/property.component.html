@@ -13,6 +13,7 @@
 
   <div class="table-div tw-m-[var(--content-gap)]">
     <p-table
+      #dt
       [columns]="tableConfig"
       [value]="propertiesList"
       [(selection)]="selectedProperty"
@@ -25,9 +26,21 @@
       [rows]="ROW_PER_PAGE_DEFAULT"
       [rowsPerPageOptions]="ROW_PER_PAGE_DEFAULT_LIST"
       [loading]="tableLoading"
+      [globalFilterFields]="filterField"
     >
       <ng-template pTemplate="caption">
         <div class="tw-flex tw-justify-between">
+          <div class="tw-flex">
+            <app-base-input
+              [iconRightStyle]="'pi pi-search'"
+              [placeholder]="'INPUT.SEARCH' | translate"
+              [fieldControl]="propertySearchFormControl"
+              (input)="
+                dt.filterGlobal(propertySearchFormControl.value, 'contains')
+              "
+            ></app-base-input>
+          </div>
+
           <div class="tw-flex">
             <p-button
               [icon]="'pi pi-plus'"
@@ -83,10 +96,13 @@
   </div>
 </div>
 
+<!-- create property dialog -->
 <p-dialog
   [(visible)]="isPropertyDialogVisible"
   [header]="'SETTING.CREATE_PROPERTY' | translate"
   styleClass="tw-w-[70%]"
+  [modal]="true"
+  (onHide)="closeDialog()"
 >
   <ng-template pTemplate="content">
     <app-base-form [formConfig]="propertyCreateFormConfig"></app-base-form>
@@ -104,28 +120,42 @@
         <ng-container
           *ngFor="let form of propertiesLookup.controls; let i = index"
         >
+          <p-divider
+            *ngIf="propertiesLookup.controls.length > 1 && i !== 0"
+          ></p-divider>
           <div
             class="tw-flex tw-gap-[var(--content-gap)] tw-mb-[var(--content-gap)]"
           >
             <app-base-input
               [label]="'SETTING.OPTIONS_LABEL'"
-              [fieldControl]="returnFormControlLookUpName(form)"
+              [fieldControl]="returnFormControlLookupObj('name', form)"
               class="tw-w-full"
             ></app-base-input>
             <app-base-input
               [label]="'SETTING.OPTIONS_CODE'"
-              [fieldControl]="returnFormControlLookUpCode(form)"
+              [fieldControl]="returnFormControlLookupObj('code', form)"
               class="tw-w-full"
             ></app-base-input>
-            <p-button
-              *ngIf="propertiesLookup.controls.length > 1"
-              [text]="true"
-              [icon]="'pi pi-trash'"
-              class="tw-flex tw-items-end"
-              (onClick)="deleteLookup(i)"
-            ></p-button>
+            <app-base-checkbox
+              [label]="'SETTING.OPTIONS_VISIBLE'"
+              [fieldControl]="returnFormControlLookupObj('visible', form)"
+              [switchInput]="true"
+            ></app-base-checkbox>
+            <app-base-checkbox
+              [label]="'SETTING.OPTIONS_DEFAULT'"
+              [fieldControl]="returnFormControlLookupObj('default', form)"
+              [switchInput]="true"
+            ></app-base-checkbox>
+            <div *ngIf="propertiesLookup.controls.length > 1" class="tw-flex">
+              <p-divider [layout]="'vertical'"></p-divider>
+              <p-button
+                [text]="true"
+                [icon]="'pi pi-trash'"
+                class="tw-flex tw-items-center"
+                (onClick)="deleteLookup(i)"
+              ></p-button>
+            </div>
           </div>
-          <p-divider *ngIf="propertiesLookup.controls.length > 1"></p-divider>
         </ng-container>
 
         <div class="tw-flex tw-justify-center">

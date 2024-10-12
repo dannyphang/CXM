@@ -202,18 +202,35 @@ router.post("/" + propertiesCollection, async (req, res) => {
   try {
     const createDoc = [];
 
-    list.forEach(async (prop) => {
+    list.forEach(async (prop, index) => {
+      // get max value of propertyId
+      const snapshot = await db.default.db
+        .collection(propertiesCollection)
+        .orderBy("propertyId", "desc")
+        .limit(1)
+        .get();
+
+      let newId = (snapshot.docs.map((doc) => doc.data())[0].propertyId ?? 0) + 1;
+
       let newRef = db.default.db.collection(propertiesCollection).doc();
+      prop.propertyId = newId;
       prop.uid = newRef.id;
+      prop.order = newId;
       prop.createdDate = new Date();
       prop.modifiedDate = new Date();
 
       createDoc.push(prop);
 
       await newRef.set(prop);
+      if (index === list.length - 1) {
+        res.status(200).json(
+          responseModel({
+            data: createDoc,
+            responseMessage: `Created ${list.length} record(s) successfully.`,
+          })
+        );
+      }
     });
-
-    res.status(200).json(responseModel({ data: createDoc }));
   } catch (error) {
     console.log(error);
     res.status(400).json(
@@ -222,6 +239,26 @@ router.post("/" + propertiesCollection, async (req, res) => {
         responseMessage: error,
       })
     );
+  }
+});
+
+// delete properties
+router.put("/" + propertiesCollection + "/delete", async (req, res) => {
+  try {
+    req.body.propertyList.forEach(async (prop) => {
+      let newRef = db.default.db.collection(propertiesCollection).doc(prop.uid);
+
+      await newRef.update({
+        statusId: 2,
+        modifiedDate: new Date(),
+        modifiedBy: req.body.user,
+      });
+    });
+
+    res.status(200).json(responseModel({ responseMessage: "Deleted successfully" }));
+  } catch (e) {
+    console.log(e);
+    res.status(400).json(e);
   }
 });
 
@@ -254,18 +291,35 @@ router.post("/" + propertiesLookupCollection, async (req, res) => {
   try {
     const createDoc = [];
 
-    list.forEach(async (prop) => {
+    list.forEach(async (prop, index) => {
+      // get max value of propertyLookupId
+      const snapshot = await db.default.db
+        .collection(propertiesLookupCollection)
+        .orderBy("propertyLookupId", "desc")
+        .limit(1)
+        .get();
+
+      let newId = (snapshot.docs.map((doc) => doc.data())[0].propertyLookupId ?? 0) + 1;
+
       let newRef = db.default.db.collection(propertiesLookupCollection).doc();
       prop.uid = newRef.id;
+      prop.propertyLookupId = newId;
       prop.createdDate = new Date();
       prop.modifiedDate = new Date();
 
       createDoc.push(prop);
 
       await newRef.set(prop);
-    });
 
-    res.status(200).json(responseModel({ data: createDoc }));
+      if (index === list.length - 1) {
+        res.status(200).json(
+          responseModel({
+            data: createDoc,
+            responseMessage: `Created ${list.length} record(s) successfully.`,
+          })
+        );
+      }
+    });
   } catch (error) {
     console.log(error);
     res.status(400).json(
