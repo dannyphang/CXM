@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ROW_PER_PAGE_DEFAULT, ROW_PER_PAGE_DEFAULT_LIST } from '../../../core/shared/constants/common.constants';
-import { CommonService, CreatePropertyDto, CreatePropertyLookupDto, PropertiesDto, PropertyGroupDto } from '../../../core/services/common.service';
+import { CommonService, CreatePropertyDto, CreatePropertyLookupDto, PropertiesDto, PropertyGroupDto, PropertyLookupDto } from '../../../core/services/common.service';
 import { BaseCoreAbstract } from '../../../core/shared/base/base-core.abstract';
 import { MessageService } from 'primeng/api';
 import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
@@ -587,11 +587,66 @@ export class PropertyComponent extends BaseCoreAbstract {
   }
 
   toCreate() {
+    console.log(this.propertyDetailFormGroup)
+    this.propertyDetailFormGroup.enable();
     this.initPropertyForm();
     this.isPropertyDialogVisible = true;
 
     // init 1st lookup 
     this.addLookup();
+  }
+
+  toEdit(prop: PropertiesDto) {
+    this.propertyDetailFormGroup = new FormGroup({
+      label: new FormControl(prop.propertyName, Validators.required),
+      code: new FormControl(prop.propertyCode, Validators.required),
+      module: new FormControl(prop.moduleCode, Validators.required),
+      group: new FormControl(prop.moduleCat, Validators.required),
+      type: new FormControl(prop.propertyType, Validators.required),
+      isUnique: new FormControl(prop.isUnique),
+      isMandatory: new FormControl(prop.isMandatory),
+      isEditable: new FormControl(prop.isEditable),
+      isVisible: new FormControl(prop.isVisible),
+      minLength: new FormControl(prop.minLength),
+      maxLength: new FormControl(prop.maxLength),
+      minValue: new FormControl(prop.minValue),
+      maxValue: new FormControl(prop.maxValue),
+      maxDecimal: new FormControl(prop.maxDecimal),
+      numberOnly: new FormControl(prop.numberOnly),
+      noSpecialChar: new FormControl(prop.noSpecialChar),
+      futureDateOnly: new FormControl(prop.futureDateOnly),
+      pastDateOnly: new FormControl(prop.pastDateOnly),
+      weekdayOnly: new FormControl(prop.weekdayOnly),
+      weekendOnly: new FormControl(prop.weekendOnly),
+      dateRangeStart: new FormControl(prop.dateRangeStart),
+      dateRangeEnd: new FormControl(prop.dateRangeEnd),
+      regaxFormat: new FormControl(prop.regaxFormat),
+      propertiesLookup: this.formBuilder.array(this.returnPropertyLookupFormArray(prop)),
+    });
+    // this.propertyDetailFormGroup.disable();
+    this.initPropertyForm();
+    console.log(this.propertyDetailFormGroup);
+
+    this.isPropertyDialogVisible = true;
+  }
+
+  returnPropertyLookupFormArray(prop: PropertiesDto): any[] {
+    let formArr: {
+      lookupName: string,
+      lookupCode: string,
+      isVisible: boolean,
+      isDefault: boolean,
+    }[] = [];
+    (prop.propertyLookupList as PropertyLookupDto[]).forEach(p => {
+      formArr.push({
+        lookupName: p.propertyLookupLabel,
+        lookupCode: p.propertyLookupCode,
+        isVisible: p.isVisible,
+        isDefault: p.isDefault
+      });
+    });
+
+    return formArr;
   }
 
   delete() {
@@ -621,84 +676,86 @@ export class PropertyComponent extends BaseCoreAbstract {
   }
 
   create() {
+    console.log(this.propertyDetailFormGroup)
     this.propertyDetailFormGroup.markAllAsTouched();
-    if (this.propertyDetailFormGroup.valid) {
-      let createPropertyObj: CreatePropertyDto = {
-        propertyName: this.propertyDetailFormGroup.controls['label'].value,
-        propertyCode: this.propertyDetailFormGroup.controls['code'].value,
-        moduleCode: this.propertyDetailFormGroup.controls['module'].value,
-        moduleCat: this.propertyDetailFormGroup.controls['group'].value,
-        propertyType: this.propertyDetailFormGroup.controls['type'].value,
-        isUnique: this.propertyDetailFormGroup.controls['isUnique'].value,
-        isMandatory: this.propertyDetailFormGroup.controls['isMandatory'].value,
-        isEditable: this.propertyDetailFormGroup.controls['isEditable'].value,
-        isVisible: this.propertyDetailFormGroup.controls['isVisible'].value,
-        minLength: this.propertyDetailFormGroup.controls['minLength'].value,
-        maxLength: this.propertyDetailFormGroup.controls['maxLength'].value,
-        minValue: this.propertyDetailFormGroup.controls['minValue'].value,
-        maxValue: this.propertyDetailFormGroup.controls['maxValue'].value,
-        maxDecimal: this.propertyDetailFormGroup.controls['maxDecimal'].value,
-        numberOnly: this.propertyDetailFormGroup.controls['numberOnly'].value,
-        noSpecialChar: this.propertyDetailFormGroup.controls['noSpecialChar'].value,
-        futureDateOnly: this.propertyDetailFormGroup.controls['futureDateOnly'].value,
-        pastDateOnly: this.propertyDetailFormGroup.controls['pastDateOnly'].value,
-        weekdayOnly: this.propertyDetailFormGroup.controls['weekdayOnly'].value,
-        weekendOnly: this.propertyDetailFormGroup.controls['weekendOnly'].value,
-        dateRangeStart: this.propertyDetailFormGroup.controls['dateRangeStart'].value,
-        dateRangeEnd: this.propertyDetailFormGroup.controls['dateRangeEnd'].value,
-        regaxFormat: this.propertyDetailFormGroup.controls['regaxFormat'].value,
-        createdBy: this.authService.user?.uid,
-        modifiedBy: this.authService.user?.uid,
-        statusId: 1,
-        dealOwner: this.authService.user?.uid ?? 'SYSTEM'
-      }
+    // if (this.propertyDetailFormGroup.valid) {
+    //   let createPropertyObj: CreatePropertyDto = {
+    //     propertyName: this.propertyDetailFormGroup.controls['label'].value,
+    //     propertyCode: this.propertyDetailFormGroup.controls['code'].value,
+    //     moduleCode: this.propertyDetailFormGroup.controls['module'].value,
+    //     moduleCat: this.propertyDetailFormGroup.controls['group'].value,
+    //     propertyType: this.propertyDetailFormGroup.controls['type'].value,
+    //     isUnique: this.propertyDetailFormGroup.controls['isUnique'].value,
+    //     isMandatory: this.propertyDetailFormGroup.controls['isMandatory'].value,
+    //     isEditable: this.propertyDetailFormGroup.controls['isEditable'].value,
+    //     isVisible: this.propertyDetailFormGroup.controls['isVisible'].value,
+    //     minLength: this.propertyDetailFormGroup.controls['minLength'].value,
+    //     maxLength: this.propertyDetailFormGroup.controls['maxLength'].value,
+    //     minValue: this.propertyDetailFormGroup.controls['minValue'].value,
+    //     maxValue: this.propertyDetailFormGroup.controls['maxValue'].value,
+    //     maxDecimal: this.propertyDetailFormGroup.controls['maxDecimal'].value,
+    //     numberOnly: this.propertyDetailFormGroup.controls['numberOnly'].value,
+    //     noSpecialChar: this.propertyDetailFormGroup.controls['noSpecialChar'].value,
+    //     futureDateOnly: this.propertyDetailFormGroup.controls['futureDateOnly'].value,
+    //     pastDateOnly: this.propertyDetailFormGroup.controls['pastDateOnly'].value,
+    //     weekdayOnly: this.propertyDetailFormGroup.controls['weekdayOnly'].value,
+    //     weekendOnly: this.propertyDetailFormGroup.controls['weekendOnly'].value,
+    //     dateRangeStart: this.propertyDetailFormGroup.controls['dateRangeStart'].value,
+    //     dateRangeEnd: this.propertyDetailFormGroup.controls['dateRangeEnd'].value,
+    //     regaxFormat: this.propertyDetailFormGroup.controls['regaxFormat'].value,
+    //     createdBy: this.authService.user?.uid,
+    //     modifiedBy: this.authService.user?.uid,
+    //     statusId: 1,
+    //     dealOwner: this.authService.user?.uid ?? 'SYSTEM'
+    //   }
 
-      this.commonService.createProperties([createPropertyObj]).subscribe(res => {
-        if (res.isSuccess) {
-          // check if need to call another API to create lookup property list
-          if (this.propertyDetailFormGroup.controls['propertiesLookup'].value?.length > 0) {
-            let propertyId: number = res.data[0].propertyId;
-            let createPropLookup: CreatePropertyLookupDto[] = (this.propertyDetailFormGroup.controls['propertiesLookup'].value as {
-              lookupName: string,
-              lookupCode: string,
-              isVisible: boolean,
-              isDefault: boolean
-            }[]).map(item => ({
-              propertyId: propertyId,
-              propertyLookupLabel: item.lookupName,
-              propertyLookupCode: item.lookupCode,
-              moduleCode: this.propertyDetailFormGroup.controls['module'].value,
-              isVisible: item.isVisible,
-              isDefault: item.isDefault,
-              isSystem: false,
-              createdBy: this.authService.user?.uid,
-              modifiedBy: this.authService.user?.uid,
-              statusId: 1,
-            }) as CreatePropertyLookupDto);
+    //   this.commonService.createProperties([createPropertyObj]).subscribe(res => {
+    //     if (res.isSuccess) {
+    //       // check if need to call another API to create lookup property list
+    //       if (this.propertyDetailFormGroup.controls['propertiesLookup'].value?.length > 0) {
+    //         let propertyId: number = res.data[0].propertyId;
+    //         let createPropLookup: CreatePropertyLookupDto[] = (this.propertyDetailFormGroup.controls['propertiesLookup'].value as {
+    //           lookupName: string,
+    //           lookupCode: string,
+    //           isVisible: boolean,
+    //           isDefault: boolean
+    //         }[]).map(item => ({
+    //           propertyId: propertyId,
+    //           propertyLookupLabel: item.lookupName,
+    //           propertyLookupCode: item.lookupCode,
+    //           moduleCode: this.propertyDetailFormGroup.controls['module'].value,
+    //           isVisible: item.isVisible,
+    //           isDefault: item.isDefault,
+    //           isSystem: false,
+    //           createdBy: this.authService.user?.uid,
+    //           modifiedBy: this.authService.user?.uid,
+    //           statusId: 1,
+    //         }) as CreatePropertyLookupDto);
 
-            this.commonService.createPropertyLookup(createPropLookup).subscribe(res => {
-              if (res.isSuccess) {
-                this.popMessage(res.responseMessage, this.translateService.instant('MESSAGE.SUCCESS'));
-                this.closeDialog();
-              }
-              else {
-                this.popMessage(res.responseMessage, "Error", "error");
-              }
-            });
-          }
-          else {
-            this.popMessage(res.responseMessage, this.translateService.instant('MESSAGE.SUCCESS'));
-            this.closeDialog();
-          }
-        }
-        else {
-          this.popMessage(res.responseMessage, "Error", "error");
-        }
-      });
-    }
+    //         this.commonService.createPropertyLookup(createPropLookup).subscribe(res => {
+    //           if (res.isSuccess) {
+    //             this.popMessage(res.responseMessage, this.translateService.instant('MESSAGE.SUCCESS'));
+    //             this.closeDialog();
+    //           }
+    //           else {
+    //             this.popMessage(res.responseMessage, "Error", "error");
+    //           }
+    //         });
+    //       }
+    //       else {
+    //         this.popMessage(res.responseMessage, this.translateService.instant('MESSAGE.SUCCESS'));
+    //         this.closeDialog();
+    //       }
+    //     }
+    //     else {
+    //       this.popMessage(res.responseMessage, "Error", "error");
+    //     }
+    //   });
+    // }
   }
 
   returnFormControlLookupObj(name: string, form: any): FormControl {
+    console.log(form)
     switch (name) {
       case 'name':
         return (form as FormGroup).controls['lookupName'] as FormControl;

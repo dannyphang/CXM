@@ -82,7 +82,7 @@
           </td>
           <td *ngFor="let col of columns">
             <div *ngIf="col.field === 'propertyName'">
-              <p-button [text]="true">
+              <p-button [text]="true" (onClick)="toEdit(rowData)">
                 {{ rowData[col.field] }}
               </p-button>
             </div>

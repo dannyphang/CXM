@@ -243,6 +243,7 @@ export class PropertiesDto extends BasedDto {
     isMandatory: boolean;
     isEditable: boolean;
     isVisible: boolean;
+    isUnique: boolean;
     moduleCat: string;
     moduleCode: string;
     order: number;
@@ -272,7 +273,7 @@ export class PropertyLookupDto extends BasedDto {
     moduleCode: string;
     isDefault: boolean;
     isSystem: boolean;
-    isVisiable: boolean;
+    isVisible: boolean;
 }
 
 export class ContactDto extends BasedDto {
