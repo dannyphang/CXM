@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ROW_PER_PAGE_DEFAULT, ROW_PER_PAGE_DEFAULT_LIST } from '../../../core/shared/constants/common.constants';
-import { CommonService, CreatePropertyDto, CreatePropertyLookupDto, PropertiesDto, PropertyGroupDto, PropertyLookupDto } from '../../../core/services/common.service';
+import { CommonService, CreatePropertyDto, CreatePropertyLookupDto, PropertiesDto, PropertyGroupDto, PropertyLookupDto, UpdatePropertyDto, UpdatePropertyLookupDto } from '../../../core/services/common.service';
 import { BaseCoreAbstract } from '../../../core/shared/base/base-core.abstract';
 import { MessageService } from 'primeng/api';
 import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
@@ -82,6 +82,8 @@ export class PropertyComponent extends BaseCoreAbstract {
   });
   filterField: string[] = ['propertyName', 'propertyType', 'moduleCat', 'dealOwner', 'createdBy'];
   propertySearchFormControl: FormControl = new FormControl("");
+  editable: boolean = true;
+  editMode: boolean = false;
 
   constructor(
     private commonService: CommonService,
@@ -95,49 +97,6 @@ export class PropertyComponent extends BaseCoreAbstract {
 
   ngOnInit() {
     this.getAllProperties('CONT');
-
-    this.moduleFormControl.valueChanges.subscribe(val => {
-      this.getAllProperties(val);
-    });
-
-    this.commonService.getAllModuleByModuleType('MODULE').subscribe(res => {
-      if (res.isSuccess) {
-        this.moduleOptions = res.data.map(i => ({
-          label: i.moduleName,
-          value: i.moduleCode
-        }))
-      }
-      else {
-        this.popMessage(res.responseMessage, "Error", "error");
-      }
-    });
-
-    this.propertyDetailFormGroup.controls['label'].valueChanges.subscribe(val => {
-      if (val) {
-        this.propertyDetailFormGroup.controls['code'].setValue(val.toLowerCase().trim().replace(/ /g, '_'), { emitEvent: false });
-      }
-    });
-
-    this.propertyDetailFormGroup.controls['propertiesLookup'].valueChanges
-      .pipe(pairwise()).subscribe(([prev, next]) => {
-        let defaultCount = 0;
-        next.forEach((obj: {
-          lookupName: string,
-          lookupCode: string,
-          isVisible: boolean,
-          isDefault: boolean
-        }) => {
-          if (obj.isDefault) {
-            defaultCount++;
-          }
-        });
-
-        if (defaultCount > 1) {
-          this.propertyDetailFormGroup.controls['propertiesLookup'].setValue(prev, { emitEvent: false });
-
-          this.popMessage(this.translateService.instant('MESSAGE.ONLY_ONE_DEFAULT'), this.translateService.instant('MESSAGE.INVALID_FORM'), 'error');
-        }
-      });
   }
 
   get propertiesLookup(): FormArray {
@@ -226,7 +185,9 @@ export class PropertyComponent extends BaseCoreAbstract {
     return this.propertyModule.find(p => p.moduleCode === code)!.moduleName;
   }
 
-  initPropertyForm() {
+  initPropertyForm(editMode = false, typeCode: string = '') {
+    this.editMode = editMode;
+
     this.propertyCreateFormConfig = [
       {
         label: 'SETTING.PROPERTY_LABEL',
@@ -279,274 +240,327 @@ export class PropertyComponent extends BaseCoreAbstract {
         dataSourceAction: () => this.getModuleListByModuleType('CONTROLTYPE')
       },
     ];
+
+    if (editMode) {
+      this.updateFormConfigFromTypeControl(typeCode);
+    }
+
     this.propertyDetailFormGroup.controls['type'].valueChanges.subscribe(val => {
-      let form: FormConfig[] = [];
-      let rowCount = 0;
-      form = [
-        {
-          id: 'IS_UNIQUE',
-          label: 'SETTING.IS_UNIQUE',
-          type: CONTROL_TYPE.Checkbox,
-          fieldControl: this.propertyDetailFormGroup.controls['isUnique'],
-          layoutDefine: {
-            row: ++rowCount,
-            column: 0
-          },
-          options: [],
-          switchInput: true,
-          iconLabelTooltip: '// TODO: descibe the field'
-        },
-        {
-          id: 'IS_MANDATORY',
-          label: 'SETTING.IS_MANDATORY',
-          type: CONTROL_TYPE.Checkbox,
-          fieldControl: this.propertyDetailFormGroup.controls['isMandatory'],
-          layoutDefine: {
-            row: rowCount,
-            column: 1
-          },
-          options: [],
-          switchInput: true,
-          iconLabelTooltip: '// TODO: descibe the field',
-        },
-        {
-          id: 'IS_EDITABLE',
-          label: 'SETTING.IS_EDITABLE',
-          type: CONTROL_TYPE.Checkbox,
-          fieldControl: this.propertyDetailFormGroup.controls['isEditable'],
-          layoutDefine: {
-            row: ++rowCount,
-            column: 0
-          },
-          options: [],
-          switchInput: true,
-          iconLabelTooltip: '// TODO: descibe the field',
-        },
-        {
-          id: 'IS_VISIBLE',
-          label: 'SETTING.IS_VISIBLE',
-          type: CONTROL_TYPE.Checkbox,
-          fieldControl: this.propertyDetailFormGroup.controls['isVisible'],
-          layoutDefine: {
-            row: rowCount,
-            column: 1
-          },
-          options: [],
-          switchInput: true,
-          iconLabelTooltip: '// TODO: descibe the field',
-        },
-      ];
-
-      switch (val) {
-        case 'TXT_S':
-        case 'TXT_M':
-          form = form.concat(
-            [
-              {
-                id: 'MIN_LENGTH',
-                label: 'SETTING.MIN_LENGTH',
-                type: CONTROL_TYPE.Textbox,
-                fieldControl: this.propertyDetailFormGroup.controls['minLength'],
-                layoutDefine: {
-                  row: ++rowCount,
-                  column: 0
-                },
-                onlyNumber: true,
-                min: 0,
-                iconLabelTooltip: '// TODO: descibe the field',
-              },
-              {
-                id: 'MAX_LENGTH',
-                label: 'SETTING.MAX_LENGTH',
-                type: CONTROL_TYPE.Textbox,
-                fieldControl: this.propertyDetailFormGroup.controls['maxLength'],
-                layoutDefine: {
-                  row: rowCount,
-                  column: 1
-                },
-                onlyNumber: true,
-                min: 0,
-                iconLabelTooltip: '// TODO: descibe the field',
-              },
-              {
-                id: 'NUMBER_ONLY',
-                label: 'SETTING.NUMBER_ONLY',
-                type: CONTROL_TYPE.Checkbox,
-                fieldControl: this.propertyDetailFormGroup.controls['numberOnly'],
-                layoutDefine: {
-                  row: ++rowCount,
-                  column: 0
-                },
-                options: [],
-                switchInput: true,
-                iconLabelTooltip: '// TODO: descibe the field',
-              },
-              {
-                id: 'NO_SPECIAL_CHAR',
-                label: 'SETTING.NO_SPECIAL_CHAR',
-                type: CONTROL_TYPE.Checkbox,
-                fieldControl: this.propertyDetailFormGroup.controls['noSpecialChar'],
-                layoutDefine: {
-                  row: rowCount,
-                  column: 1
-                },
-                options: [],
-                switchInput: true,
-                iconLabelTooltip: '// TODO: descibe the field',
-              },
-              {
-                id: 'REGAX_FORMAT',
-                label: 'SETTING.REGAX_FORMAT',
-                type: CONTROL_TYPE.Textbox,
-                fieldControl: this.propertyDetailFormGroup.controls['regaxFormat'],
-                layoutDefine: {
-                  row: ++rowCount,
-                  column: 0
-                },
-                iconLabelTooltip: '// TODO: descibe the field',
-              },
-            ]
-          )
-          break;
-        case 'NUM':
-          form = form.concat(
-            [
-              {
-                id: 'MIN_VALUE',
-                label: 'SETTING.MIN_VALUE',
-                type: CONTROL_TYPE.Textbox,
-                fieldControl: this.propertyDetailFormGroup.controls['minValue'],
-                layoutDefine: {
-                  row: ++rowCount,
-                  column: 0
-                },
-                onlyNumber: true,
-                iconLabelTooltip: '// TODO: descibe the field',
-              },
-              {
-                id: 'MAX_VALUE',
-                label: 'SETTING.MAX_VALUE',
-                type: CONTROL_TYPE.Textbox,
-                fieldControl: this.propertyDetailFormGroup.controls['maxValue'],
-                layoutDefine: {
-                  row: rowCount,
-                  column: 1
-                },
-                onlyNumber: true,
-                iconLabelTooltip: '// TODO: descibe the field',
-              },
-              {
-                id: 'MAX_DECIMAL',
-                label: 'SETTING.MAX_DECIMAL',
-                type: CONTROL_TYPE.Textbox,
-                fieldControl: this.propertyDetailFormGroup.controls['maxDecimal'],
-                layoutDefine: {
-                  row: ++rowCount,
-                  column: 0
-                },
-                onlyNumber: true,
-                min: 0,
-                iconLabelTooltip: '// TODO: descibe the field',
-              },
-            ]
-          );
-          break;
-        case 'DATE':
-        case 'DATETIME':
-        case 'TIME':
-          form = form.concat(
-            [
-              {
-                id: 'FUTURE_DATE_ONLY',
-                label: 'SETTING.FUTURE_DATE_ONLY',
-                type: CONTROL_TYPE.Checkbox,
-                fieldControl: this.propertyDetailFormGroup.controls['futureDateOnly'],
-                layoutDefine: {
-                  row: ++rowCount,
-                  column: 0
-                },
-                options: [],
-                switchInput: true,
-                iconLabelTooltip: '// TODO: descibe the field',
-              },
-              {
-                id: 'PAST_DATE_ONLY',
-                label: 'SETTING.PAST_DATE_ONLY',
-                type: CONTROL_TYPE.Checkbox,
-                fieldControl: this.propertyDetailFormGroup.controls['pastDateOnly'],
-                layoutDefine: {
-                  row: rowCount,
-                  column: 1
-                },
-                options: [],
-                switchInput: true,
-                iconLabelTooltip: '// TODO: descibe the field',
-              },
-              {
-                id: 'WEEKDAY_ONLY',
-                label: 'SETTING.WEEKDAY_ONLY',
-                type: CONTROL_TYPE.Checkbox,
-                fieldControl: this.propertyDetailFormGroup.controls['weekdayOnly'],
-                layoutDefine: {
-                  row: ++rowCount,
-                  column: 0
-                },
-                options: [],
-                switchInput: true,
-                iconLabelTooltip: '// TODO: descibe the field',
-              },
-              {
-                id: 'WEEKEND_ONLY',
-                label: 'SETTING.WEEKEND_ONLY',
-                type: CONTROL_TYPE.Checkbox,
-                fieldControl: this.propertyDetailFormGroup.controls['weekendOnly'],
-                layoutDefine: {
-                  row: rowCount,
-                  column: 1
-                },
-                options: [],
-                switchInput: true,
-                iconLabelTooltip: '// TODO: descibe the field',
-              },
-              {
-                id: 'DATE_RANGE_START',
-                label: 'SETTING.DATE_RANGE_START',
-                type: CONTROL_TYPE.Calendar,
-                fieldControl: this.propertyDetailFormGroup.controls['dateRangeStart'],
-                layoutDefine: {
-                  row: ++rowCount,
-                  column: 0
-                },
-                iconLabelTooltip: '// TODO: descibe the field',
-              },
-              {
-                id: 'DATE_RANGE_END',
-                label: 'SETTING.DATE_RANGE_END',
-                type: CONTROL_TYPE.Calendar,
-                fieldControl: this.propertyDetailFormGroup.controls['dateRangeEnd'],
-                layoutDefine: {
-                  row: rowCount,
-                  column: 1
-                },
-                iconLabelTooltip: '// TODO: descibe the field',
-              },
-            ]
-          );
-          break;
-        case 'SEL_S':
-        case 'SEL_M':
-        case 'CBX_M':
-        case 'RAD':
-          form = form.concat(
-            [
-
-            ]
-          );
-          break
-        default: break;
-      }
-      this.propertyTypeFormConfig = form;
+      this.updateFormConfigFromTypeControl(val);
     });
+
+    // value changes 
+    this.moduleFormControl.valueChanges.subscribe(val => {
+      this.getAllProperties(val);
+    });
+
+    this.commonService.getAllModuleByModuleType('MODULE').subscribe(res => {
+      if (res.isSuccess) {
+        this.moduleOptions = res.data.map(i => ({
+          label: i.moduleName,
+          value: i.moduleCode
+        }))
+      }
+      else {
+        this.popMessage(res.responseMessage, "Error", "error");
+      }
+    });
+
+    this.propertyDetailFormGroup.controls['label'].valueChanges.subscribe(val => {
+      if (val) {
+        this.propertyDetailFormGroup.controls['code'].setValue(val.toLowerCase().trim().replace(/ /g, '_'), { emitEvent: false });
+      }
+    });
+
+    this.propertyDetailFormGroup.controls['propertiesLookup'].valueChanges
+      .pipe(pairwise()).subscribe(([prev, next]) => {
+        let defaultCount = 0;
+        next.forEach((obj: {
+          lookupName: string,
+          lookupCode: string,
+          isVisible: boolean,
+          isDefault: boolean
+        }) => {
+          if (obj.isDefault) {
+            defaultCount++;
+          }
+        });
+
+        if (defaultCount > 1) {
+          this.propertyDetailFormGroup.controls['propertiesLookup'].setValue(prev, { emitEvent: false });
+
+          this.popMessage(this.translateService.instant('MESSAGE.ONLY_ONE_DEFAULT'), this.translateService.instant('MESSAGE.INVALID_FORM'), 'error');
+        }
+      });
+  }
+
+  updateFormConfigFromTypeControl(typeCode: string) {
+    let form: FormConfig[] = [];
+    let rowCount = 0;
+    form = [
+      {
+        id: 'IS_UNIQUE',
+        label: 'SETTING.IS_UNIQUE',
+        type: CONTROL_TYPE.Checkbox,
+        fieldControl: this.propertyDetailFormGroup.controls['isUnique'],
+        layoutDefine: {
+          row: ++rowCount,
+          column: 0
+        },
+        options: [],
+        switchInput: true,
+        iconLabelTooltip: '// TODO: descibe the field'
+      },
+      {
+        id: 'IS_MANDATORY',
+        label: 'SETTING.IS_MANDATORY',
+        type: CONTROL_TYPE.Checkbox,
+        fieldControl: this.propertyDetailFormGroup.controls['isMandatory'],
+        layoutDefine: {
+          row: rowCount,
+          column: 1
+        },
+        options: [],
+        switchInput: true,
+        iconLabelTooltip: '// TODO: descibe the field',
+      },
+      {
+        id: 'IS_EDITABLE',
+        label: 'SETTING.IS_EDITABLE',
+        type: CONTROL_TYPE.Checkbox,
+        fieldControl: this.propertyDetailFormGroup.controls['isEditable'],
+        layoutDefine: {
+          row: ++rowCount,
+          column: 0
+        },
+        options: [],
+        switchInput: true,
+        iconLabelTooltip: '// TODO: descibe the field',
+      },
+      {
+        id: 'IS_VISIBLE',
+        label: 'SETTING.IS_VISIBLE',
+        type: CONTROL_TYPE.Checkbox,
+        fieldControl: this.propertyDetailFormGroup.controls['isVisible'],
+        layoutDefine: {
+          row: rowCount,
+          column: 1
+        },
+        options: [],
+        switchInput: true,
+        iconLabelTooltip: '// TODO: descibe the field',
+      },
+    ];
+
+    switch (typeCode) {
+      case 'TXT_S':
+      case 'TXT_M':
+        form = form.concat(
+          [
+            {
+              id: 'MIN_LENGTH',
+              label: 'SETTING.MIN_LENGTH',
+              type: CONTROL_TYPE.Textbox,
+              fieldControl: this.propertyDetailFormGroup.controls['minLength'],
+              layoutDefine: {
+                row: ++rowCount,
+                column: 0
+              },
+              onlyNumber: true,
+              min: 0,
+              iconLabelTooltip: '// TODO: descibe the field',
+            },
+            {
+              id: 'MAX_LENGTH',
+              label: 'SETTING.MAX_LENGTH',
+              type: CONTROL_TYPE.Textbox,
+              fieldControl: this.propertyDetailFormGroup.controls['maxLength'],
+              layoutDefine: {
+                row: rowCount,
+                column: 1
+              },
+              onlyNumber: true,
+              min: 0,
+              iconLabelTooltip: '// TODO: descibe the field',
+            },
+            {
+              id: 'NUMBER_ONLY',
+              label: 'SETTING.NUMBER_ONLY',
+              type: CONTROL_TYPE.Checkbox,
+              fieldControl: this.propertyDetailFormGroup.controls['numberOnly'],
+              layoutDefine: {
+                row: ++rowCount,
+                column: 0
+              },
+              options: [],
+              switchInput: true,
+              iconLabelTooltip: '// TODO: descibe the field',
+            },
+            {
+              id: 'NO_SPECIAL_CHAR',
+              label: 'SETTING.NO_SPECIAL_CHAR',
+              type: CONTROL_TYPE.Checkbox,
+              fieldControl: this.propertyDetailFormGroup.controls['noSpecialChar'],
+              layoutDefine: {
+                row: rowCount,
+                column: 1
+              },
+              options: [],
+              switchInput: true,
+              iconLabelTooltip: '// TODO: descibe the field',
+            },
+            {
+              id: 'REGAX_FORMAT',
+              label: 'SETTING.REGAX_FORMAT',
+              type: CONTROL_TYPE.Textbox,
+              fieldControl: this.propertyDetailFormGroup.controls['regaxFormat'],
+              layoutDefine: {
+                row: ++rowCount,
+                column: 0
+              },
+              iconLabelTooltip: '// TODO: descibe the field',
+            },
+          ]
+        )
+        break;
+      case 'NUM':
+        form = form.concat(
+          [
+            {
+              id: 'MIN_VALUE',
+              label: 'SETTING.MIN_VALUE',
+              type: CONTROL_TYPE.Textbox,
+              fieldControl: this.propertyDetailFormGroup.controls['minValue'],
+              layoutDefine: {
+                row: ++rowCount,
+                column: 0
+              },
+              onlyNumber: true,
+              iconLabelTooltip: '// TODO: descibe the field',
+            },
+            {
+              id: 'MAX_VALUE',
+              label: 'SETTING.MAX_VALUE',
+              type: CONTROL_TYPE.Textbox,
+              fieldControl: this.propertyDetailFormGroup.controls['maxValue'],
+              layoutDefine: {
+                row: rowCount,
+                column: 1
+              },
+              onlyNumber: true,
+              iconLabelTooltip: '// TODO: descibe the field',
+            },
+            {
+              id: 'MAX_DECIMAL',
+              label: 'SETTING.MAX_DECIMAL',
+              type: CONTROL_TYPE.Textbox,
+              fieldControl: this.propertyDetailFormGroup.controls['maxDecimal'],
+              layoutDefine: {
+                row: ++rowCount,
+                column: 0
+              },
+              onlyNumber: true,
+              min: 0,
+              iconLabelTooltip: '// TODO: descibe the field',
+            },
+          ]
+        );
+        break;
+      case 'DATE':
+      case 'DATETIME':
+      case 'TIME':
+        form = form.concat(
+          [
+            {
+              id: 'FUTURE_DATE_ONLY',
+              label: 'SETTING.FUTURE_DATE_ONLY',
+              type: CONTROL_TYPE.Checkbox,
+              fieldControl: this.propertyDetailFormGroup.controls['futureDateOnly'],
+              layoutDefine: {
+                row: ++rowCount,
+                column: 0
+              },
+              options: [],
+              switchInput: true,
+              iconLabelTooltip: '// TODO: descibe the field',
+            },
+            {
+              id: 'PAST_DATE_ONLY',
+              label: 'SETTING.PAST_DATE_ONLY',
+              type: CONTROL_TYPE.Checkbox,
+              fieldControl: this.propertyDetailFormGroup.controls['pastDateOnly'],
+              layoutDefine: {
+                row: rowCount,
+                column: 1
+              },
+              options: [],
+              switchInput: true,
+              iconLabelTooltip: '// TODO: descibe the field',
+            },
+            {
+              id: 'WEEKDAY_ONLY',
+              label: 'SETTING.WEEKDAY_ONLY',
+              type: CONTROL_TYPE.Checkbox,
+              fieldControl: this.propertyDetailFormGroup.controls['weekdayOnly'],
+              layoutDefine: {
+                row: ++rowCount,
+                column: 0
+              },
+              options: [],
+              switchInput: true,
+              iconLabelTooltip: '// TODO: descibe the field',
+            },
+            {
+              id: 'WEEKEND_ONLY',
+              label: 'SETTING.WEEKEND_ONLY',
+              type: CONTROL_TYPE.Checkbox,
+              fieldControl: this.propertyDetailFormGroup.controls['weekendOnly'],
+              layoutDefine: {
+                row: rowCount,
+                column: 1
+              },
+              options: [],
+              switchInput: true,
+              iconLabelTooltip: '// TODO: descibe the field',
+            },
+            {
+              id: 'DATE_RANGE_START',
+              label: 'SETTING.DATE_RANGE_START',
+              type: CONTROL_TYPE.Calendar,
+              fieldControl: this.propertyDetailFormGroup.controls['dateRangeStart'],
+              layoutDefine: {
+                row: ++rowCount,
+                column: 0
+              },
+              iconLabelTooltip: '// TODO: descibe the field',
+            },
+            {
+              id: 'DATE_RANGE_END',
+              label: 'SETTING.DATE_RANGE_END',
+              type: CONTROL_TYPE.Calendar,
+              fieldControl: this.propertyDetailFormGroup.controls['dateRangeEnd'],
+              layoutDefine: {
+                row: rowCount,
+                column: 1
+              },
+              iconLabelTooltip: '// TODO: descibe the field',
+            },
+          ]
+        );
+        break;
+      case 'SEL_S':
+      case 'SEL_M':
+      case 'CBX_M':
+      case 'RAD':
+        form = form.concat(
+          [
+
+          ]
+        );
+        break
+      default: break;
+    }
+    this.propertyTypeFormConfig = form;
   }
 
   getModuleListByModuleType(moduleType: string): Observable<OptionsModel[]> {
@@ -577,6 +591,7 @@ export class PropertyComponent extends BaseCoreAbstract {
       lookupCode: new FormControl('', Validators.required),
       isVisible: new FormControl(true, Validators.required),
       isDefault: new FormControl(false, Validators.required),
+      statusId: new FormControl(1)
     });
 
     this.propertiesLookup.push(lookupForm);
@@ -586,8 +601,12 @@ export class PropertyComponent extends BaseCoreAbstract {
     this.propertiesLookup.removeAt(index);
   }
 
+  editDeleteLookup(index: number) {
+    this.propertiesLookup.value[index]['statusId'] = 2;
+  }
+
   toCreate() {
-    console.log(this.propertyDetailFormGroup)
+    this.editable = true;
     this.propertyDetailFormGroup.enable();
     this.initPropertyForm();
     this.isPropertyDialogVisible = true;
@@ -621,11 +640,17 @@ export class PropertyComponent extends BaseCoreAbstract {
       dateRangeStart: new FormControl(prop.dateRangeStart),
       dateRangeEnd: new FormControl(prop.dateRangeEnd),
       regaxFormat: new FormControl(prop.regaxFormat),
-      propertiesLookup: this.formBuilder.array(this.returnPropertyLookupFormArray(prop)),
+      propertiesLookup: this.formBuilder.array([]),
     });
-    // this.propertyDetailFormGroup.disable();
-    this.initPropertyForm();
-    console.log(this.propertyDetailFormGroup);
+    this.returnPropertyLookupFormArray(prop).forEach(i => {
+      this.propertiesLookup.push(this.formBuilder.group(i));
+    })
+
+    if (prop.isSystem) {
+      this.editable = false;
+      this.propertyDetailFormGroup.disable();
+    }
+    this.initPropertyForm(true, prop.propertyType);
 
     this.isPropertyDialogVisible = true;
   }
@@ -636,13 +661,15 @@ export class PropertyComponent extends BaseCoreAbstract {
       lookupCode: string,
       isVisible: boolean,
       isDefault: boolean,
+      statusId: number,
     }[] = [];
     (prop.propertyLookupList as PropertyLookupDto[]).forEach(p => {
       formArr.push({
         lookupName: p.propertyLookupLabel,
         lookupCode: p.propertyLookupCode,
         isVisible: p.isVisible,
-        isDefault: p.isDefault
+        isDefault: p.isDefault,
+        statusId: p.statusId ?? 1
       });
     });
 
@@ -676,86 +703,156 @@ export class PropertyComponent extends BaseCoreAbstract {
   }
 
   create() {
-    console.log(this.propertyDetailFormGroup)
     this.propertyDetailFormGroup.markAllAsTouched();
-    // if (this.propertyDetailFormGroup.valid) {
-    //   let createPropertyObj: CreatePropertyDto = {
-    //     propertyName: this.propertyDetailFormGroup.controls['label'].value,
-    //     propertyCode: this.propertyDetailFormGroup.controls['code'].value,
-    //     moduleCode: this.propertyDetailFormGroup.controls['module'].value,
-    //     moduleCat: this.propertyDetailFormGroup.controls['group'].value,
-    //     propertyType: this.propertyDetailFormGroup.controls['type'].value,
-    //     isUnique: this.propertyDetailFormGroup.controls['isUnique'].value,
-    //     isMandatory: this.propertyDetailFormGroup.controls['isMandatory'].value,
-    //     isEditable: this.propertyDetailFormGroup.controls['isEditable'].value,
-    //     isVisible: this.propertyDetailFormGroup.controls['isVisible'].value,
-    //     minLength: this.propertyDetailFormGroup.controls['minLength'].value,
-    //     maxLength: this.propertyDetailFormGroup.controls['maxLength'].value,
-    //     minValue: this.propertyDetailFormGroup.controls['minValue'].value,
-    //     maxValue: this.propertyDetailFormGroup.controls['maxValue'].value,
-    //     maxDecimal: this.propertyDetailFormGroup.controls['maxDecimal'].value,
-    //     numberOnly: this.propertyDetailFormGroup.controls['numberOnly'].value,
-    //     noSpecialChar: this.propertyDetailFormGroup.controls['noSpecialChar'].value,
-    //     futureDateOnly: this.propertyDetailFormGroup.controls['futureDateOnly'].value,
-    //     pastDateOnly: this.propertyDetailFormGroup.controls['pastDateOnly'].value,
-    //     weekdayOnly: this.propertyDetailFormGroup.controls['weekdayOnly'].value,
-    //     weekendOnly: this.propertyDetailFormGroup.controls['weekendOnly'].value,
-    //     dateRangeStart: this.propertyDetailFormGroup.controls['dateRangeStart'].value,
-    //     dateRangeEnd: this.propertyDetailFormGroup.controls['dateRangeEnd'].value,
-    //     regaxFormat: this.propertyDetailFormGroup.controls['regaxFormat'].value,
-    //     createdBy: this.authService.user?.uid,
-    //     modifiedBy: this.authService.user?.uid,
-    //     statusId: 1,
-    //     dealOwner: this.authService.user?.uid ?? 'SYSTEM'
-    //   }
+    if (this.propertyDetailFormGroup.valid) {
+      let createPropertyObj: CreatePropertyDto = {
+        propertyName: this.propertyDetailFormGroup.controls['label'].value,
+        propertyCode: this.propertyDetailFormGroup.controls['code'].value,
+        moduleCode: this.propertyDetailFormGroup.controls['module'].value,
+        moduleCat: this.propertyDetailFormGroup.controls['group'].value,
+        propertyType: this.propertyDetailFormGroup.controls['type'].value,
+        isUnique: this.propertyDetailFormGroup.controls['isUnique'].value,
+        isMandatory: this.propertyDetailFormGroup.controls['isMandatory'].value,
+        isEditable: this.propertyDetailFormGroup.controls['isEditable'].value,
+        isVisible: this.propertyDetailFormGroup.controls['isVisible'].value,
+        minLength: this.propertyDetailFormGroup.controls['minLength'].value,
+        maxLength: this.propertyDetailFormGroup.controls['maxLength'].value,
+        minValue: this.propertyDetailFormGroup.controls['minValue'].value,
+        maxValue: this.propertyDetailFormGroup.controls['maxValue'].value,
+        maxDecimal: this.propertyDetailFormGroup.controls['maxDecimal'].value,
+        numberOnly: this.propertyDetailFormGroup.controls['numberOnly'].value,
+        noSpecialChar: this.propertyDetailFormGroup.controls['noSpecialChar'].value,
+        futureDateOnly: this.propertyDetailFormGroup.controls['futureDateOnly'].value,
+        pastDateOnly: this.propertyDetailFormGroup.controls['pastDateOnly'].value,
+        weekdayOnly: this.propertyDetailFormGroup.controls['weekdayOnly'].value,
+        weekendOnly: this.propertyDetailFormGroup.controls['weekendOnly'].value,
+        dateRangeStart: this.propertyDetailFormGroup.controls['dateRangeStart'].value,
+        dateRangeEnd: this.propertyDetailFormGroup.controls['dateRangeEnd'].value,
+        regaxFormat: this.propertyDetailFormGroup.controls['regaxFormat'].value,
+        createdBy: this.authService.user?.uid,
+        modifiedBy: this.authService.user?.uid,
+        statusId: 1,
+        dealOwner: this.authService.user?.uid ?? 'SYSTEM'
+      }
 
-    //   this.commonService.createProperties([createPropertyObj]).subscribe(res => {
-    //     if (res.isSuccess) {
-    //       // check if need to call another API to create lookup property list
-    //       if (this.propertyDetailFormGroup.controls['propertiesLookup'].value?.length > 0) {
-    //         let propertyId: number = res.data[0].propertyId;
-    //         let createPropLookup: CreatePropertyLookupDto[] = (this.propertyDetailFormGroup.controls['propertiesLookup'].value as {
-    //           lookupName: string,
-    //           lookupCode: string,
-    //           isVisible: boolean,
-    //           isDefault: boolean
-    //         }[]).map(item => ({
-    //           propertyId: propertyId,
-    //           propertyLookupLabel: item.lookupName,
-    //           propertyLookupCode: item.lookupCode,
-    //           moduleCode: this.propertyDetailFormGroup.controls['module'].value,
-    //           isVisible: item.isVisible,
-    //           isDefault: item.isDefault,
-    //           isSystem: false,
-    //           createdBy: this.authService.user?.uid,
-    //           modifiedBy: this.authService.user?.uid,
-    //           statusId: 1,
-    //         }) as CreatePropertyLookupDto);
+      this.commonService.createProperties([createPropertyObj]).subscribe(res => {
+        if (res.isSuccess) {
+          // check if need to call another API to create lookup property list
+          if (this.propertyDetailFormGroup.controls['propertiesLookup'].value?.length > 0) {
+            let propertyId: number = res.data[0].propertyId;
+            let createPropLookup: CreatePropertyLookupDto[] = (this.propertyDetailFormGroup.controls['propertiesLookup'].value as {
+              lookupName: string,
+              lookupCode: string,
+              isVisible: boolean,
+              isDefault: boolean
+            }[]).map(item => ({
+              propertyId: propertyId,
+              propertyLookupLabel: item.lookupName,
+              propertyLookupCode: item.lookupCode,
+              moduleCode: this.propertyDetailFormGroup.controls['module'].value,
+              isVisible: item.isVisible,
+              isDefault: item.isDefault,
+              isSystem: false,
+              createdBy: this.authService.user?.uid,
+              modifiedBy: this.authService.user?.uid,
+              statusId: 1,
+            }) as CreatePropertyLookupDto);
 
-    //         this.commonService.createPropertyLookup(createPropLookup).subscribe(res => {
-    //           if (res.isSuccess) {
-    //             this.popMessage(res.responseMessage, this.translateService.instant('MESSAGE.SUCCESS'));
-    //             this.closeDialog();
-    //           }
-    //           else {
-    //             this.popMessage(res.responseMessage, "Error", "error");
-    //           }
-    //         });
-    //       }
-    //       else {
-    //         this.popMessage(res.responseMessage, this.translateService.instant('MESSAGE.SUCCESS'));
-    //         this.closeDialog();
-    //       }
-    //     }
-    //     else {
-    //       this.popMessage(res.responseMessage, "Error", "error");
-    //     }
-    //   });
-    // }
+            this.commonService.createPropertyLookup(createPropLookup).subscribe(res => {
+              if (res.isSuccess) {
+                this.popMessage(res.responseMessage, this.translateService.instant('MESSAGE.SUCCESS'));
+                this.closeDialog();
+              }
+              else {
+                this.popMessage(res.responseMessage, "Error", "error");
+              }
+            });
+          }
+          else {
+            this.popMessage(res.responseMessage, this.translateService.instant('MESSAGE.SUCCESS'));
+            this.closeDialog();
+          }
+        }
+        else {
+          this.popMessage(res.responseMessage, "Error", "error");
+        }
+      });
+    }
+  }
+
+  edit() {
+    if (this.editable) {
+      this.propertyDetailFormGroup.markAllAsTouched();
+      if (this.propertyDetailFormGroup.valid) {
+        let update: UpdatePropertyDto = {
+          propertyName: this.propertyDetailFormGroup.controls['label'].value,
+          propertyCode: this.propertyDetailFormGroup.controls['code'].value,
+          moduleCode: this.propertyDetailFormGroup.controls['module'].value,
+          moduleCat: this.propertyDetailFormGroup.controls['group'].value,
+          propertyType: this.propertyDetailFormGroup.controls['type'].value,
+          isUnique: this.propertyDetailFormGroup.controls['isUnique'].value,
+          isMandatory: this.propertyDetailFormGroup.controls['isMandatory'].value,
+          isEditable: this.propertyDetailFormGroup.controls['isEditable'].value,
+          isVisible: this.propertyDetailFormGroup.controls['isVisible'].value,
+          minLength: this.propertyDetailFormGroup.controls['minLength'].value,
+          maxLength: this.propertyDetailFormGroup.controls['maxLength'].value,
+          minValue: this.propertyDetailFormGroup.controls['minValue'].value,
+          maxValue: this.propertyDetailFormGroup.controls['maxValue'].value,
+          maxDecimal: this.propertyDetailFormGroup.controls['maxDecimal'].value,
+          numberOnly: this.propertyDetailFormGroup.controls['numberOnly'].value,
+          noSpecialChar: this.propertyDetailFormGroup.controls['noSpecialChar'].value,
+          futureDateOnly: this.propertyDetailFormGroup.controls['futureDateOnly'].value,
+          pastDateOnly: this.propertyDetailFormGroup.controls['pastDateOnly'].value,
+          weekdayOnly: this.propertyDetailFormGroup.controls['weekdayOnly'].value,
+          weekendOnly: this.propertyDetailFormGroup.controls['weekendOnly'].value,
+          dateRangeStart: this.propertyDetailFormGroup.controls['dateRangeStart'].value,
+          dateRangeEnd: this.propertyDetailFormGroup.controls['dateRangeEnd'].value,
+          regaxFormat: this.propertyDetailFormGroup.controls['regaxFormat'].value
+        }
+
+        this.commonService.updateProperties([update], this.authService.user?.uid ?? 'SYSTEM').subscribe(res => {
+          if (res.isSuccess) {
+            if (this.propertyDetailFormGroup.controls['propertiesLookup'].value?.length > 0) {
+              let updateLookupList: UpdatePropertyLookupDto[] = [];
+
+              (this.propertyDetailFormGroup.controls['propertiesLookup'].value as {
+                lookupName: string,
+                lookupCode: string,
+                isVisible: boolean,
+                isDefault: boolean,
+                statusId: number
+              }[]).forEach(i => {
+                updateLookupList.push({
+                  propertyLookupLabel: i.lookupName,
+                  propertyLookupCode: i.lookupCode,
+                  isVisible: i.isVisible,
+                  isDefault: i.isDefault,
+                  statusId: i.statusId,
+                });
+              });
+
+              this.commonService.updatePropertiesLookup(updateLookupList, this.authService.user?.uid ?? 'SYSTEM').subscribe(res => {
+                if (res.isSuccess) {
+
+                }
+                else {
+                  this.popMessage(res.responseMessage, "Error", "error");
+                }
+              });
+            }
+          }
+          else {
+            this.popMessage(res.responseMessage, "Error", "error");
+          }
+        })
+      }
+    }
+    else {
+      this.popMessage(this.translateService.instant('MESSAGE.PROPERTY_NOT_EDITABLE'), this.translateService.instant('MESSAGE.ERROR'), 'error');
+    }
   }
 
   returnFormControlLookupObj(name: string, form: any): FormControl {
-    console.log(form)
     switch (name) {
       case 'name':
         return (form as FormGroup).controls['lookupName'] as FormControl;

@@ -152,7 +152,9 @@
                 [text]="true"
                 [icon]="'pi pi-trash'"
                 class="tw-flex tw-items-center"
-                (onClick)="deleteLookup(i)"
+                (onClick)="
+                  editable && editMode ? editDeleteLookup(i) : deleteLookup(i)
+                "
               ></p-button>
             </div>
           </div>
@@ -163,6 +165,7 @@
             [icon]="'pi pi-plus'"
             [rounded]="true"
             (onClick)="addLookup()"
+            [disabled]="!editable"
           ></p-button>
         </div>
       </div>
@@ -177,7 +180,9 @@
       (click)="closeDialog()"
     />
     <p-button
-      [label]="'BUTTON.CREATE' | translate"
+      [label]="
+        editMode ? ('BUTTON.UPDATE' | translate) : ('BUTTON.CREATE' | translate)
+      "
       [outlined]="true"
       severity="primary"
       (click)="create()"

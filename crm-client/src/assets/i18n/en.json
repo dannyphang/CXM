@@ -28,7 +28,8 @@
     "DELETED": "Deleted",
     "SUCCESS": "Success",
     "UPDATED_SUCCESSFULLY": "Updated successfully.",
-    "CANNOT_DELETE_SYSTEM_PROPERTY": "System property is not allow to delete."
+    "CANNOT_DELETE_SYSTEM_PROPERTY": "System property is not allow to delete.",
+    "ERROR": "Error"
   },
   "BUTTON": {
     "SAVE": "Save",

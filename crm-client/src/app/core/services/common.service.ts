@@ -85,6 +85,14 @@ export class CommonService {
         return this.http.post<ResponseModel<PropertyLookupDto[]>>(apiConfig.baseUrl + '/common/propertiesLookup', lookup).pipe();
     }
 
+    updateProperties(properties: UpdatePropertyDto[], userUid: string): Observable<ResponseModel<any[]>> {
+        return this.http.put<ResponseModel<any[]>>(apiConfig.baseUrl + '/common/properties/update', { properties, user: userUid }).pipe();
+    }
+
+    updatePropertiesLookup(lookup: UpdatePropertyLookupDto[], userUid: string): Observable<ResponseModel<any[]>> {
+        return this.http.put<ResponseModel<any[]>>(apiConfig.baseUrl + '/common/propertiesLookup/update', { lookup, user: userUid }).pipe();
+    }
+
     deleteProperty(propertyList: PropertiesDto[], userUid: string): Observable<ResponseModel<any>> {
         return this.http.put<ResponseModel<any>>(apiConfig.baseUrl + '/common/properties/delete', { propertyList, user: userUid }).pipe();
     }
@@ -457,5 +465,38 @@ export class CreatePropertyLookupDto extends BasedDto {
     moduleCode: string;
     isDefault: boolean;
     isSystem: boolean;
+    isVisible: boolean;
+}
+
+export class UpdatePropertyDto extends BasedDto {
+    propertyName: string;
+    propertyCode: string;
+    moduleCode: string;
+    moduleCat: string;
+    propertyType: string;
+    isMandatory: boolean;
+    isEditable: boolean;
+    isVisible: boolean;
+    isUnique: boolean;
+    regaxFormat: string;
+    minLength: number;
+    maxLength: number;
+    minValue: number;
+    maxValue: number;
+    maxDecimal: number;
+    numberOnly: boolean;
+    noSpecialChar: boolean;
+    futureDateOnly: boolean;
+    pastDateOnly: boolean;
+    dateRangeStart: Date;
+    dateRangeEnd: Date;
+    weekdayOnly: boolean;
+    weekendOnly: boolean;
+}
+
+export class UpdatePropertyLookupDto extends BasedDto {
+    propertyLookupLabel: string;
+    propertyLookupCode: string;
+    isDefault: boolean;
     isVisible: boolean;
 }
