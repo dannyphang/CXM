@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { MenuItem, MessageService } from 'primeng/api';
 import { BaseCoreAbstract } from '../../core/shared/base/base-core.abstract';
 import { TranslateService } from '@ngx-translate/core';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-setting',
@@ -15,7 +14,6 @@ export class SettingComponent extends BaseCoreAbstract {
   constructor(
     protected override messageService: MessageService,
     private translateService: TranslateService,
-    private router: Router
   ) {
     super(messageService);
   }
@@ -25,13 +23,21 @@ export class SettingComponent extends BaseCoreAbstract {
       {
         label: this.translateService.instant('SETTING.GENERAL'),
         icon: '',
-        route: '/setting#property',
+        command: () => {
+          const element = document.getElementById('general');
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }
       },
       {
         label: this.translateService.instant('SETTING.PROPERTY'),
         icon: '',
         command: () => {
-          this.router.navigate(['#property']);
+          const element = document.getElementById('property');
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
         }
       },
     ]

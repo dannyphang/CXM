@@ -8,12 +8,14 @@ import { CommonSharedModule } from '../../core/shared/modules/common-shared.modu
 import { MaterialModule } from '../../core/shared/modules/material.module';
 import { PrimeNgModule } from '../../core/shared/modules/primeng.module';
 import { ComponentsModule } from "../../core/shared/components/components.module";
+import { GeneralComponent } from './general/general.component';
 
 
 @NgModule({
   declarations: [
     SettingComponent,
-    PropertyComponent
+    PropertyComponent,
+    GeneralComponent
   ],
   imports: [
     CommonModule,

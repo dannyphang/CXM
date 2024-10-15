@@ -1,24 +1,15 @@
 <div class="setting-container">
   <div class="tw-p-[var(--content-gap)]">
-    <p-menu [model]="settingMenuItem">
-      <ng-template pTemplate="item" let-item>
-        <ng-container *ngIf="item.route; else elseBlock">
-          <a [href]="'/setting#property'" class="p-menuitem-link">
-            <span [class]="item.icon"></span>
-            <span class="ml-2">{{ item.label }}</span>
-          </a>
-        </ng-container>
-        <ng-template #elseBlock>
-          <a [href]="item.url" class="p-menuitem-link">
-            <span [class]="item.icon"></span>
-            <span class="ml-2">{{ item.label }}</span>
-          </a>
-        </ng-template>
-      </ng-template>
-    </p-menu>
+    <p-menu [model]="settingMenuItem"> </p-menu>
   </div>
 
   <div class="setting-content">
-    <app-setting-property></app-setting-property>
+    <div class="general-content" id="general">
+      <app-general></app-general>
+    </div>
+
+    <div class="prpperty-content" id="property">
+      <app-setting-property></app-setting-property>
+    </div>
   </div>
 </div>

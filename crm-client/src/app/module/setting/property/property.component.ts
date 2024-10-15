@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { ROW_PER_PAGE_DEFAULT, ROW_PER_PAGE_DEFAULT_LIST } from '../../../core/shared/constants/common.constants';
-import { CommonService, CreatePropertyDto, CreatePropertyLookupDto, PropertiesDto, PropertyGroupDto, PropertyLookupDto, UpdatePropertyDto, UpdatePropertyLookupDto } from '../../../core/services/common.service';
+import { CommonService, CreatePropertyDto, CreatePropertyLookupDto, PropertiesDto, PropertyGroupDto, PropertyLookupDto, UpdatePropertyDto, UpdatePropertyLookupDto, UserDto } from '../../../core/services/common.service';
 import { BaseCoreAbstract } from '../../../core/shared/base/base-core.abstract';
 import { MessageService } from 'primeng/api';
 import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
@@ -130,7 +130,7 @@ export class PropertyComponent extends BaseCoreAbstract {
       case 'moduleCat':
         return this.returnModuleCode(data);
       default:
-        return data;
+        return this.returnUser(data);
     }
   }
 
@@ -183,6 +183,10 @@ export class PropertyComponent extends BaseCoreAbstract {
 
   returnModuleCode(code: string): string {
     return this.propertyModule.find(p => p.moduleCode === code)!.moduleName;
+  }
+
+  returnUser(uid: string): string {
+    return (this.propertiesList.find(p => p.propertyType === 'USR')!.propertyLookupList as UserDto[]).find(u => u.uid === uid)?.displayName ?? uid;
   }
 
   initPropertyForm(editMode = false, typeCode: string = '') {
