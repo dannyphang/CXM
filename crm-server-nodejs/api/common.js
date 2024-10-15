@@ -63,11 +63,21 @@ router.get("/" + propertiesCollection + "/module", async (req, res) => {
 
     let list = await db.default.auth.listUsers();
 
+    // add default value: SYSTEM
+    list.users.push({
+      uid: "SYSTEM",
+      displayName: "SYSTEM",
+    });
+
     for (let i = 0; i < propertyList.length; i++) {
       propertyList[i].propertyLookupList = [];
 
-      propertyList[i].createdDate = convertFirebaseDateFormat(propertyList[i].createdDate);
-      propertyList[i].modifiedDate = convertFirebaseDateFormat(propertyList[i].modifiedDate);
+      propertyList[i].createdDate = convertFirebaseDateFormat(
+        propertyList[i].createdDate
+      );
+      propertyList[i].modifiedDate = convertFirebaseDateFormat(
+        propertyList[i].modifiedDate
+      );
 
       // assign user list into lookup property
       if (propertyList[i].propertyType === "USR") {
@@ -158,8 +168,12 @@ router.get("/" + propertiesCollection + "/module/create", async (req, res) => {
 
     for (let i = 0; i < propertyList.length; i++) {
       propertyList[i].propertyLookupList = [];
-      propertyList[i].createdDate = convertFirebaseDateFormat(propertyList[i].createdDate);
-      propertyList[i].modifiedDate = convertFirebaseDateFormat(propertyList[i].modifiedDate);
+      propertyList[i].createdDate = convertFirebaseDateFormat(
+        propertyList[i].createdDate
+      );
+      propertyList[i].modifiedDate = convertFirebaseDateFormat(
+        propertyList[i].modifiedDate
+      );
 
       for (let j = 0; j < propertyLookupList.length; j++) {
         if (propertyList[i].propertyId === propertyLookupList[j].propertyId) {
@@ -196,18 +210,36 @@ router.post("/" + propertiesCollection, async (req, res) => {
   try {
     const createDoc = [];
 
-    list.forEach(async (prop) => {
+    list.forEach(async (prop, index) => {
+      // get max value of propertyId
+      const snapshot = await db.default.db
+        .collection(propertiesCollection)
+        .orderBy("propertyId", "desc")
+        .limit(1)
+        .get();
+
+      let newId =
+        (snapshot.docs.map((doc) => doc.data())[0].propertyId ?? 0) + 1;
+
       let newRef = db.default.db.collection(propertiesCollection).doc();
+      prop.propertyId = newId;
       prop.uid = newRef.id;
+      prop.order = newId;
       prop.createdDate = new Date();
       prop.modifiedDate = new Date();
 
       createDoc.push(prop);
 
       await newRef.set(prop);
+      if (index === list.length - 1) {
+        res.status(200).json(
+          responseModel({
+            data: createDoc,
+            responseMessage: `Created ${list.length} record(s) successfully.`,
+          })
+        );
+      }
     });
-
-    res.status(200).json(responseModel({ data: createDoc }));
   } catch (error) {
     console.log(error);
     res.status(400).json(
@@ -216,6 +248,50 @@ router.post("/" + propertiesCollection, async (req, res) => {
         responseMessage: error,
       })
     );
+  }
+});
+
+// update properties
+router.put("/" + propertiesCollection + "/update", async (req, res) => {
+  try {
+    req.body.propertyList.forEach(async (prop) => {
+      let newRef = db.default.db.collection(propertiesCollection).doc(prop.uid);
+
+      await newRef.update({
+        prop,
+        modifiedDate: new Date(),
+        modifiedBy: req.body.user,
+      });
+    });
+
+    res
+      .status(200)
+      .json(responseModel({ responseMessage: "Updated successfully" }));
+  } catch (e) {
+    console.log(e);
+    res.status(400).json(e);
+  }
+});
+
+// delete properties
+router.put("/" + propertiesCollection + "/delete", async (req, res) => {
+  try {
+    req.body.propertyList.forEach(async (prop) => {
+      let newRef = db.default.db.collection(propertiesCollection).doc(prop.uid);
+
+      await newRef.update({
+        statusId: 2,
+        modifiedDate: new Date(),
+        modifiedBy: req.body.user,
+      });
+    });
+
+    res
+      .status(200)
+      .json(responseModel({ responseMessage: "Deleted successfully" }));
+  } catch (e) {
+    console.log(e);
+    res.status(400).json(e);
   }
 });
 
@@ -248,18 +324,36 @@ router.post("/" + propertiesLookupCollection, async (req, res) => {
   try {
     const createDoc = [];
 
-    list.forEach(async (prop) => {
+    list.forEach(async (prop, index) => {
+      // get max value of propertyLookupId
+      const snapshot = await db.default.db
+        .collection(propertiesLookupCollection)
+        .orderBy("propertyLookupId", "desc")
+        .limit(1)
+        .get();
+
+      let newId =
+        (snapshot.docs.map((doc) => doc.data())[0].propertyLookupId ?? 0) + 1;
+
       let newRef = db.default.db.collection(propertiesLookupCollection).doc();
       prop.uid = newRef.id;
+      prop.propertyLookupId = newId;
       prop.createdDate = new Date();
       prop.modifiedDate = new Date();
 
       createDoc.push(prop);
 
       await newRef.set(prop);
-    });
 
-    res.status(200).json(responseModel({ data: createDoc }));
+      if (index === list.length - 1) {
+        res.status(200).json(
+          responseModel({
+            data: createDoc,
+            responseMessage: `Created ${list.length} record(s) successfully.`,
+          })
+        );
+      }
+    });
   } catch (error) {
     console.log(error);
     res.status(400).json(
@@ -271,12 +365,89 @@ router.post("/" + propertiesLookupCollection, async (req, res) => {
   }
 });
 
+// update properties lookup
+router.put("/" + propertiesCollection + "/update", async (req, res) => {
+  try {
+    req.body.propertyList.forEach(async (prop) => {
+      let newRef = db.default.db
+        .collection(propertiesLookupCollection)
+        .doc(prop.uid);
+
+      await newRef.update({
+        prop,
+        modifiedDate: new Date(),
+        modifiedBy: req.body.user,
+      });
+    });
+
+    res
+      .status(200)
+      .json(responseModel({ responseMessage: "Updated successfully" }));
+  } catch (e) {
+    console.log(e);
+    res.status(400).json(e);
+  }
+});
+
 // get all module code
 router.get("/" + moduleCodeCollection, async (req, res) => {
   try {
     const snapshot = await db.default.db
       .collection(moduleCodeCollection)
       .where("statusId", "==", 1)
+      .orderBy("moduleId")
+      .get();
+
+    const list = snapshot.docs.map((doc) => doc.data());
+
+    res.status(200).json(responseModel({ data: list }));
+  } catch (error) {
+    console.log("error", error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
+  }
+});
+
+// get module code by module type
+router.get("/" + moduleCodeCollection + "/moduleType", async (req, res) => {
+  try {
+    const moduleType = req.headers.moduletype;
+
+    const snapshot = await db.default.db
+      .collection(moduleCodeCollection)
+      .where("statusId", "==", 1)
+      .where("moduleType", "==", moduleType)
+      .orderBy("moduleId")
+      .get();
+
+    const list = snapshot.docs.map((doc) => doc.data());
+
+    res.status(200).json(responseModel({ data: list }));
+  } catch (error) {
+    console.log("error", error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
+  }
+});
+
+// get module code by module type
+router.get("/" + moduleCodeCollection + "/subModule/code", async (req, res) => {
+  try {
+    const submoduleCode = req.headers.submodulecode;
+
+    const snapshot = await db.default.db
+      .collection(moduleCodeCollection)
+      .where("statusId", "==", 1)
+      .where("moduleType", "==", "SUBMODULE")
+      .where("moduleSubCode", "==", submoduleCode)
       .orderBy("moduleId")
       .get();
 
@@ -317,7 +488,9 @@ router.get("/activityModule", async (req, res) => {
 
     const activityModuleList = snapshot.docs.map((doc) => doc.data());
     const activityControlList = actCtrSnapshot.docs.map((doc) => doc.data());
-    const subActivityControlList = subActCtrSnapshot.docs.map((doc) => doc.data());
+    const subActivityControlList = subActCtrSnapshot.docs.map((doc) =>
+      doc.data()
+    );
 
     activityControlList.forEach((item) => {
       item.subActivityControl = [];

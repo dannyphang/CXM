@@ -202,6 +202,7 @@ router.delete("/:uid", async (req, res) => {
     await actRef.update({
       statusId: 2,
       modifiedDate: new Date(),
+      modifiedBy: req.body.user ?? "",
     });
 
     res.status(200).json(

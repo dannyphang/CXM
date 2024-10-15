@@ -5,6 +5,8 @@ import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../..
 import { debounceTime, distinctUntilChanged, map, Observable, ObservableLike, of } from 'rxjs';
 import { BasePropertyAbstract } from '../../base/base-property.abstract';
 import { MessageService } from 'primeng/api';
+import { AuthService } from '../../../services/auth.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-all-properties-page',
@@ -26,8 +28,10 @@ export class AllPropertiesPageComponent extends BasePropertyAbstract implements 
     protected override formBuilder: FormBuilder,
     protected override commonService: CommonService,
     protected override messageService: MessageService,
+    protected override authService: AuthService,
+    protected override translateService: TranslateService
   ) {
-    super(formBuilder, commonService, messageService);
+    super(formBuilder, commonService, messageService, authService, translateService);
   }
 
   ngOnChanges(changes: SimpleChanges): void {

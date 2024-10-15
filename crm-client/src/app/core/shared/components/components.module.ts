@@ -31,7 +31,6 @@ import { TagComponent } from './tag/tag.component';
 import { ContactCompanyPageComponent } from './contact-company-page/contact-company-page.component';
 import { BreadcrumbComponent } from './breadcrumb/breadcrumb.component';
 import { AllPropertiesPageComponent } from './all-properties-page/all-properties-page.component';
-import { PropertyComponent } from './property/property.component';
 import { ProfilePageComponent } from './profile-page/profile-page.component';
 import { LeftPanelComponent } from './profile-page/left-panel/left-panel.component';
 import { MiddlePanelComponent } from './profile-page/middle-panel/middle-panel.component';
@@ -71,7 +70,6 @@ const components = [
   ContactCompanyPageComponent,
   BreadcrumbComponent,
   AllPropertiesPageComponent,
-  PropertyComponent,
   ProfilePageComponent,
   LeftPanelComponent,
   MiddlePanelComponent,

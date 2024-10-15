@@ -1,9 +1,8 @@
-import { HttpClient, HttpHeaders } from "@angular/common/http";
+import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import apiConfig from "../../../environments/apiConfig";
 import { CONTROL_TYPE_CODE } from "./components.service";
-import { MessageService } from "primeng/api";
 import { TranslateService } from "@ngx-translate/core";
 
 @Injectable({ providedIn: 'root' })
@@ -38,16 +37,30 @@ export class CommonService {
         return this.http.post<ResponseModel<ContactDto[]>>(apiConfig.baseUrl + '/contact', { contactList }).pipe();
     }
 
-    updateContact(contactList: UpdateContactDto[]): Observable<ResponseModel<UpdateContactDto[]>> {
-        return this.http.put<ResponseModel<UpdateContactDto[]>>(apiConfig.baseUrl + '/contact', { contactList }).pipe();
+    updateContact(contactList: UpdateContactDto[], userUid: string): Observable<ResponseModel<UpdateContactDto[]>> {
+        return this.http.put<ResponseModel<UpdateContactDto[]>>(apiConfig.baseUrl + '/contact', { contactList, user: userUid }).pipe();
     }
 
-    deleteContact(contactList: ContactDto[]): Observable<ResponseModel<ContactDto>> {
-        return this.http.put<ResponseModel<ContactDto>>(apiConfig.baseUrl + '/contact/delete', { contactList }).pipe();
+    deleteContact(contactList: ContactDto[], userUid: string): Observable<ResponseModel<ContactDto>> {
+        return this.http.put<ResponseModel<ContactDto>>(apiConfig.baseUrl + '/contact/delete', { contactList, user: userUid }).pipe();
     }
 
     getAllProperties(): Observable<ResponseModel<PropertiesDto[]>> {
         return this.http.get<ResponseModel<PropertiesDto[]>>(apiConfig.baseUrl + '/common/properties').pipe();
+    }
+
+    getAllModuleByModuleType(moduleType: string): Observable<ResponseModel<ModuleDto[]>> {
+        let headers = {
+            'moduleType': moduleType
+        }
+        return this.http.get<ResponseModel<ModuleDto[]>>((apiConfig.baseUrl + '/common/moduleCode/moduleType'), { headers }).pipe();
+    }
+
+    getSubModuleByModule(submoduleCode: string): Observable<ResponseModel<ModuleDto[]>> {
+        let headers = {
+            'submoduleCode': submoduleCode ?? ''
+        }
+        return this.http.get<ResponseModel<ModuleDto[]>>((apiConfig.baseUrl + '/common/moduleCode/subModule/code'), { headers }).pipe();
     }
 
     getAllPropertiesByModule(module: string): Observable<ResponseModel<PropertyGroupDto[]>> {
@@ -64,8 +77,24 @@ export class CommonService {
         return this.http.get<ResponseModel<PropertyGroupDto[]>>((apiConfig.baseUrl + '/common/properties/module/create'), { headers }).pipe();
     }
 
-    createProperties(properties: PropertiesDto): Observable<ResponseModel<PropertyGroupDto>> {
-        return this.http.post<ResponseModel<PropertyGroupDto>>(apiConfig.baseUrl + '/common/properties', properties).pipe();
+    createProperties(properties: CreatePropertyDto[]): Observable<ResponseModel<PropertiesDto[]>> {
+        return this.http.post<ResponseModel<PropertiesDto[]>>(apiConfig.baseUrl + '/common/properties', properties).pipe();
+    }
+
+    createPropertyLookup(lookup: CreatePropertyLookupDto[]): Observable<ResponseModel<PropertyLookupDto[]>> {
+        return this.http.post<ResponseModel<PropertyLookupDto[]>>(apiConfig.baseUrl + '/common/propertiesLookup', lookup).pipe();
+    }
+
+    updateProperties(properties: UpdatePropertyDto[], userUid: string): Observable<ResponseModel<any[]>> {
+        return this.http.put<ResponseModel<any[]>>(apiConfig.baseUrl + '/common/properties/update', { properties, user: userUid }).pipe();
+    }
+
+    updatePropertiesLookup(lookup: UpdatePropertyLookupDto[], userUid: string): Observable<ResponseModel<any[]>> {
+        return this.http.put<ResponseModel<any[]>>(apiConfig.baseUrl + '/common/propertiesLookup/update', { lookup, user: userUid }).pipe();
+    }
+
+    deleteProperty(propertyList: PropertiesDto[], userUid: string): Observable<ResponseModel<any>> {
+        return this.http.put<ResponseModel<any>>(apiConfig.baseUrl + '/common/properties/delete', { propertyList, user: userUid }).pipe();
     }
 
     uploadFile(file: File, folderName: string): Observable<ResponseModel<any>> {
@@ -91,7 +120,7 @@ export class CommonService {
         if (type === CONTROL_TYPE_CODE.Textbox || type === CONTROL_TYPE_CODE.Textarea || type === CONTROL_TYPE_CODE.Email || type === CONTROL_TYPE_CODE.Phone || type === CONTROL_TYPE_CODE.Url) {
             return '';
         }
-        else if (type === CONTROL_TYPE_CODE.Checkbox || type === CONTROL_TYPE_CODE.Multiselect) {
+        else if (type === CONTROL_TYPE_CODE.MultiCheckbox || type === CONTROL_TYPE_CODE.Multiselect || type === CONTROL_TYPE_CODE.Dropdown) {
             return null;
         }
         else if (type === CONTROL_TYPE_CODE.Date || type === CONTROL_TYPE_CODE.DateTime || type === CONTROL_TYPE_CODE.Time) {
@@ -100,7 +129,7 @@ export class CommonService {
         else if (type === CONTROL_TYPE_CODE.Number) {
             return 0;
         }
-        else if (type === CONTROL_TYPE_CODE.Dropdown) {
+        else if (type === CONTROL_TYPE_CODE.MultiCheckbox || type === CONTROL_TYPE_CODE.Dropdown || type === CONTROL_TYPE_CODE.Multiselect) {
             let lookup = {
                 label: '',
                 value: ''
@@ -122,10 +151,10 @@ export class CommonService {
     }
 
     setPropertyDataValue(prop: PropertiesDto, value: any): string {
-        if (prop.propertyType === CONTROL_TYPE_CODE.Checkbox || prop.propertyType === CONTROL_TYPE_CODE.MultiCheckbox || prop.propertyType === CONTROL_TYPE_CODE.Multiselect) {
+        if (prop.propertyType === CONTROL_TYPE_CODE.MultiCheckbox || prop.propertyType === CONTROL_TYPE_CODE.Multiselect) {
             return value.filter((item: any) => item.length > 0).toString();
         }
-        return value.toString();
+        return value;
     }
 
     getAllCompany(): Observable<ResponseModel<CompanyDto[]>> {
@@ -140,12 +169,12 @@ export class CommonService {
         return this.http.post<ResponseModel<CompanyDto[]>>(apiConfig.baseUrl + '/company', { companyList }).pipe();
     }
 
-    updateCompany(companyList: UpdateCompanyDto[]): Observable<ResponseModel<UpdateCompanyDto[]>> {
-        return this.http.put<ResponseModel<UpdateCompanyDto[]>>(apiConfig.baseUrl + '/company', { companyList }).pipe();
+    updateCompany(companyList: UpdateCompanyDto[], userUid: string): Observable<ResponseModel<UpdateCompanyDto[]>> {
+        return this.http.put<ResponseModel<UpdateCompanyDto[]>>(apiConfig.baseUrl + '/company', { companyList, user: userUid }).pipe();
     }
 
-    deleteCompany(companyList: CompanyDto[]): Observable<ResponseModel<CompanyDto[]>> {
-        return this.http.put<ResponseModel<CompanyDto[]>>(apiConfig.baseUrl + '/company/delete', { companyList }).pipe();
+    deleteCompany(companyList: CompanyDto[], userUid: string): Observable<ResponseModel<CompanyDto[]>> {
+        return this.http.put<ResponseModel<CompanyDto[]>>(apiConfig.baseUrl + '/company/delete', { companyList, user: userUid }).pipe();
     }
 
     createAssociation(asso: CreateAssociationDto): Observable<ResponseModel<any>> {
@@ -212,7 +241,7 @@ export class PropertyGroupDto extends ModuleDto {
 }
 
 export class PropertiesDto extends BasedDto {
-    propertyId: string;
+    propertyId: number;
     uid: string;
     propertyName: string;
     propertyCode: string;
@@ -222,11 +251,25 @@ export class PropertiesDto extends BasedDto {
     isMandatory: boolean;
     isEditable: boolean;
     isVisible: boolean;
+    isUnique: boolean;
     moduleCat: string;
     moduleCode: string;
     order: number;
     propertyLookupList: PropertyLookupDto[] | UserDto[];
-    isHide: boolean;
+    minLength?: number;
+    maxLength?: number;
+    minValue?: number;
+    maxValue?: number;
+    maxDecimal?: number;
+    numberOnly?: boolean;
+    noSpecialChar?: boolean;
+    futureDateOnly?: boolean;
+    pastDateOnly?: boolean;
+    dateRangeStart?: Date;
+    dateRangeEnd?: Date;
+    weekdayOnly?: boolean;
+    weekendOnly?: boolean;
+    regaxFormat?: string;
 }
 
 export class PropertyLookupDto extends BasedDto {
@@ -238,7 +281,7 @@ export class PropertyLookupDto extends BasedDto {
     moduleCode: string;
     isDefault: boolean;
     isSystem: boolean;
-    isVisiable: boolean;
+    isVisible: boolean;
 }
 
 export class ContactDto extends BasedDto {
@@ -266,6 +309,7 @@ export class UpdateContactDto {
     contactLeadStatusUid?: string;
     contactProperties?: string;
     contactProfilePhotoUrl?: string;
+    modifiedBy: string;
 }
 
 export class PropertyDataDto {
@@ -306,6 +350,7 @@ export class UpdateCompanyDto {
     companyLeadStatusId?: string;
     companyProperties?: string;
     companyProfilePhotoUrl?: string;
+    modifiedBy: string;
 }
 
 export class AssociationDto {
@@ -383,4 +428,75 @@ export class CityDto extends BasedDto {
 export class profileUpdateDto {
     property: PropertiesDto;
     value: string;
+}
+
+export class CreatePropertyDto extends BasedDto {
+    propertyName: string;
+    propertyCode: string;
+    moduleCode: string;
+    moduleCat: string;
+    propertyType: string;
+    isMandatory: boolean;
+    isEditable: boolean;
+    isVisible: boolean;
+    isUnique: boolean;
+    regaxFormat?: string;
+    minLength?: number;
+    maxLength?: number;
+    minValue?: number;
+    maxValue?: number;
+    maxDecimal?: number;
+    numberOnly?: boolean;
+    noSpecialChar?: boolean;
+    futureDateOnly?: boolean;
+    pastDateOnly?: boolean;
+    dateRangeStart?: Date;
+    dateRangeEnd?: Date;
+    weekdayOnly?: boolean;
+    weekendOnly?: boolean;
+    dealOwner: string;
+    // propertyLookupList: CreatePropertyLookupDto[];
+}
+
+export class CreatePropertyLookupDto extends BasedDto {
+    propertyId: number;
+    propertyLookupLabel: string;
+    propertyLookupCode: string;
+    moduleCode: string;
+    isDefault: boolean;
+    isSystem: boolean;
+    isVisible: boolean;
+}
+
+export class UpdatePropertyDto extends BasedDto {
+    propertyName: string;
+    propertyCode: string;
+    moduleCode: string;
+    moduleCat: string;
+    propertyType: string;
+    isMandatory: boolean;
+    isEditable: boolean;
+    isVisible: boolean;
+    isUnique: boolean;
+    regaxFormat: string;
+    minLength: number;
+    maxLength: number;
+    minValue: number;
+    maxValue: number;
+    maxDecimal: number;
+    numberOnly: boolean;
+    noSpecialChar: boolean;
+    futureDateOnly: boolean;
+    pastDateOnly: boolean;
+    dateRangeStart: Date;
+    dateRangeEnd: Date;
+    weekdayOnly: boolean;
+    weekendOnly: boolean;
+}
+
+export class UpdatePropertyLookupDto extends BasedDto {
+    propertyLookupLabel: string;
+    propertyLookupCode: string;
+    isDefault: boolean;
+    isVisible: boolean;
 }

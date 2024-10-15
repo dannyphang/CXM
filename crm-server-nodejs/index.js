@@ -58,5 +58,5 @@ app.use("/auth", authRouter);
 app.use("/location", locationRouter);
 
 app.listen(port, () => {
-  console.log(`server is running at port: ${port}...`);
+  console.log(`server is running at port: ${port}... (${new Date()})`);
 });

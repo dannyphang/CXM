@@ -1,0 +1,191 @@
+<app-toast></app-toast>
+
+<div class="tw-w-full">
+  <div class="module-dp-div tw-m-[var(--content-gap)]">
+    <app-base-label
+      [label]="'SETTING.SELECT_MODULE' | translate"
+    ></app-base-label>
+    <app-base-dropdown
+      [fieldControl]="moduleFormControl"
+      [options]="moduleOptions"
+    ></app-base-dropdown>
+  </div>
+
+  <div class="table-div tw-m-[var(--content-gap)]">
+    <p-table
+      #dt
+      [columns]="tableConfig"
+      [value]="propertiesList"
+      [(selection)]="selectedProperty"
+      [resizableColumns]="true"
+      [reorderableColumns]="true"
+      [rowHover]="true"
+      styleClass="p-datatable-gridlines p-datatable-striped"
+      class="profile-company-table"
+      [paginator]="true"
+      [rows]="ROW_PER_PAGE_DEFAULT"
+      [rowsPerPageOptions]="ROW_PER_PAGE_DEFAULT_LIST"
+      [loading]="tableLoading"
+      [globalFilterFields]="filterField"
+    >
+      <ng-template pTemplate="caption">
+        <div class="tw-flex tw-justify-between">
+          <div class="tw-flex">
+            <app-base-input
+              [iconRightStyle]="'pi pi-search'"
+              [placeholder]="'INPUT.SEARCH' | translate"
+              [fieldControl]="propertySearchFormControl"
+              (input)="
+                dt.filterGlobal(propertySearchFormControl.value, 'contains')
+              "
+            ></app-base-input>
+          </div>
+
+          <div class="tw-flex">
+            <p-button
+              [icon]="'pi pi-plus'"
+              rounded="true"
+              [text]="true"
+              [pTooltip]="'BUTTON.CREATE' | translate"
+              (onClick)="toCreate()"
+            ></p-button>
+            <p-button
+              icon="pi pi-trash"
+              [rounded]="true"
+              [text]="true"
+              (onClick)="delete()"
+              *ngIf="selectedProperty.length > 0"
+              [pTooltip]="'BUTTON.DELETE' | translate"
+            />
+          </div>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th>
+            <div class="tw-flex tw-justify-center">
+              <p-tableHeaderCheckbox />
+            </div>
+          </th>
+          <th *ngFor="let col of columns">
+            {{ col.header }}
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rowData let-columns="columns">
+        <tr>
+          <td>
+            <div class="tw-flex tw-justify-center">
+              <p-tableCheckbox [value]="rowData" />
+            </div>
+          </td>
+          <td *ngFor="let col of columns">
+            <div *ngIf="col.field === 'propertyName'">
+              <p-button [text]="true" (onClick)="toEdit(rowData)">
+                {{ rowData[col.field] }}
+              </p-button>
+            </div>
+            <div *ngIf="col.field !== 'propertyName'">
+              {{ returnColumnData(col.field, rowData[col.field]) }}
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
+<!-- create property dialog -->
+<p-dialog
+  [(visible)]="isPropertyDialogVisible"
+  [header]="'SETTING.CREATE_PROPERTY' | translate"
+  styleClass="tw-w-[70%]"
+  [modal]="true"
+  (onHide)="closeDialog()"
+>
+  <ng-template pTemplate="content">
+    <app-base-form [formConfig]="propertyCreateFormConfig"></app-base-form>
+    <app-base-form [formConfig]="propertyTypeFormConfig"></app-base-form>
+    <div
+      *ngIf="
+        propertyDetailFormGroup.controls['type'].value === 'SEL_S' ||
+        propertyDetailFormGroup.controls['type'].value === 'SEL_M' ||
+        propertyDetailFormGroup.controls['type'].value === 'CBX_M' ||
+        propertyDetailFormGroup.controls['type'].value === 'RAD'
+      "
+      class="tw-px-[var(--content-gap)]"
+    >
+      <div class="add-option-form">
+        <ng-container
+          *ngFor="let form of propertiesLookup.controls; let i = index"
+        >
+          <p-divider
+            *ngIf="propertiesLookup.controls.length > 1 && i !== 0"
+          ></p-divider>
+          <div
+            class="tw-flex tw-gap-[var(--content-gap)] tw-mb-[var(--content-gap)]"
+          >
+            <app-base-input
+              [label]="'SETTING.OPTIONS_LABEL'"
+              [fieldControl]="returnFormControlLookupObj('name', form)"
+              class="tw-w-full"
+            ></app-base-input>
+            <app-base-input
+              [label]="'SETTING.OPTIONS_CODE'"
+              [fieldControl]="returnFormControlLookupObj('code', form)"
+              class="tw-w-full"
+            ></app-base-input>
+            <app-base-checkbox
+              [label]="'SETTING.OPTIONS_VISIBLE'"
+              [fieldControl]="returnFormControlLookupObj('visible', form)"
+              [switchInput]="true"
+            ></app-base-checkbox>
+            <app-base-checkbox
+              [label]="'SETTING.OPTIONS_DEFAULT'"
+              [fieldControl]="returnFormControlLookupObj('default', form)"
+              [switchInput]="true"
+            ></app-base-checkbox>
+            <div *ngIf="propertiesLookup.controls.length > 1" class="tw-flex">
+              <p-divider [layout]="'vertical'"></p-divider>
+              <p-button
+                [text]="true"
+                [icon]="'pi pi-trash'"
+                class="tw-flex tw-items-center"
+                (onClick)="
+                  editable && editMode ? editDeleteLookup(i) : deleteLookup(i)
+                "
+              ></p-button>
+            </div>
+          </div>
+        </ng-container>
+
+        <div class="tw-flex tw-justify-center">
+          <p-button
+            [icon]="'pi pi-plus'"
+            [rounded]="true"
+            (onClick)="addLookup()"
+            [disabled]="!editable"
+          ></p-button>
+        </div>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <p-button
+      [label]="'BUTTON.CANCEL' | translate"
+      [text]="true"
+      severity="secondary"
+      (click)="closeDialog()"
+    />
+    <p-button
+      [label]="
+        editMode ? ('BUTTON.UPDATE' | translate) : ('BUTTON.CREATE' | translate)
+      "
+      [outlined]="true"
+      severity="primary"
+      (click)="create()"
+    />
+  </ng-template>
+</p-dialog>

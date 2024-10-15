@@ -24,6 +24,11 @@ const routes: Routes = [
         loadChildren: () => import('./module/company/company.module').then(m => m.CompanyModule),
         data: { breadcrumb: 'Company', title: 'Company' }
       },
+      {
+        path: 'setting',
+        loadChildren: () => import('./module/setting/setting.module').then(m => m.SettingModule),
+        data: { breadcrumb: 'Setting', title: 'Setting' }
+      }
     ]
   },
   {

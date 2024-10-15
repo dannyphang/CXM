@@ -23,6 +23,14 @@
     "INVALID_DATE_MSG": "Please enter a correct date format.",
     "INVALID_NUMBER_MSG": "Please enter a valid number."
   },
+  "MESSAGE": {
+    "DELETED_SUCCESSFULLY": "The {{module}}(s) are deleted successfully.",
+    "DELETED": "Deleted",
+    "SUCCESS": "Success",
+    "UPDATED_SUCCESSFULLY": "Updated successfully.",
+    "CANNOT_DELETE_SYSTEM_PROPERTY": "System property is not allow to delete.",
+    "ERROR": "Error"
+  },
   "BUTTON": {
     "SAVE": "Save",
     "CANCEL": "Cancel",
@@ -79,5 +87,38 @@
     "VALUE": "Value",
     "COLUMN_FILTER": "Table Column filter",
     "SELECTED_COLUMN": "Selected Columns"
+  },
+  "SETTING": {
+    "GENERAL": "General",
+    "PROPERTY": "Property",
+    "SELECT_MODULE": "Select a module",
+    "CREATE_PROPERTY": "Create property",
+    "PROPERTY_LABEL": "Property Label",
+    "PROPERTY_CODE": "Code",
+    "PROPERTY_MODULE": "Module",
+    "PROPERTY_GROUP": "Group",
+    "PROPERTY_TYPE": "Control Type",
+    "IS_UNIQUE": "Unique Value",
+    "IS_MANDATORY": "Mandatory",
+    "IS_EDITABLE": "Editable",
+    "IS_VISIBLE": "Visibility",
+    "REGAX_FORMAT": "Regax format",
+    "MIN_LENGTH": "Minimun Length",
+    "MAX_LENGTH": "Maximun Length",
+    "NUMBER_ONLY": "Only Number",
+    "NO_SPECIAL_CHAR": "No special character",
+    "MIN_VALUE": "Minimum value",
+    "MAX_VALUE": "Maximum value",
+    "MAX_DECIMAL": "Set maximum number of decimal places",
+    "FUTURE_DATE_ONLY": "Future dates only",
+    "PAST_DATE_ONLY": "Past Date only",
+    "WEEKDAY_ONLY": "Weekday only",
+    "WEEKEND_ONLY": "Weekend only",
+    "DATE_RANGE_START": "From Date",
+    "DATE_RANGE_END": "End Date",
+    "OPTIONS_LABEL": "Option Name",
+    "OPTIONS_CODE": "Internal Code",
+    "OPTIONS_VISIBLE": "Visible",
+    "OPTIONS_DEFAULT": "Default"
   }
 }

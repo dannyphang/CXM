@@ -173,6 +173,7 @@ router.put("/delete", async (req, res) => {
       await newRef.update({
         statusId: 2,
         modifiedDate: new Date(),
+        modifiedBy: req.body.user,
       });
     });
 
@@ -194,6 +195,8 @@ router.put("/", async (req, res) => {
       contact.modifiedDate = new Date();
 
       let newRef = db.default.db.collection(contactCollectionName).doc(contact.uid);
+
+      contact.modifiedBy = req.body.user;
 
       const updatedContact = await newRef.update(contact);
       updatedContactList.push(updatedContact);
