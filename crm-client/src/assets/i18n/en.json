@@ -54,7 +54,9 @@
     "ALL_TO_RIGHT": "Add all properties to column.",
     "ALL_TO_Left": "Remove all properties from column.",
     "TO_RIGHT": "Add properties to column.",
-    "TO_Left": "Remove properties from column."
+    "TO_Left": "Remove properties from column.",
+    "SIGN_UP_LABEL": "Create a new account",
+    "SIGN_IN_LABEL": "Go to sign in"
   },
   "INPUT": {
     "SEARCH": "Search",
@@ -86,7 +88,13 @@
     "CONDITION": "Condition",
     "VALUE": "Value",
     "COLUMN_FILTER": "Table Column filter",
-    "SELECTED_COLUMN": "Selected Columns"
+    "SELECTED_COLUMN": "Selected Columns",
+    "PROFILE_FIRST_NAME": "First name",
+    "PROFILE_LAST_NAME": "Last name",
+    "PROFILE_EMAIL": "Email",
+    "PROFILE_PHONE": "Phone number",
+    "PROFILE_NICKNAME": "Nickname",
+    "PROFILE_DISPLAYNAME": "Display Name"
   },
   "SETTING": {
     "GENERAL": "General",

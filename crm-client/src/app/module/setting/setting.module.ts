@@ -9,13 +9,15 @@ import { MaterialModule } from '../../core/shared/modules/material.module';
 import { PrimeNgModule } from '../../core/shared/modules/primeng.module';
 import { ComponentsModule } from "../../core/shared/components/components.module";
 import { GeneralComponent } from './general/general.component';
+import { CreateComponent } from './create/create.component';
 
 
 @NgModule({
   declarations: [
     SettingComponent,
     PropertyComponent,
-    GeneralComponent
+    GeneralComponent,
+    CreateComponent
   ],
   imports: [
     CommonModule,

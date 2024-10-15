@@ -217,6 +217,7 @@ export class ResponseModel<T> {
 }
 
 export class BasedDto {
+    tenantId?: string;
     createdDate?: Date;
     createdBy?: string;
     modifiedDate?: Date;

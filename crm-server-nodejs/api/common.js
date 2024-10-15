@@ -2,7 +2,6 @@ import { Router } from "express";
 import express from "express";
 const router = Router();
 import * as db from "../firebase-admin.js";
-import pkg from "firebase-admin";
 import responseModel from "./shared.js";
 
 router.use(express.json());

@@ -4,12 +4,15 @@ const router = Router();
 import * as firebase from "../firebase-admin.js";
 import pkg from "firebase-admin";
 const { auth } = pkg;
+import responseModel from "./shared.js";
 
 router.use(express.json());
 
+const userCollectionName = "user";
+
 const listAllUsers = async (nextPageToken) => {
   try {
-    const listUsersResult = await auth(db.default.app).listUsers(
+    const listUsersResult = await auth(firebase.default.app).listUsers(
       1000,
       nextPageToken
     );
@@ -30,5 +33,113 @@ router.get("/allUser", async (req, res) => {
     console.log("Error listing users:", error);
   }
 });
+
+// create user in firestore
+router.post("/user", async (req, res) => {
+  const list = JSON.parse(JSON.stringify(req.body.user));
+
+  try {
+    const createDoc = [];
+
+    list.forEach(async (user, index) => {
+      let newRef = firebase.default.db
+        .collection(userCollectionName)
+        .doc(user.uid);
+      user.uid = newRef.id;
+      user.statusId = 1;
+      user.createdBy = req.body.createdBy;
+      user.modifiedBy = req.body.createdBy;
+      user.createdDate = new Date();
+      user.modifiedDate = new Date();
+
+      createDoc.push(user);
+
+      await newRef.set(user);
+      if (index === list.length - 1) {
+        res.status(200).json(
+          responseModel({
+            data: createDoc,
+            responseMessage: `Created ${list.length} record(s) successfully.`,
+          })
+        );
+      }
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
+  }
+});
+
+// get user by id
+router.get("/user/:id", async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    const snapshot = await firebase.default.db
+      .collection(userCollectionName)
+      .doc(id)
+      .get();
+
+    const user = snapshot.data().statusId == 1 ? snapshot.data() : {};
+    let userData = user;
+    userData.createdDate = convertFirebaseDateFormat(userData.createdDate);
+    userData.modifiedDate = convertFirebaseDateFormat(userData.modifiedDate);
+
+    res.status(200).json(responseModel({ data: userData }));
+  } catch (error) {
+    console.log("error", error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
+  }
+});
+
+// update user
+router.put("/user/update", async (req, res) => {
+  const userList = req.body.user;
+
+  try {
+    let updatedUserList = [];
+
+    userList.forEach(async (user) => {
+      user.modifiedDate = new Date();
+
+      let newRef = firebase.default.db
+        .collection(userCollectionName)
+        .doc(user.uid);
+
+      user.modifiedBy = req.body.updatedBy;
+
+      const updatedUser = await newRef.update(user);
+      updatedUserList.push(updatedUser);
+    });
+
+    res
+      .status(200)
+      .json(
+        responseModel({ data: `Updated ${updatedUserList.length} record(s).` })
+      );
+  } catch (error) {
+    console.log("error", error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
+  }
+});
+
+function convertFirebaseDateFormat(date) {
+  return date.toDate();
+}
 
 export default router;
