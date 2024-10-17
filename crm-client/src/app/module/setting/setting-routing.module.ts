@@ -9,11 +9,11 @@ const routes: Routes = [
     path: "",
     component: SettingComponent
   },
-  {
-    path: "create",
-    component: CreateComponent,
-    data: { breadcrumb: 'Create Profile', title: 'Create Profile' }
-  }
+  // {
+  //   path: "profile",
+  //   component: CreateComponent,
+  //   data: { breadcrumb: 'Profile', title: 'Profile' }
+  // }
 ];
 
 @NgModule({

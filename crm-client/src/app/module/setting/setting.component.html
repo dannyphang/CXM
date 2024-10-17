@@ -1,8 +1,11 @@
 <app-toast></app-toast>
 
-<div class="setting-container">
-  <div class="tw-p-[var(--content-gap)]">
-    <p-menu [model]="settingMenuItem"> </p-menu>
+<div class="setting-container" (scroll)="onScroll($event)">
+  <div
+    class="tw-p-[var(--content-gap)] setting-left-container"
+    id="setting_left"
+  >
+    <p-menu [model]="settingMenuItem" id="setting_menu_panel"> </p-menu>
   </div>
 
   <div class="setting-content">

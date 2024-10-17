@@ -4,7 +4,7 @@ import { FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
-import { AuthService } from '../../core/services/auth.service';
+import { AuthService, UserDto } from '../../core/services/auth.service';
 import { User } from 'firebase/auth';
 import { DEFAULT_PROFILE_PIC_URL } from '../../core/shared/constants/common.constants';
 
@@ -17,7 +17,7 @@ export class HeaderComponent {
   menuItem: MenuItem[] = [];
   searchFormControl: FormControl = new FormControl("");
   userMenuItem: MenuItem[] | undefined;
-  currentUser: User | null;
+  currentUser: UserDto | null;
   isAutoFocus: boolean = false;
   DEFAULT_PROFILE_PIC_URL = DEFAULT_PROFILE_PIC_URL;
   avatarImage: string | null = this.DEFAULT_PROFILE_PIC_URL;
@@ -26,8 +26,14 @@ export class HeaderComponent {
     private router: Router,
     private authService: AuthService
   ) {
-    this.authService.getCurrentUser().then(res => {
-      this.currentUser = res;
+    this.authService.getCurrentUser().then(user => {
+      if (user) {
+        this.authService.getUser(user.uid).subscribe(res => {
+          this.currentUser = res.data;
+          this.avatarImage = this.currentUser.profilePhotoUrl;
+        });
+      }
+
       this.userMenuItem = [
         {
           separator: true
@@ -65,21 +71,11 @@ export class HeaderComponent {
                 this.redirectToSignIn();
               },
               visible: this.currentUser ? false : true
-            },
-            {
-              label: 'Check current user',
-              icon: 'pi pi-sign-out',
-              command: () => {
-                console.log(this.authService.getCurrentUser())
-              },
-              visible: false
             }
           ]
         }
       ];
-      if (this.currentUser) {
-        this.avatarImage = this.currentUser.photoURL;
-      }
+
     });
   }
 

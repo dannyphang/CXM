@@ -133,6 +133,14 @@ export class AuthService {
     updateUserFirestore(user: CreateUserDto[], updateBy: string): Observable<ResponseModel<any>> {
         return this.http.put<ResponseModel<any>>(apiConfig.baseUrl + '/auth/user/update', { user, updatedBy: updateBy }).pipe();
     }
+
+    getTenantsByUserId(userId: string): Observable<ResponseModel<TenantDto[]>> {
+        return this.http.get<ResponseModel<TenantDto[]>>(apiConfig.baseUrl + '/auth/tenant/' + userId).pipe();
+    }
+
+    getAllRoles(): Observable<ResponseModel<RoleDto[]>> {
+        return this.http.get<ResponseModel<RoleDto[]>>(apiConfig.baseUrl + '/auth/role').pipe();
+    }
 }
 
 export class CreateUserDto extends BasedDto {
@@ -156,4 +164,16 @@ export class UserDto extends BasedDto {
     profilePhotoUrl: string;
     email: string;
     roleId: string;
+}
+
+export class TenantDto extends BasedDto {
+    uid: string;
+    tenantName: string;
+}
+
+export class RoleDto extends BasedDto {
+    uid: string;
+    roleName: string;
+    roleCode: string;
+    permission: string;
 }

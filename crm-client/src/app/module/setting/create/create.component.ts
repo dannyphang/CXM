@@ -21,7 +21,7 @@ export class CreateComponent extends BaseCoreAbstract {
     last_name: new FormControl(""),
     nickname: new FormControl(""),
     displayName: new FormControl("", Validators.required),
-    email: new FormControl("", Validators.required),
+    email: new FormControl({ value: "", disabled: true }),
     phone: new FormControl(""),
   });
   // profile pic
