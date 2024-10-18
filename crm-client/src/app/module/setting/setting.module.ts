@@ -10,6 +10,7 @@ import { PrimeNgModule } from '../../core/shared/modules/primeng.module';
 import { ComponentsModule } from "../../core/shared/components/components.module";
 import { GeneralComponent } from './general/general.component';
 import { CreateComponent } from './create/create.component';
+import { TeamComponent } from './team/team.component';
 
 
 @NgModule({
@@ -17,7 +18,8 @@ import { CreateComponent } from './create/create.component';
     SettingComponent,
     PropertyComponent,
     GeneralComponent,
-    CreateComponent
+    CreateComponent,
+    TeamComponent
   ],
   imports: [
     CommonModule,

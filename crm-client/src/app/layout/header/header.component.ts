@@ -1,38 +1,82 @@
 import { DatePipe } from '@angular/common';
-import { Component, EventEmitter, HostListener, Output } from '@angular/core';
-import { FormControl } from '@angular/forms';
+import { Component, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { Form, FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
-import { MenuItem } from 'primeng/api';
-import { debounceTime, distinctUntilChanged } from 'rxjs';
-import { AuthService, UserDto } from '../../core/services/auth.service';
+import { MenuItem, MessageService, TreeNode } from 'primeng/api';
+import { debounceTime, distinctUntilChanged, map } from 'rxjs';
+import { AuthService, TenantDto, UserDto } from '../../core/services/auth.service';
 import { User } from 'firebase/auth';
 import { DEFAULT_PROFILE_PIC_URL } from '../../core/shared/constants/common.constants';
+import { OptionsModel } from '../../core/services/components.service';
+import { BaseCoreAbstract } from '../../core/shared/base/base-core.abstract';
 
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss'
 })
-export class HeaderComponent {
+export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
+  @Input() user: UserDto;
+  @Input() tenantList: TenantDto[] = [];
+  @Input() tenantOptionsList: OptionsModel[] = [];
+
   menuItem: MenuItem[] = [];
   searchFormControl: FormControl = new FormControl("");
   userMenuItem: MenuItem[] | undefined;
-  currentUser: UserDto | null;
   isAutoFocus: boolean = false;
   DEFAULT_PROFILE_PIC_URL = DEFAULT_PROFILE_PIC_URL;
   avatarImage: string | null = this.DEFAULT_PROFILE_PIC_URL;
+  tenantFormControl: FormControl = new FormControl("");
 
   constructor(
     private router: Router,
-    private authService: AuthService
+    private authService: AuthService,
+    protected override messageService: MessageService
   ) {
-    this.authService.getCurrentUser().then(user => {
-      if (user) {
-        this.authService.getUser(user.uid).subscribe(res => {
-          this.currentUser = res.data;
-          this.avatarImage = this.currentUser.profilePhotoUrl;
-        });
+    super(messageService);
+    this.tenantFormControl.valueChanges.subscribe(val => {
+      let selectedTenant = this.tenantList.find(t => t.uid === val)!;
+      this.authService.tenant = selectedTenant;
+    })
+  }
+
+  ngOnInit() {
+    this.menuItem = [
+      {
+        label: 'Contact',
+        icon: '',
+        tooltip: "COMMON.CONTACT",
+        command: () => {
+          this.router.navigate(["/contact"]);
+        }
+      },
+      {
+        label: 'Company',
+        icon: '',
+        tooltip: "COMMON.COMPANY",
+        command: () => {
+          this.router.navigate(["/company"]);
+        }
+      },
+    ];
+
+    this.searchFormControl.valueChanges.pipe(debounceTime(2000),
+      distinctUntilChanged()).subscribe(value => {
+        console.log(value);
+      });
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['tenantOptionsList'] && changes['tenantOptionsList'].currentValue) {
+      if (this.tenantList.find(t => t.uid === this.user?.defaultTenantId)) {
+        this.authService.tenant = this.tenantList.find(t => t.uid === this.user.defaultTenantId)!;
+        this.tenantFormControl = new FormControl(this.authService.tenant.uid);
+        console.log(this.tenantFormControl.value)
       }
+    }
+
+    if (changes['user'] && changes['user'].currentValue) {
+      this.avatarImage = this.user.profilePhotoUrl;
 
       this.userMenuItem = [
         {
@@ -62,7 +106,7 @@ export class HeaderComponent {
                 this.authService.signOut();
                 window.location.reload();
               },
-              visible: this.currentUser ? true : false
+              visible: this.user ? true : false
             },
             {
               label: "Login",
@@ -70,44 +114,31 @@ export class HeaderComponent {
               command: () => {
                 this.redirectToSignIn();
               },
-              visible: this.currentUser ? false : true
+              visible: this.user ? false : true
             }
           ]
         }
       ];
-
-    });
-  }
-
-  ngOnInit() {
-    this.menuItem = [
-      {
-        label: 'Contact',
-        icon: '',
-        tooltip: "COMMON.CONTACT",
-        command: () => {
-          this.router.navigate(["/contact"]);
-        }
-      },
-      {
-        label: 'Company',
-        icon: '',
-        tooltip: "COMMON.COMPANY",
-        command: () => {
-          this.router.navigate(["/company"]);
-        }
-      },
-    ];
-
-    this.searchFormControl.valueChanges.pipe(debounceTime(2000),
-      distinctUntilChanged()).subscribe(value => {
-        console.log(value);
-      });
-
-
+    }
   }
 
   redirectToSignIn() {
     this.router.navigate(["/signin"]);
+  }
+
+  onTenantChange() {
+    console.log(this.router.url)
+    this.authService.updateUserFirestore([{
+      uid: this.authService.user!.uid,
+      defaultTenantId: this.tenantFormControl.value,
+    }], this.authService.user?.uid ?? "SYSTEM").subscribe(res => {
+      if (res.isSuccess) {
+        window.location.reload();
+      }
+      else {
+        this.popMessage(res.responseMessage, "Error", "error");
+      }
+    })
+
   }
 }

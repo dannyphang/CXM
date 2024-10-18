@@ -2,7 +2,7 @@ import { Router } from "express";
 import express from "express";
 const router = Router();
 import * as db from "../firebase-admin.js";
-import responseModel from "./shared.js";
+import responseModel from "../shared/function.js";
 
 router.use(express.json());
 
@@ -23,7 +23,9 @@ router.get("/", async (req, res) => {
 
     if (list.length > 0) {
       for (let i = 0; i < list.length; i++) {
-        list[i].activityDatetime = convertFirebaseDateFormat(list[i].activityDatetime);
+        list[i].activityDatetime = convertFirebaseDateFormat(
+          list[i].activityDatetime
+        );
         list[i].createdDate = convertFirebaseDateFormat(list[i].createdDate);
         list[i].modifiedDate = convertFirebaseDateFormat(list[i].modifiedDate);
 
@@ -103,7 +105,9 @@ router.get("/activityModule", async (req, res) => {
 
     const activityModuleList = snapshot.docs.map((doc) => doc.data());
     const activityControlList = actCtrSnapshot.docs.map((doc) => doc.data());
-    const subActivityControlList = subActCtrSnapshot.docs.map((doc) => doc.data());
+    const subActivityControlList = subActCtrSnapshot.docs.map((doc) =>
+      doc.data()
+    );
 
     activityControlList.forEach((item) => {
       item.subActivityControl = [];

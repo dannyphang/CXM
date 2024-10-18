@@ -2,7 +2,9 @@ import { Router } from "express";
 import express from "express";
 const router = Router();
 import * as db from "../firebase-admin.js";
-import responseModel from "./shared.js";
+import responseModel from "../shared/function.js";
+import { Filter } from "firebase-admin/firestore";
+import { DEFAULT_SYSTEM_TENANT } from "../shared/constant.js";
 
 router.use(express.json());
 
@@ -37,12 +39,18 @@ router.get("/" + propertiesCollection, async (req, res) => {
 // get all properties with lookup by module
 router.get("/" + propertiesCollection + "/module", async (req, res) => {
   const moduleCode = req.headers.modulecode;
-
+  const tenantId = req.headers.tenantid;
   try {
     const snapshot = await db.default.db
       .collection(propertiesCollection)
       .where("moduleCode", "==", moduleCode)
       .where("statusId", "==", 1)
+      .where(
+        Filter.or(
+          Filter.where("tenantId", "==", tenantId),
+          Filter.where("tenantId", "==", DEFAULT_SYSTEM_TENANT)
+        )
+      )
       .orderBy("order")
       .get();
     const snapshotModule = await db.default.db
@@ -149,6 +157,12 @@ router.get("/" + propertiesCollection + "/module/create", async (req, res) => {
       .where("statusId", "==", 1)
       .where("isMandatory", "==", true)
       .where("isEditable", "==", true)
+      .where(
+        Filter.or(
+          Filter.where("tenantId", "==", tenantId),
+          Filter.where("tenantId", "==", DEFAULT_SYSTEM_TENANT)
+        )
+      )
       .orderBy("order")
       .get();
     const snapshotModule = await db.default.db
@@ -300,6 +314,12 @@ router.get("/" + propertiesLookupCollection, async (req, res) => {
     const snapshot = await db.default.db
       .collection(propertiesLookupCollection)
       .where("statusId", "==", 1)
+      .where(
+        Filter.or(
+          Filter.where("tenantId", "==", tenantId),
+          Filter.where("tenantId", "==", DEFAULT_SYSTEM_TENANT)
+        )
+      )
       .orderBy("propertityLookupId")
       .get();
     const list = snapshot.docs.map((doc) => doc.data());
@@ -393,6 +413,12 @@ router.get("/" + moduleCodeCollection, async (req, res) => {
   try {
     const snapshot = await db.default.db
       .collection(moduleCodeCollection)
+      .where(
+        Filter.or(
+          Filter.where("tenantId", "==", tenantId),
+          Filter.where("tenantId", "==", DEFAULT_SYSTEM_TENANT)
+        )
+      )
       .where("statusId", "==", 1)
       .orderBy("moduleId")
       .get();
@@ -415,9 +441,16 @@ router.get("/" + moduleCodeCollection, async (req, res) => {
 router.get("/" + moduleCodeCollection + "/moduleType", async (req, res) => {
   try {
     const moduleType = req.headers.moduletype;
+    const tenantId = req.headers.tenantid;
 
     const snapshot = await db.default.db
       .collection(moduleCodeCollection)
+      .where(
+        Filter.or(
+          Filter.where("tenantId", "==", tenantId),
+          Filter.where("tenantId", "==", DEFAULT_SYSTEM_TENANT)
+        )
+      )
       .where("statusId", "==", 1)
       .where("moduleType", "==", moduleType)
       .orderBy("moduleId")
@@ -441,9 +474,16 @@ router.get("/" + moduleCodeCollection + "/moduleType", async (req, res) => {
 router.get("/" + moduleCodeCollection + "/subModule/code", async (req, res) => {
   try {
     const submoduleCode = req.headers.submodulecode;
+    const tenantId = req.headers.tenantid;
 
     const snapshot = await db.default.db
       .collection(moduleCodeCollection)
+      .where(
+        Filter.or(
+          Filter.where("tenantId", "==", tenantId),
+          Filter.where("tenantId", "==", DEFAULT_SYSTEM_TENANT)
+        )
+      )
       .where("statusId", "==", 1)
       .where("moduleType", "==", "SUBMODULE")
       .where("moduleSubCode", "==", submoduleCode)

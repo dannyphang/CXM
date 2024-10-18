@@ -28,16 +28,26 @@ export class AuthService {
     app: FirebaseApp;
     auth: Auth;
     user: User | null;
+    userC: UserDto;
+    tenant: TenantDto;
 
     constructor(
         private http: HttpClient,
         private commonService: CommonService,
     ) {
+
+    }
+
+    initAuth() {
         this.commonService.getEnvToken().subscribe(res => {
             this.app = initializeApp(res);
             this.auth = getAuth(this.app);
             this.getCurrentUser();
         })
+    }
+
+    set setCurrentTenant(tenant: TenantDto) {
+        this.tenant = tenant;
     }
 
     currentUser(): User | null {
@@ -86,7 +96,12 @@ export class AuthService {
                 this.auth ? onAuthStateChanged(this.auth, (user) => {
                     if (user) {
                         this.user = user;
-                        resolve(this.user);
+                        this.getUser(this.user.uid).subscribe(res => {
+                            if (res.isSuccess) {
+                                this.userC = res.data;
+                                resolve(this.user);
+                            }
+                        })
                     } else {
                         resolve(null);
                     }
@@ -152,6 +167,8 @@ export class CreateUserDto extends BasedDto {
     email?: string;
     phoneNumber?: string;
     uid: string;
+    defaultTenantId?: string;
+    roleId?: number;
 }
 
 export class UserDto extends BasedDto {
@@ -163,7 +180,8 @@ export class UserDto extends BasedDto {
     phoneNumber: string;
     profilePhotoUrl: string;
     email: string;
-    roleId: string;
+    roleId: number;
+    defaultTenantId?: string;
 }
 
 export class TenantDto extends BasedDto {

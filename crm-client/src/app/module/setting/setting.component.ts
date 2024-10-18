@@ -2,6 +2,7 @@ import { Component, HostListener } from '@angular/core';
 import { MenuItem, MessageService } from 'primeng/api';
 import { BaseCoreAbstract } from '../../core/shared/base/base-core.abstract';
 import { TranslateService } from '@ngx-translate/core';
+import { AuthService, UserDto } from '../../core/services/auth.service';
 
 @Component({
   selector: 'app-setting',
@@ -10,15 +11,18 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class SettingComponent extends BaseCoreAbstract {
   settingMenuItem: MenuItem[] = [];
+  userC: UserDto;
 
   constructor(
     protected override messageService: MessageService,
     private translateService: TranslateService,
+    private authService: AuthService
   ) {
     super(messageService);
   }
 
   ngOnInit() {
+    this.userC = this.authService.userC;
     this.settingMenuItem = [
       {
         label: this.translateService.instant('SETTING.GENERAL'),
@@ -29,6 +33,17 @@ export class SettingComponent extends BaseCoreAbstract {
             element.scrollIntoView({ behavior: 'smooth', block: 'start' });
           }
         }
+      },
+      {
+        label: this.translateService.instant('SETTING.TEAM_MANAGEMENT'),
+        icon: '',
+        command: () => {
+          const element = document.getElementById('team');
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        },
+        visible: this.userC.roleId === 1,
       },
       {
         label: this.translateService.instant('SETTING.PROPERTY'),

@@ -13,6 +13,10 @@
       <app-general></app-general>
     </div>
 
+    <div class="team-content" id="team" *ngIf="userC.roleId === 1">
+      <app-team></app-team>
+    </div>
+
     <div class="prpperty-content" id="property">
       <app-setting-property></app-setting-property>
     </div>

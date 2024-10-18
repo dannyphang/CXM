@@ -4,18 +4,22 @@ const router = Router();
 import * as firebase from "../firebase-admin.js";
 import pkg from "firebase-admin";
 const { auth } = pkg;
-import responseModel from "./shared.js";
+import responseModel from "../shared/function.js";
+import { Filter } from "firebase-admin/firestore";
 
 router.use(express.json());
 
 const userCollectionName = "user";
 const roleCollectionName = "role";
 const tenantCollectionName = "tenant";
-const userTenantCollectionName = "userTenant";
+const userTenantCollectionName = "userTenantAsso";
 
 const listAllUsers = async (nextPageToken) => {
   try {
-    const listUsersResult = await auth(firebase.default.app).listUsers(1000, nextPageToken);
+    const listUsersResult = await auth(firebase.default.app).listUsers(
+      1000,
+      nextPageToken
+    );
     if (listUsersResult.pageToken) {
       // List next batch of users.
       listAllUsers(listUsersResult.pageToken);
@@ -42,7 +46,9 @@ router.post("/user", async (req, res) => {
     const createDoc = [];
 
     list.forEach(async (user, index) => {
-      let newRef = firebase.default.db.collection(userCollectionName).doc(user.uid);
+      let newRef = firebase.default.db
+        .collection(userCollectionName)
+        .doc(user.uid);
       user.uid = newRef.id;
       user.statusId = 1;
       user.createdBy = req.body.createdBy;
@@ -78,7 +84,10 @@ router.get("/user/:id", async (req, res) => {
   const id = req.params.id;
 
   try {
-    const snapshot = await firebase.default.db.collection(userCollectionName).doc(id).get();
+    const snapshot = await firebase.default.db
+      .collection(userCollectionName)
+      .doc(id)
+      .get();
 
     if (snapshot.data()) {
       const user = snapshot.data()?.statusId == 1 ? snapshot.data() : {};
@@ -117,7 +126,9 @@ router.put("/user/update", async (req, res) => {
     userList.forEach(async (user, index) => {
       user.modifiedDate = new Date();
 
-      let newRef = firebase.default.db.collection(userCollectionName).doc(user.uid);
+      let newRef = firebase.default.db
+        .collection(userCollectionName)
+        .doc(user.uid);
 
       user.modifiedBy = req.body.updatedBy;
 
@@ -125,7 +136,11 @@ router.put("/user/update", async (req, res) => {
       updatedUserList.push(updatedUser);
     });
 
-    res.status(200).json(responseModel({ data: `Updated ${updatedUserList.length} record(s).` }));
+    res
+      .status(200)
+      .json(
+        responseModel({ data: `Updated ${updatedUserList.length} record(s).` })
+      );
   } catch (error) {
     console.log("error", error);
     res.status(400).json(
@@ -151,18 +166,24 @@ router.get("/tenant/:id", async (req, res) => {
     const userTenantAssoList = snapshot.docs.map((doc) => doc.data());
     let list = [];
 
-    userTenantAssoList.forEach(async (t) => {
-      let snapshot2 = await firebase.default.db.collection(tenantCollectionName).doc(id).get();
-      let tenant = snapshot2.data()?.statusId == 1 ? snapshot2.data() : {};
-      let tenantData = tenant;
-      tenantData.createdDate = convertFirebaseDateFormat(tenantData.createdDate);
-      tenantData.modifiedDate = convertFirebaseDateFormat(tenantData.modifiedDate);
-      list.push(tenantData);
-      if (index === list.length - 1) {
-        res.status(200).json(responseModel({ data: userData }));
+    userTenantAssoList.forEach(async (t, index) => {
+      let snapshot2 = await firebase.default.db
+        .collection(tenantCollectionName)
+        .doc(t.tenantId)
+        .get();
+
+      list.push(snapshot2.data());
+
+      if (index === userTenantAssoList.length - 1) {
+        res.status(200).json(responseModel({ data: list }));
       }
     });
-    res.status(200).json(responseModel({ data: tenantList }));
+
+    if (userTenantAssoList.length === 0) {
+      res
+        .status(200)
+        .json(responseModel({ responseMessage: "No tenant records." }));
+    }
   } catch (error) {
     console.log("error", error);
     res.status(400).json(

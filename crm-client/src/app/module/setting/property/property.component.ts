@@ -105,7 +105,8 @@ export class PropertyComponent extends BaseCoreAbstract {
 
   getAllProperties(module: string) {
     this.tableLoading = true;
-    this.commonService.getAllPropertiesByModule(module).subscribe(res => {
+    console.log(this.authService.tenant?.uid)
+    this.commonService.getAllPropertiesByModule(module, this.authService.tenant?.uid).subscribe(res => {
       this.propertiesList = [];
       if (res.isSuccess) {
         res.data.forEach(group => {
@@ -186,7 +187,7 @@ export class PropertyComponent extends BaseCoreAbstract {
   }
 
   returnUser(uid: string): string {
-    return (this.propertiesList.find(p => p.propertyType === 'USR')!.propertyLookupList as UserDto[]).find(u => u.uid === uid)?.displayName ?? uid;
+    return (this.propertiesList.find(p => p.propertyType === 'USR')?.propertyLookupList as UserDto[])?.find(u => u.uid === uid)?.displayName ?? uid;
   }
 
   initPropertyForm(editMode = false, typeCode: string = '') {
@@ -258,12 +259,14 @@ export class PropertyComponent extends BaseCoreAbstract {
       this.getAllProperties(val);
     });
 
-    this.commonService.getAllModuleByModuleType('MODULE').subscribe(res => {
+    this.commonService.getAllModuleByModuleType('MODULE', this.authService.tenant.uid).subscribe(res => {
       if (res.isSuccess) {
         this.moduleOptions = res.data.map(i => ({
           label: i.moduleName,
           value: i.moduleCode
         }))
+
+        console.log(this.moduleOptions)
       }
       else {
         this.popMessage(res.responseMessage, "Error", "error");
@@ -568,7 +571,7 @@ export class PropertyComponent extends BaseCoreAbstract {
   }
 
   getModuleListByModuleType(moduleType: string): Observable<OptionsModel[]> {
-    return this.commonService.getAllModuleByModuleType(moduleType).pipe(
+    return this.commonService.getAllModuleByModuleType(moduleType, this.authService.tenant.uid).pipe(
       map(res => {
         return res.data.map(val => ({
           value: val.moduleCode,
@@ -579,7 +582,7 @@ export class PropertyComponent extends BaseCoreAbstract {
   }
 
   getModuleGroupList(): Observable<any[]> {
-    return this.commonService.getSubModuleByModule(this.propertyDetailFormGroup.controls['module'].value).pipe(
+    return this.commonService.getSubModuleByModule(this.propertyDetailFormGroup.controls['module'].value, this.authService.tenant.uid).pipe(
       map(res => {
         return res.data.map(val => ({
           value: val.moduleCode,
@@ -703,7 +706,7 @@ export class PropertyComponent extends BaseCoreAbstract {
     this.propertyTypeFormConfig = [];
     this.propertiesLookup.reset({ emitEvent: false });
     this.propertiesLookup.clear({ emitEvent: false });
-    this.getAllProperties(this.moduleFormControl.value ?? 'CONT');
+    // this.getAllProperties(this.moduleFormControl.value ?? 'CONT');
   }
 
   create() {
@@ -736,7 +739,8 @@ export class PropertyComponent extends BaseCoreAbstract {
         createdBy: this.authService.user?.uid,
         modifiedBy: this.authService.user?.uid,
         statusId: 1,
-        dealOwner: this.authService.user?.uid ?? 'SYSTEM'
+        dealOwner: this.authService.user?.uid ?? 'SYSTEM',
+        tenantId: this.authService.tenant?.uid
       }
 
       this.commonService.createProperties([createPropertyObj]).subscribe(res => {
@@ -760,12 +764,14 @@ export class PropertyComponent extends BaseCoreAbstract {
               createdBy: this.authService.user?.uid,
               modifiedBy: this.authService.user?.uid,
               statusId: 1,
+              tenantId: this.authService.tenant?.uid
             }) as CreatePropertyLookupDto);
 
             this.commonService.createPropertyLookup(createPropLookup).subscribe(res => {
               if (res.isSuccess) {
                 this.popMessage(res.responseMessage, this.translateService.instant('MESSAGE.SUCCESS'));
                 this.closeDialog();
+                this.getAllProperties(this.moduleFormControl.value ?? 'CONT');
               }
               else {
                 this.popMessage(res.responseMessage, "Error", "error");

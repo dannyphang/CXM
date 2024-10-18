@@ -42,6 +42,7 @@ export class LoginComponent {
   }
 
   ngOnInit() {
+    this.authService.initAuth();
     this.initLoginForm();
     this.initSignupForm();
   }
@@ -150,18 +151,22 @@ export class LoginComponent {
         let createUser: CreateUserDto = {
           uid: user.uid,
           displayName: this.signupFormGroup.controls['username'].value,
-          email: user.email ?? ''
+          email: user.email ?? '',
+          roleId: 3
         }
 
         this.authService.createUser([createUser], user.uid).subscribe(res => {
           console.log(res)
+          if (res.isSuccess) {
+            this.router.navigate(["/signin"])
+          }
         });
       })
-        .catch((error) => {
-          const errorCode = error.code;
-          const errorMessage = error.message;
-          console.log(`${errorCode}: ${errorMessage}`)
-        });
+      // .catch((error) => {
+      //   const errorCode = error.code;
+      //   const errorMessage = error.message;
+      //   console.log(`${errorCode}: ${errorMessage}`)
+      // });
     }
   }
 

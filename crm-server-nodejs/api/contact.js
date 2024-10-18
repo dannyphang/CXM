@@ -2,7 +2,8 @@ import { Router } from "express";
 import express from "express";
 const router = Router();
 import * as db from "../firebase-admin.js";
-import responseModel from "./shared.js";
+import responseModel from "../shared/function.js";
+import { Filter } from "firebase-admin/firestore";
 
 router.use(express.json());
 
@@ -16,6 +17,12 @@ router.get("/", async (req, res) => {
     const snapshot = await db.default.db
       .collection(contactCollectionName)
       .orderBy("createdDate")
+      .where(
+        Filter.or(
+          Filter.where("tenantId", "==", tenantId),
+          Filter.where("tenantId", "==", DEFAULT_SYSTEM_TENANT)
+        )
+      )
       .where("statusId", "==", 1)
       .get();
 
