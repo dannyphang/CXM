@@ -191,6 +191,7 @@ export class TenantDto extends BasedDto {
 
 export class RoleDto extends BasedDto {
     uid: string;
+    roleId: number;
     roleName: string;
     roleCode: string;
     permission: string;
