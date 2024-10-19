@@ -47,25 +47,33 @@ export class CreateComponent extends BaseCoreAbstract {
   }
 
   getCurrentUser() {
-    this.authService.getCurrentUser().then(user => {
-      if (user) {
-        this.authService.getUser(user.uid).subscribe(res => {
-          if (res.isSuccess) {
-            this.userProfile = res.data;
-            this.createFormGroup.controls['displayName'].setValue(res.data.displayName, { emitEvent: false });
-            this.createFormGroup.controls['first_name'].setValue(res.data.firstName, { emitEvent: false });
-            this.createFormGroup.controls['last_name'].setValue(res.data.lastName, { emitEvent: false });
-            this.createFormGroup.controls['nickname'].setValue(res.data.nickname, { emitEvent: false });
-            this.createFormGroup.controls['email'].setValue(res.data.email, { emitEvent: false });
-            this.createFormGroup.controls['phone'].setValue(res.data.phoneNumber, { emitEvent: false });
+    // this.authService.getCurrentUser().then(user => {
+    //   if (user) {
+    //     this.authService.getUser(user.uid).subscribe(res => {
+    //       if (res.isSuccess) {
+    //         this.userProfile = res.data;
+    //         this.createFormGroup.controls['displayName'].setValue(res.data.displayName, { emitEvent: false });
+    //         this.createFormGroup.controls['first_name'].setValue(res.data.firstName, { emitEvent: false });
+    //         this.createFormGroup.controls['last_name'].setValue(res.data.lastName, { emitEvent: false });
+    //         this.createFormGroup.controls['nickname'].setValue(res.data.nickname, { emitEvent: false });
+    //         this.createFormGroup.controls['email'].setValue(res.data.email, { emitEvent: false });
+    //         this.createFormGroup.controls['phone'].setValue(res.data.phoneNumber, { emitEvent: false });
 
-            this.profilePhotoUrl = res.data.profilePhotoUrl;
-          }
+    //         this.profilePhotoUrl = res.data.profilePhotoUrl;
+    //       }
 
-        });
-      }
-    })
+    //     });
+    //   }
+    // })
+    this.userProfile = this.authService.userC;
+    this.createFormGroup.controls['displayName'].setValue(this.userProfile.displayName, { emitEvent: false });
+    this.createFormGroup.controls['first_name'].setValue(this.userProfile.firstName, { emitEvent: false });
+    this.createFormGroup.controls['last_name'].setValue(this.userProfile.lastName, { emitEvent: false });
+    this.createFormGroup.controls['nickname'].setValue(this.userProfile.nickname, { emitEvent: false });
+    this.createFormGroup.controls['email'].setValue(this.userProfile.email, { emitEvent: false });
+    this.createFormGroup.controls['phone'].setValue(this.userProfile.phoneNumber, { emitEvent: false });
 
+    this.profilePhotoUrl = this.userProfile.profilePhotoUrl;
   }
 
   initCreateForm() {

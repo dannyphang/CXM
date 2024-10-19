@@ -156,6 +156,17 @@ export class AuthService {
     getAllRoles(): Observable<ResponseModel<RoleDto[]>> {
         return this.http.get<ResponseModel<RoleDto[]>>(apiConfig.baseUrl + '/auth/role').pipe();
     }
+
+    getUserByEmail(email: string): Observable<ResponseModel<UserDto>> {
+        let headers = {
+            'email': email
+        }
+        return this.http.get<ResponseModel<UserDto>>((apiConfig.baseUrl + '/auth/user/email'), { headers }).pipe();
+    }
+
+    setUserRoleAndTenant(updateList: UpdateUserRoleDto[]): Observable<ResponseModel<any>> {
+        return this.http.put<ResponseModel<any>>(apiConfig.baseUrl + '/auth/userRole/update', { updateList }).pipe();
+    }
 }
 
 export class CreateUserDto extends BasedDto {
@@ -195,4 +206,11 @@ export class RoleDto extends BasedDto {
     roleName: string;
     roleCode: string;
     permission: string;
+}
+
+export class UpdateUserRoleDto {
+    modifiedBy: string;
+    roleId: number;
+    email: string;
+    tenantId: string;
 }

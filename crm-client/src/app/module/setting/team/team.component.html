@@ -18,17 +18,19 @@
         class="tw-w-[30%] tw-ml-[var(--content-gap)]"
       ></app-base-dropdown>
       <p-button
-        [icon]="'pi pi-id-card'"
+        [icon]="returnCheckIcon(team)"
         [rounded]="true"
-        [outlined]="true"
-        (onClick)="addTeamFormArr()"
+        (onClick)="checkUserEmail(team)"
+        [pTooltip]="'BUTTON.CHECK_USER_EMAIL' | translate"
         class="tw-flex tw-items-end tw-ml-[var(--content-gap)]"
       ></p-button>
       <p-button
-        [icon]="'pi pi-trash'"
+        [icon]="'pi pi-minus'"
         [rounded]="true"
+        [outlined]="true"
         (onClick)="removeTeam(i)"
         class="tw-flex tw-items-end tw-ml-[var(--content-gap)]"
+        *ngIf="teamFormArr.controls.length !== 1"
       ></p-button>
     </div>
   </div>
@@ -42,6 +44,6 @@
 
   <p-button
     [label]="'BUTTON.SUBMIT' | translate"
-    (onClick)="getTeamForm()"
+    (onClick)="submitTeam()"
   ></p-button>
 </div>

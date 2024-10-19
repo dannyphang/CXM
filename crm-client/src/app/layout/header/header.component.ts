@@ -60,6 +60,8 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
       },
     ];
 
+    this.initAvatarMenu();
+
     this.searchFormControl.valueChanges.pipe(debounceTime(2000),
       distinctUntilChanged()).subscribe(value => {
         console.log(value);
@@ -78,48 +80,52 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
     if (changes['user'] && changes['user'].currentValue) {
       this.avatarImage = this.user.profilePhotoUrl;
 
-      this.userMenuItem = [
-        {
-          separator: true
-        },
-        {
-          label: 'Profile',
-          items: [
-            {
-              label: 'Settings',
-              icon: 'pi pi-cog',
-              command: () => {
-                this.router.navigate(['/setting']);
-              }
-            }
-          ]
-        },
-        {
-          separator: true
-        },
-        {
-          items: [
-            {
-              label: 'Logout',
-              icon: 'pi pi-sign-out',
-              command: () => {
-                this.authService.signOut();
-                window.location.reload();
-              },
-              visible: this.user ? true : false
-            },
-            {
-              label: "Login",
-              icon: "pi pi-sign-in",
-              command: () => {
-                this.redirectToSignIn();
-              },
-              visible: this.user ? false : true
-            }
-          ]
-        }
-      ];
+      this.initAvatarMenu();
     }
+  }
+
+  initAvatarMenu() {
+    this.userMenuItem = [
+      {
+        separator: true
+      },
+      {
+        label: 'Profile',
+        items: [
+          {
+            label: 'Settings',
+            icon: 'pi pi-cog',
+            command: () => {
+              this.router.navigate(['/setting']);
+            }
+          }
+        ]
+      },
+      {
+        separator: true
+      },
+      {
+        items: [
+          {
+            label: 'Logout',
+            icon: 'pi pi-sign-out',
+            command: () => {
+              this.authService.signOut();
+              window.location.reload();
+            },
+            visible: this.user ? true : false
+          },
+          {
+            label: "Login",
+            icon: "pi pi-sign-in",
+            command: () => {
+              this.redirectToSignIn();
+            },
+            visible: this.user ? false : true
+          }
+        ]
+      }
+    ];
   }
 
   redirectToSignIn() {

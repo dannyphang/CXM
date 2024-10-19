@@ -105,7 +105,7 @@ export class PropertyComponent extends BaseCoreAbstract {
 
   getAllProperties(module: string) {
     this.tableLoading = true;
-    console.log(this.authService.tenant?.uid)
+
     this.commonService.getAllPropertiesByModule(module, this.authService.tenant?.uid).subscribe(res => {
       this.propertiesList = [];
       if (res.isSuccess) {
@@ -863,16 +863,24 @@ export class PropertyComponent extends BaseCoreAbstract {
   }
 
   returnFormControlLookupObj(name: string, form: any): FormControl {
+    ((form as FormGroup).controls['lookupName'] as FormControl).valueChanges.subscribe(res => {
+      let fcNameValue: string = ((form as FormGroup).controls['lookupName'] as FormControl).value;
+      if (fcNameValue) {
+        ((form as FormGroup).controls['lookupCode'] as FormControl) = new FormControl(fcNameValue.toLowerCase().trim().replace(/ /g, '_'))
+      }
+
+    })
+
     switch (name) {
       case 'name':
         return (form as FormGroup).controls['lookupName'] as FormControl;
       case 'code':
         let fc: FormControl = ((form as FormGroup).controls['lookupCode'] as FormControl);
-        let fcNameValue: string = ((form as FormGroup).controls['lookupName'] as FormControl).value;
+        // let fcNameValue: string = ((form as FormGroup).controls['lookupName'] as FormControl).value;
 
-        if (fcNameValue) {
-          fc.setValue(fcNameValue.toLowerCase().trim().replace(/ /g, '_'), { emitEvent: false });
-        }
+        // if (fcNameValue) {
+        //   fc.setValue(fcNameValue.toLowerCase().trim().replace(/ /g, '_'), { emitEvent: false });
+        // }
 
         return fc;
       case 'visible':

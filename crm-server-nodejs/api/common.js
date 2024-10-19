@@ -79,12 +79,8 @@ router.get("/" + propertiesCollection + "/module", async (req, res) => {
     for (let i = 0; i < propertyList.length; i++) {
       propertyList[i].propertyLookupList = [];
 
-      propertyList[i].createdDate = convertFirebaseDateFormat(
-        propertyList[i].createdDate
-      );
-      propertyList[i].modifiedDate = convertFirebaseDateFormat(
-        propertyList[i].modifiedDate
-      );
+      propertyList[i].createdDate = convertFirebaseDateFormat(propertyList[i].createdDate);
+      propertyList[i].modifiedDate = convertFirebaseDateFormat(propertyList[i].modifiedDate);
 
       // assign user list into lookup property
       if (propertyList[i].propertyType === "USR") {
@@ -181,12 +177,8 @@ router.get("/" + propertiesCollection + "/module/create", async (req, res) => {
 
     for (let i = 0; i < propertyList.length; i++) {
       propertyList[i].propertyLookupList = [];
-      propertyList[i].createdDate = convertFirebaseDateFormat(
-        propertyList[i].createdDate
-      );
-      propertyList[i].modifiedDate = convertFirebaseDateFormat(
-        propertyList[i].modifiedDate
-      );
+      propertyList[i].createdDate = convertFirebaseDateFormat(propertyList[i].createdDate);
+      propertyList[i].modifiedDate = convertFirebaseDateFormat(propertyList[i].modifiedDate);
 
       for (let j = 0; j < propertyLookupList.length; j++) {
         if (propertyList[i].propertyId === propertyLookupList[j].propertyId) {
@@ -231,8 +223,7 @@ router.post("/" + propertiesCollection, async (req, res) => {
         .limit(1)
         .get();
 
-      let newId =
-        (snapshot.docs.map((doc) => doc.data())[0].propertyId ?? 0) + 1;
+      let newId = (snapshot.docs.map((doc) => doc.data())[0].propertyId ?? 0) + 1;
 
       let newRef = db.default.db.collection(propertiesCollection).doc();
       prop.propertyId = newId;
@@ -277,9 +268,7 @@ router.put("/" + propertiesCollection + "/update", async (req, res) => {
       });
     });
 
-    res
-      .status(200)
-      .json(responseModel({ responseMessage: "Updated successfully" }));
+    res.status(200).json(responseModel({ responseMessage: "Updated successfully" }));
   } catch (e) {
     console.log(e);
     res.status(400).json(e);
@@ -299,9 +288,7 @@ router.put("/" + propertiesCollection + "/delete", async (req, res) => {
       });
     });
 
-    res
-      .status(200)
-      .json(responseModel({ responseMessage: "Deleted successfully" }));
+    res.status(200).json(responseModel({ responseMessage: "Deleted successfully" }));
   } catch (e) {
     console.log(e);
     res.status(400).json(e);
@@ -351,8 +338,7 @@ router.post("/" + propertiesLookupCollection, async (req, res) => {
         .limit(1)
         .get();
 
-      let newId =
-        (snapshot.docs.map((doc) => doc.data())[0].propertyLookupId ?? 0) + 1;
+      let newId = (snapshot.docs.map((doc) => doc.data())[0].propertyLookupId ?? 0) + 1;
 
       let newRef = db.default.db.collection(propertiesLookupCollection).doc();
       prop.uid = newRef.id;
@@ -388,9 +374,7 @@ router.post("/" + propertiesLookupCollection, async (req, res) => {
 router.put("/" + propertiesCollection + "/update", async (req, res) => {
   try {
     req.body.propertyList.forEach(async (prop) => {
-      let newRef = db.default.db
-        .collection(propertiesLookupCollection)
-        .doc(prop.uid);
+      let newRef = db.default.db.collection(propertiesLookupCollection).doc(prop.uid);
 
       await newRef.update({
         prop,
@@ -399,9 +383,7 @@ router.put("/" + propertiesCollection + "/update", async (req, res) => {
       });
     });
 
-    res
-      .status(200)
-      .json(responseModel({ responseMessage: "Updated successfully" }));
+    res.status(200).json(responseModel({ responseMessage: "Updated successfully" }));
   } catch (e) {
     console.log(e);
     res.status(400).json(e);
@@ -441,16 +423,16 @@ router.get("/" + moduleCodeCollection, async (req, res) => {
 router.get("/" + moduleCodeCollection + "/moduleType", async (req, res) => {
   try {
     const moduleType = req.headers.moduletype;
-    const tenantId = req.headers.tenantid;
+    // const tenantId = req.headers.tenantid;
 
     const snapshot = await db.default.db
       .collection(moduleCodeCollection)
-      .where(
-        Filter.or(
-          Filter.where("tenantId", "==", tenantId),
-          Filter.where("tenantId", "==", DEFAULT_SYSTEM_TENANT)
-        )
-      )
+      // .where(
+      //   Filter.or(
+      //     Filter.where("tenantId", "==", tenantId),
+      //     Filter.where("tenantId", "==", DEFAULT_SYSTEM_TENANT)
+      //   )
+      // )
       .where("statusId", "==", 1)
       .where("moduleType", "==", moduleType)
       .orderBy("moduleId")
@@ -527,9 +509,7 @@ router.get("/activityModule", async (req, res) => {
 
     const activityModuleList = snapshot.docs.map((doc) => doc.data());
     const activityControlList = actCtrSnapshot.docs.map((doc) => doc.data());
-    const subActivityControlList = subActCtrSnapshot.docs.map((doc) =>
-      doc.data()
-    );
+    const subActivityControlList = subActCtrSnapshot.docs.map((doc) => doc.data());
 
     activityControlList.forEach((item) => {
       item.subActivityControl = [];
