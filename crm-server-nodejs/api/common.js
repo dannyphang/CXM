@@ -2,8 +2,9 @@ import { Router } from "express";
 import express from "express";
 const router = Router();
 import * as db from "../firebase-admin.js";
-import pkg from "firebase-admin";
-import responseModel from "./shared.js";
+import responseModel from "../shared/function.js";
+import { Filter } from "firebase-admin/firestore";
+import { DEFAULT_SYSTEM_TENANT } from "../shared/constant.js";
 
 router.use(express.json());
 
@@ -38,12 +39,18 @@ router.get("/" + propertiesCollection, async (req, res) => {
 // get all properties with lookup by module
 router.get("/" + propertiesCollection + "/module", async (req, res) => {
   const moduleCode = req.headers.modulecode;
-
+  const tenantId = req.headers.tenantid;
   try {
     const snapshot = await db.default.db
       .collection(propertiesCollection)
       .where("moduleCode", "==", moduleCode)
       .where("statusId", "==", 1)
+      .where(
+        Filter.or(
+          Filter.where("tenantId", "==", tenantId),
+          Filter.where("tenantId", "==", DEFAULT_SYSTEM_TENANT)
+        )
+      )
       .orderBy("order")
       .get();
     const snapshotModule = await db.default.db
@@ -72,12 +79,8 @@ router.get("/" + propertiesCollection + "/module", async (req, res) => {
     for (let i = 0; i < propertyList.length; i++) {
       propertyList[i].propertyLookupList = [];
 
-      propertyList[i].createdDate = convertFirebaseDateFormat(
-        propertyList[i].createdDate
-      );
-      propertyList[i].modifiedDate = convertFirebaseDateFormat(
-        propertyList[i].modifiedDate
-      );
+      propertyList[i].createdDate = convertFirebaseDateFormat(propertyList[i].createdDate);
+      propertyList[i].modifiedDate = convertFirebaseDateFormat(propertyList[i].modifiedDate);
 
       // assign user list into lookup property
       if (propertyList[i].propertyType === "USR") {
@@ -150,6 +153,12 @@ router.get("/" + propertiesCollection + "/module/create", async (req, res) => {
       .where("statusId", "==", 1)
       .where("isMandatory", "==", true)
       .where("isEditable", "==", true)
+      .where(
+        Filter.or(
+          Filter.where("tenantId", "==", tenantId),
+          Filter.where("tenantId", "==", DEFAULT_SYSTEM_TENANT)
+        )
+      )
       .orderBy("order")
       .get();
     const snapshotModule = await db.default.db
@@ -168,12 +177,8 @@ router.get("/" + propertiesCollection + "/module/create", async (req, res) => {
 
     for (let i = 0; i < propertyList.length; i++) {
       propertyList[i].propertyLookupList = [];
-      propertyList[i].createdDate = convertFirebaseDateFormat(
-        propertyList[i].createdDate
-      );
-      propertyList[i].modifiedDate = convertFirebaseDateFormat(
-        propertyList[i].modifiedDate
-      );
+      propertyList[i].createdDate = convertFirebaseDateFormat(propertyList[i].createdDate);
+      propertyList[i].modifiedDate = convertFirebaseDateFormat(propertyList[i].modifiedDate);
 
       for (let j = 0; j < propertyLookupList.length; j++) {
         if (propertyList[i].propertyId === propertyLookupList[j].propertyId) {
@@ -218,8 +223,7 @@ router.post("/" + propertiesCollection, async (req, res) => {
         .limit(1)
         .get();
 
-      let newId =
-        (snapshot.docs.map((doc) => doc.data())[0].propertyId ?? 0) + 1;
+      let newId = (snapshot.docs.map((doc) => doc.data())[0].propertyId ?? 0) + 1;
 
       let newRef = db.default.db.collection(propertiesCollection).doc();
       prop.propertyId = newId;
@@ -264,9 +268,7 @@ router.put("/" + propertiesCollection + "/update", async (req, res) => {
       });
     });
 
-    res
-      .status(200)
-      .json(responseModel({ responseMessage: "Updated successfully" }));
+    res.status(200).json(responseModel({ responseMessage: "Updated successfully" }));
   } catch (e) {
     console.log(e);
     res.status(400).json(e);
@@ -286,9 +288,7 @@ router.put("/" + propertiesCollection + "/delete", async (req, res) => {
       });
     });
 
-    res
-      .status(200)
-      .json(responseModel({ responseMessage: "Deleted successfully" }));
+    res.status(200).json(responseModel({ responseMessage: "Deleted successfully" }));
   } catch (e) {
     console.log(e);
     res.status(400).json(e);
@@ -301,6 +301,12 @@ router.get("/" + propertiesLookupCollection, async (req, res) => {
     const snapshot = await db.default.db
       .collection(propertiesLookupCollection)
       .where("statusId", "==", 1)
+      .where(
+        Filter.or(
+          Filter.where("tenantId", "==", tenantId),
+          Filter.where("tenantId", "==", DEFAULT_SYSTEM_TENANT)
+        )
+      )
       .orderBy("propertityLookupId")
       .get();
     const list = snapshot.docs.map((doc) => doc.data());
@@ -332,8 +338,7 @@ router.post("/" + propertiesLookupCollection, async (req, res) => {
         .limit(1)
         .get();
 
-      let newId =
-        (snapshot.docs.map((doc) => doc.data())[0].propertyLookupId ?? 0) + 1;
+      let newId = (snapshot.docs.map((doc) => doc.data())[0].propertyLookupId ?? 0) + 1;
 
       let newRef = db.default.db.collection(propertiesLookupCollection).doc();
       prop.uid = newRef.id;
@@ -369,9 +374,7 @@ router.post("/" + propertiesLookupCollection, async (req, res) => {
 router.put("/" + propertiesCollection + "/update", async (req, res) => {
   try {
     req.body.propertyList.forEach(async (prop) => {
-      let newRef = db.default.db
-        .collection(propertiesLookupCollection)
-        .doc(prop.uid);
+      let newRef = db.default.db.collection(propertiesLookupCollection).doc(prop.uid);
 
       await newRef.update({
         prop,
@@ -380,9 +383,7 @@ router.put("/" + propertiesCollection + "/update", async (req, res) => {
       });
     });
 
-    res
-      .status(200)
-      .json(responseModel({ responseMessage: "Updated successfully" }));
+    res.status(200).json(responseModel({ responseMessage: "Updated successfully" }));
   } catch (e) {
     console.log(e);
     res.status(400).json(e);
@@ -394,6 +395,12 @@ router.get("/" + moduleCodeCollection, async (req, res) => {
   try {
     const snapshot = await db.default.db
       .collection(moduleCodeCollection)
+      .where(
+        Filter.or(
+          Filter.where("tenantId", "==", tenantId),
+          Filter.where("tenantId", "==", DEFAULT_SYSTEM_TENANT)
+        )
+      )
       .where("statusId", "==", 1)
       .orderBy("moduleId")
       .get();
@@ -416,9 +423,16 @@ router.get("/" + moduleCodeCollection, async (req, res) => {
 router.get("/" + moduleCodeCollection + "/moduleType", async (req, res) => {
   try {
     const moduleType = req.headers.moduletype;
+    // const tenantId = req.headers.tenantid;
 
     const snapshot = await db.default.db
       .collection(moduleCodeCollection)
+      // .where(
+      //   Filter.or(
+      //     Filter.where("tenantId", "==", tenantId),
+      //     Filter.where("tenantId", "==", DEFAULT_SYSTEM_TENANT)
+      //   )
+      // )
       .where("statusId", "==", 1)
       .where("moduleType", "==", moduleType)
       .orderBy("moduleId")
@@ -442,9 +456,16 @@ router.get("/" + moduleCodeCollection + "/moduleType", async (req, res) => {
 router.get("/" + moduleCodeCollection + "/subModule/code", async (req, res) => {
   try {
     const submoduleCode = req.headers.submodulecode;
+    const tenantId = req.headers.tenantid;
 
     const snapshot = await db.default.db
       .collection(moduleCodeCollection)
+      .where(
+        Filter.or(
+          Filter.where("tenantId", "==", tenantId),
+          Filter.where("tenantId", "==", DEFAULT_SYSTEM_TENANT)
+        )
+      )
       .where("statusId", "==", 1)
       .where("moduleType", "==", "SUBMODULE")
       .where("moduleSubCode", "==", submoduleCode)
@@ -488,9 +509,7 @@ router.get("/activityModule", async (req, res) => {
 
     const activityModuleList = snapshot.docs.map((doc) => doc.data());
     const activityControlList = actCtrSnapshot.docs.map((doc) => doc.data());
-    const subActivityControlList = subActCtrSnapshot.docs.map((doc) =>
-      doc.data()
-    );
+    const subActivityControlList = subActCtrSnapshot.docs.map((doc) => doc.data());
 
     activityControlList.forEach((item) => {
       item.subActivityControl = [];

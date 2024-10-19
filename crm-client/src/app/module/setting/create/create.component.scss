@@ -1,0 +1,36 @@
+:host ::ng-deep {
+  .avatar-div {
+    width: 0;
+    padding: var(--content-gap);
+
+    .p-avatar-icon {
+      font-size: 100px;
+    }
+
+    .avatar-edit {
+      position: absolute;
+      z-index: 2;
+
+      .pi-file-edit {
+        font-size: 50px;
+      }
+    }
+  }
+
+  .profile-name-label {
+    display: block !important;
+  }
+
+  .profile-panel-div {
+    .p-accordion-header {
+      border: 1px solid var(--primary-color);
+      border-top-width: 0px;
+    }
+
+    .p-accordion-content {
+      border: 1px solid var(--primary-color);
+      border-top-width: 0px;
+      padding: 0px !important;
+    }
+  }
+}

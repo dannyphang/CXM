@@ -1,9 +1,10 @@
 import { Component } from '@angular/core';
-import { AuthService } from '../../core/services/auth.service';
+import { AuthService, CreateUserDto } from '../../core/services/auth.service';
 import { CONTROL_TYPE, FormConfig } from '../../core/services/components.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common'
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-login',
@@ -30,16 +31,18 @@ export class LoginComponent {
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private _location: Location,
+    private translateService: TranslateService
   ) {
     if (this.router.url === '/signin') {
       this.isLoginMode = true;
     }
-    else {
+    else if (this.router.url === '/signup') {
       this.isLoginMode = false;
     }
   }
 
   ngOnInit() {
+    this.authService.initAuth();
     this.initLoginForm();
     this.initSignupForm();
   }
@@ -84,7 +87,6 @@ export class LoginComponent {
         fieldControl: this.signupFormGroup.controls['username'],
         required: true,
         autoFocus: true,
-        mode: 'email'
       },
       {
         label: 'Email',
@@ -142,8 +144,41 @@ export class LoginComponent {
 
     }
     else {
-      console.log(this.signupFormGroup)
-      this.authService.signIn(this.loginFormGroup.controls['email'].value, this.loginFormGroup.controls['password'].value)
+      this.authService.signUp(this.signupFormGroup.controls['email'].value, this.signupFormGroup.controls['password'].value).then((userCredential) => {
+        // Signed up 
+        const user = userCredential.user;
+
+        let createUser: CreateUserDto = {
+          uid: user.uid,
+          displayName: this.signupFormGroup.controls['username'].value,
+          email: user.email ?? '',
+          roleId: 3
+        }
+
+        this.authService.createUser([createUser], user.uid).subscribe(res => {
+          console.log(res)
+          if (res.isSuccess) {
+            this.router.navigate(["/signin"])
+          }
+        });
+      })
+      // .catch((error) => {
+      //   const errorCode = error.code;
+      //   const errorMessage = error.message;
+      //   console.log(`${errorCode}: ${errorMessage}`)
+      // });
     }
+  }
+
+  toSignUp() {
+    this.router.navigate(["/signup"]);
+  }
+
+  toSignIn() {
+    this.router.navigate(["/signin"]);
+  }
+
+  toCreate() {
+    this.router.navigate(["/setting/create"]);
   }
 }

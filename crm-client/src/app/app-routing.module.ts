@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { LayoutComponent } from './layout/layout.component';
 import { Error404Component } from './layout/error-404/error-404.component';
 import { LoginComponent } from './module/login/login.component';
+import { CreateComponent } from './module/setting/create/create.component';
 
 const routes: Routes = [
   {

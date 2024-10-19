@@ -1,0 +1,86 @@
+<!-- Edit profile picture dialog -->
+<p-dialog
+  [(visible)]="isShowAvatarEditDialog"
+  styleClass="tw-w-[50%] tw-m-[var(--content-gap)]"
+  [modal]="true"
+  [header]="'PROFILE.AVATAR_EDIT' | translate"
+  (onHide)="onCloseProfileDialog()"
+  [closeOnEscape]="false"
+>
+  <div class="tw-grid">
+    <img
+      [src]="profileImg"
+      class="tw-w-full tw-aspect-square tw-border tw-border-solid tw-border-[var(--primary-color)] tw-object-cover tw-mb-[var(--content-gap)]"
+    />
+    <div class="tw-flex tw-justify-between">
+      <p-button
+        [icon]="'pi pi-plus'"
+        [rounded]="true"
+        (onClick)="imageUploader.click()"
+        class=""
+        [pTooltip]="'BUTTON.ATTACH_FILE' | translate"
+      ></p-button>
+
+      <app-chip
+        *ngIf="profilePhotoFile"
+        [label]="profilePhotoFile.name"
+        [removable]="false"
+        class="tw-grid tw-items-center"
+      ></app-chip>
+
+      <p-button
+        [label]="'BUTTON.UPLOAD' | translate"
+        (onClick)="imageFileUploadBtn()"
+      ></p-button>
+    </div>
+  </div>
+</p-dialog>
+
+<input
+  type="file"
+  id="file-input"
+  #imageUploader
+  hidden
+  (change)="imageFileUpload($event)"
+  accept="image/*"
+/>
+
+<div
+  class="avatar-div"
+  (mouseenter)="isAvatarEdit = true"
+  (mouseleave)="isAvatarEdit = false"
+>
+  <p-button
+    icon="pi pi-file-edit"
+    styleClass="tw-w-[200px] tw-h-[200px] avatar-edit"
+    [rounded]="true"
+    [text]="true"
+    *ngIf="isAvatarEdit"
+    (onClick)="editPic()"
+    [pTooltip]="'PROFILE.AVATAR_EDIT' | translate"
+  ></p-button>
+  <p-avatar
+    *ngIf="!profilePhotoUrl"
+    [icon]="'pi pi-user'"
+    styleClass="tw-w-[200px] tw-h-[200px]"
+    [ngClass]="isAvatarEdit ? 'tw-opacity-[0.5]' : 'tw-opacity-[1]'"
+    shape="circle"
+    data-blobity-magnetic="true"
+  />
+  <p-avatar
+    *ngIf="profilePhotoUrl"
+    [image]="profilePhotoUrl"
+    styleClass="tw-w-[200px] tw-h-[200px]"
+    [ngClass]="isAvatarEdit ? 'tw-opacity-[0.5]' : 'tw-opacity-[1]'"
+    shape="circle"
+    data-blobity-magnetic="true"
+  />
+</div>
+<app-base-form [formConfig]="createFormConfig"></app-base-form>
+
+<div class="tw-m-[var(--content-gap)]">
+  <p-button
+    [label]="'BUTTON.UPDATE' | translate"
+    (onClick)="update()"
+  ></p-button>
+</div>

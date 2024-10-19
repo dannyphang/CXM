@@ -1,16 +1,18 @@
 import { HttpClient } from "@angular/common/http";
-import { Injectable } from "@angular/core";
+import { Injectable, Injector } from "@angular/core";
 import { Observable } from "rxjs";
 import apiConfig from "../../../environments/apiConfig";
 import { CONTROL_TYPE_CODE } from "./components.service";
 import { TranslateService } from "@ngx-translate/core";
+import { AuthService, TenantDto } from "./auth.service";
 
 @Injectable({ providedIn: 'root' })
 export class CommonService {
     constructor(
         private http: HttpClient,
-        private translateService: TranslateService
+        private translateService: TranslateService,
     ) {
+
     }
 
     getEnvToken(): Observable<any> {
@@ -49,23 +51,26 @@ export class CommonService {
         return this.http.get<ResponseModel<PropertiesDto[]>>(apiConfig.baseUrl + '/common/properties').pipe();
     }
 
-    getAllModuleByModuleType(moduleType: string): Observable<ResponseModel<ModuleDto[]>> {
+    getAllModuleByModuleType(moduleType: string, tenantId: string): Observable<ResponseModel<ModuleDto[]>> {
         let headers = {
-            'moduleType': moduleType
+            'moduleType': moduleType,
+            'tenantId': tenantId
         }
         return this.http.get<ResponseModel<ModuleDto[]>>((apiConfig.baseUrl + '/common/moduleCode/moduleType'), { headers }).pipe();
     }
 
-    getSubModuleByModule(submoduleCode: string): Observable<ResponseModel<ModuleDto[]>> {
+    getSubModuleByModule(submoduleCode: string, tenantId: string): Observable<ResponseModel<ModuleDto[]>> {
         let headers = {
-            'submoduleCode': submoduleCode ?? ''
+            'submoduleCode': submoduleCode ?? '',
+            'tenantId': tenantId
         }
         return this.http.get<ResponseModel<ModuleDto[]>>((apiConfig.baseUrl + '/common/moduleCode/subModule/code'), { headers }).pipe();
     }
 
-    getAllPropertiesByModule(module: string): Observable<ResponseModel<PropertyGroupDto[]>> {
+    getAllPropertiesByModule(module: string, tenantId: string = ''): Observable<ResponseModel<PropertyGroupDto[]>> {
         let headers = {
-            'moduleCode': module
+            'moduleCode': module,
+            'tenantId': tenantId
         }
         return this.http.get<ResponseModel<PropertyGroupDto[]>>((apiConfig.baseUrl + '/common/properties/module'), { headers }).pipe();
     }
@@ -217,6 +222,7 @@ export class ResponseModel<T> {
 }
 
 export class BasedDto {
+    tenantId?: string;
     createdDate?: Date;
     createdBy?: string;
     modifiedDate?: Date;

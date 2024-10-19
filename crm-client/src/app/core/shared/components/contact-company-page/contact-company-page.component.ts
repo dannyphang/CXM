@@ -145,7 +145,7 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
       this.getCompany();
     }
 
-    this.commonService.getAllPropertiesByModule(this.module).subscribe((res) => {
+    this.commonService.getAllPropertiesByModule(this.module, this.authService.tenant?.uid).subscribe((res) => {
       if (res.isSuccess) {
         this.modulePropertyList = res.data;
 

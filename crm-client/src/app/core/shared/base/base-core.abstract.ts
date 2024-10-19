@@ -7,7 +7,7 @@ export abstract class BaseCoreAbstract {
 
     }
 
-    popMessage(message: string, title: string, severity: string = 'success',) {
+    popMessage(message: string, title: string = 'success', severity: string = 'success',) {
         this.messageService.add({ severity: severity, summary: title, detail: message });
     }
 }

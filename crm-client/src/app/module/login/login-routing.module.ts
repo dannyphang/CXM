@@ -9,10 +9,10 @@ const routes: Routes = [
     data: { isLogin: true }
   },
   {
-    path: 'create',
+    path: 'signup',
     component: LoginComponent,
     data: { isLogin: false }
-  }
+  },
 ];
 
 @NgModule({

@@ -1,3 +1,5 @@
+<app-toast></app-toast>
+
 <div
   class="login-container tw-w-screen tw-h-screen tw-grid tw-justify-center tw-items-center"
 >
@@ -9,6 +11,14 @@
     <div class="login-form-div" *ngIf="!isLoginMode">
       <app-base-form [formConfig]="signupFormConfig" class=""> </app-base-form>
     </div>
+
+    <a class="signup-label-button" (click)="toSignUp()" *ngIf="isLoginMode">{{
+      "BUTTON.SIGN_UP_LABEL" | translate
+    }}</a>
+
+    <a class="signin-label-button" (click)="toSignIn()" *ngIf="!isLoginMode">{{
+      "BUTTON.SIGN_IN_LABEL" | translate
+    }}</a>
 
     <div class="action-div tw-flex tw-justify-center tw-p-[var(--content-gap)]">
       <p-button

@@ -1,0 +1,49 @@
+<div class="tw-p-[var(--content-gap)] tw-w-full">
+  <div
+    class="tw-pb-[var(--content-gap)]"
+    *ngFor="let team of teamFormArr.controls; let i = index"
+  >
+    <p-divider *ngIf="teamFormArr.controls.length > 1 && i !== 0"></p-divider>
+    <div class="tw-flex tw-w-full">
+      <app-base-input
+        [label]="'SETTING.USER_EMAIL' | translate"
+        [fieldControl]="returnTeamFormControl('email', team)"
+        [mode]="'email'"
+        class="tw-w-full"
+      ></app-base-input>
+      <app-base-dropdown
+        [label]="'SETTING.ROLE' | translate"
+        [fieldControl]="returnTeamFormControl('role', team)"
+        [options]="roleOptions"
+        class="tw-w-[30%] tw-ml-[var(--content-gap)]"
+      ></app-base-dropdown>
+      <p-button
+        [icon]="returnCheckIcon(team)"
+        [rounded]="true"
+        (onClick)="checkUserEmail(team)"
+        [pTooltip]="'BUTTON.CHECK_USER_EMAIL' | translate"
+        class="tw-flex tw-items-end tw-ml-[var(--content-gap)]"
+      ></p-button>
+      <p-button
+        [icon]="'pi pi-minus'"
+        [rounded]="true"
+        [outlined]="true"
+        (onClick)="removeTeam(i)"
+        class="tw-flex tw-items-end tw-ml-[var(--content-gap)]"
+        *ngIf="teamFormArr.controls.length !== 1"
+      ></p-button>
+    </div>
+  </div>
+  <div class="tw-flex tw-justify-center">
+    <p-button
+      [icon]="'pi pi-plus'"
+      [rounded]="true"
+      (onClick)="addTeamFormArr()"
+    ></p-button>
+  </div>
+
+  <p-button
+    [label]="'BUTTON.SUBMIT' | translate"
+    (onClick)="submitTeam()"
+  ></p-button>
+</div>

@@ -2,7 +2,8 @@ import { Router } from "express";
 import express from "express";
 const router = Router();
 import * as db from "../firebase-admin.js";
-import responseModel from "./shared.js";
+import responseModel from "../shared/function.js";
+import { Filter } from "firebase-admin/firestore";
 
 router.use(express.json());
 
@@ -16,6 +17,12 @@ router.get("/", async (req, res) => {
     const snapshot = await db.default.db
       .collection(companyCollectionName)
       .orderBy("createdDate")
+      .where(
+        Filter.or(
+          Filter.where("tenantId", "==", tenantId),
+          Filter.where("tenantId", "==", DEFAULT_SYSTEM_TENANT)
+        )
+      )
       .where("statusId", "==", 1)
       .get();
 
@@ -44,7 +51,10 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   const id = req.params.id;
   try {
-    const snapshot = await db.default.db.collection(companyCollectionName).doc(id).get();
+    const snapshot = await db.default.db
+      .collection(companyCollectionName)
+      .doc(id)
+      .get();
 
     const assoSnapshot = await db.default.db
       .collection(associationCollection)
@@ -69,8 +79,12 @@ router.get("/:id", async (req, res) => {
     });
 
     let companyData = company;
-    companyData.createdDate = convertFirebaseDateFormat(companyData.createdDate);
-    companyData.modifiedDate = convertFirebaseDateFormat(companyData.modifiedDate);
+    companyData.createdDate = convertFirebaseDateFormat(
+      companyData.createdDate
+    );
+    companyData.modifiedDate = convertFirebaseDateFormat(
+      companyData.modifiedDate
+    );
 
     if (assoList.length > 0 || assoList2.length > 0) {
       companyData.associationList = [];
@@ -86,7 +100,8 @@ router.get("/:id", async (req, res) => {
             .doc(item.assoProfileUid)
             .get();
 
-          let comp = companySnapshot.data()?.statusId == 1 ? companySnapshot.data() : {};
+          let comp =
+            companySnapshot.data()?.statusId == 1 ? companySnapshot.data() : {};
           companyData.associationList.push(comp);
           count++;
 
@@ -106,7 +121,10 @@ router.get("/:id", async (req, res) => {
             .collection(contactCollectionName)
             .doc(item.profileUid)
             .get();
-          let comp2 = companySnapshot2.data()?.statusId == 1 ? companySnapshot2.data() : {};
+          let comp2 =
+            companySnapshot2.data()?.statusId == 1
+              ? companySnapshot2.data()
+              : {};
           companyData.associationList.push(comp2);
           count++;
 
@@ -167,7 +185,9 @@ router.post("/", async (req, res) => {
 router.put("/delete", async (req, res) => {
   try {
     req.body.companyList.forEach(async (company) => {
-      let newRef = db.default.db.collection(companyCollectionName).doc(company.uid);
+      let newRef = db.default.db
+        .collection(companyCollectionName)
+        .doc(company.uid);
 
       await newRef.update({
         statusId: 2,
@@ -176,7 +196,9 @@ router.put("/delete", async (req, res) => {
       });
     });
 
-    res.status(200).json(responseModel({ responseMessage: "Deleted successfully" }));
+    res
+      .status(200)
+      .json(responseModel({ responseMessage: "Deleted successfully" }));
 
     // res.status(200).json(req.body.companyList);
   } catch (error) {
@@ -199,7 +221,9 @@ router.put("/", async (req, res) => {
     companyList.forEach(async (company) => {
       company.modifiedDate = new Date();
 
-      let newRef = db.default.db.collection(companyCollectionName).doc(company.uid);
+      let newRef = db.default.db
+        .collection(companyCollectionName)
+        .doc(company.uid);
 
       const updatedCompany = await newRef.update(company);
       updatedCompanyList.push(updatedCompany);

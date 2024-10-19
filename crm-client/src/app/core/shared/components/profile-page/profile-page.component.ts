@@ -5,6 +5,7 @@ import { ActivityDto, ActivityService } from '../../../services/activity.service
 import { Title } from '@angular/platform-browser';
 import { BaseCoreAbstract } from '../../base/base-core.abstract';
 import { MessageService } from 'primeng/api';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-profile-page',
@@ -26,6 +27,7 @@ export class ProfilePageComponent extends BaseCoreAbstract implements OnChanges 
     private route: ActivatedRoute,
     private titleService: Title,
     protected override messageService: MessageService,
+    private authService: AuthService
   ) {
     super(messageService);
 
@@ -54,7 +56,7 @@ export class ProfilePageComponent extends BaseCoreAbstract implements OnChanges 
   }
 
   getProperties() {
-    this.commonService.getAllPropertiesByModule(this.module).subscribe((res) => {
+    this.commonService.getAllPropertiesByModule(this.module, this.authService.tenant?.uid).subscribe((res) => {
       if (res.isSuccess) {
         this.propertiesList = res.data;
       }
