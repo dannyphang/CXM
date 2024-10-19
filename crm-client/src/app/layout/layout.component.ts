@@ -26,18 +26,20 @@ export class LayoutComponent implements OnInit {
     this.authService.getCurrentUser().then(res => {
       if (res) {
         this.authService.getUser(res.uid).subscribe(res2 => {
-          this.user = res2.data;
-          this.authService.getTenantsByUserId(this.user.uid).subscribe(res2 => {
-            if (res2.isSuccess) {
-              this.tenantList = res2.data;
-              this.tenantOptionsList = this.tenantList.map(t => {
-                return {
-                  label: t.tenantName,
-                  value: t.uid
-                }
-              });
-            }
-          });
+          if (res2.isSuccess) {
+            this.user = res2.data;
+            this.authService.getTenantsByUserId(this.user.uid).subscribe(res3 => {
+              if (res3.isSuccess) {
+                this.tenantList = res3.data;
+                this.tenantOptionsList = this.tenantList.map(t => {
+                  return {
+                    label: t.tenantName,
+                    value: t.uid
+                  }
+                });
+              }
+            });
+          }
         })
       }
     })

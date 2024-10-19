@@ -4,7 +4,6 @@ import { Observable } from "rxjs";
 import apiConfig from "../../../environments/apiConfig";
 import { CONTROL_TYPE_CODE } from "./components.service";
 import { TranslateService } from "@ngx-translate/core";
-import { AuthService, TenantDto } from "./auth.service";
 
 @Injectable({ providedIn: 'root' })
 export class CommonService {
@@ -27,8 +26,11 @@ export class CommonService {
         });
     }
 
-    getAllContact(): Observable<ResponseModel<ContactDto[]>> {
-        return this.http.get<ResponseModel<ContactDto[]>>(apiConfig.baseUrl + '/contact').pipe();
+    getAllContact(tenantId: string): Observable<ResponseModel<ContactDto[]>> {
+        let headers = {
+            tenantId: tenantId
+        }
+        return this.http.get<ResponseModel<ContactDto[]>>((apiConfig.baseUrl + '/contact'), { headers }).pipe();
     }
 
     getContactById(id: string): Observable<ResponseModel<ContactDto>> {
@@ -162,8 +164,11 @@ export class CommonService {
         return value;
     }
 
-    getAllCompany(): Observable<ResponseModel<CompanyDto[]>> {
-        return this.http.get<ResponseModel<CompanyDto[]>>(apiConfig.baseUrl + '/company').pipe();
+    getAllCompany(tenantId: string): Observable<ResponseModel<CompanyDto[]>> {
+        let headers = {
+            tenantId: tenantId
+        }
+        return this.http.get<ResponseModel<CompanyDto[]>>((apiConfig.baseUrl + '/company'), { headers }).pipe();
     }
 
     getCompanyById(id: string): Observable<ResponseModel<CompanyDto>> {

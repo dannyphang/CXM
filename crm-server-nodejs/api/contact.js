@@ -4,6 +4,7 @@ const router = Router();
 import * as db from "../firebase-admin.js";
 import responseModel from "../shared/function.js";
 import { Filter } from "firebase-admin/firestore";
+import { DEFAULT_SYSTEM_TENANT } from "../shared/constant.js";
 
 router.use(express.json());
 
@@ -13,6 +14,7 @@ const associationCollection = "association";
 
 // get all contacts
 router.get("/", async (req, res) => {
+  let tenantId = req.headers.tenantid;
   try {
     const snapshot = await db.default.db
       .collection(contactCollectionName)
@@ -51,10 +53,7 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
   const id = req.params.id;
   try {
-    const snapshot = await db.default.db
-      .collection(contactCollectionName)
-      .doc(id)
-      .get();
+    const snapshot = await db.default.db.collection(contactCollectionName).doc(id).get();
 
     const assoSnapshot = await db.default.db
       .collection(associationCollection)
@@ -79,12 +78,8 @@ router.get("/:id", async (req, res) => {
     });
 
     let contactData = contact;
-    contactData.createdDate = convertFirebaseDateFormat(
-      contactData.createdDate
-    );
-    contactData.modifiedDate = convertFirebaseDateFormat(
-      contactData.modifiedDate
-    );
+    contactData.createdDate = convertFirebaseDateFormat(contactData.createdDate);
+    contactData.modifiedDate = convertFirebaseDateFormat(contactData.modifiedDate);
 
     if (assoList.length > 0 || assoList2.length > 0) {
       contactData.associationList = [];
@@ -100,8 +95,7 @@ router.get("/:id", async (req, res) => {
             .doc(item.assoProfileUid)
             .get();
 
-          let cont =
-            contactSnapshot.data()?.statusId == 1 ? contactSnapshot.data() : {};
+          let cont = contactSnapshot.data()?.statusId == 1 ? contactSnapshot.data() : {};
           contactData.associationList.push(cont);
           count++;
 
@@ -122,10 +116,7 @@ router.get("/:id", async (req, res) => {
             .doc(item.profileUid)
             .get();
 
-          let cont2 =
-            contactSnapshot2.data()?.statusId == 1
-              ? contactSnapshot2.data()
-              : {};
+          let cont2 = contactSnapshot2.data()?.statusId == 1 ? contactSnapshot2.data() : {};
           contactData.associationList.push(cont2);
           count++;
 
@@ -186,9 +177,7 @@ router.post("/", async (req, res) => {
 router.put("/delete", async (req, res) => {
   try {
     req.body.contactList.forEach(async (contact) => {
-      let newRef = db.default.db
-        .collection(contactCollectionName)
-        .doc(contact.uid);
+      let newRef = db.default.db.collection(contactCollectionName).doc(contact.uid);
 
       await newRef.update({
         statusId: 2,
@@ -197,9 +186,7 @@ router.put("/delete", async (req, res) => {
       });
     });
 
-    res
-      .status(200)
-      .json(responseModel({ responseMessage: "Deleted successfully" }));
+    res.status(200).json(responseModel({ responseMessage: "Deleted successfully" }));
   } catch (e) {
     console.log(e);
     res.status(400).json(e);
@@ -216,9 +203,7 @@ router.put("/", async (req, res) => {
     contactList.forEach(async (contact) => {
       contact.modifiedDate = new Date();
 
-      let newRef = db.default.db
-        .collection(contactCollectionName)
-        .doc(contact.uid);
+      let newRef = db.default.db.collection(contactCollectionName).doc(contact.uid);
 
       contact.modifiedBy = req.body.user;
 
