@@ -354,7 +354,7 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
         this.getContact();
       }
       else {
-        this.commonService.getAllContact().subscribe(res => {
+        this.commonService.getAllContact(this.authService.tenant.uid).subscribe(res => {
           if (res.isSuccess) {
             this.tableLoading[this.activeTabPanel] = true;
             this.tabFilterList[this.activeTabPanel].forEach((item: Filter) => {
@@ -549,7 +549,7 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
 
   getContact() {
     this.tableLoading[this.activeTabPanel] = true;
-    this.commonService.getAllContact().subscribe((res) => {
+    this.commonService.getAllContact(this.authService.tenant.uid).subscribe((res) => {
       if (res.isSuccess) {
         res.data.forEach(cont => {
           let prop: PropertyDataDto[] = JSON.parse(cont.contactProperties);
@@ -570,7 +570,7 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
 
   getCompany() {
     this.tableLoading[this.activeTabPanel] = true;
-    this.commonService.getAllCompany().subscribe((res) => {
+    this.commonService.getAllCompany(this.authService.tenant?.uid).subscribe((res) => {
       if (res.isSuccess) {
         this.companyList = res.data;
         this.tableLoading[this.activeTabPanel] = false;
