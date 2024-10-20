@@ -3,6 +3,7 @@ import { TranslateService } from '@ngx-translate/core';
 import * as Blobity from 'blobity';
 import { AuthService, TenantDto, UserDto } from '../core/services/auth.service';
 import { OptionsModel } from '../core/services/components.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-layout',
@@ -16,6 +17,7 @@ export class LayoutComponent implements OnInit {
 
   constructor(
     private authService: AuthService,
+    private router: Router
   ) {
 
   }
@@ -41,6 +43,9 @@ export class LayoutComponent implements OnInit {
             });
           }
         })
+      }
+      else {
+        this.router.navigate(['/signin'])
       }
     })
 
