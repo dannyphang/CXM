@@ -1,8 +1,8 @@
 import { Component, EventEmitter, Input, NgZone, OnChanges, Output, SimpleChanges } from '@angular/core';
-import { ActivityDto, ActivityModuleDto, ActivityService, UpdateActivityDto } from '../../../services/activity.service';
+import { ActivityDto, ActivityModuleDto, ActivityService, UpdateActivityDto } from '../../services/activity.service';
 import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
-import { ContactDto, ModuleDto } from '../../../services/common.service';
-import { CONTROL_TYPE, FormConfig, OptionsModel } from '../../../services/components.service';
+import { ContactDto, ModuleDto } from '../../services/common.service';
+import { CONTROL_TYPE, FormConfig, OptionsModel } from '../../services/components.service';
 import { MessageService } from 'primeng/api';
 import { EDITOR_CONTENT_LIMIT, ATTACHMENT_MAX_SIZE } from '../../constants/common.constants';
 

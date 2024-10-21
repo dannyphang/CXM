@@ -6,9 +6,9 @@ import * as ExcelJS from 'exceljs';
 import saveAs from 'file-saver';
 import { MessageService } from 'primeng/api';
 import { debounceTime, distinctUntilChanged, map, Observable, of } from 'rxjs';
-import { AuthService } from '../../../services/auth.service';
-import { CommonService, CompanyDto, ContactDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, PropertyLookupDto, UserDto } from '../../../services/common.service';
-import { BaseDataSourceActionEvent, CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../../../services/components.service';
+import { AuthService } from '../../services/auth.service';
+import { CommonService, CompanyDto, ContactDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, PropertyLookupDto, UserDto } from '../../services/common.service';
+import { BaseDataSourceActionEvent, CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../../services/components.service';
 import { ROW_PER_PAGE_DEFAULT, ROW_PER_PAGE_DEFAULT_LIST, EMPTY_VALUE_STRING, NUMBER_OF_EXCEL_INSERT_ROW } from '../../constants/common.constants';
 import * as XLSX from 'xlsx';
 import { BaseCoreAbstract } from '../../base/base-core.abstract';
@@ -966,10 +966,10 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
     };
 
     if (this.module === 'CONT') {
-      this.router.navigate(['contact/profile/' + profile.uid], navigationExtras);
+      this.router.navigate(['contact/' + profile.uid], navigationExtras);
     }
     else {
-      this.router.navigate(['company/profile/' + profile.uid], navigationExtras);
+      this.router.navigate(['company/' + profile.uid], navigationExtras);
     }
   }
 

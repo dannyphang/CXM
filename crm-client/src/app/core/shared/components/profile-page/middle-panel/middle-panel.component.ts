@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
-import { CommonService, CompanyDto, ContactDto, ModuleDto } from '../../../../services/common.service';
+import { CommonService, CompanyDto, ContactDto, ModuleDto } from '../../../services/common.service';
 import { FormControl } from '@angular/forms';
-import { ActivityDto, ActivityModuleDto, ActivityService } from '../../../../services/activity.service';
+import { ActivityDto, ActivityModuleDto, ActivityService } from '../../../services/activity.service';
 import { MessageService } from 'primeng/api';
 import { BaseCoreAbstract } from '../../../base/base-core.abstract';
 

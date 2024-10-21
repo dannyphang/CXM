@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, Output, SimpleChange, SimpleChanges } f
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { Subject, takeUntil } from 'rxjs';
-import { BaseTabMenuItem, BaseMenuItem } from '../../../services/components.service';
+import { BaseTabMenuItem, BaseMenuItem } from '../../services/components.service';
 
 @Component({
   selector: 'app-tab-menu',

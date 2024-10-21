@@ -7,6 +7,8 @@ import { CommonSharedModule } from '../core/shared/modules/common-shared.module'
 import { MaterialModule } from '../core/shared/modules/material.module';
 import { ComponentsModule } from '../core/shared/components/components.module';
 import { PrimeNgModule } from '../core/shared/modules/primeng.module';
+import { HomeModule } from '../module/home/home.module';
+import { HomeComponent } from '../module/home/home.component';
 
 @NgModule({
   declarations: [

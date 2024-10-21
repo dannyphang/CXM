@@ -1,11 +1,11 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonService, CompanyDto, ContactDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, PropertyLookupDto, StateDto, UpdateCompanyDto, UpdateContactDto, UserDto } from '../../../services/common.service';
+import { CommonService, CompanyDto, ContactDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, PropertyLookupDto, StateDto, UpdateCompanyDto, UpdateContactDto, UserDto } from '../../services/common.service';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../../../services/components.service';
+import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../../services/components.service';
 import { debounceTime, distinctUntilChanged, map, Observable, ObservableLike, of } from 'rxjs';
 import { BasePropertyAbstract } from '../../base/base-property.abstract';
 import { MessageService } from 'primeng/api';
-import { AuthService } from '../../../services/auth.service';
+import { AuthService } from '../../services/auth.service';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({

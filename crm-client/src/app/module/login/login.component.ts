@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { AuthService, CreateUserDto } from '../../core/services/auth.service';
-import { CONTROL_TYPE, FormConfig } from '../../core/services/components.service';
+import { AuthService, CreateUserDto } from '../../core/shared/services/auth.service';
+import { CONTROL_TYPE, FormConfig } from '../../core/shared/services/components.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common'
@@ -42,7 +42,7 @@ export class LoginComponent {
   }
 
   ngOnInit() {
-    this.authService.initAuth();
+    this.authService.getCurrentUser();
     this.initLoginForm();
     this.initSignupForm();
   }

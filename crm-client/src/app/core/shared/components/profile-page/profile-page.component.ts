@@ -1,11 +1,11 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonService, CompanyDto, ContactDto, PropertyGroupDto } from '../../../services/common.service';
+import { CommonService, CompanyDto, ContactDto, PropertyGroupDto } from '../../services/common.service';
 import { ActivatedRoute } from '@angular/router';
-import { ActivityDto, ActivityService } from '../../../services/activity.service';
+import { ActivityDto, ActivityService } from '../../services/activity.service';
 import { Title } from '@angular/platform-browser';
 import { BaseCoreAbstract } from '../../base/base-core.abstract';
 import { MessageService } from 'primeng/api';
-import { AuthService } from '../../../services/auth.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-profile-page',

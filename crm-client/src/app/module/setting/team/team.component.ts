@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { AuthService, UpdateUserRoleDto } from '../../../core/services/auth.service';
-import { OptionsModel } from '../../../core/services/components.service';
+import { AuthService, UpdateUserRoleDto } from '../../../core/shared/services/auth.service';
+import { OptionsModel } from '../../../core/shared/services/components.service';
 
 @Component({
   selector: 'app-team',

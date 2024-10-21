@@ -16,7 +16,7 @@ import {
   FormGroup,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { FormArrayConfig, FORM_ARRAY_TOKEN } from '../../../services/components.service';
+import { FormArrayConfig, FORM_ARRAY_TOKEN } from '../../services/components.service';
 
 @Component({
   selector: 'app-base-form-array',

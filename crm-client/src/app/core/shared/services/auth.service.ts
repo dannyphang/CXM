@@ -19,7 +19,7 @@ import {
     onAuthStateChanged,
 } from "firebase/auth";
 import { BasedDto, CommonService, ResponseModel } from "./common.service";
-import apiConfig from "../../../environments/apiConfig";
+import apiConfig from "../../../../environments/apiConfig";
 import { Observable } from "rxjs";
 
 @Injectable({ providedIn: 'root' })
@@ -38,13 +38,16 @@ export class AuthService {
 
     }
 
-    initAuth() {
-        this.commonService.getEnvToken().subscribe(res => {
-            this.app = initializeApp(res);
-            this.auth = getAuth(this.app);
-            this.getCurrentUser();
-        })
-    }
+    // async initAuth(): Promise<User | null> {
+    //     return new Promise((resolve, reject) => {
+    //         this.commonService.getEnvToken().subscribe(async res => {
+    //             this.app = initializeApp(res);
+    //             this.auth = getAuth(this.app);
+    //             await this.getCurrentUser();
+    //             resolve(this.user);
+    //         })
+    //     });
+    // }
 
     set setCurrentTenant(tenant: TenantDto) {
         this.tenant = tenant;
@@ -167,6 +170,12 @@ export class AuthService {
     setUserRoleAndTenant(updateList: UpdateUserRoleDto[]): Observable<ResponseModel<any>> {
         return this.http.put<ResponseModel<any>>(apiConfig.baseUrl + '/auth/userRole/update', { updateList }).pipe();
     }
+
+    returnPermission(pString: string): UserPermissionDto[] {
+        let permissionList: UserPermissionDto[] = JSON.parse(pString);
+
+        return permissionList;
+    }
 }
 
 export class CreateUserDto extends BasedDto {
@@ -193,6 +202,19 @@ export class UserDto extends BasedDto {
     email: string;
     roleId: number;
     defaultTenantId?: string;
+    permission: string;
+}
+
+export class PermissionObjDto {
+    create: boolean;
+    remove: boolean;
+    update: boolean;
+    display: boolean;
+}
+
+export class UserPermissionDto {
+    module: string;
+    permission: PermissionObjDto;
 }
 
 export class TenantDto extends BasedDto {

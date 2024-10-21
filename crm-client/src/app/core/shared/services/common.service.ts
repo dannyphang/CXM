@@ -1,7 +1,7 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable, Injector } from "@angular/core";
 import { Observable } from "rxjs";
-import apiConfig from "../../../environments/apiConfig";
+import apiConfig from "../../../../environments/apiConfig";
 import { CONTROL_TYPE_CODE } from "./components.service";
 import { TranslateService } from "@ngx-translate/core";
 

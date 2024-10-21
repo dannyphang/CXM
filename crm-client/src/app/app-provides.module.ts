@@ -3,7 +3,7 @@ import { ErrorHandler } from '@angular/core';
 import { provideAnimationsAsync } from '@angular/platform-browser/animations/async';
 import { FormArrayItemComponent } from './core/shared/components/form/form-array-item.component';
 import { FormArrayComponent } from './core/shared/components/form/form-array.component';
-import { CONTROL_TYPE, BASE_UI_TOKEN, FORM_ARRAY_TOKEN } from './core/services/components.service';
+import { CONTROL_TYPE, BASE_UI_TOKEN, FORM_ARRAY_TOKEN } from './core/shared/services/components.service';
 import { BaseButtonComponent } from './core/shared/components/button/button.component';
 import { BaseCheckboxComponent } from './core/shared/components/checkbox/checkbox.component';
 import { BaseDatepickerComponent } from './core/shared/components/datepicker/datepicker.component';

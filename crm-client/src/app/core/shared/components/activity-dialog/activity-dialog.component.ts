@@ -1,8 +1,8 @@
 import { Component, EventEmitter, Input, NgZone, OnChanges, OnDestroy, Output, SimpleChanges } from '@angular/core';
-import { AttachmentDto, CommonService, ContactDto, ModuleDto } from '../../../services/common.service';
+import { AttachmentDto, CommonService, ContactDto, ModuleDto } from '../../services/common.service';
 import { FormBuilder, FormControl, FormGroup, NgModel, Validators } from '@angular/forms';
-import { CONTROL_TYPE, FormConfig, OptionsModel } from '../../../services/components.service';
-import { ActivityDto, ActivityModuleDto, ActivityService, CreateActivityDto } from '../../../services/activity.service';
+import { CONTROL_TYPE, FormConfig, OptionsModel } from '../../services/components.service';
+import { ActivityDto, ActivityModuleDto, ActivityService, CreateActivityDto } from '../../services/activity.service';
 import { EDITOR_CONTENT_LIMIT, ATTACHMENT_MAX_SIZE } from '../../constants/common.constants';
 import { FileSelectEvent, UploadEvent } from 'primeng/fileupload';
 import { MessageService } from 'primeng/api';

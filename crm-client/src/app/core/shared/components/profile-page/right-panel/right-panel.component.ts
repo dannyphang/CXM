@@ -1,11 +1,11 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { ActivityService } from '../../../../services/activity.service';
-import { PropertyGroupDto, ContactDto, CompanyDto, CommonService, CreateAssociationDto } from '../../../../services/common.service';
-import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../../../../services/components.service';
+import { ActivityService } from '../../../services/activity.service';
+import { PropertyGroupDto, ContactDto, CompanyDto, CommonService, CreateAssociationDto } from '../../../services/common.service';
+import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../../../services/components.service';
 import { FormControl } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { BaseCoreAbstract } from '../../../base/base-core.abstract';
-import { AuthService } from '../../../../services/auth.service';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-right-panel',

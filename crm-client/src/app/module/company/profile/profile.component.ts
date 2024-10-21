@@ -1,6 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
-import { PropertyGroupDto, CommonService } from '../../../core/services/common.service';
+import { PropertyGroupDto, CommonService } from '../../../core/shared/services/common.service';
 
 @Component({
   selector: 'app-company-profile',

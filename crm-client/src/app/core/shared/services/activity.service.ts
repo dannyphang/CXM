@@ -1,7 +1,7 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
-import apiConfig from "../../../environments/apiConfig";
+import apiConfig from "../../../../environments/apiConfig";
 import { AttachmentDto, BasedDto, ModuleDto, ResponseModel } from "./common.service";
 import { DateFilterFn } from "@angular/material/datepicker";
 import { producerAccessed } from "@angular/core/primitives/signals";

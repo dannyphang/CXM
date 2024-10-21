@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { CommonService, ContactDto } from '../../core/services/common.service';
+import { CommonService, ContactDto } from '../../core/shared/services/common.service';
 import { Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { BaseCoreAbstract } from '../../core/shared/base/base-core.abstract';

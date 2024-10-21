@@ -8,6 +8,9 @@
   <div *ngIf="tenantOptionsList.length > 0">
     <router-outlet></router-outlet>
   </div>
+  <!-- <div *ngIf="tenantOptionsList.length === 0">
+    <app-home></app-home>
+  </div> -->
   <div class="tw-fixed tw-right-[10px] tw-bottom-[10px]">
     <app-toggle-theme (blobityClick)="blobityFunc($event)"></app-toggle-theme>
   </div>

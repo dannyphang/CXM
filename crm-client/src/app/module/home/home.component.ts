@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
-import { CONTROL_TYPE, FormConfig } from '../../core/services/components.service';
+import { CONTROL_TYPE, FormConfig } from '../../core/shared/services/components.service';
 import { Observable, of } from 'rxjs';
 import { MessageService } from 'primeng/api';
 import { FormControl, FormGroup } from '@angular/forms';
-import { CommonService } from '../../core/services/common.service';
-import { AuthService } from '../../core/services/auth.service';
+import { CommonService } from '../../core/shared/services/common.service';
+import { AuthService } from '../../core/shared/services/auth.service';
 
 @Component({
   selector: 'app-home',

@@ -1,14 +1,14 @@
 import { Component } from '@angular/core';
 import { ROW_PER_PAGE_DEFAULT, ROW_PER_PAGE_DEFAULT_LIST } from '../../../core/shared/constants/common.constants';
-import { CommonService, CreatePropertyDto, CreatePropertyLookupDto, PropertiesDto, PropertyGroupDto, PropertyLookupDto, UpdatePropertyDto, UpdatePropertyLookupDto, UserDto } from '../../../core/services/common.service';
+import { CommonService, CreatePropertyDto, CreatePropertyLookupDto, PropertiesDto, PropertyGroupDto, PropertyLookupDto, UpdatePropertyDto, UpdatePropertyLookupDto, UserDto } from '../../../core/shared/services/common.service';
 import { BaseCoreAbstract } from '../../../core/shared/base/base-core.abstract';
 import { MessageService } from 'primeng/api';
 import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
-import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../../../core/services/components.service';
+import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../../../core/shared/services/components.service';
 import { TranslateService } from '@ngx-translate/core';
 import { map, Observable, pairwise } from 'rxjs';
 import { list } from 'firebase/storage';
-import { AuthService } from '../../../core/services/auth.service';
+import { AuthService } from '../../../core/shared/services/auth.service';
 
 interface Column {
   field: string;

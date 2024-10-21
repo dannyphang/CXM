@@ -10,7 +10,7 @@ import {
   ViewContainerRef,
 } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
-import { FormConfig } from '../../../services/components.service';
+import { FormConfig } from '../../services/components.service';
 
 @Component({
   selector: 'app-base-form',

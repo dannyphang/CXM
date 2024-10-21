@@ -2,11 +2,11 @@ import { Component } from '@angular/core';
 import { BaseCoreAbstract } from '../../../core/shared/base/base-core.abstract';
 import { MessageService } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
-import { CONTROL_TYPE, FormConfig } from '../../../core/services/components.service';
+import { CONTROL_TYPE, FormConfig } from '../../../core/shared/services/components.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { DEFAULT_PROFILE_PIC_URL } from '../../../core/shared/constants/common.constants';
-import { StorageService } from '../../../core/services/storage.service';
-import { AuthService, CreateUserDto, UserDto } from '../../../core/services/auth.service';
+import { StorageService } from '../../../core/shared/services/storage.service';
+import { AuthService, CreateUserDto, UserDto } from '../../../core/shared/services/auth.service';
 
 @Component({
   selector: 'app-create',

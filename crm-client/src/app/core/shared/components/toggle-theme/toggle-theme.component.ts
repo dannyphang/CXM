@@ -1,6 +1,6 @@
 import { DOCUMENT } from '@angular/common';
 import { Component, EventEmitter, Inject, Output, ViewChild } from '@angular/core';
-import { ThemeService } from '../../../services/theme.service';
+import { ThemeService } from '../../services/theme.service';
 import { OverlayPanelComponent } from '../panel/overlay-panel/overlay-panel.component';
 import Blobity from 'blobity';
 

@@ -4,10 +4,10 @@ import { Form, FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MenuItem, MessageService, TreeNode } from 'primeng/api';
 import { debounceTime, distinctUntilChanged, map } from 'rxjs';
-import { AuthService, TenantDto, UserDto } from '../../core/services/auth.service';
+import { AuthService, TenantDto, UserDto } from '../../core/shared/services/auth.service';
 import { User } from 'firebase/auth';
 import { DEFAULT_PROFILE_PIC_URL } from '../../core/shared/constants/common.constants';
-import { OptionsModel } from '../../core/services/components.service';
+import { OptionsModel } from '../../core/shared/services/components.service';
 import { BaseCoreAbstract } from '../../core/shared/base/base-core.abstract';
 
 @Component({

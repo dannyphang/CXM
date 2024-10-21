@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonService, ContactDto, PropertyGroupDto } from '../../../../core/services/common.service';
+import { CommonService, ContactDto, PropertyGroupDto } from '../../../../core/shared/services/common.service';
 import { Router } from '@angular/router';
 
 @Component({

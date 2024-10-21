@@ -2,13 +2,13 @@ import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { NavigationExtras, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
-import { CommonService, CompanyDto, ContactDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, PropertyLookupDto, UpdateCompanyDto, UpdateContactDto } from '../../../../services/common.service';
-import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../../../../services/components.service';
+import { CommonService, CompanyDto, ContactDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, PropertyLookupDto, UpdateCompanyDto, UpdateContactDto } from '../../../services/common.service';
+import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../../../services/components.service';
 import { debounceTime, distinctUntilChanged, map, Observable, of } from 'rxjs';
-import { StorageService } from '../../../../services/storage.service';
+import { StorageService } from '../../../services/storage.service';
 import { DEFAULT_PROFILE_PIC_URL } from '../../../constants/common.constants';
 import { BasePropertyAbstract } from '../../../base/base-property.abstract';
-import { AuthService } from '../../../../services/auth.service';
+import { AuthService } from '../../../services/auth.service';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({

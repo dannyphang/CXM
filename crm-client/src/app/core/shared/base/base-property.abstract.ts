@@ -1,11 +1,11 @@
 import { FormGroup, FormControl, FormBuilder } from "@angular/forms";
 import { debounceTime, distinctUntilChanged, map, Observable, of } from "rxjs";
-import { CommonService, CompanyDto, ContactDto, profileUpdateDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, PropertyLookupDto, UpdateCompanyDto, UpdateContactDto, UserDto } from "../../services/common.service";
-import { FormConfig, CONTROL_TYPE, CONTROL_TYPE_CODE, OptionsModel } from "../../services/components.service";
+import { CommonService, CompanyDto, ContactDto, profileUpdateDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, PropertyLookupDto, UpdateCompanyDto, UpdateContactDto, UserDto } from "../services/common.service";
+import { FormConfig, CONTROL_TYPE, CONTROL_TYPE_CODE, OptionsModel } from "../services/components.service";
 import { Input } from "@angular/core";
 import { BaseCoreAbstract } from "./base-core.abstract";
 import { MessageService } from "primeng/api";
-import { AuthService } from "../../services/auth.service";
+import { AuthService } from "../services/auth.service";
 import { TranslateService } from "@ngx-translate/core";
 
 export abstract class BasePropertyAbstract extends BaseCoreAbstract {

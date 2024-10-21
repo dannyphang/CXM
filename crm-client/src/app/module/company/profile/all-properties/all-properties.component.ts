@@ -1,6 +1,6 @@
 import { Component, OnChanges, Input, SimpleChanges } from "@angular/core";
 import { Router } from "@angular/router";
-import { PropertyGroupDto, CompanyDto, CommonService } from "../../../../core/services/common.service";
+import { PropertyGroupDto, CompanyDto, CommonService } from "../../../../core/shared/services/common.service";
 
 @Component({
   selector: 'app-company-all-properties',

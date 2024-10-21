@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { FormConfig } from '../../../services/components.service';
+import { FormConfig } from '../../services/components.service';
 
 @Component({
   selector: 'app-form-array-item',

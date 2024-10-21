@@ -1,6 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
-import { CommonService, PropertyGroupDto } from '../../../core/services/common.service';
+import { CommonService, PropertyGroupDto } from '../../../core/shared/services/common.service';
 
 @Component({
   selector: 'app-contact-profile',

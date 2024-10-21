@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as Blobity from 'blobity';
-import { AuthService, TenantDto, UserDto } from '../core/services/auth.service';
-import { OptionsModel } from '../core/services/components.service';
+import { AuthService, TenantDto, UserDto } from '../core/shared/services/auth.service';
+import { OptionsModel } from '../core/shared/services/components.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -24,7 +24,6 @@ export class LayoutComponent implements OnInit {
 
   ngOnInit() {
     this.initBlobity(false);
-    this.authService.initAuth();
     this.authService.getCurrentUser().then(res => {
       if (res) {
         this.authService.getUser(res.uid).subscribe(res2 => {
@@ -45,7 +44,7 @@ export class LayoutComponent implements OnInit {
         })
       }
       else {
-        this.router.navigate(['/signin'])
+        // this.router.navigate(['/signin'])
       }
     })
 

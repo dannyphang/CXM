@@ -19,7 +19,7 @@ import {
   takeUntil,
   timer,
 } from 'rxjs';
-import { FormConfig, BASE_UI_TOKEN, FORM_ARRAY_TOKEN, isBaseButton, BaseButtonFormConfig, CONTROL_TYPE, BASE_FORM_ITEMS_EVENT } from '../../../services/components.service';
+import { FormConfig, BASE_UI_TOKEN, FORM_ARRAY_TOKEN, isBaseButton, BaseButtonFormConfig, CONTROL_TYPE, BASE_FORM_ITEMS_EVENT } from '../../services/components.service';
 
 @Component({
   selector: 'app-form-item',

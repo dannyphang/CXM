@@ -1,6 +1,6 @@
 import { EventEmitter } from '@angular/core';
 import { Observable } from 'rxjs';
-import { OptionsModel } from '../../../services/components.service';
+import { OptionsModel } from '../../services/components.service';
 
 export interface DropdownOptionConfig {
     label: string;

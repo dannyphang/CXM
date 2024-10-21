@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core';
-import { CompanyDto, ContactDto } from '../../../services/common.service';
+import { CompanyDto, ContactDto } from '../../services/common.service';
 import { NavigationExtras, Router } from '@angular/router';
 
 @Component({
