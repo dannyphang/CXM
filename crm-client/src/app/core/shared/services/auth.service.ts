@@ -193,8 +193,9 @@ export class CreateUserDto extends BasedDto {
     email?: string;
     phoneNumber?: string;
     uid: string;
-    defaultTenantId?: string;
     roleId?: number;
+    permission?: string;
+    setting?: SettingDto;
 }
 
 export class UserDto extends BasedDto {
@@ -212,10 +213,10 @@ export class UserDto extends BasedDto {
 }
 
 export class SettingDto {
-    darkMode: boolean;
+    darkMode?: boolean;
     defaultTenantId?: string;
-    contactTab: any;
-    companyTab: any;
+    contactTab?: any;
+    companyTab?: any;
 }
 
 export class PermissionObjDto {

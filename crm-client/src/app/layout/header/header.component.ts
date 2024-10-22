@@ -9,6 +9,7 @@ import { User } from 'firebase/auth';
 import { DEFAULT_PROFILE_PIC_URL } from '../../core/shared/constants/common.constants';
 import { OptionsModel } from '../../core/shared/services/components.service';
 import { BaseCoreAbstract } from '../../core/shared/base/base-core.abstract';
+import { ThemeService } from '../../core/shared/services/theme.service';
 
 @Component({
   selector: 'app-header',
@@ -27,9 +28,13 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
   DEFAULT_PROFILE_PIC_URL = DEFAULT_PROFILE_PIC_URL;
   avatarImage: string | null = this.DEFAULT_PROFILE_PIC_URL;
   tenantFormControl: FormControl = new FormControl("");
+  isDarkMode: boolean = false;
+  darkThemeFile: string = "aura-dark-blue.css";
+  lightThemeFile: string = "aura-light-blue.css";
 
   constructor(
     private router: Router,
+    private themeService: ThemeService,
     private authService: AuthService,
     protected override messageService: MessageService
   ) {
@@ -80,7 +85,28 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
     if (changes['user'] && changes['user'].currentValue) {
       this.avatarImage = this.user.profilePhotoUrl;
 
+      // update theme
+      this.updateThemeMode(this.user.setting.darkMode ?? false, true);
+
       this.initAvatarMenu();
+    }
+  }
+
+  updateThemeMode(isDark: boolean, isInit = false) {
+    this.isDarkMode = isDark;
+    this.themeService.switchTheme(isDark ? this.darkThemeFile : this.lightThemeFile);
+    if (!isInit) {
+      this.authService.updateUserFirestore([{
+        uid: this.authService.userC.uid,
+        setting: {
+          ...this.authService.userC.setting,
+          darkMode: isDark
+        }
+      }], this.authService.userC.uid).subscribe(res => {
+        if (res.isSuccess) {
+          console.log(res.data)
+        }
+      })
     }
   }
 
@@ -133,10 +159,12 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
   }
 
   onTenantChange() {
-    console.log(this.router.url)
     this.authService.updateUserFirestore([{
       uid: this.authService.user!.uid,
-      defaultTenantId: this.tenantFormControl.value,
+      setting: {
+        ...this.authService.userC.setting,
+        defaultTenantId: this.tenantFormControl.value,
+      }
     }], this.authService.user?.uid ?? "SYSTEM").subscribe(res => {
       if (res.isSuccess) {
         window.location.reload();

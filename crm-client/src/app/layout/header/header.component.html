@@ -32,15 +32,12 @@
             [fieldControl]="searchFormControl"
           ></app-base-input>
 
-          <!-- <p-treeSelect
-            class="md:w-20rem w-full"
-            containerStyleClass="w-full"
-            [(ngModel)]="selectedTenant"
-            [options]="tenantNodeList"
-            placeholder="Select Tenant"
-            [filter]="true"
-            [filterInputAutoFocus]="true"
-          /> -->
+          <p-button
+            [icon]="isDarkMode ? 'pi pi-moon' : 'pi pi-sun'"
+            [outlined]="true"
+            class="tw-ml-[var(--content-gap)]"
+            (onClick)="updateThemeMode(!isDarkMode, false)"
+          ></p-button>
 
           <app-base-dropdown
             [fieldControl]="tenantFormControl"

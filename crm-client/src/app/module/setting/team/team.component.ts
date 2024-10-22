@@ -56,6 +56,7 @@ export class TeamComponent {
     user: new FormControl(""),
     permission: this.formBuilder.array([]),
   });
+  updateUserList: UserDto[] = [];
 
   constructor(
     private formBuilder: FormBuilder,
@@ -76,17 +77,19 @@ export class TeamComponent {
       }
     })
 
-    this.authService.getAllUserByTenant(this.authService.tenant.uid).subscribe(res => {
-      if (res.isSuccess) {
-        this.userList = res.data;
-        this.userListOptions = res.data.map(d => {
-          return {
-            label: `${d.displayName} (${d.email})`,
-            value: d.uid
-          }
-        });
-      }
-    });
+    if (this.authService.tenant) {
+      this.authService.getAllUserByTenant(this.authService.tenant.uid).subscribe(res => {
+        if (res.isSuccess) {
+          this.userList = res.data;
+          this.userListOptions = res.data.map(d => {
+            return {
+              label: `${d.displayName} (${d.email})`,
+              value: d.uid
+            }
+          });
+        }
+      });
+    }
 
     this.selectedUserFormGroup.controls['user'].valueChanges.subscribe(val => {
       this.selectedUserFormGroup.controls['permission'] = this.formBuilder.array([]);
@@ -95,8 +98,6 @@ export class TeamComponent {
       permissionObj.forEach(p => {
         this.addPermissionArr(p.module, p.permission);
       });
-
-      console.log(this.permissionArr.value);
     });
 
     this.initTable();
@@ -168,7 +169,6 @@ export class TeamComponent {
       }
       else {
         // TODO: here not working 
-        console.log(team.value);
         (team as FormGroup).controls['check'].setValue(2);
       }
     })
@@ -216,15 +216,12 @@ export class TeamComponent {
     })
   }
 
-  returnColumnData(rowData: any, data: any): boolean {
-    // console.log(rowData)
-    // console.log(data.value)
-    // return new FormControl(data ?? false)
-    return data?.value ?? false;
-  }
-
   submitPermission() {
-    console.log(this.permission);
+    this.authService.updateUserFirestore(this.updateUserList, this.authService.userC.uid).subscribe(res => {
+      if (res.isSuccess) {
+        console.log(res)
+      }
+    })
   }
 
   returnSelectUserFormControl(): FormControl {
@@ -233,6 +230,29 @@ export class TeamComponent {
 
   permissionSwitchOnChange(rowData: any, field: string, event: any) {
     rowData.permission[field as keyof PermissionObjDto].value = event.checked;
-    console.log(this.permissionArr.value);
+
+    let pArr: UserPermissionDto[] = [];
+
+    this.permissionArr.value.forEach((p: any) => {
+      pArr.push({
+        module: p.module,
+        permission: {
+          create: p.permission.create.value ?? false,
+          remove: p.permission.remove.value ?? false,
+          update: p.permission.update.value ?? false,
+          display: p.permission.display.value ?? false,
+          download: p.permission.download.value ?? false,
+          export: p.permission.export.value ?? false,
+        }
+      })
+    });
+
+    if (this.updateUserList.find(u => u.uid === this.selectedUserFormGroup.controls['user'].value)) {
+      this.updateUserList.find(u => u.uid === this.selectedUserFormGroup.controls['user'].value)!.permission = JSON.stringify(pArr);
+    }
+    else {
+      this.userList.find(u => u.uid === this.selectedUserFormGroup.controls['user'].value)!.permission = JSON.stringify(pArr);
+      this.updateUserList.push(this.userList.find(u => u.uid === this.selectedUserFormGroup.controls['user'].value)!);
+    }
   }
 }
