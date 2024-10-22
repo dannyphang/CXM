@@ -1,4 +1,59 @@
-<div class="tw-p-[var(--content-gap)] tw-w-full">
+<div class="tw-p-[var(--content-gap)] tw-pt-0 tw-w-full">
+  <h2 class="tw-text-[var(--text-color)]">
+    {{ "SETTING.TEAM_MANAGEMENT" | translate }}
+  </h2>
+
+  <div class="permission-table">
+    <p-table
+      #dt
+      [columns]="tableConfig"
+      [value]="selectedUserFormGroup.controls['permission'].value"
+      [resizableColumns]="true"
+      [reorderableColumns]="true"
+      [rowHover]="true"
+      styleClass="p-datatable-gridlines p-datatable-striped"
+      [rows]="ROW_PER_PAGE_DEFAULT"
+      [rowsPerPageOptions]="ROW_PER_PAGE_DEFAULT_LIST"
+    >
+      <ng-template pTemplate="caption">
+        <app-base-dropdown
+          [options]="userListOptions"
+          [fieldControl]="returnSelectUserFormControl()"
+        ></app-base-dropdown>
+      </ng-template>
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th *ngFor="let col of columns">
+            {{ col.header }}
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rowData let-columns="columns">
+        <tr>
+          <td *ngFor="let col of columns">
+            <div *ngIf="col.field === 'module'">
+              {{ rowData[col.field] }}
+            </div>
+            <div *ngIf="col.field !== 'module'">
+              <p-inputSwitch
+                [ngModel]="rowData.permission[col.field].value"
+                (onChange)="
+                  permissionSwitchOnChange(rowData, col.field, $event)
+                "
+              />
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="footer">
+        <p-button
+          [label]="'BUTTON.SAVE' | translate"
+          (onClick)="submitPermission()"
+        ></p-button>
+      </ng-template>
+    </p-table>
+  </div>
+
   <div
     class="tw-pb-[var(--content-gap)]"
     *ngFor="let team of teamFormArr.controls; let i = index"

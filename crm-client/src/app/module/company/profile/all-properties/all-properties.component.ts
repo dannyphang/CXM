@@ -1,6 +1,7 @@
 import { Component, OnChanges, Input, SimpleChanges } from "@angular/core";
 import { Router } from "@angular/router";
 import { PropertyGroupDto, CompanyDto, CommonService } from "../../../../core/shared/services/common.service";
+import { UserPermissionDto } from "../../../../core/shared/services/auth.service";
 
 @Component({
   selector: 'app-company-all-properties',
@@ -12,6 +13,7 @@ export class CompanyAllPropertiesComponent implements OnChanges {
 
   propertiesList: PropertyGroupDto[] = [];
   companyProfile: CompanyDto = new CompanyDto();
+  permission: UserPermissionDto[] = [];
 
   constructor(
     private commonService: CommonService,
@@ -27,7 +29,9 @@ export class CompanyAllPropertiesComponent implements OnChanges {
     if (window.history.state.profile) {
       this.companyProfile = window.history.state.profile;
     }
-
+    if (window.history.state.permission) {
+      this.permission = window.history.state.permission;
+    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {

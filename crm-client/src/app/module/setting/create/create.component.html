@@ -44,43 +44,48 @@
   (change)="imageFileUpload($event)"
   accept="image/*"
 />
+<div>
+  <h2 class="tw-text-[var(--text-color)]">
+    {{ "SETTING.GENERAL_PROFILE" | translate }}
+  </h2>
 
-<div
-  class="avatar-div"
-  (mouseenter)="isAvatarEdit = true"
-  (mouseleave)="isAvatarEdit = false"
->
-  <p-button
-    icon="pi pi-file-edit"
-    styleClass="tw-w-[200px] tw-h-[200px] avatar-edit"
-    [rounded]="true"
-    [text]="true"
-    *ngIf="isAvatarEdit"
-    (onClick)="editPic()"
-    [pTooltip]="'PROFILE.AVATAR_EDIT' | translate"
-  ></p-button>
-  <p-avatar
-    *ngIf="!profilePhotoUrl"
-    [icon]="'pi pi-user'"
-    styleClass="tw-w-[200px] tw-h-[200px]"
-    [ngClass]="isAvatarEdit ? 'tw-opacity-[0.5]' : 'tw-opacity-[1]'"
-    shape="circle"
-    data-blobity-magnetic="true"
-  />
-  <p-avatar
-    *ngIf="profilePhotoUrl"
-    [image]="profilePhotoUrl"
-    styleClass="tw-w-[200px] tw-h-[200px]"
-    [ngClass]="isAvatarEdit ? 'tw-opacity-[0.5]' : 'tw-opacity-[1]'"
-    shape="circle"
-    data-blobity-magnetic="true"
-  />
-</div>
-<app-base-form [formConfig]="createFormConfig"></app-base-form>
+  <div
+    class="avatar-div"
+    (mouseenter)="isAvatarEdit = true"
+    (mouseleave)="isAvatarEdit = false"
+  >
+    <p-button
+      icon="pi pi-file-edit"
+      styleClass="tw-w-[200px] tw-h-[200px] avatar-edit"
+      [rounded]="true"
+      [text]="true"
+      *ngIf="isAvatarEdit"
+      (onClick)="editPic()"
+      [pTooltip]="'PROFILE.AVATAR_EDIT' | translate"
+    ></p-button>
+    <p-avatar
+      *ngIf="!profilePhotoUrl"
+      [icon]="'pi pi-user'"
+      styleClass="tw-w-[200px] tw-h-[200px]"
+      [ngClass]="isAvatarEdit ? 'tw-opacity-[0.5]' : 'tw-opacity-[1]'"
+      shape="circle"
+      data-blobity-magnetic="true"
+    />
+    <p-avatar
+      *ngIf="profilePhotoUrl"
+      [image]="profilePhotoUrl"
+      styleClass="tw-w-[200px] tw-h-[200px]"
+      [ngClass]="isAvatarEdit ? 'tw-opacity-[0.5]' : 'tw-opacity-[1]'"
+      shape="circle"
+      data-blobity-magnetic="true"
+    />
+  </div>
+  <app-base-form [formConfig]="createFormConfig"></app-base-form>
 
-<div class="tw-m-[var(--content-gap)]">
-  <p-button
-    [label]="'BUTTON.UPDATE' | translate"
-    (onClick)="update()"
-  ></p-button>
+  <div class="tw-m-[var(--content-gap)]">
+    <p-button
+      [label]="'BUTTON.UPDATE' | translate"
+      (onClick)="update()"
+    ></p-button>
+  </div>
 </div>

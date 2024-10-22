@@ -8,7 +8,7 @@ import { debounceTime, distinctUntilChanged, map, Observable, of } from 'rxjs';
 import { StorageService } from '../../../services/storage.service';
 import { DEFAULT_PROFILE_PIC_URL } from '../../../constants/common.constants';
 import { BasePropertyAbstract } from '../../../base/base-property.abstract';
-import { AuthService } from '../../../services/auth.service';
+import { AuthService, PermissionObjDto, UserPermissionDto } from '../../../services/auth.service';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
@@ -21,6 +21,7 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
   @Input() module: 'CONT' | 'COMP' = 'CONT';
   @Input() contactProfile: ContactDto = new ContactDto();
   @Input() companyProfile: CompanyDto = new CompanyDto();
+  @Input() permission: UserPermissionDto[] = [];
   @Output() profileUpdateEmit: EventEmitter<any> = new EventEmitter<any>();
 
   actionMenu: any[] = [
@@ -32,16 +33,17 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
           state: {
             data: this.propertiesList,
             profile: this.module === 'CONT' ? this.contactProfile : this.companyProfile,
-            module: this.module
+            module: this.module,
+            permission: this.permission
           }
         };
 
         // navigate to setting page
         if (this.module === 'CONT') {
-          this.router.navigate(['contact/profile/' + this.contactProfile.uid + '/allProperties'], navigationExtras);
+          this.router.navigate(['contact/' + this.contactProfile.uid + '/allProperties'], navigationExtras);
         }
         else {
-          this.router.navigate(['company/profile/' + this.companyProfile.uid + '/allProperties'], navigationExtras);
+          this.router.navigate(['company/' + this.companyProfile.uid + '/allProperties'], navigationExtras);
         }
       }
     }
@@ -69,7 +71,7 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
       this.propertiesList = changes['propertiesList'].currentValue;
 
       if (this.contactProfile || this.companyProfile) {
-        this.initProfileFormConfig(this.propertiesList, this.module, this.contactProfile, this.companyProfile, true);
+        this.initProfileFormConfig(this.propertiesList, this.module, this.contactProfile, this.companyProfile, true, this.permission.find(p => p.module === this.module)!.permission);
       }
 
       this.checkFormValueChange(this.propertiesList);
@@ -77,7 +79,7 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
 
     if (changes['contactProfile'] && changes['contactProfile'].currentValue) {
       if (this.propertiesList) {
-        this.initProfileFormConfig(this.propertiesList, this.module, this.contactProfile, this.companyProfile, true);
+        this.initProfileFormConfig(this.propertiesList, this.module, this.contactProfile, this.companyProfile, true, this.permission.find(p => p.module === this.module)!.permission);
       }
       if (this.contactProfile.contactProfilePhotoUrl) {
         this.profileImg = this.contactProfile.contactProfilePhotoUrl;
@@ -88,7 +90,7 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
 
     if (changes['companyProfile'] && changes['companyProfile'].currentValue) {
       if (this.propertiesList) {
-        this.initProfileFormConfig(this.propertiesList, this.module, this.contactProfile, this.companyProfile, true);
+        this.initProfileFormConfig(this.propertiesList, this.module, this.contactProfile, this.companyProfile, true, this.permission.find(p => p.module === this.module)!.permission);
       }
       if (this.companyProfile.companyProfilePhotoUrl) {
         this.profileImg = this.companyProfile.companyProfilePhotoUrl;

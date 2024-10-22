@@ -8,14 +8,14 @@ const routes: Routes = [
     component: CompanyComponent,
     children: [
       {
-        path: 'profile/:id',
+        path: ':id',
         pathMatch: 'full',
         redirectTo: 'profile',
       }
     ]
   },
   {
-    path: 'profile/:id',
+    path: ':id',
     data: { breadcrumb: 'Profile', title: 'Profile' },
     loadChildren: () => import('./profile/profile.module').then(m => m.ProfileModule)
 

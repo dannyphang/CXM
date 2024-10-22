@@ -1,6 +1,7 @@
 import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonService, ContactDto, PropertyGroupDto } from '../../../../core/shared/services/common.service';
 import { Router } from '@angular/router';
+import { UserPermissionDto } from '../../../../core/shared/services/auth.service';
 
 @Component({
   selector: 'app-contact-all-properties',
@@ -12,6 +13,7 @@ export class ContactAllPropertiesComponent implements OnChanges {
 
   propertiesList: PropertyGroupDto[] = [];
   contactProfile: ContactDto = new ContactDto();
+  permission: UserPermissionDto[] = [];
 
   constructor(
     private commonService: CommonService,
@@ -26,6 +28,9 @@ export class ContactAllPropertiesComponent implements OnChanges {
     }
     if (window.history.state.profile) {
       this.contactProfile = window.history.state.profile;
+    }
+    if (window.history.state.permission) {
+      this.permission = window.history.state.permission;
     }
 
   }

@@ -131,6 +131,8 @@
     "OPTIONS_VISIBLE": "Visible",
     "OPTIONS_DEFAULT": "Default",
     "USER_EMAIL": "User email",
-    "ROLE": "Role"
+    "ROLE": "Role",
+    "PROPERTY_MANAGEMENT": "Property Management",
+    "GENERAL_PROFILE": "General Profile"
   }
 }

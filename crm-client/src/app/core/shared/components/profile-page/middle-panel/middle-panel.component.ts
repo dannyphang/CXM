@@ -4,6 +4,7 @@ import { FormControl } from '@angular/forms';
 import { ActivityDto, ActivityModuleDto, ActivityService } from '../../../services/activity.service';
 import { MessageService } from 'primeng/api';
 import { BaseCoreAbstract } from '../../../base/base-core.abstract';
+import { PermissionObjDto, UserPermissionDto } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-middle-panel',
@@ -16,6 +17,7 @@ export class MiddlePanelComponent extends BaseCoreAbstract implements OnInit, On
   @Input() contactProfile: ContactDto = new ContactDto();
   @Input() companyProfile: CompanyDto = new CompanyDto(); // TODO: company profile
   @Input() activitiesList: ActivityDto[] = [];
+  @Input() permission: UserPermissionDto[] = [];
   @Output() activityListEmit: EventEmitter<any> = new EventEmitter<any>();
 
   isOpenDialog: boolean = false;

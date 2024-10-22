@@ -129,6 +129,10 @@ export class AuthService {
         return this.http.get<any>(`${apiConfig.baseUrl}/${this.SERVICE_PATH}` + '/allUser').pipe();
     }
 
+    getAllUserByTenant(tenantId: string): Observable<ResponseModel<UserDto[]>> {
+        return this.http.get<ResponseModel<UserDto[]>>(`${apiConfig.baseUrl}/${this.SERVICE_PATH}` + '/user/tenant/' + tenantId).pipe();
+    }
+
     updateUser(updateData: any) {
         if (this.auth.currentUser) {
             updateProfile(this.auth.currentUser, updateData).then(res => {
@@ -172,9 +176,11 @@ export class AuthService {
     }
 
     returnPermission(pString: string): UserPermissionDto[] {
-        let permissionList: UserPermissionDto[] = JSON.parse(pString);
+        return JSON.parse(pString);
+    }
 
-        return permissionList;
+    checkPermission(module: string, action: string, permission: UserPermissionDto[]): boolean {
+        return permission.find(p => p.module === module)!.permission[action as keyof PermissionObjDto];
     }
 }
 
@@ -201,8 +207,15 @@ export class UserDto extends BasedDto {
     profilePhotoUrl: string;
     email: string;
     roleId: number;
-    defaultTenantId?: string;
     permission: string;
+    setting: SettingDto;
+}
+
+export class SettingDto {
+    darkMode: boolean;
+    defaultTenantId?: string;
+    contactTab: any;
+    companyTab: any;
 }
 
 export class PermissionObjDto {
@@ -210,6 +223,8 @@ export class PermissionObjDto {
     remove: boolean;
     update: boolean;
     display: boolean;
+    download: boolean;
+    export: boolean;
 }
 
 export class UserPermissionDto {

@@ -1,7 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { AuthService, UpdateUserRoleDto } from '../../../core/shared/services/auth.service';
+import { AuthService, PermissionObjDto, UpdateUserRoleDto, UserDto, UserPermissionDto } from '../../../core/shared/services/auth.service';
 import { OptionsModel } from '../../../core/shared/services/components.service';
+import { ROW_PER_PAGE_DEFAULT, ROW_PER_PAGE_DEFAULT_LIST } from '../../../core/shared/constants/common.constants';
+
+interface Column {
+  field: string;
+  header: string;
+}
 
 @Component({
   selector: 'app-team',
@@ -9,8 +15,47 @@ import { OptionsModel } from '../../../core/shared/services/components.service';
   styleUrl: './team.component.scss'
 })
 export class TeamComponent {
+  @Input() permission: UserPermissionDto[] = [];
+  ROW_PER_PAGE_DEFAULT = ROW_PER_PAGE_DEFAULT;
+  ROW_PER_PAGE_DEFAULT_LIST = ROW_PER_PAGE_DEFAULT_LIST;
   teamFormArr: FormArray = this.formBuilder.array([]);
   roleOptions: OptionsModel[] = [];
+  tableConfig: Column[] = [
+    {
+      field: 'module',
+      header: 'Module'
+    },
+    {
+      field: 'create',
+      header: 'Create'
+    },
+    {
+      field: 'remove',
+      header: 'Remove'
+    },
+    {
+      field: 'update',
+      header: 'Update'
+    },
+    {
+      field: 'display',
+      header: 'Display'
+    },
+    {
+      field: 'download',
+      header: 'Download'
+    },
+    {
+      field: 'export',
+      header: 'Export'
+    },
+  ];
+  userList: UserDto[] = [];
+  userListOptions: OptionsModel[] = [];
+  selectedUserFormGroup: FormGroup = new FormGroup({
+    user: new FormControl(""),
+    permission: this.formBuilder.array([]),
+  });
 
   constructor(
     private formBuilder: FormBuilder,
@@ -30,7 +75,60 @@ export class TeamComponent {
         })
       }
     })
+
+    this.authService.getAllUserByTenant(this.authService.tenant.uid).subscribe(res => {
+      if (res.isSuccess) {
+        this.userList = res.data;
+        this.userListOptions = res.data.map(d => {
+          return {
+            label: `${d.displayName} (${d.email})`,
+            value: d.uid
+          }
+        });
+      }
+    });
+
+    this.selectedUserFormGroup.controls['user'].valueChanges.subscribe(val => {
+      this.selectedUserFormGroup.controls['permission'] = this.formBuilder.array([]);
+      let permissionObj = this.authService.returnPermission(this.userList.find(u => u.uid === val)?.permission ?? '[]');
+
+      permissionObj.forEach(p => {
+        this.addPermissionArr(p.module, p.permission);
+      });
+
+      console.log(this.permissionArr.value);
+    });
+
+    this.initTable();
     this.addTeamFormArr();
+  }
+
+  get permissionArr(): FormArray {
+    return this.selectedUserFormGroup.controls['permission'] as FormArray;
+  }
+
+  initTable() {
+
+  }
+
+  addPermissionArr(module: string, permi: PermissionObjDto) {
+    if (permi) {
+      let permissionForm = this.formBuilder.group({
+        module: new FormControl(module),
+        permission: {
+          create: new FormControl(permi.create),
+          remove: new FormControl(permi.remove),
+          update: new FormControl(permi.update),
+          display: new FormControl(permi.display),
+          download: new FormControl(permi.download),
+          export: new FormControl(permi.export),
+        }
+      });
+      this.permissionArr.push(permissionForm);
+    }
+    else {
+      console.log(permi)
+    }
   }
 
   addTeamFormArr() {
@@ -116,5 +214,25 @@ export class TeamComponent {
         console.log(res.data);
       }
     })
+  }
+
+  returnColumnData(rowData: any, data: any): boolean {
+    // console.log(rowData)
+    // console.log(data.value)
+    // return new FormControl(data ?? false)
+    return data?.value ?? false;
+  }
+
+  submitPermission() {
+    console.log(this.permission);
+  }
+
+  returnSelectUserFormControl(): FormControl {
+    return this.selectedUserFormGroup.controls['user'] as FormControl;
+  }
+
+  permissionSwitchOnChange(rowData: any, field: string, event: any) {
+    rowData.permission[field as keyof PermissionObjDto].value = event.checked;
+    console.log(this.permissionArr.value);
   }
 }

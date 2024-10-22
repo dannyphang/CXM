@@ -5,7 +5,7 @@ import { FormConfig, CONTROL_TYPE, CONTROL_TYPE_CODE, OptionsModel } from "../se
 import { Input } from "@angular/core";
 import { BaseCoreAbstract } from "./base-core.abstract";
 import { MessageService } from "primeng/api";
-import { AuthService } from "../services/auth.service";
+import { AuthService, PermissionObjDto } from "../services/auth.service";
 import { TranslateService } from "@ngx-translate/core";
 
 export abstract class BasePropertyAbstract extends BaseCoreAbstract {
@@ -34,7 +34,7 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
     /**  
       initial property form
     **/
-    initProfileFormConfig(propertyList: PropertyGroupDto[], module: 'CONT' | 'COMP', contactProfile: ContactDto, companyProfile: CompanyDto, isLeftPanel = false) {
+    initProfileFormConfig(propertyList: PropertyGroupDto[], module: 'CONT' | 'COMP', contactProfile: ContactDto, companyProfile: CompanyDto, isLeftPanel: boolean, permission: PermissionObjDto) {
         let propCount = 0;
 
         this.profileFormGroup = this.formBuilder.group({});
@@ -43,7 +43,7 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
             let formsConfig: FormConfig[] = [];
             item.propertiesList.forEach(prop => {
                 let propProfileValue = this.returnProfileValue(prop, module, contactProfile, companyProfile);
-                let control = new FormControl(propProfileValue ? propProfileValue : this.commonService.returnControlTypeEmptyValue(prop));
+                let control = new FormControl({ value: propProfileValue ? propProfileValue : this.commonService.returnControlTypeEmptyValue(prop), disabled: !permission.update || !prop.isEditable });
 
                 this.profileFormGroup.addControl(prop.propertyCode, control);
 

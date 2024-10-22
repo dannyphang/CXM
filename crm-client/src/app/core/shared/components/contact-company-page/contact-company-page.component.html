@@ -312,6 +312,7 @@
 
               <div class="tw-flex">
                 <p-button
+                  *ngIf="canCreate"
                   [icon]="'pi pi-upload'"
                   rounded="true"
                   [text]="true"
@@ -319,6 +320,7 @@
                   (onClick)="exportFile(dt.processedData)"
                 ></p-button>
                 <p-button
+                  *ngIf="canDownload"
                   [icon]="'pi pi-download'"
                   rounded="true"
                   [text]="true"
@@ -326,6 +328,7 @@
                   (onClick)="uploader.click()"
                 ></p-button>
                 <p-button
+                  *ngIf="canDownload"
                   [icon]="'pi pi-cloud-download'"
                   rounded="true"
                   [text]="true"
@@ -333,6 +336,7 @@
                   (onClick)="downloadTemplate()"
                 ></p-button>
                 <p-button
+                  *ngIf="canCreate"
                   [icon]="'pi pi-plus'"
                   rounded="true"
                   [text]="true"
@@ -340,11 +344,11 @@
                   (onClick)="toCreate()"
                 ></p-button>
                 <p-button
+                  *ngIf="canDelete && selectedProfile.length > 0"
                   icon="pi pi-trash"
                   [rounded]="true"
                   [text]="true"
                   (onClick)="delete()"
-                  *ngIf="selectedProfile.length > 0"
                   [pTooltip]="'BUTTON.DELETE' | translate"
                 />
               </div>

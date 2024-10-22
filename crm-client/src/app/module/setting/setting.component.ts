@@ -2,7 +2,7 @@ import { Component, HostListener } from '@angular/core';
 import { MenuItem, MessageService } from 'primeng/api';
 import { BaseCoreAbstract } from '../../core/shared/base/base-core.abstract';
 import { TranslateService } from '@ngx-translate/core';
-import { AuthService, UserDto } from '../../core/shared/services/auth.service';
+import { AuthService, UserDto, UserPermissionDto } from '../../core/shared/services/auth.service';
 
 @Component({
   selector: 'app-setting',
@@ -12,6 +12,7 @@ import { AuthService, UserDto } from '../../core/shared/services/auth.service';
 export class SettingComponent extends BaseCoreAbstract {
   settingMenuItem: MenuItem[] = [];
   userC: UserDto;
+  permission: UserPermissionDto[] = [];
 
   constructor(
     protected override messageService: MessageService,
@@ -56,6 +57,7 @@ export class SettingComponent extends BaseCoreAbstract {
         }
       },
     ];
+    this.permission = JSON.parse(this.userC.permission);
   }
 
   @HostListener('window:scroll', ['$event']) // for window scroll events

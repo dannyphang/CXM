@@ -5,7 +5,7 @@ import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../..
 import { debounceTime, distinctUntilChanged, map, Observable, ObservableLike, of } from 'rxjs';
 import { BasePropertyAbstract } from '../../base/base-property.abstract';
 import { MessageService } from 'primeng/api';
-import { AuthService } from '../../services/auth.service';
+import { AuthService, UserPermissionDto } from '../../services/auth.service';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
@@ -18,6 +18,7 @@ export class AllPropertiesPageComponent extends BasePropertyAbstract implements 
   @Input() propertyList: PropertyGroupDto[] = [];
   @Input() contactProfile: ContactDto = new ContactDto();
   @Input() companyProfile: CompanyDto = new CompanyDto();
+  @Input() permission: UserPermissionDto[] = [];
 
   searchControl: FormControl = new FormControl('');
   hideEmptySearchCheckbox = [{ label: 'Hide blank properties', value: true }];
@@ -45,7 +46,7 @@ export class AllPropertiesPageComponent extends BasePropertyAbstract implements 
               value: c.uid
             }
           });
-          this.initProfileFormConfig(this.propertyList, this.module, this.contactProfile, this.companyProfile);
+          this.initProfileFormConfig(this.propertyList, this.module, this.contactProfile, this.companyProfile, false, this.permission.find(p => p.module === this.module)!.permission);
           this.checkFormValueChange(this.propertyList);
         }
         else {

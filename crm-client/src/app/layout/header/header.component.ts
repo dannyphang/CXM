@@ -70,8 +70,8 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['tenantOptionsList'] && changes['tenantOptionsList'].currentValue) {
-      if (this.tenantList.find(t => t.uid === this.user?.defaultTenantId)) {
-        this.authService.tenant = this.tenantList.find(t => t.uid === this.user.defaultTenantId)!;
+      if (this.tenantList.find(t => t.uid === this.user?.setting.defaultTenantId)) {
+        this.authService.tenant = this.tenantList.find(t => t.uid === this.user.setting.defaultTenantId)!;
         this.tenantFormControl = new FormControl(this.authService.tenant.uid);
         console.log(this.tenantFormControl.value)
       }

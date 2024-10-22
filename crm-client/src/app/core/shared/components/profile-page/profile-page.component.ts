@@ -5,7 +5,7 @@ import { ActivityDto, ActivityService } from '../../services/activity.service';
 import { Title } from '@angular/platform-browser';
 import { BaseCoreAbstract } from '../../base/base-core.abstract';
 import { MessageService } from 'primeng/api';
-import { AuthService } from '../../services/auth.service';
+import { AuthService, PermissionObjDto, UserPermissionDto } from '../../services/auth.service';
 
 @Component({
   selector: 'app-profile-page',
@@ -16,6 +16,7 @@ export class ProfilePageComponent extends BaseCoreAbstract implements OnChanges 
   @Input() module: 'CONT' | 'COMP' = 'CONT';
   @Input() propertiesList: PropertyGroupDto[] = [];
   @Input() profileId: string = '';
+  permission: UserPermissionDto[] = [];
   contactProfile: ContactDto = new ContactDto();
   companyProfile: CompanyDto = new CompanyDto();
   activitiesList: ActivityDto[] = [];
@@ -52,7 +53,13 @@ export class ProfilePageComponent extends BaseCoreAbstract implements OnChanges 
       this.getProperties();
 
       this.getActivities();
+
+      this.checkPermission();
     }
+  }
+
+  checkPermission() {
+    this.permission = this.authService.returnPermission(this.authService.userC.permission);
   }
 
   getProperties() {
