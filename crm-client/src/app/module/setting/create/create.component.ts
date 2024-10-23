@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { BaseCoreAbstract } from '../../../core/shared/base/base-core.abstract';
 import { MessageService } from 'primeng/api';
 import { TranslateService } from '@ngx-translate/core';
@@ -6,7 +6,7 @@ import { CONTROL_TYPE, FormConfig } from '../../../core/shared/services/componen
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { DEFAULT_PROFILE_PIC_URL } from '../../../core/shared/constants/common.constants';
 import { StorageService } from '../../../core/shared/services/storage.service';
-import { AuthService, CreateUserDto, UserDto } from '../../../core/shared/services/auth.service';
+import { AuthService, CreateUserDto, UserDto, UserPermissionDto } from '../../../core/shared/services/auth.service';
 
 @Component({
   selector: 'app-create',
@@ -14,6 +14,8 @@ import { AuthService, CreateUserDto, UserDto } from '../../../core/shared/servic
   styleUrl: './create.component.scss'
 })
 export class CreateComponent extends BaseCoreAbstract {
+  @Input() permission: UserPermissionDto[] = [];
+  @Input() module: string;
   userProfile: UserDto;
   createFormConfig: FormConfig[] = [];
   createFormGroup: FormGroup = new FormGroup({
@@ -47,24 +49,6 @@ export class CreateComponent extends BaseCoreAbstract {
   }
 
   getCurrentUser() {
-    // this.authService.getCurrentUser().then(user => {
-    //   if (user) {
-    //     this.authService.getUser(user.uid).subscribe(res => {
-    //       if (res.isSuccess) {
-    //         this.userProfile = res.data;
-    //         this.createFormGroup.controls['displayName'].setValue(res.data.displayName, { emitEvent: false });
-    //         this.createFormGroup.controls['first_name'].setValue(res.data.firstName, { emitEvent: false });
-    //         this.createFormGroup.controls['last_name'].setValue(res.data.lastName, { emitEvent: false });
-    //         this.createFormGroup.controls['nickname'].setValue(res.data.nickname, { emitEvent: false });
-    //         this.createFormGroup.controls['email'].setValue(res.data.email, { emitEvent: false });
-    //         this.createFormGroup.controls['phone'].setValue(res.data.phoneNumber, { emitEvent: false });
-
-    //         this.profilePhotoUrl = res.data.profilePhotoUrl;
-    //       }
-
-    //     });
-    //   }
-    // })
     this.userProfile = this.authService.userC;
     this.createFormGroup.controls['displayName'].setValue(this.userProfile.displayName, { emitEvent: false });
     this.createFormGroup.controls['first_name'].setValue(this.userProfile.firstName, { emitEvent: false });
@@ -138,21 +122,26 @@ export class CreateComponent extends BaseCoreAbstract {
   }
 
   imageFileUploadBtn() {
-    if (this.profileImg !== DEFAULT_PROFILE_PIC_URL && this.profilePhotoFile) {
-      this.storageService.uploadImage(this.profilePhotoFile, "Image/User/").then(url => {
-        this.profileImg = url;
-        this.profilePhotoUrl = url;
-        if (this.profilePhotoUrl) {
-          this.authService.updateUserFirestore([{ profilePhotoUrl: this.profilePhotoUrl, uid: this.userProfile.uid }], this.authService.user?.uid ?? 'SYSTEM').subscribe(res => {
-            if (res.isSuccess) {
-              this.popMessage(res.responseMessage);
-            }
-            else {
-              this.popMessage(res.responseMessage, "Error", "error");
-            }
-          })
-        }
-      });
+    if (this.checkPermission('update', this.module, this.permission, this.authService.userC.roleId)) {
+      if (this.profileImg !== DEFAULT_PROFILE_PIC_URL && this.profilePhotoFile) {
+        this.storageService.uploadImage(this.profilePhotoFile, "Image/User/").then(url => {
+          this.profileImg = url;
+          this.profilePhotoUrl = url;
+          if (this.profilePhotoUrl) {
+            this.authService.updateUserFirestore([{ profilePhotoUrl: this.profilePhotoUrl, uid: this.userProfile.uid }], this.authService.user?.uid ?? 'SYSTEM').subscribe(res => {
+              if (res.isSuccess) {
+                this.popMessage(res.responseMessage);
+              }
+              else {
+                this.popMessage(res.responseMessage, "Error", "error");
+              }
+            })
+          }
+        });
+      }
+    }
+    else {
+      this.popMessage(this.translateService.instant('MESSAGE.PROPERTY_NOT_EDITABLE'), this.translateService.instant('MESSAGE.ERROR'), 'error');
     }
   }
 
@@ -183,24 +172,29 @@ export class CreateComponent extends BaseCoreAbstract {
   }
 
   update() {
-    let updateUser: CreateUserDto = {
-      uid: this.userProfile.uid,
-      firstName: this.createFormGroup.controls['first_name'].value,
-      lastName: this.createFormGroup.controls['last_name'].value,
-      nickname: this.createFormGroup.controls['nickname'].value,
-      displayName: this.createFormGroup.controls['displayName'].value,
-      email: this.createFormGroup.controls['email'].value,
-      phoneNumber: this.createFormGroup.controls['phone'].value,
-      profilePhotoUrl: this.profilePhotoUrl ?? ''
-    }
+    if (this.checkPermission('update', this.module, this.permission, this.authService.userC.roleId)) {
+      let updateUser: CreateUserDto = {
+        uid: this.userProfile.uid,
+        firstName: this.createFormGroup.controls['first_name'].value,
+        lastName: this.createFormGroup.controls['last_name'].value,
+        nickname: this.createFormGroup.controls['nickname'].value,
+        displayName: this.createFormGroup.controls['displayName'].value,
+        email: this.createFormGroup.controls['email'].value,
+        phoneNumber: this.createFormGroup.controls['phone'].value,
+        profilePhotoUrl: this.profilePhotoUrl ?? ''
+      }
 
-    this.authService.updateUserFirestore([updateUser], this.authService.user?.uid ?? 'SYSTEM').subscribe(res => {
-      if (res.isSuccess) {
-        this.popMessage(res.responseMessage);
-      }
-      else {
-        this.popMessage(res.responseMessage, "Error", "error");
-      }
-    })
+      this.authService.updateUserFirestore([updateUser], this.authService.user?.uid ?? 'SYSTEM').subscribe(res => {
+        if (res.isSuccess) {
+          this.popMessage(res.responseMessage);
+        }
+        else {
+          this.popMessage(res.responseMessage, "Error", "error");
+        }
+      })
+    }
+    else {
+      this.popMessage(this.translateService.instant('MESSAGE.NO_PERMISSION_UPDATE'), this.translateService.instant('MESSAGE.ERROR'), 'error');
+    }
   }
 }

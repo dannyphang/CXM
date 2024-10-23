@@ -10,7 +10,7 @@
 
   <div class="setting-content">
     <div class="general-content" id="general">
-      <app-general></app-general>
+      <app-general [permission]="permission" [module]="module"></app-general>
       <p-divider></p-divider>
     </div>
 
@@ -20,7 +20,7 @@
     </div>
 
     <div class="prpperty-content" id="property">
-      <app-setting-property></app-setting-property>
+      <app-setting-property [permission]="permission"></app-setting-property>
       <p-divider></p-divider>
     </div>
   </div>

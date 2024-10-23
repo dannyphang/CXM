@@ -71,7 +71,7 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
       this.propertiesList = changes['propertiesList'].currentValue;
 
       if (this.contactProfile || this.companyProfile) {
-        this.initProfileFormConfig(this.propertiesList, this.module, this.contactProfile, this.companyProfile, true, this.permission.find(p => p.module === this.module)!.permission);
+        this.initProfileFormConfig(this.propertiesList, this.module, this.contactProfile, this.companyProfile, true, this.permission);
       }
 
       this.checkFormValueChange(this.propertiesList);
@@ -79,7 +79,7 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
 
     if (changes['contactProfile'] && changes['contactProfile'].currentValue) {
       if (this.propertiesList) {
-        this.initProfileFormConfig(this.propertiesList, this.module, this.contactProfile, this.companyProfile, true, this.permission.find(p => p.module === this.module)!.permission);
+        this.initProfileFormConfig(this.propertiesList, this.module, this.contactProfile, this.companyProfile, true, this.permission);
       }
       if (this.contactProfile.contactProfilePhotoUrl) {
         this.profileImg = this.contactProfile.contactProfilePhotoUrl;
@@ -90,7 +90,7 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
 
     if (changes['companyProfile'] && changes['companyProfile'].currentValue) {
       if (this.propertiesList) {
-        this.initProfileFormConfig(this.propertiesList, this.module, this.contactProfile, this.companyProfile, true, this.permission.find(p => p.module === this.module)!.permission);
+        this.initProfileFormConfig(this.propertiesList, this.module, this.contactProfile, this.companyProfile, true, this.permission);
       }
       if (this.companyProfile.companyProfilePhotoUrl) {
         this.profileImg = this.companyProfile.companyProfilePhotoUrl;
@@ -114,7 +114,6 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
         this.popMessage(res.responseMessage, "Error", "error");
       }
     });
-
   }
 
   copyEmailToClipboard(copiedText: string) {
@@ -188,9 +187,4 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
     this.profileImg = this.contactProfile.contactProfilePhotoUrl ? this.contactProfile.contactProfilePhotoUrl : DEFAULT_PROFILE_PIC_URL;
     this.profilePhotoFile = null;
   }
-}
-
-class profileUpdateDto {
-  property: PropertiesDto;
-  value: string;
 }

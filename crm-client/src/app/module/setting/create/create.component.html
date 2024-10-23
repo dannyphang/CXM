@@ -44,6 +44,7 @@
   (change)="imageFileUpload($event)"
   accept="image/*"
 />
+
 <div>
   <h2 class="tw-text-[var(--text-color)]">
     {{ "SETTING.GENERAL_PROFILE" | translate }}
@@ -82,7 +83,15 @@
   </div>
   <app-base-form [formConfig]="createFormConfig"></app-base-form>
 
-  <div class="tw-m-[var(--content-gap)] tw-mt-0">
+  <div
+    class="tw-m-[var(--content-gap)] tw-mt-0 tw-flex tw-gap-[var(--content-gap)] tw-justify-between"
+  >
+    <p-button
+      [label]="'BUTTON.CANCEL' | translate"
+      (onClick)="getCurrentUser()"
+      [outlined]="true"
+    ></p-button>
+
     <p-button
       [label]="'BUTTON.UPDATE' | translate"
       (onClick)="update()"

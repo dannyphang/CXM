@@ -117,7 +117,7 @@ router.get("/user/email", async (req, res) => {
   }
 });
 
-// get user by email
+// get user by tenant
 router.get("/user/tenant/:id", async (req, res) => {
   const tenantId = req.params.id;
 
@@ -138,7 +138,16 @@ router.get("/user/tenant/:id", async (req, res) => {
           .doc(u.userId)
           .get();
 
-        list.push(snapshot2.data());
+        let user = snapshot2.data();
+
+        user.createdDate = convertFirebaseDateFormat(
+          snapshot2.data().createdDate
+        );
+        user.modifiedDate = convertFirebaseDateFormat(
+          snapshot2.data().modifiedDate
+        );
+
+        list.push(user);
 
         if (index === userTenantAssoList.length - 1) {
           res.status(200).json(responseModel({ data: list }));
@@ -209,6 +218,7 @@ router.put("/user/update", async (req, res) => {
 
     userList.forEach(async (user, index) => {
       user.modifiedDate = new Date();
+      user.createdDate = new Date(user.createdDate);
 
       let newRef = firebase.default.db
         .collection(userCollectionName)
@@ -256,7 +266,15 @@ router.get("/tenant/:id", async (req, res) => {
         .doc(t.tenantId)
         .get();
 
-      list.push(snapshot2.data());
+      let user = snapshot2.data();
+      user.createdDate = convertFirebaseDateFormat(
+        snapshot2.data().createdDate
+      );
+      user.modifiedDate = convertFirebaseDateFormat(
+        snapshot2.data().modifiedDate
+      );
+
+      list.push(user);
 
       if (index === userTenantAssoList.length - 1) {
         res.status(200).json(responseModel({ data: list }));
@@ -390,13 +408,11 @@ router.put("/userRole/update", async (req, res) => {
         }
 
         if (index == updateList.length - 1) {
-          res
-            .status(200)
-            .json(
-              responseModel({
-                responseMessage: `Updated ${updatedUserList.length} record(s).`,
-              })
-            );
+          res.status(200).json(
+            responseModel({
+              responseMessage: `Updated ${updatedUserList.length} record(s).`,
+            })
+          );
         }
       } else {
         res.status(400).json(
@@ -419,7 +435,11 @@ router.put("/userRole/update", async (req, res) => {
 });
 
 function convertFirebaseDateFormat(date) {
-  return date.toDate();
+  try {
+    return date.toDate() ?? null;
+  } catch (error) {
+    return new Date(data);
+  }
 }
 
 export default router;

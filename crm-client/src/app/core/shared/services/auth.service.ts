@@ -104,6 +104,9 @@ export class AuthService {
                                 this.userC = res.data;
                                 resolve(this.user);
                             }
+                            else {
+                                console.log(res.responseMessage);
+                            }
                         })
                     } else {
                         resolve(null);
@@ -176,12 +179,12 @@ export class AuthService {
     }
 
     returnPermission(pString: string): UserPermissionDto[] {
-        return JSON.parse(pString);
+        return JSON.parse(pString ?? '[]');
     }
 
-    checkPermission(module: string, action: string, permission: UserPermissionDto[]): boolean {
-        return permission.find(p => p.module === module)!.permission[action as keyof PermissionObjDto];
-    }
+    // checkPermission(module: string, action: string, permission: UserPermissionDto[]): boolean {
+    //     return permission.find(p => p.module === module)?.permission[action as keyof PermissionObjDto] ??;
+    // }
 }
 
 export class CreateUserDto extends BasedDto {

@@ -3,10 +3,15 @@
     "CONTACT": "Contact",
     "COMPANY": "Company",
     "DATA_LOADING": "Data loading...",
-    "LOADING": "Loading"
+    "LOADING": "Loading",
+    "SETTING": "Setting",
+    "TENANT": "Tenant",
+    "ROLE": "Role"
   },
   "HEADER": {
-    "SETTING": "Setting"
+    "SETTING": "Setting",
+    "TENANT": "Tenant",
+    "PROFILE": "Profile"
   },
   "ERROR": {
     "YOU_CANNOT_LEAVE_IT_BLANK": "You cannot leave it blank.",
@@ -29,7 +34,11 @@
     "SUCCESS": "Success",
     "UPDATED_SUCCESSFULLY": "Updated successfully.",
     "CANNOT_DELETE_SYSTEM_PROPERTY": "System property is not allow to delete.",
-    "ERROR": "Error"
+    "ERROR": "Error",
+    "NO_PERMISSION_UPDATE": "No permission to update",
+    "NO_PERMISSION_CREATE": "No permission to create",
+    "NO_PERMISSION_DELETE": "No permission to delete",
+    "NO_PERMISSION_VIEW": "No permission to view"
   },
   "BUTTON": {
     "SAVE": "Save",
@@ -46,6 +55,7 @@
     "EXPORT": "Export",
     "ADD": "Add",
     "DELETE": "Delete",
+    "SEND": "Send",
     "DOWNLOAD_TEMPLATE": "Download template",
     "ADVANCE_FILTER": "Advance filter ({{numberOfFilter}})",
     "EDIT_COLUMN": "Edit columns ({{numberOfColumn}})",
@@ -133,6 +143,12 @@
     "USER_EMAIL": "User email",
     "ROLE": "Role",
     "PROPERTY_MANAGEMENT": "Property Management",
-    "GENERAL_PROFILE": "General Profile"
+    "GENERAL_PROFILE": "General Profile",
+    "CREATE_TENANT": "Create tenant",
+    "ASSIGN_ROLE": "Assign role",
+    "ADD_ROLE": "Add role",
+    "TENANT_NAME": "Tenant name",
+    "USER_LIST": "User list",
+    "PERMISSION_LIST": "Permission list"
   }
 }

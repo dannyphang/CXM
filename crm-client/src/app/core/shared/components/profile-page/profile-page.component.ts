@@ -54,11 +54,11 @@ export class ProfilePageComponent extends BaseCoreAbstract implements OnChanges 
 
       this.getActivities();
 
-      this.checkPermission();
+      this.getPermission();
     }
   }
 
-  checkPermission() {
+  getPermission() {
     this.permission = this.authService.returnPermission(this.authService.userC.permission);
   }
 

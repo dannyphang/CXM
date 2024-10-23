@@ -1,8 +1,10 @@
 import { Component, Input } from '@angular/core';
-import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { AuthService, PermissionObjDto, UpdateUserRoleDto, UserDto, UserPermissionDto } from '../../../core/shared/services/auth.service';
-import { OptionsModel } from '../../../core/shared/services/components.service';
+import { CONTROL_TYPE, FormConfig, OptionsModel } from '../../../core/shared/services/components.service';
 import { ROW_PER_PAGE_DEFAULT, ROW_PER_PAGE_DEFAULT_LIST } from '../../../core/shared/constants/common.constants';
+import { BaseCoreAbstract } from '../../../core/shared/base/base-core.abstract';
+import { MessageService } from 'primeng/api';
 
 interface Column {
   field: string;
@@ -14,7 +16,7 @@ interface Column {
   templateUrl: './team.component.html',
   styleUrl: './team.component.scss'
 })
-export class TeamComponent {
+export class TeamComponent extends BaseCoreAbstract {
   @Input() permission: UserPermissionDto[] = [];
   ROW_PER_PAGE_DEFAULT = ROW_PER_PAGE_DEFAULT;
   ROW_PER_PAGE_DEFAULT_LIST = ROW_PER_PAGE_DEFAULT_LIST;
@@ -57,15 +59,46 @@ export class TeamComponent {
     permission: this.formBuilder.array([]),
   });
   updateUserList: UserDto[] = [];
+  createTenantFormConfig: FormConfig[] = [];
+  createTenantFormGroup: FormGroup = new FormGroup({
+    tenantName: new FormControl("", Validators.required),
+  });
+  isAddRoleDialogVisible: boolean = false;
+  roleTableConfig: Column[] = [
+    {
+      field: 'displayName',
+      header: 'Name',
+    },
+    {
+      field: 'email',
+      header: 'Email',
+    },
+    {
+      field: 'roleId',
+      header: 'Role',
+    },
+  ];
+  selectedUser: UserDto[] = [];
+  filterField: string[] = ['displayName', 'email'];
+  roleSearchFormControl: FormControl = new FormControl("");
+  currentUser: UserDto;
+  isAddTenantDialogVisible = false;
 
   constructor(
     private formBuilder: FormBuilder,
-    private authService: AuthService
+    private authService: AuthService,
+    protected override messageService: MessageService
   ) {
-
+    super(messageService);
   }
 
   ngOnInit() {
+    this.currentUser = this.authService.userC;
+
+    this.selectedUserFormGroup.controls['user'].valueChanges.subscribe(val => {
+      this.initPermissionTable(val);
+    });
+
     this.authService.getAllRoles().subscribe(res => {
       if (res.isSuccess) {
         this.roleOptions = res.data.map(r => {
@@ -73,7 +106,10 @@ export class TeamComponent {
             label: r.roleName,
             value: r.roleId
           }
-        })
+        });
+
+        this.selectedUserFormGroup.controls['user'].setValue(this.authService.userC.uid);
+        this.initPermissionTable(this.authService.userC.uid);
       }
     })
 
@@ -91,25 +127,37 @@ export class TeamComponent {
       });
     }
 
-    this.selectedUserFormGroup.controls['user'].valueChanges.subscribe(val => {
-      this.selectedUserFormGroup.controls['permission'] = this.formBuilder.array([]);
-      let permissionObj = this.authService.returnPermission(this.userList.find(u => u.uid === val)?.permission ?? '[]');
-
-      permissionObj.forEach(p => {
-        this.addPermissionArr(p.module, p.permission);
-      });
-    });
-
-    this.initTable();
-    this.addTeamFormArr();
+    this.initTeamRole();
+    this.initCreateTenantForm();
   }
 
   get permissionArr(): FormArray {
     return this.selectedUserFormGroup.controls['permission'] as FormArray;
   }
 
-  initTable() {
+  initPermissionTable(user: string, isCancel: boolean = false) {
+    let userId = user;
+    if (isCancel) {
+      userId = this.selectedUserFormGroup.controls['user'].value;
+      this.authService.getAllUserByTenant(this.authService.tenant.uid).subscribe(res => {
+        if (res.isSuccess) {
+          this.userList = res.data;
+          this.userListOptions = res.data.map(d => {
+            return {
+              label: `${d.displayName} (${d.email})`,
+              value: d.uid
+            }
+          });
+        }
+      });
+    }
 
+    this.selectedUserFormGroup.controls['permission'] = this.formBuilder.array([]);
+    let permissionObj = this.authService.returnPermission(this.userList.find(u => u.uid === userId)?.permission ?? '[]');
+
+    permissionObj.forEach(p => {
+      this.addPermissionArr(p.module, p.permission);
+    });
   }
 
   addPermissionArr(module: string, permi: PermissionObjDto) {
@@ -130,6 +178,12 @@ export class TeamComponent {
     else {
       console.log(permi)
     }
+  }
+
+  initTeamRole() {
+    this.isAddRoleDialogVisible = false;
+    this.teamFormArr = this.formBuilder.array([]);
+    this.addTeamFormArr();
   }
 
   addTeamFormArr() {
@@ -196,7 +250,7 @@ export class TeamComponent {
   }
 
   submitTeam() {
-    console.log(this.teamFormArr.value)
+    this.teamFormArr = this.formBuilder.array([]);
     let updateList: UpdateUserRoleDto[] = this.teamFormArr.value.map((i: {
       email: string,
       role: number
@@ -254,5 +308,27 @@ export class TeamComponent {
       this.userList.find(u => u.uid === this.selectedUserFormGroup.controls['user'].value)!.permission = JSON.stringify(pArr);
       this.updateUserList.push(this.userList.find(u => u.uid === this.selectedUserFormGroup.controls['user'].value)!);
     }
+  }
+
+  initCreateTenantForm() {
+    this.createTenantFormConfig = [
+      {
+        label: 'SETTING.TENANT_NAME',
+        type: CONTROL_TYPE.Textbox,
+        fieldControl: this.createTenantFormGroup.controls['tenantName'],
+        layoutDefine: {
+          row: 0,
+          column: 0
+        }
+      }
+    ]
+  }
+
+  returnRoleById(id: number): string {
+    return this.roleOptions.find(r => r.value === id)?.label ?? '';
+  }
+
+  closeTenantDialog() {
+    this.isAddTenantDialogVisible = false;
   }
 }

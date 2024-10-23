@@ -33,6 +33,7 @@ const routes: Routes = [
       {
         path: 'setting',
         loadChildren: () => import('./module/setting/setting.module').then(m => m.SettingModule),
+        canActivate: [PermissionGuard],
         data: { breadcrumb: 'HEADER.SETTING', title: 'HEADER.SETTING', module: 'SETTING', action: 'display' }
       }
     ]

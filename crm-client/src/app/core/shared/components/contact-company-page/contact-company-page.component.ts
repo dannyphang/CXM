@@ -12,6 +12,7 @@ import { BaseDataSourceActionEvent, CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig,
 import { ROW_PER_PAGE_DEFAULT, ROW_PER_PAGE_DEFAULT_LIST, EMPTY_VALUE_STRING, NUMBER_OF_EXCEL_INSERT_ROW } from '../../constants/common.constants';
 import * as XLSX from 'xlsx';
 import { BaseCoreAbstract } from '../../base/base-core.abstract';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-contact-company-page',
@@ -68,6 +69,7 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
     private translateService: TranslateService,
     protected override messageService: MessageService,
     private authService: AuthService,
+    private titleService: Title,
   ) {
     super(messageService);
 
@@ -146,9 +148,11 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
     this.createFormGroup = this.formBuilder.group({});
 
     if (this.module === 'CONT') {
+      this.titleService.setTitle(this.translateService.instant('COMMON.CONTACT'));
       this.getContact();
     }
     else {
+      this.titleService.setTitle(this.translateService.instant('COMMON.COMPANY'));
       this.getCompany();
     }
 
