@@ -12,7 +12,12 @@
       [src]="profileImg"
       class="tw-w-full tw-aspect-square tw-border tw-border-solid tw-border-[var(--primary-color)] tw-object-cover tw-mb-[var(--content-gap)]"
     />
-    <div class="tw-flex tw-justify-between">
+    <div
+      class="tw-flex tw-justify-between"
+      *ngIf="
+        checkPermission('update', 'SETTING', permission, userProfile.roleId)
+      "
+    >
       <p-button
         [icon]="'pi pi-plus'"
         [rounded]="true"

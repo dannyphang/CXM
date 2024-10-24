@@ -53,6 +53,7 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
   profilePhotoFile: File | null;
   profilePhotoFileBlob: Blob;
   profileImg: string = DEFAULT_PROFILE_PIC_URL;
+  roleId: number = 0;
 
   constructor(
     private router: Router,
@@ -114,6 +115,8 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
         this.popMessage(res.responseMessage, "Error", "error");
       }
     });
+
+    this.roleId = this.authService.userC.roleId;
   }
 
   copyEmailToClipboard(copiedText: string) {
