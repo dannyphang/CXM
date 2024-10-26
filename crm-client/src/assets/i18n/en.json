@@ -1,5 +1,6 @@
 {
   "COMMON": {
+    "LOGO_TITLE": "CRM",
     "CONTACT": "Contact",
     "COMPANY": "Company",
     "DATA_LOADING": "Data loading...",
@@ -32,6 +33,7 @@
     "ERROR": "Error"
   },
   "BUTTON": {
+    "SEND": "Send",
     "SAVE": "Save",
     "CANCEL": "Cancel",
     "EDIT": "Edit",
@@ -40,6 +42,8 @@
     "ATTACH_FILE": "Attach Files",
     "LOGIN": "Login",
     "LOGOUT": "Logout",
+    "SIGN_UP": "Sign up",
+    "SIGN_IN": "Sign in",
     "UPLOAD": "Upload",
     "CREATE": "Create",
     "IMPORT": "Import",
@@ -55,9 +59,21 @@
     "ALL_TO_Left": "Remove all properties from column.",
     "TO_RIGHT": "Add properties to column.",
     "TO_Left": "Remove properties from column.",
-    "SIGN_UP_LABEL": "Create a new account",
-    "SIGN_IN_LABEL": "Go to sign in",
+    "SIGN_UP_LABEL": " Sign up here",
+    "SIGN_IN_LABEL": " Sign in here",
     "CHECK_USER_EMAIL": "Check email existing"
+  },
+  "SIGNIN": {
+    "FORGOT_TITLE": "Forgot password",
+    "DONT_HAVE_ACCOUNT": "Don't have an account? ",
+    "ALREADY_HAVE_ACCOUNT": "Already have an account? ",
+    "LOGIN_TITLE": "Login to {{logo_title}}",
+    "SIGN_UP_TITLE": "Sign up account to {{logo_title}}",
+    "FORGOT_PASSWORD": "Forgot password",
+    "FACEBOOK": "Facebook",
+    "GOOGLE": "Google",
+    "SIGN_IN_WITH": "Sign in with {{method}}",
+    "RESEND_IN": "Resend in {{timer}} seconds..."
   },
   "INPUT": {
     "SEARCH": "Search",
@@ -69,7 +85,9 @@
     "MORE_THAN": "More than",
     "IS_KNOWN": "Is known",
     "IS_NOT_KNOWN": "Is unknown",
-    "SELECT": "Select"
+    "SELECT": "Select",
+    "REMEMBER_ME": "Remember me",
+    "EMAIL": "Email"
   },
   "ACTIVITY": {
     "WORDS": "words",

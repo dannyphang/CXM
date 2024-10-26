@@ -1,37 +1,166 @@
 <app-toast></app-toast>
 
-<div
-  class="login-container tw-w-screen tw-h-screen tw-grid tw-justify-center tw-items-center"
->
-  <div class="tw-grid tw-justify-center tw-items-center">
-    <div class="login-form-div" *ngIf="isLoginMode">
-      <app-base-form [formConfig]="loginFormConfig" class=""> </app-base-form>
-    </div>
+<div class="login-container">
+  <div class="tw-shadow-lg tw-rounded-[var(--border-radius)] tw-w-1/3">
+    <!-- header -->
+    <div
+      class="acc-nav-div tw-p-[var(--content-gap)] tw-flex tw-justify-between"
+    >
+      <div class="login-title" *ngIf="isLoginMode && !forgotMode">
+        {{
+          "SIGNIN.LOGIN_TITLE"
+            | translate
+              : {
+                  logo_title: ("COMMON.LOGO_TITLE" | translate)
+                }
+        }}
+      </div>
 
-    <div class="login-form-div" *ngIf="!isLoginMode">
-      <app-base-form [formConfig]="signupFormConfig" class=""> </app-base-form>
-    </div>
+      <div class="login-title" *ngIf="!isLoginMode && !forgotMode">
+        {{
+          "SIGNIN.SIGN_UP_TITLE"
+            | translate
+              : {
+                  logo_title: ("COMMON.LOGO_TITLE" | translate)
+                }
+        }}
+      </div>
 
-    <a class="signup-label-button" (click)="toSignUp()" *ngIf="isLoginMode">{{
-      "BUTTON.SIGN_UP_LABEL" | translate
-    }}</a>
+      <div class="login-title" *ngIf="forgotMode">
+        {{ "SIGNIN.FORGOT_TITLE" | translate }}
+      </div>
 
-    <a class="signin-label-button" (click)="toSignIn()" *ngIf="!isLoginMode">{{
-      "BUTTON.SIGN_IN_LABEL" | translate
-    }}</a>
-
-    <div class="action-div tw-flex tw-justify-center tw-p-[var(--content-gap)]">
       <p-button
+        class="signup-label-button tw-ml-[var(--content-gap-xs)]"
+        (click)="toSignUp()"
+        *ngIf="isLoginMode && !forgotMode"
+        [label]="'BUTTON.SIGN_UP' | translate"
+        [link]="true"
+      ></p-button>
+
+      <p-button
+        class="signin-label-button tw-ml-[var(--content-gap-xs)]"
+        (click)="toSignIn()"
+        *ngIf="!isLoginMode && !forgotMode"
+        [label]="'BUTTON.SIGN_IN' | translate"
+        [link]="true"
+      ></p-button>
+    </div>
+
+    <!-- login method -->
+    <div class="method-div" *ngIf="isLoginMode && !forgotMode">
+      <div class="method-button-div">
+        <p-button
+          [label]="
+            'SIGNIN.SIGN_IN_WITH'
+              | translate
+                : {
+                    method: ('SIGNIN.GOOGLE' | translate)
+                  }
+          "
+          [outlined]="true"
+          [icon]="'pi pi-google'"
+          styleClass="tw-w-full"
+          class="signin-label-button tw-ml-[var(--content-gap-xs)] tw-w-full"
+        ></p-button>
+        <p-button
+          [label]="
+            'SIGNIN.SIGN_IN_WITH'
+              | translate
+                : {
+                    method: ('SIGNIN.FACEBOOK' | translate)
+                  }
+          "
+          [outlined]="true"
+          [icon]="'pi pi-facebook'"
+          styleClass="tw-w-full"
+          class="signin-label-button tw-ml-[var(--content-gap-xs)] tw-w-full"
+        ></p-button>
+      </div>
+      <p-divider [align]="'center'" [type]="'dotted'">OR</p-divider>
+    </div>
+
+    <!-- form -->
+    <div class="form-div">
+      <div class="signin-form-div" *ngIf="isLoginMode && !forgotMode">
+        <app-base-form [formConfig]="loginFormConfig" class=""> </app-base-form>
+      </div>
+
+      <div class="signup-form-div" *ngIf="!isLoginMode && !forgotMode">
+        <app-base-form [formConfig]="signupFormConfig" class="">
+        </app-base-form>
+      </div>
+
+      <div class="forgot-form-div" *ngIf="forgotMode">
+        <app-base-form [formConfig]="forgotFormConfig" class="">
+        </app-base-form>
+      </div>
+    </div>
+
+    <!-- sub function (forgot password, remember me) -->
+    <div
+      class="sub-function-div tw-flex tw-justify-between tw-items-center tw-p-[var(--content-gap)]"
+      *ngIf="isLoginMode && !forgotMode"
+    >
+      <app-base-checkbox
+        [options]="[
+          {
+            label: ('INPUT.REMEMBER_ME' | translate),
+            value: 'remember_me'
+          }
+        ]"
+      ></app-base-checkbox>
+      <a class="forgot-password-button" (click)="forgotpassword()"
+        >{{ "SIGNIN.FORGOT_PASSWORD" | translate }}?</a
+      >
+    </div>
+
+    <div *ngIf="forgotMode" class="tw-px-[var(--content-gap)]">
+      <div *ngIf="timeRemaining$ | async as timeRemaining">
+        <p *ngIf="timeRemaining !== null">
+          {{
+            "SIGNIN.RESEND_IN"
+              | translate
+                : {
+                    timer: timeRemaining / 1000 | number : "1.0-0"
+                  }
+          }}
+        </p>
+      </div>
+    </div>
+
+    <div
+      class="action-div tw-flex tw-justify-center tw-p-[var(--content-gap)] tw-gap-[var(--content-gap)]"
+    >
+      <p-button
+        *ngIf="forgotMode"
         [label]="'BUTTON.CANCEL' | translate"
-        [severity]="'secondary'"
         [outlined]="true"
         (onClick)="cancel()"
+        styleClass="tw-w-full"
+        class="tw-w-full"
       ></p-button>
       <p-button
-        [label]="isLoginMode ? 'Login' : 'Sign Up'"
+        *ngIf="!forgotMode"
+        [label]="
+          isLoginMode && !forgotMode
+            ? ('BUTTON.LOGIN' | translate)
+            : ('BUTTON.SIGN_UP' | translate)
+        "
         [severity]="'primary'"
-        class="tw-ml-[var(--content-gap)]"
+        styleClass="tw-w-full"
+        class="tw-w-full"
         (onClick)="submit()"
+      ></p-button>
+
+      <p-button
+        *ngIf="forgotMode"
+        [label]="'BUTTON.SEND' | translate"
+        [severity]="'primary'"
+        styleClass="tw-w-full"
+        class="tw-w-full"
+        (onClick)="sendEmail()"
+        [disabled]="countingDown"
       ></p-button>
     </div>
   </div>

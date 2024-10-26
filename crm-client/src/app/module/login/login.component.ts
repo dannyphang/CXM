@@ -1,10 +1,11 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, ElementRef } from '@angular/core';
 import { AuthService, CreateUserDto } from '../../core/services/auth.service';
 import { CONTROL_TYPE, FormConfig } from '../../core/services/components.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common'
 import { TranslateService } from '@ngx-translate/core';
+import { BehaviorSubject, finalize, map, Observable, Subject, switchMap, takeWhile, timer } from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -18,20 +19,44 @@ export class LoginComponent {
     password: new FormControl("", Validators.required),
   });
   signupFormConfig: FormConfig[] = [];
+  forgotFormConfig: FormConfig[] = [];
   signupFormGroup: FormGroup = new FormGroup({
     username: new FormControl("", Validators.required),
     email: new FormControl("", Validators.required),
     password: new FormControl("", Validators.required),
     confirmPassword: new FormControl("", Validators.required),
   });
+  forgotFormControl: FormControl = new FormControl("", Validators.required);
   isLoginMode: boolean = true;
+  forgotMode: boolean = false;
+  seconds: number = 10;
+  private startCountdown$ = new BehaviorSubject<boolean>(false);
+  timeRemaining$ = this.startCountdown$.pipe(
+    switchMap((start) => {
+      // If countdown is started, initiate the timer
+      return start
+        ? timer(0, 1000).pipe(
+          map((n) => (this.seconds - n) * 1000),
+          takeWhile((n) => n >= 0),
+          finalize(() => {
+            // Trigger this function when the countdown completes
+            this.countingDown = false;
+          })
+        )
+        : [null]; // If not started, emit null
+    })
+  );
+  countingDown: boolean = false;
+
 
   constructor(
     private authService: AuthService,
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private _location: Location,
-    private translateService: TranslateService
+    private translateService: TranslateService,
+    private elementRef: ElementRef,
+    private cdr: ChangeDetectorRef
   ) {
     if (this.router.url === '/signin') {
       this.isLoginMode = true;
@@ -45,6 +70,7 @@ export class LoginComponent {
     this.authService.initAuth();
     this.initLoginForm();
     this.initSignupForm();
+    this.initForgotForm();
   }
 
   initLoginForm() {
@@ -121,6 +147,20 @@ export class LoginComponent {
         required: true,
         mode: 'password'
       },
+    ];
+  }
+
+  initForgotForm() {
+    this.forgotFormConfig = [
+      {
+        label: 'INPUT.EMAIL',
+        fieldControl: this.forgotFormControl,
+        type: CONTROL_TYPE.Textbox,
+        layoutDefine: {
+          row: 0,
+          column: 0,
+        }
+      }
     ]
   }
 
@@ -180,5 +220,14 @@ export class LoginComponent {
 
   toCreate() {
     this.router.navigate(["/setting/create"]);
+  }
+
+  forgotpassword() {
+    this.forgotMode = true;
+  }
+
+  sendEmail() {
+    this.startCountdown$.next(true);
+    this.countingDown = true;
   }
 }

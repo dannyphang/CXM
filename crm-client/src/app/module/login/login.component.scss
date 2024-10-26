@@ -1,7 +1,31 @@
 .signup-label-button,
-.signin-label-button {
+.signin-label-button,
+.forgot-password-button {
   cursor: pointer;
   text-align: center;
-  text-decoration: underline;
+  // text-decoration: underline;
   color: var(--primary-color);
+}
+
+.login-container {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.login-title {
+  font-size: 1.5rem !important;
+  font-weight: 500 !important;
+}
+
+.method-div {
+  padding: var(--content-gap) var(--content-gap) 0;
+}
+
+.method-button-div {
+  display: flex;
+  gap: var(--content-gap);
+  padding-bottom: var(--content-gap);
 }
