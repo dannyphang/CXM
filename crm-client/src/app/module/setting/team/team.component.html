@@ -254,5 +254,18 @@
     ></app-base-form>
   </ng-template>
 
-  <ng-template pTemplate="footer"> </ng-template>
+  <ng-template pTemplate="footer">
+    <div class="tw-flex tw-justify-between">
+      <p-button
+        [label]="'BUTTON.CANCEL' | translate"
+        [outlined]="true"
+        (onClick)="resetTenantForm()"
+      ></p-button>
+
+      <p-button
+        [label]="'BUTTON.CREATE' | translate"
+        (onClick)="createTenant()"
+      ></p-button>
+    </div>
+  </ng-template>
 </p-dialog>

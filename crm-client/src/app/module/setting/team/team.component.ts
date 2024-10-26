@@ -331,4 +331,12 @@ export class TeamComponent extends BaseCoreAbstract {
   closeTenantDialog() {
     this.isAddTenantDialogVisible = false;
   }
+
+  resetTenantForm() {
+
+  }
+
+  createTenant() {
+
+  }
 }
