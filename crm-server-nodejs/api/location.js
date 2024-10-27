@@ -1,7 +1,7 @@
 import { Router } from "express";
 import express from "express";
 const router = Router();
-import * as db from "../firebase-admin.js";
+import * as db from "../configuration/firebase-admin.js";
 import responseModel from "../shared/function.js";
 
 // router.use(express.json());
@@ -96,9 +96,7 @@ router.post("/state", async (req, res) => {
       await newRef.set(loc);
     });
 
-    res
-      .status(200)
-      .json(responseModel({ data: { updatedLength: createdList.length } }));
+    res.status(200).json(responseModel({ data: { updatedLength: createdList.length } }));
   } catch (error) {
     console.log("error", error);
     res.status(400).json(
@@ -145,10 +143,7 @@ router.get("/state/:id", async (req, res) => {
   try {
     const countryUid = req.params.id;
 
-    const snapshot = await db.default.db
-      .collection(countryCollectionName)
-      .doc(countryUid)
-      .get();
+    const snapshot = await db.default.db.collection(countryCollectionName).doc(countryUid).get();
 
     if (snapshot.data().statusId === 1) {
       const snapshot2 = await db.default.db
@@ -211,9 +206,7 @@ router.post("/city", async (req, res) => {
       }
     });
 
-    res
-      .status(200)
-      .json(responseModel({ data: { updatedLength: createdList.length } }));
+    res.status(200).json(responseModel({ data: { updatedLength: createdList.length } }));
   } catch (error) {
     console.log("error", error);
     res.status(400).json(
@@ -230,10 +223,7 @@ router.get("/city/:id", async (req, res) => {
   try {
     const stateUid = req.params.id;
 
-    const snapshot = await db.default.db
-      .collection(stateCollectionName)
-      .doc(stateUid)
-      .get();
+    const snapshot = await db.default.db.collection(stateCollectionName).doc(stateUid).get();
 
     if (snapshot.data().statusId === 1) {
       const snapshot2 = await db.default.db

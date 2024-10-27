@@ -25,6 +25,10 @@ const {
   auth_provider_x509_cert_url,
   client_x509_cert_url,
   universe_domain,
+  EMAIL_OTP_TEMPLATE_ID,
+  EMAIL_SERVICE_ID,
+  EMAIL_PUBLIC_KEY,
+  EMAIL_PRIVATE_KEY,
 } = process.env;
 
 assert(PORT, "Port is required");
@@ -55,5 +59,11 @@ export default {
     auth_provider_x509_cert_url: auth_provider_x509_cert_url,
     client_x509_cert_url: client_x509_cert_url,
     universe_domain: universe_domain,
+  },
+  emailjs: {
+    otpTemplateId: EMAIL_OTP_TEMPLATE_ID,
+    serviceId: EMAIL_SERVICE_ID,
+    publicKey: EMAIL_PUBLIC_KEY,
+    privateKey: EMAIL_PRIVATE_KEY,
   },
 };

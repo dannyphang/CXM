@@ -83,6 +83,16 @@
       <div class="inline-flex ml-2">{{ content | translate }}</div>
     </div>
 
+    <!-- switch -->
+    <div class="input-switch-container" *ngIf="mode === 'otp'">
+      <p-inputOtp
+        [integerOnly]="onlyNumber"
+        [length]="otpLength"
+        [formControl]="fieldControl"
+      ></p-inputOtp>
+      <div class="inline-flex ml-2">{{ content | translate }}</div>
+    </div>
+
     <!-- number -->
     <div class="input-number-container" *ngIf="mode === 'number'">
       <p-inputNumber

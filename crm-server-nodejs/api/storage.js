@@ -1,13 +1,7 @@
 import { Router } from "express";
 const router = Router();
-import * as firebase from "../firebase.js";
-import {
-  ref,
-  uploadBytes,
-  getDownloadURL,
-  listAll,
-  uploadString,
-} from "firebase/storage";
+import * as firebase from "../configuration/firebase.js";
+import { ref, uploadBytes, getDownloadURL, listAll, uploadString } from "firebase/storage";
 import multer from "multer";
 import responseModel from "../shared/function.js";
 

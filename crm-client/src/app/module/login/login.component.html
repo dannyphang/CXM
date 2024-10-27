@@ -95,6 +95,27 @@
         <app-base-form [formConfig]="forgotFormConfig" class="">
         </app-base-form>
       </div>
+
+      <div
+        class="forgot-form-div tw-px-[var(--content-gap)]"
+        *ngIf="forgotMode && sentOtp"
+      >
+        <app-base-input
+          [label]="'INPUT.VERIFY_CODE' | translate"
+          [mode]="'otp'"
+          [otpLength]="6"
+          [onlyNumber]="true"
+          styelClass="tw-w-full"
+          class="tw-w-full"
+          [required]="true"
+          [fieldControl]="emailOtpFormControl"
+        ></app-base-input>
+      </div>
+
+      <div class="forgot-form-div">
+        <app-base-form [formConfig]="passwordFormConfig" class="">
+        </app-base-form>
+      </div>
     </div>
 
     <!-- sub function (forgot password, remember me) -->
@@ -115,9 +136,21 @@
       >
     </div>
 
-    <div *ngIf="forgotMode" class="tw-px-[var(--content-gap)]">
+    <!-- countdown otp -->
+    <div
+      *ngIf="forgotMode"
+      class="tw-px-[var(--content-gap)] tw-mt-[var(--content-gap)] tw-flex tw-items-center tw-gap-[var(--content-gap)]"
+    >
+      <p-button
+        *ngIf="sentOtp"
+        (onClick)="getOTP()"
+        [icon]="'pi pi-refresh'"
+        [outlined]="true"
+        [disabled]="countingDown"
+        [label]="'BUTTON.RESEND' | translate"
+      ></p-button>
       <div *ngIf="timeRemaining$ | async as timeRemaining">
-        <p *ngIf="timeRemaining !== null">
+        <div *ngIf="timeRemaining !== null">
           {{
             "SIGNIN.RESEND_IN"
               | translate
@@ -125,7 +158,7 @@
                     timer: timeRemaining / 1000 | number : "1.0-0"
                   }
           }}
-        </p>
+        </div>
       </div>
     </div>
 
@@ -154,14 +187,31 @@
       ></p-button>
 
       <p-button
-        *ngIf="forgotMode"
+        *ngIf="forgotMode && !sentOtp"
         [label]="'BUTTON.SEND' | translate"
         [severity]="'primary'"
         styleClass="tw-w-full"
         class="tw-w-full"
-        (onClick)="sendEmail()"
-        [disabled]="countingDown"
+        (onClick)="getOTP()"
       ></p-button>
+
+      <p-button
+        *ngIf="forgotMode && sentOtp"
+        [label]="'BUTTON.SUBMIT' | translate"
+        [severity]="'primary'"
+        styleClass="tw-w-full"
+        class="tw-w-full"
+        (onClick)="sendEmail()"
+      ></p-button>
+
+      <!-- <p-button
+        *ngIf="resetPassword"
+        [label]="'BUTTON.SUBMIT' | translate"
+        [severity]="'primary'"
+        styleClass="tw-w-full"
+        class="tw-w-full"
+        (onClick)="submitReset()"
+      ></p-button> -->
     </div>
   </div>
 </div>

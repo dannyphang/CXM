@@ -1,11 +1,12 @@
 import { Router } from "express";
 import express from "express";
 const router = Router();
-import * as firebase from "../firebase-admin.js";
+import * as firebase from "../configuration/firebase-admin.js";
 import pkg from "firebase-admin";
 const { auth } = pkg;
 import responseModel from "../shared/function.js";
-import { Filter } from "firebase-admin/firestore";
+import emailjs from "@emailjs/nodejs";
+import config from "../configuration/config.js";
 
 router.use(express.json());
 
@@ -13,6 +14,7 @@ const userCollectionName = "user";
 const roleCollectionName = "role";
 const tenantCollectionName = "tenant";
 const userTenantCollectionName = "userTenantAsso";
+const otpCollectionName = "OTP";
 
 const listAllUsers = async (nextPageToken) => {
   try {
@@ -339,6 +341,96 @@ router.put("/userRole/update", async (req, res) => {
     });
   } catch (error) {
     console.log("error", error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
+  }
+});
+
+// send email otp to resend password
+router.post("/otp/email", async (req, res) => {
+  const email = req.body.email;
+  let newOTP = {};
+  try {
+    let otp = Math.floor(100000 + Math.random() * 900000);
+
+    let templateParam = {
+      email: email,
+      otp: otp,
+    };
+
+    let newRef = firebase.default.db.collection(otpCollectionName).doc();
+    newOTP.uid = newRef.id;
+    newOTP.createdDate = new Date();
+    newOTP.statusId = 1;
+    let newDate = new Date();
+    newOTP.expiryDate = new Date(newDate.setMinutes(new Date().getMinutes() + 10));
+    newOTP.email = email;
+    newOTP.otp = otp;
+    await newRef.set(newOTP);
+
+    emailjs
+      .send(config.emailjs.serviceId, config.emailjs.otpTemplateId, templateParam, {
+        publicKey: config.emailjs.publicKey,
+        privateKey: config.emailjs.privateKey,
+      })
+      .then((resp) => {
+        res.status(200).json(
+          responseModel({
+            data: {},
+            responseMessage: `Sent OTP to ${email}`,
+          })
+        );
+      })
+      .catch((err) => {
+        console.log(err);
+        res.status(400).json(
+          responseModel({
+            isSuccess: false,
+            responseMessage: err,
+          })
+        );
+      });
+  } catch (error) {
+    console.log(error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
+  }
+});
+
+// get otp and verify
+router.post("/otp/email/verify", async (req, res) => {
+  const otp = req.body.otp;
+  const email = req.body.email;
+
+  try {
+    const snapshot = await firebase.default.db
+      .collection(otpCollectionName)
+      .where("email", "==", email)
+      .where("otp", "==", Number(otp))
+      .where("expiryDate", ">=", new Date())
+      .where("statusId", "==", 1)
+      .get();
+
+    if (snapshot.docs.length < 1) {
+      res.status(400).json(
+        responseModel({
+          isSuccess: false,
+          responseMessage: "not found",
+        })
+      );
+    } else {
+      res.status(200).json(responseModel({ responseMessage: "can reset" }));
+    }
+  } catch (error) {
+    console.log(error);
     res.status(400).json(
       responseModel({
         isSuccess: false,

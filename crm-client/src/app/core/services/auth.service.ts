@@ -17,6 +17,7 @@ import {
     User,
     UserCredential,
     onAuthStateChanged,
+    confirmPasswordReset,
 } from "firebase/auth";
 import { BasedDto, CommonService, ResponseModel } from "./common.service";
 import apiConfig from "../../../environments/apiConfig";
@@ -134,7 +135,10 @@ export class AuthService {
                 console.log(error)
             })
         }
+    }
 
+    submitResetPassword() {
+        confirmPasswordReset(this.auth,)
     }
 
     createUser(user: CreateUserDto[], createBy: string): Observable<ResponseModel<any>> {
@@ -166,6 +170,25 @@ export class AuthService {
 
     setUserRoleAndTenant(updateList: UpdateUserRoleDto[]): Observable<ResponseModel<any>> {
         return this.http.put<ResponseModel<any>>(apiConfig.baseUrl + '/auth/userRole/update', { updateList }).pipe();
+    }
+
+    getEmailOTP(email: string): Observable<ResponseModel<any>> {
+        return this.http.post<ResponseModel<any>>(apiConfig.baseUrl + '/auth/otp/email', { email }).pipe();
+    }
+
+    submitEmailOtp(otp: string, email: string): Observable<ResponseModel<any>> {
+        return this.http.post<ResponseModel<any>>(apiConfig.baseUrl + '/auth/otp/email/verify', { email, otp }).pipe();
+    }
+
+    async sendPasswordResetEmail(email: string): Promise<boolean> {
+        return sendPasswordResetEmail(this.auth, email, {
+
+        }).then(res => {
+            return true;
+        }).catch(error => {
+            console.log(error)
+            return false;
+        })
     }
 }
 

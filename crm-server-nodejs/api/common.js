@@ -1,7 +1,7 @@
 import { Router } from "express";
 import express from "express";
 const router = Router();
-import * as db from "../firebase-admin.js";
+import * as db from "../configuration/firebase-admin.js";
 import responseModel from "../shared/function.js";
 import { Filter } from "firebase-admin/firestore";
 import { DEFAULT_SYSTEM_TENANT } from "../shared/constant.js";

@@ -61,7 +61,8 @@
     "TO_Left": "Remove properties from column.",
     "SIGN_UP_LABEL": " Sign up here",
     "SIGN_IN_LABEL": " Sign in here",
-    "CHECK_USER_EMAIL": "Check email existing"
+    "CHECK_USER_EMAIL": "Check email existing",
+    "RESEND": "Resend"
   },
   "SIGNIN": {
     "FORGOT_TITLE": "Forgot password",
@@ -87,7 +88,12 @@
     "IS_NOT_KNOWN": "Is unknown",
     "SELECT": "Select",
     "REMEMBER_ME": "Remember me",
-    "EMAIL": "Email"
+    "EMAIL": "Email",
+    "PASSWORD": "Password",
+    "USERNAME": "Username",
+    "CONFIRM_PASSWORD": "Confirm password",
+    "VERIFY_CODE": "Verify code",
+    "NEW_PASSWORD": "New password"
   },
   "ACTIVITY": {
     "WORDS": "words",

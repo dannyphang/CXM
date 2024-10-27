@@ -26,7 +26,7 @@ export class LoginComponent {
     password: new FormControl("", Validators.required),
     confirmPassword: new FormControl("", Validators.required),
   });
-  forgotFormControl: FormControl = new FormControl("", Validators.required);
+  forgotEmailFormControl: FormControl = new FormControl("", Validators.required);
   isLoginMode: boolean = true;
   forgotMode: boolean = false;
   seconds: number = 10;
@@ -47,17 +47,19 @@ export class LoginComponent {
     })
   );
   countingDown: boolean = false;
-
+  sentOtp: boolean = false;
+  emailOtpFormControl: FormControl = new FormControl(null, Validators.required);
+  resetPassword: boolean = false;
+  passwordFormConfig: FormConfig[] = [];
+  passwordFormGroup: FormGroup = new FormGroup({
+    password: new FormControl("", Validators.required),
+    confirmPassword: new FormControl("", Validators.required),
+  });
 
   constructor(
     private authService: AuthService,
-    private activatedRoute: ActivatedRoute,
     private router: Router,
-    private _location: Location,
-    private translateService: TranslateService,
-    private elementRef: ElementRef,
-    private cdr: ChangeDetectorRef
-  ) {
+    private _location: Location) {
     if (this.router.url === '/signin') {
       this.isLoginMode = true;
     }
@@ -71,12 +73,13 @@ export class LoginComponent {
     this.initLoginForm();
     this.initSignupForm();
     this.initForgotForm();
+    this.initPasswordForm();
   }
 
   initLoginForm() {
     this.loginFormConfig = [
       {
-        label: 'Email',
+        label: 'INPUT.EMAIL',
         type: CONTROL_TYPE.Textbox,
         layoutDefine: {
           row: 0,
@@ -88,7 +91,7 @@ export class LoginComponent {
         mode: 'email'
       },
       {
-        label: 'Password',
+        label: 'INPUT.PASSWORD',
         type: CONTROL_TYPE.Textbox,
         layoutDefine: {
           row: 1,
@@ -104,7 +107,7 @@ export class LoginComponent {
   initSignupForm() {
     this.signupFormConfig = [
       {
-        label: 'Username',
+        label: 'INPUT.USERNAME',
         type: CONTROL_TYPE.Textbox,
         layoutDefine: {
           row: 0,
@@ -115,7 +118,7 @@ export class LoginComponent {
         autoFocus: true,
       },
       {
-        label: 'Email',
+        label: 'INPUT.EMAIL',
         type: CONTROL_TYPE.Textbox,
         layoutDefine: {
           row: 1,
@@ -126,7 +129,7 @@ export class LoginComponent {
         mode: 'email'
       },
       {
-        label: 'Password',
+        label: 'INPUT.PASSWORD',
         type: CONTROL_TYPE.Textbox,
         layoutDefine: {
           row: 2,
@@ -137,7 +140,7 @@ export class LoginComponent {
         mode: 'password'
       },
       {
-        label: 'Confirm Password',
+        label: 'INPUT.CONFIRM_PASSWORD',
         type: CONTROL_TYPE.Textbox,
         layoutDefine: {
           row: 2,
@@ -154,13 +157,40 @@ export class LoginComponent {
     this.forgotFormConfig = [
       {
         label: 'INPUT.EMAIL',
-        fieldControl: this.forgotFormControl,
+        fieldControl: this.forgotEmailFormControl,
         type: CONTROL_TYPE.Textbox,
         layoutDefine: {
           row: 0,
           column: 0,
         }
       }
+    ]
+  }
+
+  initPasswordForm() {
+    this.passwordFormConfig = [
+      {
+        label: 'INPUT.NEW_PASSWORD',
+        type: CONTROL_TYPE.Textbox,
+        layoutDefine: {
+          row: 2,
+          column: 0
+        },
+        fieldControl: this.signupFormGroup.controls['password'],
+        required: true,
+        mode: 'password'
+      },
+      {
+        label: 'INPUT.CONFIRM_PASSWORD',
+        type: CONTROL_TYPE.Textbox,
+        layoutDefine: {
+          row: 2,
+          column: 1
+        },
+        fieldControl: this.signupFormGroup.controls['confirmPassword'],
+        required: true,
+        mode: 'password'
+      },
     ]
   }
 
@@ -174,8 +204,7 @@ export class LoginComponent {
         console.log(res)
         if (res.status) {
           this.authService.updateCurrentUserInfo();
-          this.router.navigate(["/"])
-          // console.log(res.user);
+          this.router.navigate(["/"]);
         }
         else {
           console.log('wrong username/password')
@@ -196,17 +225,11 @@ export class LoginComponent {
         }
 
         this.authService.createUser([createUser], user.uid).subscribe(res => {
-          console.log(res)
           if (res.isSuccess) {
             this.router.navigate(["/signin"])
           }
         });
       })
-      // .catch((error) => {
-      //   const errorCode = error.code;
-      //   const errorMessage = error.message;
-      //   console.log(`${errorCode}: ${errorMessage}`)
-      // });
     }
   }
 
@@ -226,7 +249,34 @@ export class LoginComponent {
     this.forgotMode = true;
   }
 
+  getOTP() {
+    if (!this.sentOtp) {
+      this.resendEmailOtp();
+    }
+    this.sentOtp = true;
+    this.authService.getEmailOTP(this.forgotEmailFormControl.value).subscribe(res => {
+      if (res.isSuccess) {
+        console.log(res);
+      }
+    });
+  }
+
   sendEmail() {
+    this.authService.submitEmailOtp(this.emailOtpFormControl.value, this.forgotEmailFormControl.value).subscribe(res => {
+      if (res.isSuccess) {
+        this.resetPassword = true;
+      }
+    });
+    // this.authService.sendPasswordResetEmail(this.forgotEmailFormControl.value).then(res => {
+    //   console.log(res)
+    // })
+  }
+
+  submitReset() {
+
+  }
+
+  resendEmailOtp() {
     this.startCountdown$.next(true);
     this.countingDown = true;
   }
