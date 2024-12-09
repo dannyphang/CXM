@@ -24,6 +24,7 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
   @Input() permission: UserPermissionDto[] = [];
 
   menuItem: MenuItem[] = [];
+  authBtn: any;
   searchFormControl: FormControl = new FormControl("");
   userMenuItem: MenuItem[] | undefined;
   isAutoFocus: boolean = false;
@@ -86,6 +87,15 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
           },
           visible: this.checkPermission('display', 'COMP', this.permission, this.authService.userC.roleId)
         },
+        {
+          label: this.translateService.instant('COMMON.TEAM'),
+          icon: '',
+          tooltip: "COMMON.TEAM",
+          command: () => {
+            this.router.navigate(["/team"]);
+          },
+          visible: this.checkPermission('display', 'TEAM', this.permission, this.authService.userC.roleId)
+        },
       ];
     }
 
@@ -137,28 +147,38 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
       {
         separator: true
       },
-      {
-        items: [
-          {
-            label: this.translateService.instant('BUTTON.LOGOUT'),
-            icon: 'pi pi-sign-out',
-            command: () => {
-              this.authService.signOut();
-              window.location.reload();
-            },
-            visible: this.user ? true : false
-          },
-          {
-            label: this.translateService.instant('BUTTON.LOGIN'),
-            icon: "pi pi-sign-in",
-            command: () => {
-              this.redirectToSignIn();
-            },
-            visible: this.user ? false : true
-          }
-        ]
-      }
+      // {
+      //   items: [
+      //     {
+      //       label: this.translateService.instant('BUTTON.LOGOUT'),
+      //       icon: 'pi pi-sign-out',
+      //       command: () => {
+      //         this.authService.signOut();
+      //         window.location.reload();
+      //       },
+      //       visible: this.user ? true : false
+      //     },
+      //     {
+      //       label: this.translateService.instant('BUTTON.LOGIN'),
+      //       icon: "pi pi-sign-in",
+      //       command: () => {
+      //         this.redirectToSignIn();
+      //       },
+      //       visible: this.user ? false : true
+      //     }
+      //   ]
+      // }
     ];
+
+    this.authBtn = {
+      label: this.user ? this.translateService.instant('BUTTON.LOGOUT') : this.translateService.instant('BUTTON.LOGIN'),
+      icon: this.user ? 'pi pi-sign-out' : "pi pi-sign-in",
+    }
+  }
+
+  signOut() {
+    this.authService.signOut();
+    window.location.reload();
   }
 
   redirectToSignIn() {

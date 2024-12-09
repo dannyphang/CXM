@@ -218,6 +218,10 @@ export class CommonService {
     getCityByCityName(cityName: string): Observable<ResponseModel<CityDto[]>> {
         return this.http.get<ResponseModel<CityDto[]>>(apiConfig.baseUrl + '/location/city/name/' + cityName);
     }
+
+    getTeam(userUid: string): Observable<ResponseModel<TeamNodeDto[]>> {
+        return this.http.get<ResponseModel<TeamNodeDto[]>>(apiConfig.baseUrl + '/team' + userUid);
+    }
 }
 
 export class ResponseModel<T> {
@@ -510,4 +514,13 @@ export class UpdatePropertyLookupDto extends BasedDto {
     propertyLookupCode: string;
     isDefault: boolean;
     isVisible: boolean;
+}
+
+export class TeamDto {
+    label: string;
+    icon?: string;
+}
+
+export class TeamNodeDto extends TeamDto {
+    children: TeamDto[];
 }

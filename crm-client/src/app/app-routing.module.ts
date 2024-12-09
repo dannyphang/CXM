@@ -35,7 +35,13 @@ const routes: Routes = [
         loadChildren: () => import('./module/setting/setting.module').then(m => m.SettingModule),
         canActivate: [PermissionGuard],
         data: { breadcrumb: 'HEADER.SETTING', title: 'HEADER.SETTING', module: 'SETTING', action: 'display' }
-      }
+      },
+      {
+        path: 'team',
+        loadChildren: () => import('./module/team/team.module').then(m => m.TeamModule),
+        canActivate: [PermissionGuard],
+        data: { breadcrumb: 'HEADER.TEAM', title: 'HEADER.TEAM', module: 'TEAM', action: 'display' }
+      },
     ]
   },
   {

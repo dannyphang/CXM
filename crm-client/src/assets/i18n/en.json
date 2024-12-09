@@ -6,12 +6,14 @@
     "LOADING": "Loading",
     "SETTING": "Setting",
     "TENANT": "Tenant",
-    "ROLE": "Role"
+    "ROLE": "Role",
+    "TEAM": "Team"
   },
   "HEADER": {
     "SETTING": "Setting",
     "TENANT": "Tenant",
-    "PROFILE": "Profile"
+    "PROFILE": "Profile",
+    "TEAM": "Team"
   },
   "ERROR": {
     "YOU_CANNOT_LEAVE_IT_BLANK": "You cannot leave it blank.",
