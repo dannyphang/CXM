@@ -23,13 +23,13 @@
     <app-base-form [formConfig]="createFormConfig"></app-base-form>
 
     <ng-template pTemplate="footer">
-      <p-button
+      <app-base-button
         [label]="'BUTTON.CANCEL' | translate"
-        [text]="true"
+        [isTextStyle]="true"
         severity="secondary"
         (click)="displayCreateDialog = false"
       />
-      <p-button
+      <app-base-button
         [label]="'BUTTON.CREATE' | translate"
         [outlined]="true"
         severity="primary"
@@ -57,13 +57,13 @@
           >
             <div class="tw-flex tw-justify-between tw-items-center">
               <h3>{{ item.property.propertyName }}</h3>
-              <p-button
-                [text]="true"
-                [icon]="'pi pi-trash'"
+              <app-base-button
+                [isTextStyle]="true"
+                [iconName]="'pi pi-trash'"
                 [rounded]="true"
                 (onClick)="deleteFilter(item.property)"
                 [pTooltip]="'BUTTON.REMOVE_FILTER' | translate"
-              ></p-button>
+              ></app-base-button>
             </div>
 
             <app-base-dropdown
@@ -161,20 +161,20 @@
           >
             <app-base-label [label]="grp.moduleName"></app-base-label>
             <div *ngFor="let prop of grp.propertiesList">
-              <p-button
-                [text]="true"
+              <app-base-button
+                [isTextStyle]="true"
                 [label]="returnFilterProperty(prop).property.propertyName"
                 styleClass="tw-w-full tw-text-left"
                 (onClick)="filterClick(returnFilterProperty(prop).property)"
-                [iconPos]="'left'"
-                [icon]="returnFilterProperty(prop).icon"
+                [rightIcon]="false"
+                [iconName]="returnFilterProperty(prop).icon"
                 *ngIf="
                   filterSearch.value === '' ||
                   prop.propertyName
                     .toLowerCase()
                     .includes(filterSearch.value.toLowerCase())
                 "
-              ></p-button>
+              ></app-base-button>
             </div>
           </div>
         </p-scrollPanel>
@@ -183,15 +183,15 @@
 
     <ng-template pTemplate="footer">
       <div class="tw-flex tw-justify-between">
-        <p-button
+        <app-base-button
           [label]="'BUTTON.CANCEL' | translate"
           [outlined]="true"
           (onClick)="closeFilter()"
-        ></p-button>
-        <p-button
+        ></app-base-button>
+        <app-base-button
           [label]="'BUTTON.SUBMIT' | translate"
           (onClick)="filterSubmit()"
-        ></p-button>
+        ></app-base-button>
       </div>
     </ng-template>
   </p-dialog>
@@ -234,15 +234,15 @@
 
     <ng-template pTemplate="footer">
       <div class="tw-flex tw-justify-between">
-        <p-button
+        <app-base-button
           [label]="'BUTTON.CANCEL' | translate"
           [outlined]="true"
           (onClick)="closeTableColumnFilter()"
-        ></p-button>
-        <p-button
+        ></app-base-button>
+        <app-base-button
           [label]="'BUTTON.SUBMIT' | translate"
           (onClick)="tableColumnFilterSubmit()"
-        ></p-button>
+        ></app-base-button>
       </div>
     </ng-template>
   </p-dialog>
@@ -280,7 +280,7 @@
           <ng-template pTemplate="caption">
             <div class="tw-flex tw-justify-between">
               <div class="tw-flex">
-                <p-button
+                <app-base-button
                   [label]="
                     'BUTTON.ADVANCE_FILTER'
                       | translate
@@ -288,13 +288,13 @@
                             numberOfFilter: tabFilterList[activeTabPanel].length
                           }
                   "
-                  [text]="true"
-                  [iconPos]="'left'"
-                  [icon]="'pi pi-sliders-h'"
+                  [isTextStyle]="true"
+                  [rightIcon]="false"
+                  [iconName]="'pi pi-sliders-h'"
                   (onClick)="advanceFilterBtn()"
                   [loading]="!propertiesList"
-                ></p-button>
-                <p-button
+                ></app-base-button>
+                <app-base-button
                   [label]="
                     'BUTTON.EDIT_COLUMN'
                       | translate
@@ -302,52 +302,47 @@
                             numberOfColumn: tableConfig[activeTabPanel].length
                           }
                   "
-                  [text]="true"
-                  [iconPos]="'left'"
-                  [icon]="'pi pi-sliders-v'"
+                  [isTextStyle]="true"
+                  [rightIcon]="false"
+                  [iconName]="'pi pi-sliders-v'"
                   (onClick)="tableColumnFilterBtn()"
                   [loading]="!propertiesList"
-                ></p-button>
+                ></app-base-button>
               </div>
 
               <div class="tw-flex">
-                <p-button
-                  *ngIf="canCreate"
-                  [icon]="'pi pi-upload'"
-                  rounded="true"
-                  [text]="true"
+                <app-base-button
+                  [iconName]="'pi pi-upload'"
+                  [rounded]="true"
+                  [isTextStyle]="true"
                   [pTooltip]="'BUTTON.EXPORT' | translate"
                   (onClick)="exportFile(dt.processedData)"
-                ></p-button>
-                <p-button
-                  *ngIf="canDownload"
-                  [icon]="'pi pi-download'"
-                  rounded="true"
-                  [text]="true"
+                ></app-base-button>
+                <app-base-button
+                  [iconName]="'pi pi-download'"
+                  [rounded]="true"
+                  [isTextStyle]="true"
                   [pTooltip]="'BUTTON.IMPORT' | translate"
                   (onClick)="uploader.click()"
-                ></p-button>
-                <p-button
-                  *ngIf="canDownload"
-                  [icon]="'pi pi-cloud-download'"
-                  rounded="true"
-                  [text]="true"
+                ></app-base-button>
+                <app-base-button
+                  [iconName]="'pi pi-cloud-download'"
+                  [rounded]="true"
+                  [isTextStyle]="true"
                   [pTooltip]="'BUTTON.DOWNLOAD_TEMPLATE' | translate"
                   (onClick)="downloadTemplate()"
-                ></p-button>
-                <p-button
-                  *ngIf="canCreate"
-                  [icon]="'pi pi-plus'"
-                  rounded="true"
-                  [text]="true"
+                ></app-base-button>
+                <app-base-button
+                  [iconName]="'pi pi-plus'"
+                  [rounded]="true"
+                  [isTextStyle]="true"
                   [pTooltip]="'BUTTON.CREATE' | translate"
                   (onClick)="toCreate()"
-                ></p-button>
-                <p-button
-                  *ngIf="canDelete && selectedProfile.length > 0"
+                ></app-base-button>
+                <app-base-button
                   icon="pi pi-trash"
                   [rounded]="true"
-                  [text]="true"
+                  [isTextStyle]="true"
                   (onClick)="delete()"
                   [pTooltip]="'BUTTON.DELETE' | translate"
                 />
@@ -429,28 +424,28 @@
 
                   <!-- profile name -->
                   <div *ngSwitchCase="'contactFirstName'">
-                    <p-button
+                    <app-base-button
                       [label]="profile[col.code]"
-                      [text]="true"
+                      [isTextStyle]="true"
                       [pTooltip]="profile[col.code]"
                       (onClick)="toProfile(profile)"
-                    ></p-button>
+                    ></app-base-button>
                   </div>
                   <div *ngSwitchCase="'contactLastName'">
-                    <p-button
+                    <app-base-button
                       [label]="profile[col.code]"
-                      [text]="true"
+                      [isTextStyle]="true"
                       [pTooltip]="profile[col.code]"
                       (onClick)="toProfile(profile)"
-                    ></p-button>
+                    ></app-base-button>
                   </div>
                   <div *ngSwitchCase="'companyName'">
-                    <p-button
+                    <app-base-button
                       [label]="profile[col.code]"
-                      [text]="true"
+                      [isTextStyle]="true"
                       [pTooltip]="profile[col.code]"
                       (onClick)="toProfile(profile)"
-                    ></p-button>
+                    ></app-base-button>
                   </div>
                   <div
                     *ngSwitchCase="'contactLeadStatusUid'"
@@ -508,13 +503,13 @@
 
     <p-tabPanel>
       <ng-template pTemplate="header" class="tw-p-0">
-        <p-button
+        <app-base-button
           icon="pi pi-plus"
           (click)="addTab(); $event.stopPropagation()"
           styleClass="tw-w-[52px] tw-h-[52px] "
-          [text]="true"
+          [isTextStyle]="true"
         >
-        </p-button>
+        </app-base-button>
       </ng-template>
     </p-tabPanel>
   </p-tabView>

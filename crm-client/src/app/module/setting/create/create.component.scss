@@ -1,4 +1,8 @@
 :host ::ng-deep {
+  .p-dialog-content {
+    overflow-y: auto;
+  }
+
   .avatar-div {
     width: 0;
     padding: var(--content-gap);
@@ -10,6 +14,13 @@
     .avatar-edit {
       position: absolute;
       z-index: 2;
+      padding: 0;
+      width: auto;
+
+      .p-button {
+        width: 200px;
+        height: 200px;
+      }
 
       .pi-file-edit {
         font-size: 50px;

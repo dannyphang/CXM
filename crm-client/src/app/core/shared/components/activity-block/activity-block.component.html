@@ -20,10 +20,10 @@
         [innerHTML]="activity.activityContent"
       ></div>
 
-      <p-button
+      <app-base-button
         icon="pi pi-sort-down-fill action-icon"
-        [iconPos]="'right'"
-        [text]="true"
+        [rightIcon]="true"
+        [isTextStyle]="true"
         [label]="'BUTTON.ACTION' | translate"
         (click)="activityActionMenu.toggle($event)"
         styleClass="activity-action-button"
@@ -56,13 +56,13 @@
           {{ contentWordLength }} / {{ editorContentLimit }}
           {{ "ACTIVITY.WORDS" | translate }}
         </div>
-        <p-button
-          [icon]="'pi pi-plus'"
+        <app-base-button
+          [iconName]="'pi pi-plus'"
           [rounded]="true"
           (onClick)="uploader.click()"
           class="tw-mt-[var(--content-gap)]"
           [pTooltip]="'BUTTON.ATTACH_FILE' | translate"
-        ></p-button>
+        ></app-base-button>
         <div
           class="content-btn-div tw-flex tw-mt-[var(--content-gap)]"
           *ngIf="!readonly"
@@ -78,7 +78,10 @@
             (onClick)="updateContent()"
           ></app-base-button>
         </div>
-        <p-button label="Associated with 1 records" [text]="true" />
+        <app-base-button
+          label="Associated with 1 records"
+          [isTextStyle]="true"
+        />
       </div>
 
       <input

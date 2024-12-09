@@ -21,18 +21,17 @@
     }}</a>
 
     <div class="action-div tw-flex tw-justify-center tw-p-[var(--content-gap)]">
-      <p-button
+      <app-base-button
         [label]="'BUTTON.CANCEL' | translate"
-        [severity]="'secondary'"
         [outlined]="true"
         (onClick)="cancel()"
-      ></p-button>
-      <p-button
+      ></app-base-button>
+      <app-base-button
         [label]="isLoginMode ? 'Login' : 'Sign Up'"
-        [severity]="'primary'"
+        [color]="'normal'"
         class="tw-ml-[var(--content-gap)]"
         (onClick)="submit()"
-      ></p-button>
+      ></app-base-button>
     </div>
   </div>
 </div>
