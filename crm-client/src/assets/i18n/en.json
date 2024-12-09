@@ -11,7 +11,8 @@
   "HEADER": {
     "SETTING": "Setting",
     "TENANT": "Tenant",
-    "PROFILE": "Profile"
+    "PROFILE": "Profile",
+    "TEAM": "Team"
   },
   "ERROR": {
     "YOU_CANNOT_LEAVE_IT_BLANK": "You cannot leave it blank.",
