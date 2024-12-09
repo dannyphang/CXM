@@ -2,7 +2,9 @@ import { Router } from "express";
 import express from "express";
 const router = Router();
 import * as db from "../firebase-admin.js";
-import responseModel from "./shared.js";
+import responseModel from "../shared/function.js";
+import { Filter } from "firebase-admin/firestore";
+import { DEFAULT_SYSTEM_TENANT } from "../shared/constant.js";
 
 router.use(express.json());
 
@@ -12,10 +14,17 @@ const associationCollection = "association";
 
 // get all contacts
 router.get("/", async (req, res) => {
+  let tenantId = req.headers.tenantid;
   try {
     const snapshot = await db.default.db
       .collection(contactCollectionName)
       .orderBy("createdDate")
+      .where(
+        Filter.or(
+          Filter.where("tenantId", "==", tenantId),
+          Filter.where("tenantId", "==", DEFAULT_SYSTEM_TENANT)
+        )
+      )
       .where("statusId", "==", 1)
       .get();
 
@@ -122,7 +131,7 @@ router.get("/:id", async (req, res) => {
         res.status(200).json(responseModel({ data: contactData }));
       });
     } else {
-      res.status(200).json(contactData);
+      res.status(200).json(responseModel({ data: contactData }));
     }
   } catch (error) {
     console.log("error", error);
@@ -174,6 +183,7 @@ router.put("/delete", async (req, res) => {
       await newRef.update({
         statusId: 2,
         modifiedDate: new Date(),
+        modifiedBy: req.body.user,
       });
     });
 
@@ -195,6 +205,8 @@ router.put("/", async (req, res) => {
       contact.modifiedDate = new Date();
 
       let newRef = db.default.db.collection(contactCollectionName).doc(contact.uid);
+
+      contact.modifiedBy = req.body.user;
 
       const updatedContact = await newRef.update(contact);
       updatedContactList.push(updatedContact);

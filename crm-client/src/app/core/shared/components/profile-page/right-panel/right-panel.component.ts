@@ -5,6 +5,7 @@ import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../..
 import { FormControl } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { BaseCoreAbstract } from '../../../base/base-core.abstract';
+import { AuthService } from '../../../../services/auth.service';
 
 @Component({
   selector: 'app-right-panel',
@@ -26,6 +27,7 @@ export class RightPanelComponent extends BaseCoreAbstract {
     private commonService: CommonService,
     private activityService: ActivityService,
     protected override messageService: MessageService,
+    private authService: AuthService
   ) {
     super(messageService);
   }
@@ -39,7 +41,7 @@ export class RightPanelComponent extends BaseCoreAbstract {
     switch (field) {
       case 'asso':
         if (this.module === 'COMP') {
-          this.commonService.getAllContact().subscribe(res => {
+          this.commonService.getAllContact(this.authService.tenant.uid).subscribe(res => {
             if (res.isSuccess) {
               let contList: OptionsModel[] = [];
               res.data.forEach(cont => {
@@ -69,7 +71,7 @@ export class RightPanelComponent extends BaseCoreAbstract {
           });
         }
         else {
-          this.commonService.getAllCompany().subscribe(res => {
+          this.commonService.getAllCompany(this.authService.tenant.uid).subscribe(res => {
             if (res.isSuccess) {
               let compList: OptionsModel[] = [];
               res.data.forEach(comp => {

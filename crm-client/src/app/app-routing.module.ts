@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { LayoutComponent } from './layout/layout.component';
 import { Error404Component } from './layout/error-404/error-404.component';
 import { LoginComponent } from './module/login/login.component';
+import { CreateComponent } from './module/setting/create/create.component';
 
 const routes: Routes = [
   {
@@ -24,6 +25,11 @@ const routes: Routes = [
         loadChildren: () => import('./module/company/company.module').then(m => m.CompanyModule),
         data: { breadcrumb: 'Company', title: 'Company' }
       },
+      {
+        path: 'setting',
+        loadChildren: () => import('./module/setting/setting.module').then(m => m.SettingModule),
+        data: { breadcrumb: 'Setting', title: 'Setting' }
+      }
     ]
   },
   {

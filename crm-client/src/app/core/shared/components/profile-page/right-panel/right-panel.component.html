@@ -20,13 +20,13 @@
         </div>
 
         <div>
-          <p-button
-            [text]="true"
+          <app-base-button
+            [isTextStyle]="true"
             [label]="'BUTTON.ADD' | translate"
-            [iconPos]="'left'"
-            [icon]="'pi pi-plus'"
+            [rightIcon]="false"
+            [iconName]="'pi pi-plus'"
             (onClick)="openSidebar('asso')"
-          ></p-button>
+          ></app-base-button>
         </div>
       </div>
     </div>
@@ -66,15 +66,15 @@
   </ng-template>
   <ng-template pTemplate="footer">
     <div class="tw-flex tw-justify-between tw-flex-wrap tw-items-center">
-      <p-button
+      <app-base-button
         [label]="'BUTTON.CANCEL' | translate"
-        [text]="true"
+        [isTextStyle]="true"
         (onClick)="closeSidebar()"
-      ></p-button>
-      <p-button
+      ></app-base-button>
+      <app-base-button
         [label]="'BUTTON.SAVE' | translate"
         (onClick)="save()"
-      ></p-button>
+      ></app-base-button>
     </div>
   </ng-template>
 </p-dialog>

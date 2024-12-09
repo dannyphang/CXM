@@ -1,0 +1,88 @@
+<!-- Edit profile picture dialog -->
+<p-dialog
+  [(visible)]="isShowAvatarEditDialog"
+  styleClass="tw-w-[500px] tw-m-[var(--content-gap)]"
+  [modal]="true"
+  [header]="'PROFILE.AVATAR_EDIT' | translate"
+  (onHide)="onCloseProfileDialog()"
+  [closeOnEscape]="false"
+>
+  <ng-template pTemplate="content">
+    <div class="tw-grid">
+      <img
+        [src]="profileImg"
+        class="tw-w-full tw-aspect-square tw-border tw-border-solid tw-border-[var(--primary-color)] tw-object-cover tw-mb-[var(--content-gap)]"
+      />
+      <div class="tw-flex tw-justify-between">
+        <app-base-button
+          [iconName]="'pi pi-plus'"
+          [rounded]="true"
+          (onClick)="imageUploader.click()"
+          class=""
+          [pTooltip]="'BUTTON.ATTACH_FILE' | translate"
+        ></app-base-button>
+
+        <app-chip
+          *ngIf="profilePhotoFile"
+          [label]="profilePhotoFile.name"
+          [removable]="false"
+          class="tw-grid tw-items-center"
+        ></app-chip>
+
+        <app-base-button
+          [label]="'BUTTON.UPLOAD' | translate"
+          (onClick)="imageFileUploadBtn()"
+        ></app-base-button>
+      </div>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<input
+  type="file"
+  id="file-input"
+  #imageUploader
+  hidden
+  (change)="imageFileUpload($event)"
+  accept="image/*"
+/>
+
+<div
+  class="avatar-div"
+  (mouseenter)="isAvatarEdit = true"
+  (mouseleave)="isAvatarEdit = false"
+>
+  <app-base-button
+    [iconName]="'pi pi-file-edit'"
+    [buttonClass]="'avatar-edit'"
+    *ngIf="isAvatarEdit"
+    [rounded]="true"
+    [isTextStyle]="true"
+    (onClick)="editPic()"
+    [pTooltip]="'PROFILE.AVATAR_EDIT' | translate"
+  ></app-base-button>
+  <p-avatar
+    *ngIf="!profilePhotoUrl"
+    [icon]="'pi pi-user'"
+    styleClass="tw-w-[200px] tw-h-[200px]"
+    [ngClass]="isAvatarEdit ? 'tw-opacity-[0.5]' : 'tw-opacity-[1]'"
+    shape="circle"
+    data-blobity-magnetic="true"
+  />
+  <p-avatar
+    *ngIf="profilePhotoUrl"
+    [image]="profilePhotoUrl"
+    styleClass="tw-w-[200px] tw-h-[200px]"
+    [ngClass]="isAvatarEdit ? 'tw-opacity-[0.5]' : 'tw-opacity-[1]'"
+    shape="circle"
+    data-blobity-magnetic="true"
+  />
+</div>
+<app-base-form [formConfig]="createFormConfig"></app-base-form>
+
+<div class="tw-m-[var(--content-gap)]">
+  <app-base-button
+    [label]="'BUTTON.UPDATE' | translate"
+    (onClick)="update()"
+  ></app-base-button>
+</div>

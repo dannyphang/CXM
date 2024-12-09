@@ -2,7 +2,9 @@ import { Router } from "express";
 import express from "express";
 const router = Router();
 import * as db from "../firebase-admin.js";
-import responseModel from "./shared.js";
+import responseModel from "../shared/function.js";
+import { Filter } from "firebase-admin/firestore";
+import { DEFAULT_SYSTEM_TENANT } from "../shared/constant.js";
 
 router.use(express.json());
 
@@ -12,10 +14,17 @@ const associationCollection = "association";
 
 // get all companies
 router.get("/", async (req, res) => {
+  let tenantId = req.headers.tenantid;
   try {
     const snapshot = await db.default.db
       .collection(companyCollectionName)
       .orderBy("createdDate")
+      .where(
+        Filter.or(
+          Filter.where("tenantId", "==", tenantId),
+          Filter.where("tenantId", "==", DEFAULT_SYSTEM_TENANT)
+        )
+      )
       .where("statusId", "==", 1)
       .get();
 
@@ -173,6 +182,7 @@ router.put("/delete", async (req, res) => {
       await newRef.update({
         statusId: 2,
         modifiedDate: new Date(),
+        modifiedBy: req.body.user,
       });
     });
 

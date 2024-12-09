@@ -12,9 +12,9 @@
           class="tw-w-[40%]"
         ></app-base-input>
         <div>
-          <p-button
-            icon="pi pi-ellipsis-v"
-            [text]="true"
+          <app-base-button
+            [iconName]="'pi pi-ellipsis-v'"
+            [isTextStyle]="true"
             [rounded]="true"
             (click)="profileActionMenu.toggle($event)"
           />

@@ -1,0 +1,24 @@
+<app-toast></app-toast>
+
+<div class="setting-container" (scroll)="onScroll($event)">
+  <div
+    class="tw-p-[var(--content-gap)] setting-left-container"
+    id="setting_left"
+  >
+    <p-menu [model]="settingMenuItem" id="setting_menu_panel"> </p-menu>
+  </div>
+
+  <div class="setting-content">
+    <div class="general-content" id="general">
+      <app-general></app-general>
+    </div>
+
+    <div class="team-content" id="team" *ngIf="userC.roleId === 1">
+      <app-team></app-team>
+    </div>
+
+    <div class="prpperty-content" id="property">
+      <app-setting-property></app-setting-property>
+    </div>
+  </div>
+</div>

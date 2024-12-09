@@ -7,11 +7,10 @@ import { MaterialModule } from '../../core/shared/modules/material.module';
 import { PrimeNgModule } from '../../core/shared/modules/primeng.module';
 import { LoginComponent } from './login.component';
 import { CommonSharedModule } from '../../core/shared/modules/common-shared.module';
-import { HttpClient } from '@angular/common/http';
 
 @NgModule({
   declarations: [
-    LoginComponent
+    LoginComponent,
   ],
   imports: [
     CommonModule,

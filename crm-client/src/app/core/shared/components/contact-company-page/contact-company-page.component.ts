@@ -145,7 +145,7 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
       this.getCompany();
     }
 
-    this.commonService.getAllPropertiesByModule(this.module).subscribe((res) => {
+    this.commonService.getAllPropertiesByModule(this.module, this.authService.tenant?.uid).subscribe((res) => {
       if (res.isSuccess) {
         this.modulePropertyList = res.data;
 
@@ -354,7 +354,7 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
         this.getContact();
       }
       else {
-        this.commonService.getAllContact().subscribe(res => {
+        this.commonService.getAllContact(this.authService.tenant.uid).subscribe(res => {
           if (res.isSuccess) {
             this.tableLoading[this.activeTabPanel] = true;
             this.tabFilterList[this.activeTabPanel].forEach((item: Filter) => {
@@ -549,7 +549,7 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
 
   getContact() {
     this.tableLoading[this.activeTabPanel] = true;
-    this.commonService.getAllContact().subscribe((res) => {
+    this.commonService.getAllContact(this.authService.tenant.uid).subscribe((res) => {
       if (res.isSuccess) {
         res.data.forEach(cont => {
           let prop: PropertyDataDto[] = JSON.parse(cont.contactProperties);
@@ -570,7 +570,7 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
 
   getCompany() {
     this.tableLoading[this.activeTabPanel] = true;
-    this.commonService.getAllCompany().subscribe((res) => {
+    this.commonService.getAllCompany(this.authService.tenant?.uid).subscribe((res) => {
       if (res.isSuccess) {
         this.companyList = res.data;
         this.tableLoading[this.activeTabPanel] = false;
@@ -984,6 +984,7 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
       this.propertyValueUpdate(this.createFormConfig);
     }
     else {
+      console.log(this.createFormGroup.controls)
       this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Profile is not created. Please check again.' });
     }
   }
@@ -1077,8 +1078,9 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
 
   delete() {
     if (this.module === 'CONT') {
-      this.commonService.deleteContact(this.selectedProfile as ContactDto[]).subscribe(res => {
+      this.commonService.deleteContact(this.selectedProfile as ContactDto[], this.authService.user?.uid ?? 'SYSTEM').subscribe(res => {
         if (res.isSuccess) {
+          this.popMessage(this.translateService.instant("MESSAGE.DELETED_SUCCESSFULLY", { module: this.translateService.instant("COMMON.CONTACT") }), this.translateService.instant("MESSAGE.DELETED"), "success");
           this.getContact();
         }
         else {
@@ -1087,9 +1089,10 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
       });
     }
     else {
-      this.commonService.deleteCompany(this.selectedProfile as CompanyDto[]).subscribe(res => {
+      this.commonService.deleteCompany(this.selectedProfile as CompanyDto[], this.authService.user?.uid ?? 'SYSTEM').subscribe(res => {
         if (res.isSuccess) {
-          this.getContact();
+          this.popMessage(this.translateService.instant("MESSAGE.DELETED_SUCCESSFULLY", { module: this.translateService.instant("COMMON.COMPANY") }), this.translateService.instant("MESSAGE.DELETED"), "success");
+          this.getCompany();
         }
         else {
           this.popMessage(res.responseMessage, "Error", "error");

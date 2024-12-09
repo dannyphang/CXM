@@ -41,6 +41,8 @@ import { MenubarModule } from 'primeng/menubar';
 import { MenuModule } from 'primeng/menu';
 import { DragDropModule } from 'primeng/dragdrop';
 import { PickListModule } from 'primeng/picklist';
+import { DividerModule } from 'primeng/divider';
+import { TreeSelectModule } from 'primeng/treeselect';
 
 import { MessageService } from 'primeng/api';
 
@@ -88,6 +90,8 @@ const PRIMENG_MODULES = [
     MenuModule,
     DragDropModule,
     PickListModule,
+    DividerModule,
+    TreeSelectModule
 ]
 
 @NgModule({
