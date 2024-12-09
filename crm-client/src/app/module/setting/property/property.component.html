@@ -42,17 +42,17 @@
           </div>
 
           <div class="tw-flex">
-            <p-button
-              [icon]="'pi pi-plus'"
-              rounded="true"
-              [text]="true"
+            <app-base-button
+              [iconName]="'pi pi-plus'"
+              [rounded]="true"
+              [isTextStyle]="true"
               [pTooltip]="'BUTTON.CREATE' | translate"
               (onClick)="toCreate()"
-            ></p-button>
-            <p-button
-              icon="pi pi-trash"
+            ></app-base-button>
+            <app-base-button
+              [iconName]="'pi pi-trash'"
               [rounded]="true"
-              [text]="true"
+              [isTextStyle]="true"
               (onClick)="delete()"
               *ngIf="selectedProperty.length > 0"
               [pTooltip]="'BUTTON.DELETE' | translate"
@@ -82,9 +82,12 @@
           </td>
           <td *ngFor="let col of columns">
             <div *ngIf="col.field === 'propertyName'">
-              <p-button [text]="true" (onClick)="toEdit(rowData)">
-                {{ rowData[col.field] }}
-              </p-button>
+              <app-base-button
+                [isTextStyle]="true"
+                (onClick)="toEdit(rowData)"
+                [label]="rowData[col.field]"
+              >
+              </app-base-button>
             </div>
             <div *ngIf="col.field !== 'propertyName'">
               {{ returnColumnData(col.field, rowData[col.field]) }}
@@ -148,43 +151,41 @@
             ></app-base-checkbox>
             <div *ngIf="propertiesLookup.controls.length > 1" class="tw-flex">
               <p-divider [layout]="'vertical'"></p-divider>
-              <p-button
-                [text]="true"
-                [icon]="'pi pi-trash'"
+              <app-base-button
+                [isTextStyle]="true"
+                [iconName]="'pi pi-trash'"
                 class="tw-flex tw-items-center"
                 (onClick)="
                   editable && editMode ? editDeleteLookup(i) : deleteLookup(i)
                 "
-              ></p-button>
+              ></app-base-button>
             </div>
           </div>
         </ng-container>
 
         <div class="tw-flex tw-justify-center">
-          <p-button
-            [icon]="'pi pi-plus'"
+          <app-base-button
+            [iconName]="'pi pi-plus'"
             [rounded]="true"
             (onClick)="addLookup()"
             [disabled]="!editable"
-          ></p-button>
+          ></app-base-button>
         </div>
       </div>
     </div>
   </ng-template>
 
   <ng-template pTemplate="footer">
-    <p-button
+    <app-base-button
       [label]="'BUTTON.CANCEL' | translate"
-      [text]="true"
-      severity="secondary"
+      [isTextStyle]="true"
       (click)="closeDialog()"
     />
-    <p-button
+    <app-base-button
       [label]="
         editMode ? ('BUTTON.UPDATE' | translate) : ('BUTTON.CREATE' | translate)
       "
       [outlined]="true"
-      severity="primary"
       (click)="create()"
     />
   </ng-template>

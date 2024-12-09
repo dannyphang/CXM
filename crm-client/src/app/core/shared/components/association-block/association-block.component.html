@@ -2,8 +2,8 @@
   class="tw-border-[1px] tw-border-[var(--primary-color)] tw-flex tw-justify-between"
 >
   <div class="tw-grid">
-    <p-button
-      [text]="true"
+    <app-base-button
+      [isTextStyle]="true"
       [label]="
         module === 'CONT'
           ? companyProfile.companyName
@@ -12,15 +12,15 @@
             contactProfile.contactLastName
       "
       (onClick)="toProfile()"
-    ></p-button>
-    <p-button
-      [text]="true"
+    ></app-base-button>
+    <app-base-button
+      [isTextStyle]="true"
       [label]="
         module === 'CONT'
           ? companyProfile.companyEmail
           : contactProfile.contactEmail
       "
-    ></p-button>
+    ></app-base-button>
   </div>
   <div>
     <p-avatar

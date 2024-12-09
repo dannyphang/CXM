@@ -28,15 +28,15 @@
         (activityListEmit)="getActivities()"
       ></app-middle-panel>
 
-      <p-button
-        [icon]="
+      <app-base-button
+        [iconName]="
           isRightPanelShow
             ? 'pi pi-angle-double-right'
             : 'pi pi-angle-double-left'
         "
         [rounded]="true"
         (onClick)="isRightPanelShow = !isRightPanelShow"
-      ></p-button>
+      ></app-base-button>
     </ng-template>
   </p-splitter>
 

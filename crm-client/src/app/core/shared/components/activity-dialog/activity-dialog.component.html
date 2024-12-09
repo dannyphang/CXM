@@ -31,14 +31,14 @@
       {{ contentWordLength }} / {{ editorContentLimit }}
       {{ "ACTIVITY.WORDS" | translate }}
     </div>
-    <p-button
-      [icon]="'pi pi-plus'"
+    <app-base-button
+      [iconName]="'pi pi-plus'"
       [rounded]="true"
       (onClick)="uploader.click()"
       class="tw-mt-[15px]"
       [pTooltip]="'BUTTON.ATTACH_FILE' | translate"
-    ></p-button>
-    <p-button label="Associated with 1 records" [text]="true" />
+    ></app-base-button>
+    <app-base-button label="Associated with 1 records" [isTextStyle]="true" />
   </div>
 
   <input
@@ -70,13 +70,13 @@
   </div>
 
   <ng-template pTemplate="footer">
-    <p-button
+    <app-base-button
       label="Cancel"
-      [text]="true"
+      [isTextStyle]="true"
       severity="secondary"
       (onClick)="closeDialog()"
     />
-    <p-button
+    <app-base-button
       label="Save"
       severity="primary"
       (onClick)="save()"

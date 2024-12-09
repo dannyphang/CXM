@@ -258,6 +258,9 @@ export interface BaseButtonFormConfig extends BaseFormConfig {
     type: CONTROL_TYPE.Button;
     label?: string;
     outlined?: boolean;
+    isTextStyle?: boolean;
+    rounded?: boolean;
+    loading?: boolean;
     onClickFunc: (e?: any) => void;
     actionPermission?: {
         actionType: string | string[];
