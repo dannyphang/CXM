@@ -54,13 +54,13 @@
       class="tw-w-full tw-aspect-square tw-border tw-border-solid tw-border-[var(--primary-color)] tw-object-cover tw-mb-[var(--content-gap)]"
     />
     <div class="tw-flex tw-justify-between">
-      <p-button
-        [icon]="'pi pi-plus'"
+      <app-base-button
+        [iconName]="'pi pi-plus'"
         [rounded]="true"
         (onClick)="imageUploader.click()"
         class=""
         [pTooltip]="'BUTTON.ATTACH_FILE' | translate"
-      ></p-button>
+      ></app-base-button>
 
       <app-chip
         *ngIf="profilePhotoFile"
@@ -69,10 +69,10 @@
         class="tw-grid tw-items-center"
       ></app-chip>
 
-      <p-button
+      <app-base-button
         [label]="'BUTTON.UPLOAD' | translate"
         (onClick)="imageFileUploadBtn()"
-      ></p-button>
+      ></app-base-button>
     </div>
   </div>
 </p-dialog>
@@ -95,15 +95,15 @@
       (mouseenter)="isAvatarEdit = true"
       (mouseleave)="isAvatarEdit = false"
     >
-      <p-button
+      <app-base-button
         icon="pi pi-file-edit"
         styleClass="tw-w-[80px] tw-h-[80px] avatar-edit"
         [rounded]="true"
-        [text]="true"
+        [isTextStyle]="true"
         *ngIf="isAvatarEdit"
         (onClick)="editPic()"
         [pTooltip]="'PROFILE.AVATAR_EDIT' | translate"
-      ></p-button>
+      ></app-base-button>
       <p-avatar
         *ngIf="
           !contactProfile.contactProfilePhotoUrl &&
@@ -157,9 +157,9 @@
               : companyProfile.companyEmail
           }}
         </div>
-        <p-button
+        <app-base-button
           icon="pi pi-copy"
-          [text]="true"
+          [isTextStyle]="true"
           [rounded]="true"
           (click)="
             copyEmailToClipboard(
@@ -173,9 +173,9 @@
       </div>
     </div>
     <div class="action-div tw-flex tw-justify-end">
-      <p-button
+      <app-base-button
         icon="pi pi-ellipsis-v"
-        [text]="true"
+        [isTextStyle]="true"
         [rounded]="true"
         (click)="profileActionMenu.toggle($event)"
       />
@@ -186,52 +186,52 @@
   <div
     class="action-btn-div tw-flex tw-flex-wrap tw-w-full tw-justify-between tw-p-[15px] tw-border-solid tw-border-[var(--primary-color)] tw-border-x tw-border-t-0 tw-border-b"
   >
-    <p-button
-      icon="pi pi-file-edit"
+    <app-base-button
+      [iconName]="'pi pi-file-edit'"
       [rounded]="true"
-      [text]="true"
-      outlined="true"
-      [styleClass]="'tw-bg-[var(--primary-color-text)]'"
+      [isTextStyle]="true"
+      [outlined]="true"
+      [buttonClass]="'tw-bg-[var(--primary-color-text)]'"
       pTooltip="Create a note"
     />
-    <p-button
-      icon="pi pi-envelope"
+    <app-base-button
+      [iconName]="'pi pi-envelope'"
       [rounded]="true"
-      [text]="true"
-      outlined="true"
-      [styleClass]="'tw-bg-[var(--primary-color-text)]'"
+      [isTextStyle]="true"
+      [outlined]="true"
+      [buttonClass]="'tw-bg-[var(--primary-color-text)]'"
       pTooltip="Create an email"
     />
-    <p-button
-      icon="pi pi-phone"
+    <app-base-button
+      [iconName]="'pi pi-phone'"
       [rounded]="true"
-      [text]="true"
-      outlined="true"
-      [styleClass]="'tw-bg-[var(--primary-color-text)]'"
+      [isTextStyle]="true"
+      [outlined]="true"
+      [buttonClass]="'tw-bg-[var(--primary-color-text)]'"
       pTooltip="Make a phone call"
     />
-    <p-button
-      icon="pi pi-list-check"
+    <app-base-button
+      [iconName]="'pi pi-list-check'"
       [rounded]="true"
-      [text]="true"
-      outlined="true"
-      [styleClass]="'tw-bg-[var(--primary-color-text)]'"
+      [isTextStyle]="true"
+      [outlined]="true"
+      [buttonClass]="'tw-bg-[var(--primary-color-text)]'"
       pTooltip="Create a task"
     />
-    <p-button
-      icon="pi pi-calendar-plus"
+    <app-base-button
+      [iconName]="'pi pi-calendar-plus'"
       [rounded]="true"
-      [text]="true"
-      outlined="true"
-      [styleClass]="'tw-bg-[var(--primary-color-text)]'"
+      [isTextStyle]="true"
+      [outlined]="true"
+      [buttonClass]="'tw-bg-[var(--primary-color-text)]'"
       pTooltip="Schedule a meeting"
     />
-    <p-button
-      icon="pi pi-ellipsis-h"
+    <app-base-button
+      [iconName]="'pi pi-ellipsis-h'"
       [rounded]="true"
-      [text]="true"
-      outlined="true"
-      [styleClass]="'tw-bg-[var(--primary-color-text)]'"
+      [isTextStyle]="true"
+      [outlined]="true"
+      [buttonClass]="'tw-bg-[var(--primary-color-text)]'"
       pTooltip="More"
     />
   </div>

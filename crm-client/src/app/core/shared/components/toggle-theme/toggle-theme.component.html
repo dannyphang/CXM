@@ -1,12 +1,13 @@
-<p-button
-  icon="pi pi-palette"
+<app-base-button
+  [iconName]="'pi pi-palette'"
   [rounded]="true"
-  [text]="true"
+  [isTextStyle]="true"
   [raised]="true"
-  outlined="true"
+  [outlined]="true"
   (onClick)="togglePanel()"
-  [styleClass]="'tw-bg-[var(--primary-color-text)]'"
-/>
+  [buttonStyleClass]="'tw-bg-[var(--primary-color-text)]'"
+></app-base-button>
+
 <app-overlay-panel>
   <div class="" overlay-panel-body>
     <div class="theme-container tw-w-[200px]">

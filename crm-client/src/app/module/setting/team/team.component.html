@@ -17,33 +17,33 @@
         [options]="roleOptions"
         class="tw-w-[30%] tw-ml-[var(--content-gap)]"
       ></app-base-dropdown>
-      <p-button
-        [icon]="returnCheckIcon(team)"
+      <app-base-button
+        [iconName]="returnCheckIcon(team)"
         [rounded]="true"
         (onClick)="checkUserEmail(team)"
         [pTooltip]="'BUTTON.CHECK_USER_EMAIL' | translate"
         class="tw-flex tw-items-end tw-ml-[var(--content-gap)]"
-      ></p-button>
-      <p-button
-        [icon]="'pi pi-minus'"
+      ></app-base-button>
+      <app-base-button
+        [iconName]="'pi pi-minus'"
         [rounded]="true"
         [outlined]="true"
         (onClick)="removeTeam(i)"
         class="tw-flex tw-items-end tw-ml-[var(--content-gap)]"
         *ngIf="teamFormArr.controls.length !== 1"
-      ></p-button>
+      ></app-base-button>
     </div>
   </div>
   <div class="tw-flex tw-justify-center">
-    <p-button
-      [icon]="'pi pi-plus'"
+    <app-base-button
+      [iconName]="'pi pi-plus'"
       [rounded]="true"
       (onClick)="addTeamFormArr()"
-    ></p-button>
+    ></app-base-button>
   </div>
 
-  <p-button
+  <app-base-button
     [label]="'BUTTON.SUBMIT' | translate"
     (onClick)="submitTeam()"
-  ></p-button>
+  ></app-base-button>
 </div>
