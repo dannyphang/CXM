@@ -117,7 +117,7 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
 
   copyEmailToClipboard(copiedText: string) {
     navigator.clipboard.writeText(copiedText);
-    this.messageService.add({ severity: 'success', summary: 'Copy text', detail: 'Successful copied text' });
+    this.popMessage(this.translateService.instant("MESSAGE.COPY_TEXT_DETAIL"), this.translateService.instant("MESSAGE.COPY_TEXT"));
   }
 
   editPic() {

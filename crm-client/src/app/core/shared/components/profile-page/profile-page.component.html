@@ -36,20 +36,27 @@
         "
         [rounded]="true"
         (onClick)="isRightPanelShow = !isRightPanelShow"
+        [buttonClass]="'tw-p-[0px!important]'"
+        class="tw-absolute"
+        [ngClass]="{
+          'panel-right-pos-on': isRightPanelShow, 
+          'panel-right-pos-off': !isRightPanelShow, 
+        }"
       ></app-base-button>
     </ng-template>
   </p-splitter>
 
-  <!-- <app-right-panel
+  <!-- Right Panel -->
+  <app-right-panel
     [ngClass]="{
       'tw-w-[20%]': isRightPanelShow,
       'tw-w-0': !isRightPanelShow
     }"
-    (rightPanelOpenEmit)="updateRightPanelShow()"
+    class="tw-absolute tw-right-0 tw-w-[20%] tw-transform tw-transition-transform tw-duration-1000"
     *ngIf="isRightPanelShow"
     [module]="module"
     [propertiesList]="propertiesList"
     [contactProfile]="contactProfile"
     [companyProfile]="companyProfile"
-  ></app-right-panel> -->
+  ></app-right-panel>
 </div>

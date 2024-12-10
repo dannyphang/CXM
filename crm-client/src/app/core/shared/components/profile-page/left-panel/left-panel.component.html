@@ -86,175 +86,208 @@
   accept="image/*"
 />
 
-<div class="tw-bg-[var(--primary-color-text)]">
-  <div
-    class="left-top-area tw-p-[15px] tw-border-x tw-border-t tw-border-b-0 tw-border-[var(--primary-color)] tw-border-solid"
-  >
+<div class="tw-px-[var(--content-gap)]">
+  <div class="tw-bg-[var(--primary-color-text)]">
+    <!-- avatar, username -->
     <div
-      class="avatar-div"
-      (mouseenter)="isAvatarEdit = true"
-      (mouseleave)="isAvatarEdit = false"
+      class="left-top-area tw-p-[var(--content-gap)] tw-border-x tw-border-t tw-border-b-0 tw-border-[var(--primary-color)] tw-border-solid"
     >
-      <app-base-button
-        icon="pi pi-file-edit"
-        styleClass="tw-w-[80px] tw-h-[80px] avatar-edit"
-        [rounded]="true"
-        [isTextStyle]="true"
-        *ngIf="isAvatarEdit"
-        (onClick)="editPic()"
-        [pTooltip]="'PROFILE.AVATAR_EDIT' | translate"
-      ></app-base-button>
-      <p-avatar
-        *ngIf="
-          !contactProfile.contactProfilePhotoUrl &&
-          !companyProfile.companyProfilePhotoUrl
-        "
-        [icon]="'pi pi-user'"
-        styleClass="tw-w-[80px] tw-h-[80px]"
-        [ngClass]="isAvatarEdit ? 'tw-opacity-[0.5]' : 'tw-opacity-[1]'"
-        shape="circle"
-        data-blobity-magnetic="true"
-      />
-      <p-avatar
-        *ngIf="
-          contactProfile.contactProfilePhotoUrl ||
-          companyProfile.companyProfilePhotoUrl
-        "
-        [image]="
-          module === 'CONT'
-            ? contactProfile.contactProfilePhotoUrl
-            : companyProfile.companyProfilePhotoUrl
-        "
-        styleClass="tw-w-[80px] tw-h-[80px]"
-        [ngClass]="isAvatarEdit ? 'tw-opacity-[0.5]' : 'tw-opacity-[1]'"
-        shape="circle"
-        data-blobity-magnetic="true"
-      />
-    </div>
-
-    <div class="info-div tw-overflow-hidden tw-content-center">
-      <app-base-label
-        [label]="
-          module === 'CONT'
-            ? contactProfile.contactFirstName
-              ? contactProfile.contactFirstName +
-                ' ' +
-                contactProfile.contactLastName
-              : ''
-            : companyProfile.companyName
-            ? companyProfile.companyName
-            : ''
-        "
-        [labelStyle]="'tw-text-ellipsis tw-overflow-hidden profile-name-label'"
-      ></app-base-label>
-      <div class="email-div tw-flex">
-        <div
-          class="email-text tw-text-ellipsis tw-overflow-hidden tw-content-center"
-        >
-          {{
-            module === "CONT"
-              ? contactProfile.contactEmail
-              : companyProfile.companyEmail
-          }}
-        </div>
+      <div
+        class="avatar-div"
+        (mouseenter)="isAvatarEdit = true"
+        (mouseleave)="isAvatarEdit = false"
+      >
         <app-base-button
-          icon="pi pi-copy"
-          [isTextStyle]="true"
+          [iconName]="'pi pi-file-edit'"
+          [buttonStyleClass]="'tw-w-[80px] tw-h-[80px] avatar-edit'"
           [rounded]="true"
-          (click)="
-            copyEmailToClipboard(
-              module === 'CONT'
-                ? contactProfile.contactEmail
-                : companyProfile.companyEmail
-            )
+          *ngIf="isAvatarEdit"
+          [isTextStyle]="true"
+          (onClick)="editPic()"
+          [pTooltip]="'PROFILE.AVATAR_EDIT' | translate"
+        ></app-base-button>
+        <p-avatar
+          *ngIf="
+            !contactProfile.contactProfilePhotoUrl &&
+            !companyProfile.companyProfilePhotoUrl
           "
-          pTooltip="Copy email to clipboard"
+          [icon]="'pi pi-user'"
+          styleClass="tw-w-[80px] tw-h-[80px]"
+          [ngClass]="isAvatarEdit ? 'tw-opacity-[0.5]' : 'tw-opacity-[1]'"
+          shape="circle"
+          data-blobity-magnetic="true"
+        />
+        <p-avatar
+          *ngIf="
+            contactProfile.contactProfilePhotoUrl ||
+            companyProfile.companyProfilePhotoUrl
+          "
+          [image]="
+            module === 'CONT'
+              ? contactProfile.contactProfilePhotoUrl
+              : companyProfile.companyProfilePhotoUrl
+          "
+          styleClass="tw-w-[80px] tw-h-[80px]"
+          [ngClass]="isAvatarEdit ? 'tw-opacity-[0.5]' : 'tw-opacity-[1]'"
+          shape="circle"
+          data-blobity-magnetic="true"
         />
       </div>
+
+      <!-- middle -->
+      <div class="info-div tw-overflow-hidden tw-content-evenly tw-grid">
+        <!-- username -->
+        <app-base-label
+          [label]="
+            module === 'CONT'
+              ? contactProfile.contactFirstName
+                ? contactProfile.contactFirstName +
+                  ' ' +
+                  contactProfile.contactLastName
+                : ''
+              : companyProfile.companyName
+              ? companyProfile.companyName
+              : ''
+          "
+          [labelStyle]="
+            'tw-text-ellipsis tw-overflow-hidden profile-name-label'
+          "
+        ></app-base-label>
+
+        <!-- email -->
+        <div class="email-div tw-grid">
+          <a
+            class="email-text tw-text-ellipsis tw-overflow-hidden tw-content-center tw-cursor-pointer"
+            (click)="
+              copyEmailToClipboard(
+                module === 'CONT'
+                  ? contactProfile.contactEmail
+                  : companyProfile.companyEmail
+              )
+            "
+            [pTooltip]="'MESSAGE.COPY_EMAIL' | translate"
+          >
+            {{
+              module === "CONT"
+                ? contactProfile.contactEmail
+                : companyProfile.companyEmail
+            }}
+          </a>
+          <!-- <app-base-button
+            [iconName]="'pi pi-copy'"
+            [isTextStyle]="true"
+            [rounded]="true"
+            (click)="
+              copyEmailToClipboard(
+                module === 'CONT'
+                  ? contactProfile.contactEmail
+                  : companyProfile.companyEmail
+              )
+            "
+          /> -->
+        </div>
+      </div>
+
+      <!-- more button -->
+      <div class="action-div tw-flex tw-justify-end">
+        <app-base-button
+          [iconName]="'pi pi-ellipsis-v'"
+          [isTextStyle]="true"
+          [rounded]="true"
+          (click)="profileActionMenu.toggle($event)"
+          class="tw-h-fit"
+        />
+        <p-tieredMenu #profileActionMenu [model]="actionMenu" [popup]="true" />
+      </div>
     </div>
-    <div class="action-div tw-flex tw-justify-end">
+
+    <!-- action buttons -->
+    <div
+      class="action-btn-div tw-flex tw-flex-wrap tw-w-full tw-justify-between tw-p-[var(--content-gap)] tw-border-solid tw-border-[var(--primary-color)] tw-border-x tw-border-t-0 tw-border-b tw-gap-[var(--content-gap)]"
+    >
       <app-base-button
-        icon="pi pi-ellipsis-v"
-        [isTextStyle]="true"
+        [iconName]="'pi pi-file-edit'"
         [rounded]="true"
-        (click)="profileActionMenu.toggle($event)"
+        [isTextStyle]="true"
+        [outlined]="true"
+        [buttonClass]="
+          'tw-bg-[var(--primary-color-text)] left-panel-action-button'
+        "
+        pTooltip="Create a note"
       />
-      <p-tieredMenu #profileActionMenu [model]="actionMenu" [popup]="true" />
+      <app-base-button
+        [iconName]="'pi pi-envelope'"
+        [rounded]="true"
+        [isTextStyle]="true"
+        [outlined]="true"
+        [buttonClass]="
+          'tw-bg-[var(--primary-color-text)] left-panel-action-button'
+        "
+        pTooltip="Create an email"
+      />
+      <app-base-button
+        [iconName]="'pi pi-phone'"
+        [rounded]="true"
+        [isTextStyle]="true"
+        [outlined]="true"
+        [buttonClass]="
+          'tw-bg-[var(--primary-color-text)] left-panel-action-button'
+        "
+        pTooltip="Make a phone call"
+      />
+      <app-base-button
+        [iconName]="'pi pi-list-check'"
+        [rounded]="true"
+        [isTextStyle]="true"
+        [outlined]="true"
+        [buttonClass]="
+          'tw-bg-[var(--primary-color-text)] left-panel-action-button'
+        "
+        pTooltip="Create a task"
+      />
+      <app-base-button
+        [iconName]="'pi pi-calendar-plus'"
+        [rounded]="true"
+        [isTextStyle]="true"
+        [outlined]="true"
+        [buttonClass]="
+          'tw-bg-[var(--primary-color-text)] left-panel-action-button'
+        "
+        pTooltip="Schedule a meeting"
+      />
+      <app-base-button
+        [iconName]="'pi pi-ellipsis-h'"
+        [rounded]="true"
+        [isTextStyle]="true"
+        [outlined]="true"
+        [buttonClass]="
+          'tw-bg-[var(--primary-color-text)] left-panel-action-button'
+        "
+        pTooltip="More"
+      />
     </div>
   </div>
 
-  <div
-    class="action-btn-div tw-flex tw-flex-wrap tw-w-full tw-justify-between tw-p-[15px] tw-border-solid tw-border-[var(--primary-color)] tw-border-x tw-border-t-0 tw-border-b"
-  >
-    <app-base-button
-      [iconName]="'pi pi-file-edit'"
-      [rounded]="true"
-      [isTextStyle]="true"
-      [outlined]="true"
-      [buttonClass]="'tw-bg-[var(--primary-color-text)]'"
-      pTooltip="Create a note"
-    />
-    <app-base-button
-      [iconName]="'pi pi-envelope'"
-      [rounded]="true"
-      [isTextStyle]="true"
-      [outlined]="true"
-      [buttonClass]="'tw-bg-[var(--primary-color-text)]'"
-      pTooltip="Create an email"
-    />
-    <app-base-button
-      [iconName]="'pi pi-phone'"
-      [rounded]="true"
-      [isTextStyle]="true"
-      [outlined]="true"
-      [buttonClass]="'tw-bg-[var(--primary-color-text)]'"
-      pTooltip="Make a phone call"
-    />
-    <app-base-button
-      [iconName]="'pi pi-list-check'"
-      [rounded]="true"
-      [isTextStyle]="true"
-      [outlined]="true"
-      [buttonClass]="'tw-bg-[var(--primary-color-text)]'"
-      pTooltip="Create a task"
-    />
-    <app-base-button
-      [iconName]="'pi pi-calendar-plus'"
-      [rounded]="true"
-      [isTextStyle]="true"
-      [outlined]="true"
-      [buttonClass]="'tw-bg-[var(--primary-color-text)]'"
-      pTooltip="Schedule a meeting"
-    />
-    <app-base-button
-      [iconName]="'pi pi-ellipsis-h'"
-      [rounded]="true"
-      [isTextStyle]="true"
-      [outlined]="true"
-      [buttonClass]="'tw-bg-[var(--primary-color-text)]'"
-      pTooltip="More"
-    />
-  </div>
-</div>
-
-<div class="tw-border" *ngFor="let propertyGroup of propertiesList">
-  <div
-    *ngIf="
-      propertyGroup.moduleCode == 'CONT_INFO' ||
-      propertyGroup.moduleCode == 'COMP_INFO'
-    "
-    class="panel-div"
-  >
-    <app-accordion-panel class="profile-panel-div" [iconPos]="'start'">
-      <div acc-panel-header>
-        {{ propertyGroup.moduleName }}
-      </div>
-      <div acc-panel-body class="panel-content-div">
-        <app-base-form
-          [formConfig]="returnProfileFormConfig(propertyGroup.moduleCode)"
-          class="left-profile-form"
-        ></app-base-form>
-      </div>
-    </app-accordion-panel>
+  <!-- property form -->
+  <div class="tw-border" *ngFor="let propertyGroup of propertiesList">
+    <div
+      *ngIf="
+        propertyGroup.moduleCode == 'CONT_INFO' ||
+        propertyGroup.moduleCode == 'COMP_INFO'
+      "
+      class="panel-div"
+    >
+      <app-accordion-panel class="profile-panel-div" [iconPos]="'start'">
+        <div acc-panel-header>
+          {{ propertyGroup.moduleName }}
+        </div>
+        <div acc-panel-body class="panel-content-div">
+          <app-base-form
+            [formConfig]="returnProfileFormConfig(propertyGroup.moduleCode)"
+            class="left-profile-form"
+          ></app-base-form>
+        </div>
+      </app-accordion-panel>
+    </div>
   </div>
 </div>

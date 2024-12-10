@@ -4,8 +4,8 @@
   column-gap: 15px;
 }
 
-.left-panel-area {
-  // overflow-y: hidden;
+.profile-box {
+  margin-top: var(--content-gap);
 }
 
 :host ::ng-deep {
@@ -15,4 +15,12 @@
       border-width: 0;
     }
   }
+}
+
+.panel-right-pos-on {
+  right: calc(20% + var(--content-gap));
+}
+
+.panel-right-pos-off {
+  right: var(--content-gap);
 }

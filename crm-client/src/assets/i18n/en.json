@@ -30,7 +30,10 @@
     "SUCCESS": "Success",
     "UPDATED_SUCCESSFULLY": "Updated successfully.",
     "CANNOT_DELETE_SYSTEM_PROPERTY": "System property is not allow to delete.",
-    "ERROR": "Error"
+    "ERROR": "Error",
+    "COPY_TEXT": "Copy text",
+    "COPY_TEXT_DETAIL": "Successful copied text",
+    "COPY_EMAIL": "Copy email to clipboard"
   },
   "BUTTON": {
     "SAVE": "Save",
