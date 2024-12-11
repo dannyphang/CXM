@@ -16,7 +16,7 @@
   </ng-template>
   <app-base-form [formConfig]="activityFormConfig"></app-base-form>
 
-  <div class="text-editor">
+  <div class="text-editor tw-px-[var(--content-gap)]">
     <p-editor
       [formControl]="editorFormControl"
       [style]="{ height: '200px' }"
@@ -26,7 +26,9 @@
     />
   </div>
 
-  <div class="tw-flex tw-justify-between tw-items-center">
+  <div
+    class="tw-flex tw-justify-between tw-items-center tw-px-[var(--content-gap)]"
+  >
     <div class="tw-grid tw-items-center">
       {{ contentWordLength }} / {{ editorContentLimit }}
       {{ "ACTIVITY.WORDS" | translate }}
@@ -74,18 +76,19 @@
   </div>
 
   <ng-template pTemplate="footer">
-    <app-base-button
-      label="Cancel"
-      [isTextStyle]="true"
-      severity="secondary"
-      (onClick)="closeDialog()"
-    />
-    <app-base-button
-      label="Save"
-      severity="primary"
-      (onClick)="save()"
-      [disabled]="!this.activityFormGroup.valid"
-    />
+    <div class="tw-flex tw-justify-between">
+      <app-base-button
+        [label]="'BUTTON.CANCEL'"
+        [isTextStyle]="true"
+        [outlined]="true"
+        (onClick)="closeDialog()"
+      />
+      <app-base-button
+        [label]="'BUTTON.SAVE'"
+        (onClick)="save()"
+        [disabled]="!this.activityFormGroup.valid"
+      />
+    </div>
   </ng-template>
 </p-dialog>
 

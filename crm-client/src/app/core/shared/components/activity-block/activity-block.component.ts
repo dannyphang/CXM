@@ -82,7 +82,7 @@ export class ActivityBlockComponent implements OnChanges {
 
         this.activityService.updateActivity(updateAct).subscribe(res => {
           if (!res.isSuccess) {
-            this.popMessage(res.responseMessage, "Error", "error");
+            this.popMessage(res.responseMessage, "error");
           }
         });
       })
@@ -112,7 +112,7 @@ export class ActivityBlockComponent implements OnChanges {
                 this.activityReload.emit();
               }
               else {
-                this.popMessage(res.responseMessage, "Error", "error");
+                this.popMessage(res.responseMessage, "error");
               }
             })
           }
@@ -129,7 +129,7 @@ export class ActivityBlockComponent implements OnChanges {
                 this.activityReload.emit();
               }
               else {
-                this.popMessage(res.responseMessage, "Error", "error");
+                this.popMessage(res.responseMessage, "error");
               }
             })
           }
@@ -338,7 +338,7 @@ export class ActivityBlockComponent implements OnChanges {
         this.readonly = true;
       }
       else {
-        this.popMessage(res.responseMessage, "Error", "error");
+        this.popMessage(res.responseMessage, "error");
       }
 
     });

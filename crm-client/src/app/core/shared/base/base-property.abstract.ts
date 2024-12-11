@@ -458,7 +458,7 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
                     this.showFormUpdateSidebar = false;
                 }
                 else {
-                    this.popMessage(res.responseMessage, "Error", "error");
+                    this.popMessage(res.responseMessage, "error");
                 }
             });
         }

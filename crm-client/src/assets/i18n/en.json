@@ -33,7 +33,8 @@
     "ERROR": "Error",
     "COPY_TEXT": "Copy text",
     "COPY_TEXT_DETAIL": "Successful copied text",
-    "COPY_EMAIL": "Copy email to clipboard"
+    "COPY_EMAIL": "Copy email to clipboard",
+    "UPLOADING": "Uploading..."
   },
   "BUTTON": {
     "SAVE": "Save",
@@ -80,6 +81,7 @@
     "EDITOR_PLACEHOLDER": "Describe the log...",
     "PINNED": "Pinned",
     "UPCOMING": "UpComing",
+    "PAST": "Past",
     "OUTCOME": "Outcome",
     "DIRECT": "Direction"
   },

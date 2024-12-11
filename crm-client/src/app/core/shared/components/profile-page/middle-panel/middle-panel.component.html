@@ -74,6 +74,30 @@
               ></app-activity-block>
             </div>
           </div>
+
+          <!-- Past -->
+          <div *ngIf="returnPastActivityList('ALL').length > 0">
+            <div
+              class="activity-label-div tw-flex tw-flex-wrap tw-items-center"
+            >
+              <i class="pi pi-calendar"></i>
+              <p class="upcoming-label">
+                {{ "ACTIVITY.PAST" | translate }}
+              </p>
+            </div>
+            <div
+              *ngFor="let activity of returnPastActivityList('ALL')"
+              class="tw-pb-[15px]"
+            >
+              <app-activity-block
+                [activityControlList]="activityControlList"
+                [activityModuleList]="activityModuleList"
+                [activity]="activity"
+                [moduleLable]="'ALL'"
+                (activityReload)="activityListEmit.emit()"
+              ></app-activity-block>
+            </div>
+          </div>
         </p-tabPanel>
 
         <!-- Other Tab -->
@@ -149,6 +173,34 @@
                   [activityControlList]="getActivityControlList(activityTab)"
                   [activityModuleList]="activityModuleList"
                   [activity]="activity"
+                  (activityReload)="activityListEmit.emit()"
+                ></app-activity-block>
+              </div>
+            </div>
+
+            <!-- Past -->
+            <div
+              *ngIf="returnPastActivityList(activityTab.moduleCode).length > 0"
+            >
+              <div
+                class="activity-label-div tw-flex tw-flex-wrap tw-items-center"
+              >
+                <i class="pi pi-calendar"></i>
+                <p class="upcoming-label">
+                  {{ "ACTIVITY.PAST" | translate }}
+                </p>
+              </div>
+              <div
+                *ngFor="
+                  let activity of returnPastActivityList(activityTab.moduleCode)
+                "
+                class="tw-pb-[15px]"
+              >
+                <app-activity-block
+                  [activityControlList]="activityControlList"
+                  [activityModuleList]="activityModuleList"
+                  [activity]="activity"
+                  [moduleLable]="'ALL'"
                   (activityReload)="activityListEmit.emit()"
                 ></app-activity-block>
               </div>

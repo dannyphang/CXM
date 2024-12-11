@@ -109,7 +109,7 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
         });
       }
       else {
-        this.popMessage(res.responseMessage, "Error", "error");
+        this.popMessage(res.responseMessage, "error");
       }
     });
 
@@ -117,7 +117,7 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
 
   copyEmailToClipboard(copiedText: string) {
     navigator.clipboard.writeText(copiedText);
-    this.popMessage(this.translateService.instant("MESSAGE.COPY_TEXT_DETAIL"), this.translateService.instant("MESSAGE.COPY_TEXT"));
+    this.popMessage(this.translateService.instant("MESSAGE.COPY_TEXT_DETAIL"), 'success');
   }
 
   editPic() {
@@ -143,6 +143,7 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
 
   imageFileUploadBtn() {
     if (this.profileImg !== DEFAULT_PROFILE_PIC_URL && this.profilePhotoFile) {
+      this.popMessage(this.translateService.instant('MESSAGE.UPLOADING'), "success", true)
       this.storageService.uploadImage(this.profilePhotoFile, this.module === 'CONT' ? "Image/Contact/" : "Image/Company/").then(url => {
         this.profileImg = url;
         if (this.module === 'CONT') {
@@ -154,10 +155,11 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
           this.commonService.updateContact([updateContact], this.authService.user?.uid ?? 'SYSTEM').subscribe(res => {
             if (res.isSuccess) {
               this.isShowAvatarEditDialog = false;
+              this.clearMessage();
               this.profileUpdateEmit.emit(updateContact);
             }
             else {
-              this.popMessage(res.responseMessage, "Error", "error");
+              this.popMessage(res.responseMessage, "error");
             }
           })
         }
@@ -173,7 +175,7 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
               this.profileUpdateEmit.emit(updateCompany);
             }
             else {
-              this.popMessage(res.responseMessage, "Error", "error");
+              this.popMessage(res.responseMessage, "error");
             }
 
           })

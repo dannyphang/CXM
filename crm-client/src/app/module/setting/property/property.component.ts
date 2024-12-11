@@ -118,7 +118,7 @@ export class PropertyComponent extends BaseCoreAbstract {
         this.propertiesList.sort((a, b) => a.order - b.order);
       }
       else {
-        this.popMessage(res.responseMessage, "Error", "error");
+        this.popMessage(res.responseMessage, "error");
       }
       this.tableLoading = false;
     });
@@ -269,7 +269,7 @@ export class PropertyComponent extends BaseCoreAbstract {
         console.log(this.moduleOptions)
       }
       else {
-        this.popMessage(res.responseMessage, "Error", "error");
+        this.popMessage(res.responseMessage, "error");
       }
     });
 
@@ -296,7 +296,7 @@ export class PropertyComponent extends BaseCoreAbstract {
         if (defaultCount > 1) {
           this.propertyDetailFormGroup.controls['propertiesLookup'].setValue(prev, { emitEvent: false });
 
-          this.popMessage(this.translateService.instant('MESSAGE.ONLY_ONE_DEFAULT'), this.translateService.instant('MESSAGE.INVALID_FORM'), 'error');
+          this.popMessage(this.translateService.instant('MESSAGE.ONLY_ONE_DEFAULT'), 'error');
         }
       });
   }
@@ -685,7 +685,7 @@ export class PropertyComponent extends BaseCoreAbstract {
 
   delete() {
     if (this.selectedProperty.find(p => p.isSystem)) {
-      this.popMessage(this.translateService.instant("MESSAGE.CANNOT_DELETE_SYSTEM_PROPERTY"), "Error", "error");
+      this.popMessage(this.translateService.instant("MESSAGE.CANNOT_DELETE_SYSTEM_PROPERTY"), "error");
     }
     else {
       this.commonService.deleteProperty(this.selectedProperty, this.authService.user?.uid ?? 'SYSTEM').subscribe(res => {
@@ -694,7 +694,7 @@ export class PropertyComponent extends BaseCoreAbstract {
           this.getAllProperties(this.moduleFormControl.value ?? 'CONT');
         }
         else {
-          this.popMessage(res.responseMessage, "Error", "error");
+          this.popMessage(res.responseMessage, "error");
         }
       })
     }
@@ -774,7 +774,7 @@ export class PropertyComponent extends BaseCoreAbstract {
                 this.getAllProperties(this.moduleFormControl.value ?? 'CONT');
               }
               else {
-                this.popMessage(res.responseMessage, "Error", "error");
+                this.popMessage(res.responseMessage, "error");
               }
             });
           }
@@ -784,7 +784,7 @@ export class PropertyComponent extends BaseCoreAbstract {
           }
         }
         else {
-          this.popMessage(res.responseMessage, "Error", "error");
+          this.popMessage(res.responseMessage, "error");
         }
       });
     }
@@ -846,19 +846,19 @@ export class PropertyComponent extends BaseCoreAbstract {
 
                 }
                 else {
-                  this.popMessage(res.responseMessage, "Error", "error");
+                  this.popMessage(res.responseMessage, "error");
                 }
               });
             }
           }
           else {
-            this.popMessage(res.responseMessage, "Error", "error");
+            this.popMessage(res.responseMessage, "error");
           }
         })
       }
     }
     else {
-      this.popMessage(this.translateService.instant('MESSAGE.PROPERTY_NOT_EDITABLE'), this.translateService.instant('MESSAGE.ERROR'), 'error');
+      this.popMessage(this.translateService.instant('MESSAGE.PROPERTY_NOT_EDITABLE'), 'error');
     }
   }
 

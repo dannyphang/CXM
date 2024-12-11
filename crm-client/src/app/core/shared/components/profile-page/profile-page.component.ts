@@ -15,7 +15,7 @@ import { AuthService } from '../../../services/auth.service';
 export class ProfilePageComponent extends BaseCoreAbstract implements OnChanges {
   @Input() module: 'CONT' | 'COMP' = 'CONT';
   @Input() propertiesList: PropertyGroupDto[] = [];
-  @Input() profileId: string = '';
+  @Input() profileUid: string = '';
   contactProfile: ContactDto = new ContactDto();
   companyProfile: CompanyDto = new CompanyDto();
   activitiesList: ActivityDto[] = [];
@@ -32,7 +32,7 @@ export class ProfilePageComponent extends BaseCoreAbstract implements OnChanges 
     super(messageService);
 
     this.route.params.subscribe((params) => {
-      this.profileId = params['id'];
+      this.profileUid = params['id'];
     });
   }
 
@@ -50,8 +50,7 @@ export class ProfilePageComponent extends BaseCoreAbstract implements OnChanges 
       }
 
       // this.getProperties();
-
-      // this.getActivities();
+      this.getActivities();
     }
   }
 
@@ -61,48 +60,46 @@ export class ProfilePageComponent extends BaseCoreAbstract implements OnChanges 
         this.propertiesList = res.data;
       }
       else {
-        this.popMessage(res.responseMessage, "Error", "error");
+        this.popMessage(res.responseMessage, "error");
       }
     });
   }
 
   getContact() {
-    this.commonService.getContactById(this.profileId).subscribe((res) => {
+    this.commonService.getContactById(this.profileUid).subscribe((res) => {
       if (res.isSuccess) {
         this.contactProfile = res.data;
         this.titleService.setTitle(`${this.contactProfile.contactFirstName} ${this.contactProfile.contactLastName}`);
       }
       else {
-        this.popMessage(res.responseMessage, "Error", "error");
+        this.popMessage(res.responseMessage, "error");
       }
     });
   }
 
   getCompany() {
-    this.commonService.getCompanyById(this.profileId).subscribe((res) => {
+    this.commonService.getCompanyById(this.profileUid).subscribe((res) => {
       if (res.isSuccess) {
         this.companyProfile = res.data;
         this.titleService.setTitle(`${this.companyProfile.companyName}`);
       }
       else {
-        this.popMessage(res.responseMessage, "Error", "error");
+        this.popMessage(res.responseMessage, "error");
       }
     });
   }
 
   getActivities() {
-    let profile = {
-      contactId: this.module === 'CONT' ? this.contactProfile.uid : '',
-      companyId: this.module === 'COMP' ? this.contactProfile.uid : '',
+    if (this.profileUid) {
+      this.activityService.getAllActivitiesByProfileId(this.profileUid).subscribe(res => {
+        if (res.isSuccess) {
+          this.activitiesList = res.data;
+        }
+        else {
+          this.popMessage(res.responseMessage, "error");
+        }
+      })
     }
-    this.activityService.getAllActivities().subscribe(res => {
-      if (res.isSuccess) {
-        this.activitiesList = res.data;
-      }
-      else {
-        this.popMessage(res.responseMessage, "Error", "error");
-      }
-    })
   }
 
   profileUpdate(event: any) {

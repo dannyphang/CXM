@@ -142,7 +142,7 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
         window.location.reload();
       }
       else {
-        this.popMessage(res.responseMessage, "Error", "error");
+        this.popMessage(res.responseMessage, "error");
       }
     })
 

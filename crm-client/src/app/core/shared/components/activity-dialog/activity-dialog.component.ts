@@ -7,6 +7,7 @@ import { EDITOR_CONTENT_LIMIT, ATTACHMENT_MAX_SIZE } from '../../constants/commo
 import { FileSelectEvent, UploadEvent } from 'primeng/fileupload';
 import { MessageService } from 'primeng/api';
 import { BaseCoreAbstract } from '../../base/base-core.abstract';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-activity-dialog',
@@ -27,7 +28,7 @@ export class ActivityDialogComponent extends BaseCoreAbstract implements OnChang
   activityControlList: ActivityModuleDto[] = [];
   activityFormConfig: FormConfig[] = [];
   activityFormGroup: FormGroup = new FormGroup({
-    CONT: new FormControl(this.module === "CONT" ? [this.contactProfile.contactId] : []),
+    CONT: new FormControl(this.module === "CONT" ? [this.contactProfile.uid] : []),
     DATE: new FormControl(new Date()),
     TIME: new FormControl(new Date()),
     OUTCOME_C: new FormControl(null),
@@ -54,7 +55,8 @@ export class ActivityDialogComponent extends BaseCoreAbstract implements OnChang
     private formBuilder: FormBuilder,
     private activityService: ActivityService,
     private ngZone: NgZone,
-    protected override messageService: MessageService
+    protected override messageService: MessageService,
+    private authService: AuthService
   ) {
     super(messageService);
   }
@@ -65,7 +67,7 @@ export class ActivityDialogComponent extends BaseCoreAbstract implements OnChang
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['contactProfile'] && changes['contactProfile'].currentValue) {
-      this.activityFormGroup.controls['CONT'].setValue([this.contactProfile.contactId]);
+      this.activityFormGroup.controls['CONT'].setValue([this.contactProfile.uid]);
       this.setAssociation();
     }
     if (changes['activityModule'] && changes['activityModule'].currentValue) {
@@ -80,13 +82,14 @@ export class ActivityDialogComponent extends BaseCoreAbstract implements OnChang
   }
 
   clearForm() {
-    this.activityFormGroup.controls['CONT'].setValue(this.module === "CONT" ? [this.contactProfile.contactId] : []);
+    this.activityFormGroup.controls['CONT'].setValue(this.module === "CONT" ? [this.contactProfile.uid] : []);
     this.activityFormGroup.controls['DATE'].setValue(new Date());
     this.activityFormGroup.controls['TIME'].setValue(new Date());
     this.activityFormGroup.controls['OUTCOME_C'].setValue(null);
     this.activityFormGroup.controls['DIRECT'].setValue(null);
     this.activityFormGroup.controls['OUTCOME_M'].setValue(null);
     this.activityFormGroup.controls['DURAT'].setValue(null);
+    this.editorFormControl.setValue(null);
   }
 
   assignForm() {
@@ -249,7 +252,7 @@ export class ActivityDialogComponent extends BaseCoreAbstract implements OnChang
   getContactedList(): OptionsModel[] {
     return [{
       label: `${this.contactProfile.contactFirstName} ${this.contactProfile.contactLastName} (${this.contactProfile.contactEmail})`,
-      value: this.contactProfile.contactId
+      value: this.contactProfile.uid
     }
     ];
   }
@@ -313,13 +316,13 @@ export class ActivityDialogComponent extends BaseCoreAbstract implements OnChang
     for (let i = 0; i < list.length; i++) {
       if (!this.attachmentList.find(item => item.name === list[i].name)) {
         if (list[i].size > this.fileMaxSize) {
-          this.popMessage(`File size is exceed. (${this.returnFileSize(list[i].size)})`, "File size error", "error");
+          this.popMessage(`File size is exceed. (${this.returnFileSize(list[i].size)})`, "error");
           break;
         }
         this.attachmentList.push(list[i]);
       }
       else {
-        this.popMessage(`(${list[i].name}) is duplicated.`, "File duplicated", "error");
+        this.popMessage(`(${list[i].name}) is duplicated.`, "error");
       }
     }
 
@@ -344,7 +347,6 @@ export class ActivityDialogComponent extends BaseCoreAbstract implements OnChang
 
   save() {
     if (this.activityFormGroup.valid) {
-
       let createActivity: CreateActivityDto = {
         activityModuleCode: this.activityModule.moduleCode,
         activityModuleId: this.activityModule.uid,
@@ -356,38 +358,46 @@ export class ActivityDialogComponent extends BaseCoreAbstract implements OnChang
         activityDuration: this.activityFormGroup.controls['DURAT'].value,
         associationId: '',
         attachmentUid: '',
+        createdBy: this.authService.userC.uid,
+        createdDate: new Date()
       }
 
       this.activityService.createActivity([createActivity]).subscribe(res => {
         if (res.isSuccess) {
-          this.attachmentList.forEach(file => {
-            this.commonService.uploadFile(file, "Activity").subscribe(res2 => {
-              if (res2.isSuccess) {
-                let uploadAttach: AttachmentDto = {
-                  activityUid: res.data[0].uid!,
-                  folderName: "Activity",
-                  fileName: res2.data.metadata.name,
-                  fullPath: res2.data.metadata.fullPath,
-                  fileSize: res2.data.metadata.size
-                }
+          if (this.attachmentList.length > 0) {
+            this.attachmentList.forEach(file => {
+              this.commonService.uploadFile(file, "Activity").subscribe(res2 => {
+                if (res2.isSuccess) {
+                  let uploadAttach: AttachmentDto = {
+                    activityUid: res.data[0].uid!,
+                    folderName: "Activity",
+                    fileName: res2.data.metadata.name,
+                    fullPath: res2.data.metadata.fullPath,
+                    fileSize: res2.data.metadata.size
+                  }
 
-                this.activityService.uploadAttachment([uploadAttach]).subscribe(res3 => {
-                  if (res3.isSuccess) {
-                    this.closeDialog();
-                  }
-                  else {
-                    this.popMessage(res.responseMessage, "Error", "error");
-                  }
-                });
-              }
-              else {
-                this.popMessage(res.responseMessage, "Error", "error");
-              }
+                  this.activityService.uploadAttachment([uploadAttach]).subscribe(res3 => {
+                    if (res3.isSuccess) {
+                      this.closeDialog();
+                    }
+                    else {
+                      this.popMessage(res.responseMessage, "error");
+                    }
+                  });
+                }
+                else {
+                  this.popMessage(res.responseMessage, "error");
+                }
+              });
             });
-          });
+          }
+          else {
+            console.log("here");
+            this.closeDialog();
+          }
         }
         else {
-          this.popMessage(res.responseMessage, "Error", "error");
+          this.popMessage(res.responseMessage, "error");
         }
 
       });

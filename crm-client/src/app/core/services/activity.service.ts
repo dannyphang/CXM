@@ -21,11 +21,8 @@ export class ActivityService {
         return this.http.get<ResponseModel<ActivityDto[]>>(apiConfig.baseUrl + '/activity').pipe();
     }
 
-    getAllActivitiesByProfileId(profile: {
-        contactId?: string,
-        companyId?: string
-    }): Observable<ResponseModel<ActivityDto>> {
-        return this.http.post<ResponseModel<ActivityDto>>(apiConfig.baseUrl + '/activity/getActivitiesByProfileId', { profile }).pipe();
+    getAllActivitiesByProfileId(profileUid: string): Observable<ResponseModel<ActivityDto[]>> {
+        return this.http.post<ResponseModel<ActivityDto[]>>(apiConfig.baseUrl + '/activity/getActivitiesByProfileId', { profileUid }).pipe();
     }
 
     getActivityById(id: string): Observable<ResponseModel<ActivityDto>> {
@@ -70,7 +67,8 @@ export class ActivityDto extends BasedDto {
     activityModuleCode: string;
     isPinned: boolean;
     isExpand: boolean;
-    associationId: string;
+    associationContactUidList: string[];
+    associationCompanyUidList: string[];
     attachmentUid: string;
     attachmentList: AttachmentDto[];
 }
@@ -86,7 +84,8 @@ export class UpdateActivityDto extends BasedDto {
     activityModuleId?: string;
     activityModuleCode?: string;
     isPinned?: boolean;
-    associationId?: string;
+    associationContactUidList?: string[];
+    associationCompanyUidList?: string[];
     attachmentUid?: string;
     attachmentList?: AttachmentDto[];
 }

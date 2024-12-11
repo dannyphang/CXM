@@ -148,7 +148,7 @@ export class CreateComponent extends BaseCoreAbstract {
               this.popMessage(res.responseMessage);
             }
             else {
-              this.popMessage(res.responseMessage, "Error", "error");
+              this.popMessage(res.responseMessage, "error");
             }
           })
         }
@@ -199,7 +199,7 @@ export class CreateComponent extends BaseCoreAbstract {
         this.popMessage(res.responseMessage);
       }
       else {
-        this.popMessage(res.responseMessage, "Error", "error");
+        this.popMessage(res.responseMessage, "error");
       }
     })
   }
