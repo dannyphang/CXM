@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, NgZone, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { ActivityDto, ActivityModuleDto, ActivityService, UpdateActivityDto } from '../../../services/activity.service';
 import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
-import { ContactDto, ModuleDto } from '../../../services/common.service';
+import { CompanyDto, ContactDto, ModuleDto } from '../../../services/common.service';
 import { CONTROL_TYPE, FormConfig, OptionsModel } from '../../../services/components.service';
 import { MessageService } from 'primeng/api';
 import { EDITOR_CONTENT_LIMIT, ATTACHMENT_MAX_SIZE } from '../../constants/common.constants';
@@ -18,6 +18,7 @@ export class ActivityBlockComponent implements OnChanges {
   @Input() activityControlList: ActivityModuleDto[] = [];
   @Input() module: 'CONT' | 'COMP' = 'CONT';
   @Input() contactProfile: ContactDto = new ContactDto();
+  @Input() companyProfile: CompanyDto = new CompanyDto();
   @Input() moduleLable: string = '';
   @Output() activityReload: EventEmitter<any> = new EventEmitter<any>();
 
@@ -39,6 +40,12 @@ export class ActivityBlockComponent implements OnChanges {
   editorContentLimit = EDITOR_CONTENT_LIMIT;
   attachmentList: File[] = [];
   fileMaxSize: number = ATTACHMENT_MAX_SIZE;
+  assoContactFormConfig: FormConfig[] = [];
+  assoCompanyFormConfig: FormConfig[] = [];
+  assoCompanyForm: FormControl = new FormControl([]);
+  assoContactForm: FormControl = new FormControl([]);
+  assoCompanyList: OptionsModel[] = [];
+  assoContactList: OptionsModel[] = [];
 
   actionMenu: any[] = [];
 
@@ -53,8 +60,6 @@ export class ActivityBlockComponent implements OnChanges {
   ngOnInit() {
     this.componentList.forEach(comp => {
       this.activityFormGroup.controls[comp].valueChanges.subscribe(value => {
-        // console.log(comp + ": " + value);
-        // this.activityFormGroup.controls[comp].setValue(value);
         let updateAct: UpdateActivityDto = {
           uid: this.activity.uid
         }
@@ -90,8 +95,6 @@ export class ActivityBlockComponent implements OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    // console.log(changes)
-
     if (changes['activityControlList'] && changes['activityControlList'].currentValue) {
       this.assignForm();
     }
@@ -135,6 +138,12 @@ export class ActivityBlockComponent implements OnChanges {
           }
         }
       ];
+    }
+    if (changes['contactProfile'] && changes['contactProfile'].currentValue) {
+      this.setAssociation();
+    }
+    if (changes['companyProfile'] && changes['companyProfile'].currentValue) {
+      this.setAssociation();
     }
   }
 
@@ -180,14 +189,14 @@ export class ActivityBlockComponent implements OnChanges {
 
       if (module.moduleCode === 'CONT') {
         forms = {
-          type: CONTROL_TYPE.Dropdown,
+          type: CONTROL_TYPE.Multiselect,
           label: module.moduleName,
           fieldControl: this.activityFormGroup.controls[module.moduleCode],
           layoutDefine: {
             row: 0,
             column: 0,
           },
-          options: []
+          options: this.getContactedList()
         }
       }
       else if (module.moduleCode === 'DATE' || module.moduleCode === 'TIME') {
@@ -242,9 +251,33 @@ export class ActivityBlockComponent implements OnChanges {
 
   }
 
+  getContactedList(): OptionsModel[] {
+    if (this.module === 'COMP') {
+      let contactList: OptionsModel[] = [];
+      this.companyProfile.association.contactList.forEach(profile => {
+        contactList.push({
+          label: `${profile.contactFirstName} ${profile.contactLastName}  (${profile.contactEmail})`,
+          value: profile.uid
+        });
+      });
+
+      return contactList;
+    }
+    else if (this.module === 'CONT') {
+      return [
+        {
+          label: `${this.contactProfile.contactFirstName} ${this.contactProfile.contactLastName} (${this.contactProfile.contactEmail})`,
+          value: this.contactProfile.uid
+        }
+      ];
+    }
+
+    return [];
+  }
+
   assignActivityValue() {
     this.activityFormGroup = new FormGroup({
-      CONT: new FormControl(this.module === "CONT" ? [this.contactProfile.contactId] : []),
+      CONT: new FormControl(this.activity.activityContactedIdList),
       DATE: new FormControl(new Date(this.activity.activityDatetime)),
       TIME: new FormControl(new Date(this.activity.activityDatetime)),
       OUTCOME_C: new FormControl(this.activity.activityOutcomeId),
@@ -254,6 +287,67 @@ export class ActivityBlockComponent implements OnChanges {
     })
     this.editorFormControl = new FormControl(this.activity.activityContent);
 
+  }
+
+  setAssociation() {
+    // assign association 
+    if (this.module === 'CONT' && this.contactProfile.association) {
+      this.contactProfile.association.companyList.forEach(profile => {
+        this.assoCompanyList.push({
+          label: `${profile.companyName} (${profile.companyEmail})`,
+          value: profile.uid
+        });
+      });
+
+      this.assoContactList.push({
+        label: `${this.contactProfile.contactFirstName} ${this.contactProfile.contactLastName} (${this.contactProfile.contactEmail})`,
+        value: this.contactProfile.uid
+      });
+      this.assoContactForm.disable();
+    }
+    else if (this.module === 'COMP' && this.companyProfile.association) {
+      this.companyProfile.association.contactList.forEach(profile => {
+        this.assoContactList.push({
+          label: `${profile.contactFirstName} ${profile.contactLastName}  (${profile.contactEmail})`,
+          value: profile.uid
+        });
+      });
+
+      this.assoCompanyList.push({
+        label: `${this.companyProfile.companyName} (${this.companyProfile.companyEmail})`,
+        value: this.companyProfile.uid
+      });
+      this.assoCompanyForm.disable();
+    }
+
+    this.assoContactFormConfig = [
+      {
+        id: '',
+        type: CONTROL_TYPE.Multiselect,
+        layoutDefine: {
+          row: 0,
+          column: 0
+        },
+        options: this.assoContactList,
+        fieldControl: this.assoContactForm
+      }
+    ];
+
+    this.assoCompanyFormConfig = [
+      {
+        id: '',
+        type: CONTROL_TYPE.Multiselect,
+        layoutDefine: {
+          row: 0,
+          column: 0
+        },
+        options: this.assoCompanyList,
+        fieldControl: this.assoCompanyForm
+      }
+    ];
+
+    this.assoContactForm.setValue(this.activity.associationContactUidList);
+    this.assoCompanyForm.setValue(this.activity.associationCompanyUidList);
   }
 
   generateTimeDurations(intervalMinutes: number = 15, iterations: number = 32): any[] {
@@ -346,7 +440,6 @@ export class ActivityBlockComponent implements OnChanges {
 
   panelOnClick() {
     this.activity.isExpand = !this.activity.isExpand;
-    console.log(this.activity.isExpand)
   }
 
   returnModuleInfo(code: string, id: string): string {

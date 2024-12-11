@@ -37,11 +37,15 @@
       [iconName]="'pi pi-plus'"
       [rounded]="true"
       (onClick)="uploader.click()"
-      class="tw-mt-[15px]"
+      class="tw-mt-[var(--content-gap)]"
       [pTooltip]="'BUTTON.ATTACH_FILE' | translate"
     ></app-base-button>
     <app-base-button
-      label="Associated with 1 records"
+      [label]="
+        'Associated with ' +
+        (assoContactForm.value?.length + assoCompanyForm.value?.length) +
+        ' records'
+      "
       [isTextStyle]="true"
       (onClick)="assoPanel.toggle($event)"
     ></app-base-button>
@@ -57,10 +61,10 @@
   />
 
   <div
-    class="attachment-div tw-mt-[15px] tw-flex"
+    class="attachment-div tw-mt-[var(--content-gap)] tw-flex"
     *ngIf="attachmentList.length > 0"
   >
-    <div class="tw-grid tw-items-center tw-mr-[15px]">
+    <div class="tw-grid tw-items-center tw-mr-[var(--content-gap)]">
       <div class="pi pi-paperclip"></div>
     </div>
     <div class="attachment-chip-div tw-flex tw-flex-wrap">
@@ -93,65 +97,31 @@
 </p-dialog>
 
 <p-overlayPanel #assoPanel>
-  <!-- <div class="asso-div tw-flex tw-w-[600px]">
-    <div class="ass-left tw-w-[30%]">
-      <p-button [text]="true" styleClass="tw-flex tw-w-full tw-justify-between">
-        <div>
-          {{ "PROFILE.SELECTED" | translate }}
-        </div>
-        <div>0</div>
-      </p-button>
-      <p-button [text]="true" styleClass="tw-flex tw-w-full tw-justify-between">
-        <div>
-          {{ "PROFILE.COMPANYS" | translate }}
-        </div>
-        <div>0</div>
-      </p-button>
-      <p-button
-        [text]="true"
-        styleClass="tw-flex tw-w-full tw-justify-between"
-        (onClick)="assoMode = 'CONTACTS'"
-      >
-        <div>
-          {{ "PROFILE.CONTACTS" | translate }}
-        </div>
-        <div>0</div>
-      </p-button>
-    </div>
-    <div class="ass-right tw-w-[70%] tw-h-[400px]">
-      <app-base-input
-        [placeholder]="'COMMON.SEARCH' | translate"
-        [fieldControl]="searchAsso"
-      ></app-base-input>
-
-      <app-base-checkbox
-        [options]="assoList"
-        [fieldControl]="returnAssoFormControl()"
-      ></app-base-checkbox>
-    </div>
-  </div> -->
   <div class="asso-div tw-flex">
     <p-tabView>
-      <p-tabPanel>
-        <ng-template pTemplate="header">
-          <div styleClass="tw-flex tw-w-full tw-justify-between">
-            {{ "PROFILE.COMPANYS" | translate }}
-          </div>
-          <div>(0)</div>
-        </ng-template>
-        <div>
-          <app-base-form [formConfig]="assoFormConfig"></app-base-form>
-        </div>
-      </p-tabPanel>
+      <!-- contact tab -->
       <p-tabPanel>
         <ng-template pTemplate="header">
           <div styleClass="tw-flex tw-w-full tw-justify-between">
             {{ "PROFILE.CONTACTS" | translate }}
           </div>
-          <div>(0)</div>
+          <div>({{ assoContactForm.value?.length ?? 0 }})</div>
         </ng-template>
         <div>
-          <app-base-form [formConfig]="assoFormConfig"></app-base-form>
+          <app-base-form [formConfig]="assoContactFormConfig"></app-base-form>
+        </div>
+      </p-tabPanel>
+
+      <!-- company tab -->
+      <p-tabPanel>
+        <ng-template pTemplate="header">
+          <div styleClass="tw-flex tw-w-full tw-justify-between">
+            {{ "PROFILE.COMPANYS" | translate }}
+          </div>
+          <div>({{ assoCompanyForm.value?.length ?? 0 }})</div>
+        </ng-template>
+        <div>
+          <app-base-form [formConfig]="assoCompanyFormConfig"></app-base-form>
         </div>
       </p-tabPanel>
     </p-tabView>

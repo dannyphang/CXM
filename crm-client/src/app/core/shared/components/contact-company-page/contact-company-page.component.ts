@@ -549,8 +549,7 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
 
   getContact() {
     this.tableLoading[this.activeTabPanel] = true;
-    console.log(this.authService.tenant.uid);
-    this.commonService.getAllContact(this.authService.tenant.uid).subscribe((res) => {
+    this.commonService.getAllContact(this.authService.tenant?.uid).subscribe((res) => {
       if (res.isSuccess) {
         res.data.forEach(cont => {
           let prop: PropertyDataDto[] = JSON.parse(cont.contactProperties);

@@ -100,6 +100,7 @@ export class CreateActivityDto extends BasedDto {
     activityDirectionId?: string;
     activityDuration?: string;
     activityContent: string;
-    associationId?: string;
+    associationContactUidList: string[];
+    associationCompanyUidList: string[];
     attachmentUid?: string;
 }

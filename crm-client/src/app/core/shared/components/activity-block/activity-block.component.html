@@ -21,12 +21,12 @@
       ></div>
 
       <app-base-button
-        icon="pi pi-sort-down-fill action-icon"
+        [iconName]="'pi pi-sort-down-fill action-icon'"
         [rightIcon]="true"
         [isTextStyle]="true"
         [label]="'BUTTON.ACTION' | translate"
-        (click)="activityActionMenu.toggle($event)"
-        styleClass="activity-action-button"
+        (click)="activityActionMenu.toggle($event); $event.stopPropagation()"
+        [buttonStyleClass]="'activity-action-button'"
       />
 
       <div class="activity-date tw-grid tw-items-center">
@@ -48,11 +48,12 @@
           [style]="{ height: '200px' }"
           (onTextChange)="countTextLength($event)"
           [placeholder]="'ACTIVITY.EDITOR_PLACEHOLDER' | translate"
+          class="tw-px-[var(--content-gap)]"
         />
       </div>
 
       <div class="tw-flex tw-justify-between tw-items-center">
-        <div class="tw-grid tw-items-center">
+        <div class="tw-grid tw-items-center tw-pl-[var(--content-gap)]">
           {{ contentWordLength }} / {{ editorContentLimit }}
           {{ "ACTIVITY.WORDS" | translate }}
         </div>
@@ -79,8 +80,13 @@
           ></app-base-button>
         </div>
         <app-base-button
-          label="Associated with 1 records"
+          [label]="
+            'Associated with ' +
+            (assoContactForm.value?.length + assoCompanyForm.value?.length) +
+            ' records'
+          "
           [isTextStyle]="true"
+          (onClick)="assoPanelBlock.toggle($event)"
         />
       </div>
 
@@ -142,5 +148,37 @@
         }}
       </div>
     </div>
+  </div>
+</p-overlayPanel>
+
+<p-overlayPanel #assoPanelBlock>
+  <div class="asso-div tw-flex">
+    <p-tabView>
+      <!-- contact tab -->
+      <p-tabPanel>
+        <ng-template pTemplate="header">
+          <div styleClass="tw-flex tw-w-full tw-justify-between">
+            {{ "PROFILE.CONTACTS" | translate }}
+          </div>
+          <div>({{ assoContactForm.value?.length ?? 0 }})</div>
+        </ng-template>
+        <div>
+          <app-base-form [formConfig]="assoContactFormConfig"></app-base-form>
+        </div>
+      </p-tabPanel>
+
+      <!-- company tab -->
+      <p-tabPanel>
+        <ng-template pTemplate="header">
+          <div styleClass="tw-flex tw-w-full tw-justify-between">
+            {{ "PROFILE.COMPANYS" | translate }}
+          </div>
+          <div>({{ assoCompanyForm.value?.length ?? 0 }})</div>
+        </ng-template>
+        <div>
+          <app-base-form [formConfig]="assoCompanyFormConfig"></app-base-form>
+        </div>
+      </p-tabPanel>
+    </p-tabView>
   </div>
 </p-overlayPanel>

@@ -44,11 +44,12 @@ export class ActivityDialogComponent extends BaseCoreAbstract implements OnChang
   editorContentLimit = EDITOR_CONTENT_LIMIT;
   attachmentList: File[] = [];
   fileMaxSize: number = ATTACHMENT_MAX_SIZE;
-  assoFormConfig: FormConfig[] = [];
+  assoContactFormConfig: FormConfig[] = [];
+  assoCompanyFormConfig: FormConfig[] = [];
   assoCompanyForm: FormControl = new FormControl([]);
   assoContactForm: FormControl = new FormControl([]);
-  assoCompanyList: any[] = [];
-  assoContactList: any[];
+  assoCompanyList: OptionsModel[] = [];
+  assoContactList: OptionsModel[] = [];
 
   constructor(
     private commonService: CommonService,
@@ -68,6 +69,10 @@ export class ActivityDialogComponent extends BaseCoreAbstract implements OnChang
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['contactProfile'] && changes['contactProfile'].currentValue) {
       this.activityFormGroup.controls['CONT'].setValue([this.contactProfile.uid]);
+      this.setAssociation();
+    }
+    if (changes['companyProfile'] && changes['companyProfile'].currentValue) {
+      this.activityFormGroup.controls['CONT'].setValue([]);
       this.setAssociation();
     }
     if (changes['activityModule'] && changes['activityModule'].currentValue) {
@@ -157,6 +162,9 @@ export class ActivityDialogComponent extends BaseCoreAbstract implements OnChang
           showTime: module.moduleCode === 'TIME' ? true : false,
           timeOnly: module.moduleCode === 'TIME' ? true : false
         }
+        let nextDay = new Date();
+        nextDay.setDate(new Date().getDate() + 1)
+        this.activityFormGroup.controls[module.moduleCode].setValue(nextDay, { emitEvent: false });
       }
       else if (module.moduleCode === 'OUTCOME_C' || module.moduleCode === 'OUTCOME_M' || module.moduleCode === 'DIRECT') {
         let subList: OptionsModel[] = [];
@@ -199,11 +207,20 @@ export class ActivityDialogComponent extends BaseCoreAbstract implements OnChang
       formsConfig.push(forms);
     });
     this.activityFormConfig = formsConfig;
+
+    this.activityFormGroup.controls['CONT'].valueChanges.subscribe(val => {
+      this.assoContactForm.setValue(val, { emitEvent: false });
+      console.log(this.assoContactForm.value)
+    });
+
+    this.assoContactForm.valueChanges.subscribe(val => {
+      this.activityFormGroup.controls['CONT'].setValue(val, { emitEvent: false });
+      console.log(this.activityFormGroup.controls['CONT'].value)
+    });
   }
 
   setAssociation() {
     // assign association 
-    console.log(this.contactProfile)
     if (this.module === 'CONT' && this.contactProfile.association) {
       this.contactProfile.association.companyList.forEach(profile => {
         this.assoCompanyList.push({
@@ -212,18 +229,10 @@ export class ActivityDialogComponent extends BaseCoreAbstract implements OnChang
         });
       });
 
-      this.assoFormConfig = [
-        {
-          id: '',
-          type: CONTROL_TYPE.Multiselect,
-          layoutDefine: {
-            row: 0,
-            column: 0
-          },
-          options: this.assoCompanyList,
-          fieldControl: this.assoCompanyForm
-        }
-      ]
+      this.assoContactList.push({
+        label: `${this.contactProfile.contactFirstName} ${this.contactProfile.contactLastName} (${this.contactProfile.contactEmail})`,
+        value: this.contactProfile.uid
+      });
     }
     else if (this.module === 'COMP' && this.companyProfile.association) {
       this.companyProfile.association.contactList.forEach(profile => {
@@ -232,29 +241,71 @@ export class ActivityDialogComponent extends BaseCoreAbstract implements OnChang
           value: profile.uid
         });
       });
-      this.assoFormConfig = [
-        {
-          id: '',
-          type: CONTROL_TYPE.Multiselect,
-          layoutDefine: {
-            row: 0,
-            column: 0
-          },
-          options: this.assoContactList,
-          fieldControl: this.assoContactForm
-        }
-      ]
+
+      this.assoCompanyList.push({
+        label: `${this.companyProfile.companyName} (${this.companyProfile.companyEmail})`,
+        value: this.companyProfile.uid
+      });
     }
 
-    console.log(this.assoCompanyList)
+    this.assoContactFormConfig = [
+      {
+        id: '',
+        type: CONTROL_TYPE.Multiselect,
+        layoutDefine: {
+          row: 0,
+          column: 0
+        },
+        options: this.assoContactList,
+        fieldControl: this.assoContactForm
+      }
+    ];
+
+    this.assoCompanyFormConfig = [
+      {
+        id: '',
+        type: CONTROL_TYPE.Multiselect,
+        layoutDefine: {
+          row: 0,
+          column: 0
+        },
+        options: this.assoCompanyList,
+        fieldControl: this.assoCompanyForm
+      }
+    ];
+
+    if (this.module === 'CONT' && this.contactProfile.association) {
+      this.assoContactForm.setValue([this.contactProfile.uid]);
+      this.assoContactForm.disable();
+    }
+    else if (this.module === 'COMP' && this.companyProfile.association) {
+      this.assoCompanyForm.setValue([this.companyProfile.uid]);
+      this.assoCompanyForm.disable();
+    }
   }
 
   getContactedList(): OptionsModel[] {
-    return [{
-      label: `${this.contactProfile.contactFirstName} ${this.contactProfile.contactLastName} (${this.contactProfile.contactEmail})`,
-      value: this.contactProfile.uid
+    if (this.module === 'COMP') {
+      let contactList: OptionsModel[] = [];
+      this.companyProfile.association.contactList.forEach(profile => {
+        contactList.push({
+          label: `${profile.contactFirstName} ${profile.contactLastName}  (${profile.contactEmail})`,
+          value: profile.uid
+        });
+      });
+
+      return contactList;
     }
-    ];
+    else if (this.module === 'CONT') {
+      return [
+        {
+          label: `${this.contactProfile.contactFirstName} ${this.contactProfile.contactLastName} (${this.contactProfile.contactEmail})`,
+          value: this.contactProfile.uid
+        }
+      ];
+    }
+
+    return [];
   }
 
   generateTimeSlots(intervalMinutes: number = 30): any[] {
@@ -356,7 +407,8 @@ export class ActivityDialogComponent extends BaseCoreAbstract implements OnChang
         activityDirectionId: this.activityFormGroup.controls['DIRECT'].value,
         activityOutcomeId: this.activityFormGroup.controls['OUTCOME_C'].value || this.activityFormGroup.controls['OUTCOME_M'].value ? this.activityModule.moduleCode === 'CALL' ? this.activityFormGroup.controls['OUTCOME_C'].value : this.activityFormGroup.controls['OUTCOME_M'].value : null,
         activityDuration: this.activityFormGroup.controls['DURAT'].value,
-        associationId: '',
+        associationContactUidList: this.assoContactForm.value ?? [],
+        associationCompanyUidList: this.assoCompanyForm.value ?? [],
         attachmentUid: '',
         createdBy: this.authService.userC.uid,
         createdDate: new Date()
@@ -392,16 +444,13 @@ export class ActivityDialogComponent extends BaseCoreAbstract implements OnChang
             });
           }
           else {
-            console.log("here");
             this.closeDialog();
           }
         }
         else {
           this.popMessage(res.responseMessage, "error");
         }
-
       });
-
     }
   }
 }
