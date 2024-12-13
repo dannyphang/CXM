@@ -118,7 +118,10 @@ export class PropertyComponent extends BaseCoreAbstract {
         this.propertiesList.sort((a, b) => a.order - b.order);
       }
       else {
-        this.popMessage(res.responseMessage, "error");
+        this.popMessage({
+          message: res.responseMessage,
+          severity: 'error'
+        });
       }
       this.tableLoading = false;
     });
@@ -269,7 +272,10 @@ export class PropertyComponent extends BaseCoreAbstract {
         console.log(this.moduleOptions)
       }
       else {
-        this.popMessage(res.responseMessage, "error");
+        this.popMessage({
+          message: res.responseMessage,
+          severity: 'error'
+        });
       }
     });
 
@@ -296,7 +302,10 @@ export class PropertyComponent extends BaseCoreAbstract {
         if (defaultCount > 1) {
           this.propertyDetailFormGroup.controls['propertiesLookup'].setValue(prev, { emitEvent: false });
 
-          this.popMessage(this.translateService.instant('MESSAGE.ONLY_ONE_DEFAULT'), 'error');
+          this.popMessage({
+            message: this.translateService.instant('MESSAGE.ONLY_ONE_DEFAULT'),
+            severity: 'error'
+          });
         }
       });
   }
@@ -685,16 +694,22 @@ export class PropertyComponent extends BaseCoreAbstract {
 
   delete() {
     if (this.selectedProperty.find(p => p.isSystem)) {
-      this.popMessage(this.translateService.instant("MESSAGE.CANNOT_DELETE_SYSTEM_PROPERTY"), "error");
+      this.popMessage({
+        message: this.translateService.instant("MESSAGE.CANNOT_DELETE_SYSTEM_PROPERTY"),
+        severity: 'error'
+      });
     }
     else {
       this.commonService.deleteProperty(this.selectedProperty, this.authService.user?.uid ?? 'SYSTEM').subscribe(res => {
         if (res.isSuccess) {
-          this.popMessage(res.responseMessage, this.translateService.instant('MESSAGE.SUCCESS'));
+          this.popMessage({ message: res.responseMessage });
           this.getAllProperties(this.moduleFormControl.value ?? 'CONT');
         }
         else {
-          this.popMessage(res.responseMessage, "error");
+          this.popMessage({
+            message: res.responseMessage,
+            severity: 'error'
+          });
         }
       })
     }
@@ -769,22 +784,31 @@ export class PropertyComponent extends BaseCoreAbstract {
 
             this.commonService.createPropertyLookup(createPropLookup).subscribe(res => {
               if (res.isSuccess) {
-                this.popMessage(res.responseMessage, this.translateService.instant('MESSAGE.SUCCESS'));
+                this.popMessage({ message: res.responseMessage });
                 this.closeDialog();
                 this.getAllProperties(this.moduleFormControl.value ?? 'CONT');
               }
               else {
-                this.popMessage(res.responseMessage, "error");
+                this.popMessage({
+                  message: res.responseMessage,
+                  severity: 'error'
+                });
               }
             });
           }
           else {
-            this.popMessage(res.responseMessage, this.translateService.instant('MESSAGE.SUCCESS'));
+            this.popMessage({
+              message: this.translateService.instant('MESSAGE.PROPERTY_NOT_EDITABLE')
+            });
+
             this.closeDialog();
           }
         }
         else {
-          this.popMessage(res.responseMessage, "error");
+          this.popMessage({
+            message: res.responseMessage,
+            severity: 'error'
+          });
         }
       });
     }
@@ -846,19 +870,28 @@ export class PropertyComponent extends BaseCoreAbstract {
 
                 }
                 else {
-                  this.popMessage(res.responseMessage, "error");
+                  this.popMessage({
+                    message: res.responseMessage,
+                    severity: 'error'
+                  });
                 }
               });
             }
           }
           else {
-            this.popMessage(res.responseMessage, "error");
+            this.popMessage({
+              message: res.responseMessage,
+              severity: 'error'
+            });
           }
         })
       }
     }
     else {
-      this.popMessage(this.translateService.instant('MESSAGE.PROPERTY_NOT_EDITABLE'), 'error');
+      this.popMessage({
+        message: this.translateService.instant('MESSAGE.PROPERTY_NOT_EDITABLE'),
+        severity: 'error'
+      });
     }
   }
 

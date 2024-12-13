@@ -2,7 +2,7 @@ import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { Observable } from "rxjs";
 import apiConfig from "../../../environments/apiConfig";
-import { AttachmentDto, BasedDto, ModuleDto, ResponseModel } from "./common.service";
+import { AssociationDto, AttachmentDto, BasedDto, ModuleDto, ResponseModel } from "./common.service";
 import { DateFilterFn } from "@angular/material/datepicker";
 import { producerAccessed } from "@angular/core/primitives/signals";
 
@@ -71,6 +71,7 @@ export class ActivityDto extends BasedDto {
     associationCompanyUidList: string[];
     attachmentUid: string;
     attachmentList: AttachmentDto[];
+    association: AssociationDto;
 }
 
 export class UpdateActivityDto extends BasedDto {
@@ -103,4 +104,5 @@ export class CreateActivityDto extends BasedDto {
     associationContactUidList: string[];
     associationCompanyUidList: string[];
     attachmentUid?: string;
+    isPinned?: boolean;
 }

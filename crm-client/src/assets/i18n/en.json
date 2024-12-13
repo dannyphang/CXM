@@ -3,8 +3,11 @@
     "CONTACT": "Contact",
     "COMPANY": "Company",
     "DATA_LOADING": "Data loading...",
-    "LOADING": "Loading",
-    "SEARCH": "Search"
+    "LOADING": "Loading {{module}}",
+    "SEARCH": "Search",
+    "ACTIVITY": "Activity",
+    "TENANT": "Tenant",
+    "USER": "User"
   },
   "HEADER": {
     "SETTING": "Setting"
@@ -77,13 +80,21 @@
     "SELECT": "Select"
   },
   "ACTIVITY": {
+    "MODULE": {
+      "CALL": "Call",
+      "EMAIL": "Email",
+      "NOTE": "Note",
+      "MEET": "Meeting"
+    },
     "WORDS": "words",
     "EDITOR_PLACEHOLDER": "Describe the log...",
     "PINNED": "Pinned",
     "UPCOMING": "UpComing",
     "PAST": "Past",
     "OUTCOME": "Outcome",
-    "DIRECT": "Direction"
+    "DIRECT": "Direction",
+    "PIN": "Pin",
+    "UNPIN": "Unpin"
   },
   "PROFILE": {
     "AVATAR_EDIT": "Edit profile picture",

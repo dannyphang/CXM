@@ -1,1 +1,10 @@
-<p-toast></p-toast>
+<p-toast>
+  <ng-template let-message pTemplate="message">
+    <div class="toast-div tw-flex">
+      <div class="tw-grid tw-items-center">
+        <span [class]="message.icon"></span>
+      </div>
+      <div>{{ message.detail }}</div>
+    </div>
+  </ng-template>
+</p-toast>

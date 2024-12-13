@@ -176,8 +176,8 @@ export class HomeComponent implements OnInit {
   }
 
   show() {
-    // this.messageService.add({ severity: 'success', summary: 'TITLE', detail: 'Message Content', sticky: true });
-    console.log(this.formG.controls)
+    this.messageService.add({ severity: 'success', detail: 'Message Content', sticky: true, icon: 'pi pi-spin pi-spinner' });
+    // console.log(this.formG.controls)
   }
 
   showSidePanelBtn(position: 'left' | 'right' | 'top' | 'bottom') {

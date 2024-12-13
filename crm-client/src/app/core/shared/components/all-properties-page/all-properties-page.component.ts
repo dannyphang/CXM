@@ -49,7 +49,10 @@ export class AllPropertiesPageComponent extends BasePropertyAbstract implements 
           this.checkFormValueChange(this.propertyList);
         }
         else {
-          this.popMessage(res.responseMessage, "error");
+          this.popMessage({
+            message: res.responseMessage,
+            severity: 'error'
+          });
         }
 
       });

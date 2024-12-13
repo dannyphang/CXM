@@ -5,13 +5,15 @@ import { CompanyDto, ContactDto, ModuleDto } from '../../../services/common.serv
 import { CONTROL_TYPE, FormConfig, OptionsModel } from '../../../services/components.service';
 import { MessageService } from 'primeng/api';
 import { EDITOR_CONTENT_LIMIT, ATTACHMENT_MAX_SIZE } from '../../constants/common.constants';
+import { BaseCoreAbstract } from '../../base/base-core.abstract';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-activity-block',
   templateUrl: './activity-block.component.html',
   styleUrl: './activity-block.component.scss'
 })
-export class ActivityBlockComponent implements OnChanges {
+export class ActivityBlockComponent extends BaseCoreAbstract implements OnChanges {
   @Input() activity: ActivityDto = new ActivityDto();
   @Input() activityModule: ModuleDto = new ModuleDto();
   @Input() activityModuleList: ModuleDto[] = [];
@@ -44,17 +46,16 @@ export class ActivityBlockComponent implements OnChanges {
   assoCompanyFormConfig: FormConfig[] = [];
   assoCompanyForm: FormControl = new FormControl([]);
   assoContactForm: FormControl = new FormControl([]);
-  assoCompanyList: OptionsModel[] = [];
-  assoContactList: OptionsModel[] = [];
 
   actionMenu: any[] = [];
 
   constructor(
     private activityService: ActivityService,
     private ngZone: NgZone,
-    private messageService: MessageService
+    protected override messageService: MessageService,
+    private translateService: TranslateService
   ) {
-
+    super(messageService);
   }
 
   ngOnInit() {
@@ -87,7 +88,10 @@ export class ActivityBlockComponent implements OnChanges {
 
         this.activityService.updateActivity(updateAct).subscribe(res => {
           if (!res.isSuccess) {
-            this.popMessage(res.responseMessage, "error");
+            this.popMessage({
+              message: res.responseMessage,
+              severity: 'error'
+            });
           }
         });
       })
@@ -95,15 +99,12 @@ export class ActivityBlockComponent implements OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['activityControlList'] && changes['activityControlList'].currentValue) {
-      this.assignForm();
-    }
     if (changes['activity'] && changes['activity'].currentValue) {
       this.assignForm();
       this.assignActivityValue();
       this.actionMenu = [
         {
-          label: this.activity.isPinned ? 'Unpin' : 'Pin',
+          label: this.activity.isPinned ? this.translateService.instant('ACTIVITY.UNPIN') : this.translateService.instant('ACTIVITY.PIN'),
           icon: this.activity.isPinned ? 'pi pi-star-fill' : 'pi pi-star',
           command: () => {
             this.activity.isPinned = !this.activity.isPinned;
@@ -115,7 +116,10 @@ export class ActivityBlockComponent implements OnChanges {
                 this.activityReload.emit();
               }
               else {
-                this.popMessage(res.responseMessage, "error");
+                this.popMessage({
+                  message: res.responseMessage,
+                  severity: 'error'
+                });
               }
             })
           }
@@ -129,10 +133,18 @@ export class ActivityBlockComponent implements OnChanges {
               statusId: 2
             }).subscribe(res => {
               if (res.isSuccess) {
+                this.popMessage({
+                  message: this.translateService.instant("MESSAGE.DELETED_SUCCESSFULLY", {
+                    module: this.translateService.instant(`ACTIVITY.MODULE.${this.activity.activityModuleCode}`)
+                  })
+                })
                 this.activityReload.emit();
               }
               else {
-                this.popMessage(res.responseMessage, "error");
+                this.popMessage({
+                  message: res.responseMessage,
+                  severity: 'error'
+                });
               }
             })
           }
@@ -140,9 +152,15 @@ export class ActivityBlockComponent implements OnChanges {
       ];
     }
     if (changes['contactProfile'] && changes['contactProfile'].currentValue) {
+      if (changes['activityControlList'] && changes['activityControlList'].currentValue) {
+        this.assignForm();
+      }
       this.setAssociation();
     }
     if (changes['companyProfile'] && changes['companyProfile'].currentValue) {
+      if (changes['activityControlList'] && changes['activityControlList'].currentValue) {
+        this.assignForm();
+      }
       this.setAssociation();
     }
   }
@@ -252,27 +270,34 @@ export class ActivityBlockComponent implements OnChanges {
   }
 
   getContactedList(): OptionsModel[] {
-    if (this.module === 'COMP') {
-      let contactList: OptionsModel[] = [];
-      this.companyProfile.association.contactList.forEach(profile => {
-        contactList.push({
-          label: `${profile.contactFirstName} ${profile.contactLastName}  (${profile.contactEmail})`,
-          value: profile.uid
-        });
+    let contactList: OptionsModel[] = [];
+    this.activity.association.contactList.forEach((profile) => {
+      contactList.push({
+        label: `${profile.contactFirstName} ${profile.contactLastName}  (${profile.contactEmail})`,
+        value: profile.uid
       });
+    });
 
-      return contactList;
-    }
-    else if (this.module === 'CONT') {
-      return [
-        {
-          label: `${this.contactProfile.contactFirstName} ${this.contactProfile.contactLastName} (${this.contactProfile.contactEmail})`,
+    if (this.module === 'CONT') {
+      if (!contactList.find(c => c.value === this.contactProfile?.uid)) {
+        console.log(this.contactProfile)
+        contactList.push({
+          label: `${this.contactProfile.contactFirstName} ${this.contactProfile.contactLastName}  (${this.contactProfile.contactEmail})`,
           value: this.contactProfile.uid
-        }
-      ];
+        });
+      }
     }
-
-    return [];
+    else if (this.module === 'COMP') {
+      this.companyProfile.association.contactList.forEach(co => {
+        if (!contactList.find(c => c.value === co.uid)) {
+          contactList.push({
+            label: `${co.contactFirstName} ${co.contactLastName}  (${co.contactEmail})`,
+            value: co.uid
+          });
+        }
+      })
+    }
+    return contactList;
   }
 
   assignActivityValue() {
@@ -290,35 +315,22 @@ export class ActivityBlockComponent implements OnChanges {
   }
 
   setAssociation() {
-    // assign association 
-    if (this.module === 'CONT' && this.contactProfile.association) {
-      this.contactProfile.association.companyList.forEach(profile => {
-        this.assoCompanyList.push({
-          label: `${profile.companyName} (${profile.companyEmail})`,
-          value: profile.uid
-        });
-      });
+    let assoCompanyList: OptionsModel[] = [];
+    let assoContactList: OptionsModel[] = [];
 
-      this.assoContactList.push({
-        label: `${this.contactProfile.contactFirstName} ${this.contactProfile.contactLastName} (${this.contactProfile.contactEmail})`,
-        value: this.contactProfile.uid
+    this.activity.association.contactList.forEach((profile) => {
+      assoContactList.push({
+        label: `${profile.contactFirstName} ${profile.contactLastName}  (${profile.contactEmail})`,
+        value: profile.uid
       });
-      this.assoContactForm.disable();
-    }
-    else if (this.module === 'COMP' && this.companyProfile.association) {
-      this.companyProfile.association.contactList.forEach(profile => {
-        this.assoContactList.push({
-          label: `${profile.contactFirstName} ${profile.contactLastName}  (${profile.contactEmail})`,
-          value: profile.uid
-        });
-      });
+    })
 
-      this.assoCompanyList.push({
-        label: `${this.companyProfile.companyName} (${this.companyProfile.companyEmail})`,
-        value: this.companyProfile.uid
+    this.activity.association.companyList.forEach((profile) => {
+      assoCompanyList.push({
+        label: `${profile.companyName} (${profile.companyEmail})`,
+        value: profile.uid
       });
-      this.assoCompanyForm.disable();
-    }
+    })
 
     this.assoContactFormConfig = [
       {
@@ -328,7 +340,7 @@ export class ActivityBlockComponent implements OnChanges {
           row: 0,
           column: 0
         },
-        options: this.assoContactList,
+        options: assoContactList,
         fieldControl: this.assoContactForm
       }
     ];
@@ -341,13 +353,13 @@ export class ActivityBlockComponent implements OnChanges {
           row: 0,
           column: 0
         },
-        options: this.assoCompanyList,
+        options: assoCompanyList,
         fieldControl: this.assoCompanyForm
       }
     ];
 
-    this.assoContactForm.setValue(this.activity.associationContactUidList);
-    this.assoCompanyForm.setValue(this.activity.associationCompanyUidList);
+    this.assoContactForm.setValue(this.activity.associationContactUidList, { emitEvent: false });
+    this.assoCompanyForm.setValue(this.activity.associationCompanyUidList, { emitEvent: false });
   }
 
   generateTimeDurations(intervalMinutes: number = 15, iterations: number = 32): any[] {
@@ -384,23 +396,25 @@ export class ActivityBlockComponent implements OnChanges {
     });
   }
 
-  popMessage(message: string, title: string, severity: string = 'success',) {
-    this.messageService.add({ severity: severity, summary: title, detail: message });
-  }
-
   fileUpload(event: any) {
     let list: File[] = event.target.files;
 
     for (let i = 0; i < list.length; i++) {
       if (!this.activity.attachmentList.find(item => item.fileName === list[i].name)) {
         if (list[i].size > this.fileMaxSize) {
-          this.popMessage(`File size is exceed. (${this.returnFileSize(list[i].size)})`, "File size error", "error");
+          this.popMessage({
+            message: `File size is exceed. (${this.returnFileSize(list[i].size)})`,
+            severity: 'error'
+          });
           break;
         }
         this.attachmentList.push(list[i]);
       }
       else {
-        this.popMessage(`(${list[i].name}) is duplicated.`, "File duplicated", "error");
+        this.popMessage({
+          message: `(${list[i].name}) is duplicated.`,
+          severity: 'error'
+        });
       }
     }
   }
@@ -430,9 +444,14 @@ export class ActivityBlockComponent implements OnChanges {
         this.editorFormControl = new FormControl(this.editorFormControl.value);
         this.activity.activityContent = this.editorFormControl.value;
         this.readonly = true;
+        this.clearMessage();
       }
       else {
-        this.popMessage(res.responseMessage, "error");
+        this.clearMessage();
+        this.popMessage({
+          message: res.responseMessage,
+          severity: 'error'
+        });
       }
 
     });

@@ -210,12 +210,10 @@ export class ActivityDialogComponent extends BaseCoreAbstract implements OnChang
 
     this.activityFormGroup.controls['CONT'].valueChanges.subscribe(val => {
       this.assoContactForm.setValue(val, { emitEvent: false });
-      console.log(this.assoContactForm.value)
     });
 
     this.assoContactForm.valueChanges.subscribe(val => {
       this.activityFormGroup.controls['CONT'].setValue(val, { emitEvent: false });
-      console.log(this.activityFormGroup.controls['CONT'].value)
     });
   }
 
@@ -367,13 +365,19 @@ export class ActivityDialogComponent extends BaseCoreAbstract implements OnChang
     for (let i = 0; i < list.length; i++) {
       if (!this.attachmentList.find(item => item.name === list[i].name)) {
         if (list[i].size > this.fileMaxSize) {
-          this.popMessage(`File size is exceed. (${this.returnFileSize(list[i].size)})`, "error");
+          this.popMessage({
+            message: `File size is exceed. (${this.returnFileSize(list[i].size)})`,
+            severity: 'error'
+          });
           break;
         }
         this.attachmentList.push(list[i]);
       }
       else {
-        this.popMessage(`(${list[i].name}) is duplicated.`, "error");
+        this.popMessage({
+          message: `(${list[i].name}) is duplicated.`,
+          severity: 'error'
+        });
       }
     }
 
@@ -433,12 +437,18 @@ export class ActivityDialogComponent extends BaseCoreAbstract implements OnChang
                       this.closeDialog();
                     }
                     else {
-                      this.popMessage(res.responseMessage, "error");
+                      this.popMessage({
+                        message: res.responseMessage,
+                        severity: 'error'
+                      });
                     }
                   });
                 }
                 else {
-                  this.popMessage(res.responseMessage, "error");
+                  this.popMessage({
+                    message: res.responseMessage,
+                    severity: 'error'
+                  });
                 }
               });
             });
@@ -448,7 +458,10 @@ export class ActivityDialogComponent extends BaseCoreAbstract implements OnChang
           }
         }
         else {
-          this.popMessage(res.responseMessage, "error");
+          this.popMessage({
+            message: res.responseMessage,
+            severity: 'error'
+          });
         }
       });
     }

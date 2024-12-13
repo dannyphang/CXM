@@ -10,8 +10,8 @@
         .activity-panel-header {
           width: 100%;
           display: grid;
-          grid-template-areas: " activity-title-label activity-panel-content activity-action-button activity-date";
-          grid-template-columns: auto 1fr auto auto;
+          grid-template-areas: " activity-title-label activity-action-button activity-date";
+          grid-template-columns: 1fr auto auto;
           column-gap: var(--content-gap-xs);
           align-items: center;
           margin-right: var(--content-gap);
@@ -32,16 +32,53 @@
       }
     }
   }
+  .activity-content {
+    display: grid;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    position: relative;
+    border: 1px solid var(--primary-color);
+    border-radius: var(--border-radius);
+    min-height: 50px;
+    max-height: 150px;
+    margin: 0px;
+    padding: var(--content-gap);
+
+    :hover {
+      cursor: pointer;
+    }
+
+    p {
+      margin: 0px;
+    }
+  }
+
+  .activity-content::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 20px; /* Height of the fade effect */
+    background: linear-gradient(
+      to bottom,
+      rgba(255, 255, 255, 0),
+      var(--primary-color-text)
+    ); /* Adjust colors to match your background */
+    pointer-events: none; /* Makes sure it doesn't block interactions */
+  }
 }
 
 .readonly-content-div {
   border: 1px solid transparent;
   padding-left: var(--content-gap);
   padding-right: var(--content-gap);
+  min-height: 100px;
+  max-height: 300px;
+  overflow: auto;
 }
 
 .readonly-content-div:hover {
   cursor: pointer;
-  border: 1px solid var(--primary-color);
-  border-radius: var(--border-radius);
+  background-color: var(--surface-hover);
 }

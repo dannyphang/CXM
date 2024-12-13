@@ -97,7 +97,10 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
         });
       }
       else {
-        this.popMessage(res.responseMessage, "error");
+        this.popMessage({
+          message: res.responseMessage,
+          severity: 'error'
+        });
       }
     });
     this.initTableConfig();
@@ -342,7 +345,10 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
         this.tableLoading[this.activeTabPanel] = false;
       }
       else {
-        this.popMessage(res.responseMessage, "error");
+        this.popMessage({
+          message: res.responseMessage,
+          severity: 'error'
+        });
       }
     });
   }
@@ -366,11 +372,17 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
                       item.filterFieldControl.setValue(res.data[0].uid);
                     }
                     else {
-                      this.popMessage('Something wrong on searching of State', "error");
+                      this.popMessage({
+                        message: 'Something wrong on searching of State',
+                        severity: 'error'
+                      });
                     }
                   }
                   else {
-                    this.popMessage(res.responseMessage, "error");
+                    this.popMessage({
+                      message: res.responseMessage,
+                      severity: 'error'
+                    });
                   }
                 });
               }
@@ -381,11 +393,17 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
                       item.filterFieldControl.setValue(res.data[0].uid);
                     }
                     else {
-                      this.popMessage('Something wrong on searching of City', "error");
+                      this.popMessage({
+                        message: 'Something wrong on searching of City',
+                        severity: 'error'
+                      });
                     }
                   }
                   else {
-                    this.popMessage(res.responseMessage, "error");
+                    this.popMessage({
+                      message: res.responseMessage,
+                      severity: 'error'
+                    });
                   }
                 });
               }
@@ -534,7 +552,10 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
             this.tableLoading[this.activeTabPanel] = false;
           }
           else {
-            this.popMessage(res.responseMessage, "error");
+            this.popMessage({
+              message: res.responseMessage,
+              severity: 'error'
+            });
           }
         });
       }
@@ -563,7 +584,10 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
         this.tableLoading[this.activeTabPanel] = false;
       }
       else {
-        this.popMessage(res.responseMessage, "error");
+        this.popMessage({
+          message: res.responseMessage,
+          severity: 'error'
+        });
       }
     });
   }
@@ -576,7 +600,10 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
         this.tableLoading[this.activeTabPanel] = false;
       }
       else {
-        this.popMessage(res.responseMessage, "error");
+        this.popMessage({
+          message: res.responseMessage,
+          severity: 'error'
+        });
       }
 
     });
@@ -887,7 +914,10 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
               this.getContact();
             }
             else {
-              this.popMessage(res.responseMessage, "error");
+              this.popMessage({
+                message: res.responseMessage,
+                severity: 'error'
+              });
             }
           });
         }
@@ -899,7 +929,10 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
               this.getCompany();
             }
             else {
-              this.popMessage(res.responseMessage, "error");
+              this.popMessage({
+                message: res.responseMessage,
+                severity: 'error'
+              });
             }
           });
         }
@@ -1055,7 +1088,10 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
           this.getContact();
         }
         else {
-          this.popMessage(res.responseMessage, "error");
+          this.popMessage({
+            message: res.responseMessage,
+            severity: 'error'
+          });
         }
       });
     }
@@ -1068,7 +1104,10 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
           this.getCompany();
         }
         else {
-          this.popMessage(res.responseMessage, "error");
+          this.popMessage({
+            message: res.responseMessage,
+            severity: 'error'
+          });
         }
       });
     }
@@ -1080,22 +1119,33 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
     if (this.module === 'CONT') {
       this.commonService.deleteContact(this.selectedProfile as ContactDto[], this.authService.user?.uid ?? 'SYSTEM').subscribe(res => {
         if (res.isSuccess) {
-          this.popMessage(this.translateService.instant("MESSAGE.DELETED_SUCCESSFULLY", { module: this.translateService.instant("COMMON.CONTACT") }), "success");
+          this.popMessage({
+            message: this.translateService.instant("MESSAGE.DELETED_SUCCESSFULLY", { module: this.translateService.instant("COMMON.CONTACT") })
+          });
           this.getContact();
         }
         else {
-          this.popMessage(res.responseMessage, "error");
+          this.popMessage({
+            message: res.responseMessage,
+            severity: 'error'
+          });
         }
       });
     }
     else {
       this.commonService.deleteCompany(this.selectedProfile as CompanyDto[], this.authService.user?.uid ?? 'SYSTEM').subscribe(res => {
         if (res.isSuccess) {
-          this.popMessage(this.translateService.instant("MESSAGE.DELETED_SUCCESSFULLY", { module: this.translateService.instant("COMMON.COMPANY") }), "success");
+          this.popMessage({
+            message: this.translateService.instant("MESSAGE.DELETED_SUCCESSFULLY", { module: this.translateService.instant("COMMON.CONTACT") })
+          });
+
           this.getCompany();
         }
         else {
-          this.popMessage(res.responseMessage, "error");
+          this.popMessage({
+            message: res.responseMessage,
+            severity: 'error'
+          });
         }
       });
     }

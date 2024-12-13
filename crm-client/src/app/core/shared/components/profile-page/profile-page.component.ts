@@ -6,6 +6,7 @@ import { Title } from '@angular/platform-browser';
 import { BaseCoreAbstract } from '../../base/base-core.abstract';
 import { MessageService } from 'primeng/api';
 import { AuthService } from '../../../services/auth.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-profile-page',
@@ -27,7 +28,8 @@ export class ProfilePageComponent extends BaseCoreAbstract implements OnChanges 
     private route: ActivatedRoute,
     private titleService: Title,
     protected override messageService: MessageService,
-    private authService: AuthService
+    private authService: AuthService,
+    private translateService: TranslateService
   ) {
     super(messageService);
 
@@ -60,7 +62,10 @@ export class ProfilePageComponent extends BaseCoreAbstract implements OnChanges 
         this.propertiesList = res.data;
       }
       else {
-        this.popMessage(res.responseMessage, "error");
+        this.popMessage({
+          message: res.responseMessage,
+          severity: 'error'
+        });
       }
     });
   }
@@ -72,7 +77,10 @@ export class ProfilePageComponent extends BaseCoreAbstract implements OnChanges 
         this.titleService.setTitle(`${this.contactProfile.contactFirstName} ${this.contactProfile.contactLastName}`);
       }
       else {
-        this.popMessage(res.responseMessage, "error");
+        this.popMessage({
+          message: res.responseMessage,
+          severity: 'error'
+        });
       }
     });
   }
@@ -84,19 +92,36 @@ export class ProfilePageComponent extends BaseCoreAbstract implements OnChanges 
         this.titleService.setTitle(`${this.companyProfile.companyName}`);
       }
       else {
-        this.popMessage(res.responseMessage, "error");
+        this.popMessage({
+          message: res.responseMessage,
+          severity: 'error'
+        });
       }
     });
   }
 
   getActivities() {
     if (this.profileUid) {
+      this.popMessage({
+        key: 'activity',
+        message: this.translateService.instant('COMMON.LOADING',
+          {
+            module: this.translateService.instant('COMMON.ACTIVITY')
+          }
+        ),
+        severity: 'info',
+        isLoading: true
+      });
       this.activityService.getAllActivitiesByProfileId(this.profileUid).subscribe(res => {
         if (res.isSuccess) {
           this.activitiesList = res.data;
+          this.clearMessage('activity');
         }
         else {
-          this.popMessage(res.responseMessage, "error");
+          this.popMessage({
+            message: res.responseMessage,
+            severity: 'error'
+          });
         }
       })
     }

@@ -226,6 +226,14 @@ export class ResponseModel<T> {
     responseMessage: string;
 }
 
+export class MessageModel {
+    message: string;
+    severity?: 'success' | 'info' | 'error';
+    key?: string;
+    icon?: string;
+    isLoading?: boolean;
+}
+
 export class BasedDto {
     tenantId?: string;
     createdDate?: Date;

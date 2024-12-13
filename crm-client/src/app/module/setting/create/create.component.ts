@@ -145,10 +145,15 @@ export class CreateComponent extends BaseCoreAbstract {
         if (this.profilePhotoUrl) {
           this.authService.updateUserFirestore([{ profilePhotoUrl: this.profilePhotoUrl, uid: this.userProfile.uid }], this.authService.user?.uid ?? 'SYSTEM').subscribe(res => {
             if (res.isSuccess) {
-              this.popMessage(res.responseMessage);
+              this.popMessage({
+                message: res.responseMessage
+              });
             }
             else {
-              this.popMessage(res.responseMessage, "error");
+              this.popMessage({
+                message: res.responseMessage,
+                severity: 'error'
+              });
             }
           })
         }
@@ -196,10 +201,15 @@ export class CreateComponent extends BaseCoreAbstract {
 
     this.authService.updateUserFirestore([updateUser], this.authService.user?.uid ?? 'SYSTEM').subscribe(res => {
       if (res.isSuccess) {
-        this.popMessage(res.responseMessage);
+        this.popMessage({
+          message: res.responseMessage,
+        });
       }
       else {
-        this.popMessage(res.responseMessage, "error");
+        this.popMessage({
+          message: res.responseMessage,
+          severity: 'error'
+        });
       }
     })
   }

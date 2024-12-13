@@ -15,11 +15,12 @@
         (mouseenter)="activityInfoPanel.toggle($event)"
       ></app-base-label>
 
-      <div
+      <!-- <div
         class="activity-panel-content tw-grid tw-items-center"
         [innerHTML]="activity.activityContent"
-      ></div>
+      ></div> -->
 
+      <!-- action button -->
       <app-base-button
         [iconName]="'pi pi-sort-down-fill action-icon'"
         [rightIcon]="true"
@@ -29,10 +30,13 @@
         [buttonStyleClass]="'activity-action-button'"
       />
 
+      <!-- activity date -->
       <div class="activity-date tw-grid tw-items-center">
         {{ activity.activityDatetime | date : "yyyy-MM-dd HH:mm" }}
       </div>
     </div>
+
+    <!-- panel body -->
     <div acc-panel-body class="activity-panel-content-div">
       <div class="text-editor">
         <div
@@ -120,6 +124,12 @@
       <app-base-form [formConfig]="activityFormConfig"></app-base-form>
     </div>
   </app-accordion-panel>
+  <div
+    *ngIf="activity.activityContent && !this.activity.isExpand"
+    class="activity-content"
+    [innerHTML]="activity.activityContent"
+    (click)="panelOnClick()"
+  ></div>
 </div>
 
 <p-overlayPanel #activityInfoPanel>
