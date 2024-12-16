@@ -109,7 +109,10 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
         });
       }
       else {
-        this.popMessage(res.responseMessage, "Error", "error");
+        this.popMessage({
+          message: res.responseMessage,
+          severity: 'error'
+        });
       }
     });
 
@@ -117,7 +120,9 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
 
   copyEmailToClipboard(copiedText: string) {
     navigator.clipboard.writeText(copiedText);
-    this.messageService.add({ severity: 'success', summary: 'Copy text', detail: 'Successful copied text' });
+    this.popMessage({
+      message: this.translateService.instant("MESSAGE.COPY_TEXT_DETAIL")
+    });
   }
 
   editPic() {
@@ -143,6 +148,11 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
 
   imageFileUploadBtn() {
     if (this.profileImg !== DEFAULT_PROFILE_PIC_URL && this.profilePhotoFile) {
+      this.popMessage({
+        message: this.translateService.instant('MESSAGE.UPLOADING'),
+        severity: 'info',
+        isLoading: true
+      });
       this.storageService.uploadImage(this.profilePhotoFile, this.module === 'CONT' ? "Image/Contact/" : "Image/Company/").then(url => {
         this.profileImg = url;
         if (this.module === 'CONT') {
@@ -154,10 +164,14 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
           this.commonService.updateContact([updateContact], this.authService.user?.uid ?? 'SYSTEM').subscribe(res => {
             if (res.isSuccess) {
               this.isShowAvatarEditDialog = false;
+              this.clearMessage();
               this.profileUpdateEmit.emit(updateContact);
             }
             else {
-              this.popMessage(res.responseMessage, "Error", "error");
+              this.popMessage({
+                message: res.responseMessage,
+                severity: 'error'
+              });
             }
           })
         }
@@ -173,7 +187,10 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
               this.profileUpdateEmit.emit(updateCompany);
             }
             else {
-              this.popMessage(res.responseMessage, "Error", "error");
+              this.popMessage({
+                message: res.responseMessage,
+                severity: 'error'
+              });
             }
 
           })

@@ -47,6 +47,8 @@
                 [activity]="activity"
                 [moduleLable]="'ALL'"
                 (activityReload)="activityListEmit.emit()"
+                [contactProfile]="contactProfile"
+                [companyProfile]="companyProfile"
               ></app-activity-block>
             </div>
           </div>
@@ -71,6 +73,36 @@
                 [activity]="activity"
                 [moduleLable]="'ALL'"
                 (activityReload)="activityListEmit.emit()"
+                [module]="module"
+                [contactProfile]="contactProfile"
+                [companyProfile]="companyProfile"
+              ></app-activity-block>
+            </div>
+          </div>
+
+          <!-- Past -->
+          <div *ngIf="returnPastActivityList('ALL').length > 0">
+            <div
+              class="activity-label-div tw-flex tw-flex-wrap tw-items-center"
+            >
+              <i class="pi pi-calendar"></i>
+              <p class="upcoming-label">
+                {{ "ACTIVITY.PAST" | translate }}
+              </p>
+            </div>
+            <div
+              *ngFor="let activity of returnPastActivityList('ALL')"
+              class="tw-pb-[15px]"
+            >
+              <app-activity-block
+                [activityControlList]="activityControlList"
+                [activityModuleList]="activityModuleList"
+                [activity]="activity"
+                [moduleLable]="'ALL'"
+                (activityReload)="activityListEmit.emit()"
+                [module]="module"
+                [contactProfile]="contactProfile"
+                [companyProfile]="companyProfile"
               ></app-activity-block>
             </div>
           </div>
@@ -117,6 +149,9 @@
                   [activityModuleList]="activityModuleList"
                   [activity]="activity"
                   (activityReload)="activityListEmit.emit()"
+                  [module]="module"
+                  [contactProfile]="contactProfile"
+                  [companyProfile]="companyProfile"
                 ></app-activity-block>
               </div>
             </div>
@@ -150,6 +185,40 @@
                   [activityModuleList]="activityModuleList"
                   [activity]="activity"
                   (activityReload)="activityListEmit.emit()"
+                  [module]="module"
+                  [contactProfile]="contactProfile"
+                  [companyProfile]="companyProfile"
+                ></app-activity-block>
+              </div>
+            </div>
+
+            <!-- Past -->
+            <div
+              *ngIf="returnPastActivityList(activityTab.moduleCode).length > 0"
+            >
+              <div
+                class="activity-label-div tw-flex tw-flex-wrap tw-items-center"
+              >
+                <i class="pi pi-calendar"></i>
+                <p class="upcoming-label">
+                  {{ "ACTIVITY.PAST" | translate }}
+                </p>
+              </div>
+              <div
+                *ngFor="
+                  let activity of returnPastActivityList(activityTab.moduleCode)
+                "
+                class="tw-pb-[15px]"
+              >
+                <app-activity-block
+                  [activityControlList]="activityControlList"
+                  [activityModuleList]="activityModuleList"
+                  [activity]="activity"
+                  [moduleLable]="'ALL'"
+                  (activityReload)="activityListEmit.emit()"
+                  [module]="module"
+                  [contactProfile]="contactProfile"
+                  [companyProfile]="companyProfile"
                 ></app-activity-block>
               </div>
             </div>
@@ -162,9 +231,11 @@
 </div>
 
 <app-activity-dialog
+  [module]="module"
   [activityModule]="dialogActivityTab"
   [visible]="isOpenDialog"
   [contactProfile]="contactProfile"
+  [companyProfile]="companyProfile"
   [activityControlListInput]="getActivityControlList(dialogActivityTab)"
   [activityModuleList]="activityModuleList"
   [header]="returnActivityLable(dialogActivityTab.moduleCode)"

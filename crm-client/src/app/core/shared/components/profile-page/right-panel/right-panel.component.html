@@ -1,4 +1,4 @@
-<div>
+<div class="tw-p-[var(--content-gap)] tw-pt-0">
   <app-accordion-panel
     class="profile-right-panel-div"
     [iconPos]="'start'"
@@ -14,8 +14,8 @@
           }}
           ({{
             module === "CONT"
-              ? contactProfile.associationList.length
-              : companyProfile.associationList.length
+              ? contactProfile.association.companyList.length
+              : companyProfile.association.contactList.length
           }})
         </div>
 
@@ -36,19 +36,35 @@
       class="tw-p-[var(--content-gap)]"
     >
       <div *ngIf="module === 'CONT'">
-        <div *ngFor="let asso of contactProfile.associationList">
+        <div
+          *ngFor="
+            let asso of contactProfile.association.companyList;
+            let i = index
+          "
+        >
           <app-asso-block
             [module]="module"
             [companyProfile]="asso"
           ></app-asso-block>
+          <p-divider
+            *ngIf="i !== contactProfile.association.companyList.length - 1"
+          ></p-divider>
         </div>
       </div>
       <div *ngIf="module === 'COMP'">
-        <div *ngFor="let asso of companyProfile.associationList">
+        <div
+          *ngFor="
+            let asso of companyProfile.association.contactList;
+            let i = index
+          "
+        >
           <app-asso-block
             [module]="module"
             [contactProfile]="asso"
           ></app-asso-block>
+          <p-divider
+            *ngIf="i !== companyProfile.association.contactList.length - 1"
+          ></p-divider>
         </div>
       </div>
     </div>

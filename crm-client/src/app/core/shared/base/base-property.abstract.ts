@@ -454,11 +454,16 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
             this.commonService.updateContact([updateContact], this.authService.user?.uid ?? 'SYSTEM').subscribe(res => {
                 if (res.isSuccess) {
                     this.propUpdateList = [];
-                    this.popMessage(res.responseMessage, this.translateService.instant("MESSAGE.UPDATED_SUCCESSFULLY"));
+                    this.popMessage({
+                        message: res.responseMessage,
+                    });
                     this.showFormUpdateSidebar = false;
                 }
                 else {
-                    this.popMessage(res.responseMessage, "Error", "error");
+                    this.popMessage({
+                        message: res.responseMessage,
+                        severity: 'error'
+                    });
                 }
             });
         }

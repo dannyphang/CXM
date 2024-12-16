@@ -67,7 +67,10 @@ export class MiddlePanelComponent extends BaseCoreAbstract implements OnInit, On
         this.activityControlList = res.data.activityControlList;
       }
       else {
-        this.popMessage(res.responseMessage, "Error", "Error");
+        this.popMessage({
+          message: res.responseMessage,
+          severity: 'error'
+        });
       }
     });
 
@@ -109,9 +112,16 @@ export class MiddlePanelComponent extends BaseCoreAbstract implements OnInit, On
 
   returnUpComingActivityList(code: string): ActivityDto[] {
     if (code === 'ALL') {
-      return this.activitiesList.filter(act => !act.isPinned);
+      return this.activitiesList.filter(act => !act.isPinned && new Date(act.activityDatetime) >= new Date());
     }
-    return this.activitiesList.filter(act => act.activityModuleCode === code && !act.isPinned);
+    return this.activitiesList.filter(act => act.activityModuleCode === code && !act.isPinned && new Date(act.activityDatetime) >= new Date());
+  }
+
+  returnPastActivityList(code: string): ActivityDto[] {
+    if (code === 'ALL') {
+      return this.activitiesList.filter(act => !act.isPinned && new Date(act.activityDatetime) < new Date());
+    }
+    return this.activitiesList.filter(act => act.activityModuleCode === code && !act.isPinned && new Date(act.activityDatetime) < new Date());
   }
 
   returnIsPinnedActivityList(code: string): ActivityDto[] {

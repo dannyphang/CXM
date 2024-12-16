@@ -1,27 +1,31 @@
 import { Component, EventEmitter, Input, NgZone, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { ActivityDto, ActivityModuleDto, ActivityService, UpdateActivityDto } from '../../../services/activity.service';
 import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
-import { ContactDto, ModuleDto } from '../../../services/common.service';
+import { AttachmentDto, CommonService, CompanyDto, ContactDto, ModuleDto } from '../../../services/common.service';
 import { CONTROL_TYPE, FormConfig, OptionsModel } from '../../../services/components.service';
 import { MessageService } from 'primeng/api';
 import { EDITOR_CONTENT_LIMIT, ATTACHMENT_MAX_SIZE } from '../../constants/common.constants';
+import { BaseCoreAbstract } from '../../base/base-core.abstract';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-activity-block',
   templateUrl: './activity-block.component.html',
   styleUrl: './activity-block.component.scss'
 })
-export class ActivityBlockComponent implements OnChanges {
+export class ActivityBlockComponent extends BaseCoreAbstract implements OnChanges {
   @Input() activity: ActivityDto = new ActivityDto();
   @Input() activityModule: ModuleDto = new ModuleDto();
   @Input() activityModuleList: ModuleDto[] = [];
   @Input() activityControlList: ActivityModuleDto[] = [];
   @Input() module: 'CONT' | 'COMP' = 'CONT';
   @Input() contactProfile: ContactDto = new ContactDto();
+  @Input() companyProfile: CompanyDto = new CompanyDto();
   @Input() moduleLable: string = '';
   @Output() activityReload: EventEmitter<any> = new EventEmitter<any>();
 
   readonly: boolean = true;
+  contentReadonly: boolean = true;
   activityFormConfig: FormConfig[] = [];
   activityFormGroup: FormGroup = new FormGroup({
     CONT: new FormControl(this.module === "CONT" ? [this.contactProfile.contactId] : []),
@@ -39,68 +43,70 @@ export class ActivityBlockComponent implements OnChanges {
   editorContentLimit = EDITOR_CONTENT_LIMIT;
   attachmentList: File[] = [];
   fileMaxSize: number = ATTACHMENT_MAX_SIZE;
-
+  assoContactFormConfig: FormConfig[] = [];
+  assoCompanyFormConfig: FormConfig[] = [];
+  assoCompanyForm: FormControl = new FormControl([]);
+  assoContactForm: FormControl = new FormControl([]);
+  updateAct: UpdateActivityDto = new UpdateActivityDto();
   actionMenu: any[] = [];
 
   constructor(
     private activityService: ActivityService,
     private ngZone: NgZone,
-    private messageService: MessageService
+    protected override messageService: MessageService,
+    private translateService: TranslateService,
+    private commonService: CommonService,
   ) {
-
+    super(messageService);
   }
 
   ngOnInit() {
     this.componentList.forEach(comp => {
       this.activityFormGroup.controls[comp].valueChanges.subscribe(value => {
-        // console.log(comp + ": " + value);
-        // this.activityFormGroup.controls[comp].setValue(value);
-        let updateAct: UpdateActivityDto = {
-          uid: this.activity.uid
-        }
+        console.log(value)
+        this.updateAct.uid = this.activity.uid
 
         switch (comp) {
           case 'CONT':
             break;
           case 'DATE':
           case 'TIME':
-            updateAct.activityDatetime = new Date(value);
+            this.updateAct.activityDatetime = new Date(value);
             break;
           case 'OUTCOME_C':
           case 'OUTCOME_M':
-            updateAct.activityOutcomeId = value;
+            this.updateAct.activityOutcomeId = value;
             break;
           case 'DIRECT':
-            updateAct.activityDirectionId = value;
+            this.updateAct.activityDirectionId = value;
             break;
           case 'DURAT':
-            updateAct.activityDuration = value;
+            this.updateAct.activityDuration = value;
             break;
           default:
           // console.log(comp);
         }
 
-        this.activityService.updateActivity(updateAct).subscribe(res => {
-          if (!res.isSuccess) {
-            this.popMessage(res.responseMessage, "Error", "error");
-          }
-        });
+        // this.activityService.updateActivity(updateAct).subscribe(res => {
+        //   if (!res.isSuccess) {
+        //     this.popMessage({
+        //       message: res.responseMessage,
+        //       severity: 'error'
+        //     });
+        //   }
+        // });
+        this.readonly = false;
       })
     })
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    // console.log(changes)
-
-    if (changes['activityControlList'] && changes['activityControlList'].currentValue) {
-      this.assignForm();
-    }
     if (changes['activity'] && changes['activity'].currentValue) {
       this.assignForm();
       this.assignActivityValue();
       this.actionMenu = [
         {
-          label: this.activity.isPinned ? 'Unpin' : 'Pin',
+          label: this.activity.isPinned ? this.translateService.instant('ACTIVITY.UNPIN') : this.translateService.instant('ACTIVITY.PIN'),
           icon: this.activity.isPinned ? 'pi pi-star-fill' : 'pi pi-star',
           command: () => {
             this.activity.isPinned = !this.activity.isPinned;
@@ -112,7 +118,10 @@ export class ActivityBlockComponent implements OnChanges {
                 this.activityReload.emit();
               }
               else {
-                this.popMessage(res.responseMessage, "Error", "error");
+                this.popMessage({
+                  message: res.responseMessage,
+                  severity: 'error'
+                });
               }
             })
           }
@@ -126,15 +135,35 @@ export class ActivityBlockComponent implements OnChanges {
               statusId: 2
             }).subscribe(res => {
               if (res.isSuccess) {
+                this.popMessage({
+                  message: this.translateService.instant("MESSAGE.DELETED_SUCCESSFULLY", {
+                    module: this.translateService.instant(`ACTIVITY.MODULE.${this.activity.activityModuleCode}`)
+                  })
+                })
                 this.activityReload.emit();
               }
               else {
-                this.popMessage(res.responseMessage, "Error", "error");
+                this.popMessage({
+                  message: res.responseMessage,
+                  severity: 'error'
+                });
               }
             })
           }
         }
       ];
+    }
+    if (changes['contactProfile'] && changes['contactProfile'].currentValue) {
+      if (changes['activityControlList'] && changes['activityControlList'].currentValue) {
+        this.assignForm();
+      }
+      this.setAssociation();
+    }
+    if (changes['companyProfile'] && changes['companyProfile'].currentValue) {
+      if (changes['activityControlList'] && changes['activityControlList'].currentValue) {
+        this.assignForm();
+      }
+      this.setAssociation();
     }
   }
 
@@ -180,14 +209,14 @@ export class ActivityBlockComponent implements OnChanges {
 
       if (module.moduleCode === 'CONT') {
         forms = {
-          type: CONTROL_TYPE.Dropdown,
+          type: CONTROL_TYPE.Multiselect,
           label: module.moduleName,
           fieldControl: this.activityFormGroup.controls[module.moduleCode],
           layoutDefine: {
             row: 0,
             column: 0,
           },
-          options: []
+          options: this.getContactedList()
         }
       }
       else if (module.moduleCode === 'DATE' || module.moduleCode === 'TIME') {
@@ -242,18 +271,93 @@ export class ActivityBlockComponent implements OnChanges {
 
   }
 
-  assignActivityValue() {
-    this.activityFormGroup = new FormGroup({
-      CONT: new FormControl(this.module === "CONT" ? [this.contactProfile.contactId] : []),
-      DATE: new FormControl(new Date(this.activity.activityDatetime)),
-      TIME: new FormControl(new Date(this.activity.activityDatetime)),
-      OUTCOME_C: new FormControl(this.activity.activityOutcomeId),
-      DIRECT: new FormControl(this.activity.activityDirectionId),
-      OUTCOME_M: new FormControl(this.activity.activityOutcomeId),
-      DURAT: new FormControl(this.activity.activityDuration),
-    })
-    this.editorFormControl = new FormControl(this.activity.activityContent);
+  getContactedList(): OptionsModel[] {
+    let contactList: OptionsModel[] = [];
+    this.activity.association.contactList.forEach((profile) => {
+      contactList.push({
+        label: `${profile.contactFirstName} ${profile.contactLastName}  (${profile.contactEmail})`,
+        value: profile.uid
+      });
+    });
 
+    if (this.module === 'CONT') {
+      if (!contactList.find(c => c.value === this.contactProfile?.uid)) {
+        contactList.push({
+          label: `${this.contactProfile.contactFirstName} ${this.contactProfile.contactLastName}  (${this.contactProfile.contactEmail})`,
+          value: this.contactProfile.uid
+        });
+      }
+    }
+    else if (this.module === 'COMP') {
+      this.companyProfile.association.contactList.forEach(co => {
+        if (!contactList.find(c => c.value === co.uid)) {
+          contactList.push({
+            label: `${co.contactFirstName} ${co.contactLastName}  (${co.contactEmail})`,
+            value: co.uid
+          });
+        }
+      })
+    }
+    return contactList;
+  }
+
+  assignActivityValue() {
+    this.activityFormGroup.controls['CONT'].setValue(this.activity.activityContactedIdList, { emitEvent: false })
+    this.activityFormGroup.controls['DATE'].setValue(this.activity.activityDatetime, { emitEvent: false })
+    this.activityFormGroup.controls['TIME'].setValue(this.activity.activityDatetime, { emitEvent: false })
+    this.activityFormGroup.controls['OUTCOME_C'].setValue(this.activity.activityOutcomeId, { emitEvent: false })
+    this.activityFormGroup.controls['DIRECT'].setValue(this.activity.activityDirectionId, { emitEvent: false })
+    this.activityFormGroup.controls['OUTCOME_M'].setValue(this.activity.activityOutcomeId, { emitEvent: false })
+    this.activityFormGroup.controls['DURAT'].setValue(this.activity.activityDuration, { emitEvent: false })
+    this.editorFormControl = new FormControl(this.activity.activityContent);
+  }
+
+  setAssociation() {
+    let assoCompanyList: OptionsModel[] = [];
+    let assoContactList: OptionsModel[] = [];
+
+    this.activity.association.contactList.forEach((profile) => {
+      assoContactList.push({
+        label: `${profile.contactFirstName} ${profile.contactLastName}  (${profile.contactEmail})`,
+        value: profile.uid
+      });
+    })
+
+    this.activity.association.companyList.forEach((profile) => {
+      assoCompanyList.push({
+        label: `${profile.companyName} (${profile.companyEmail})`,
+        value: profile.uid
+      });
+    })
+
+    this.assoContactFormConfig = [
+      {
+        id: '',
+        type: CONTROL_TYPE.Multiselect,
+        layoutDefine: {
+          row: 0,
+          column: 0
+        },
+        options: assoContactList,
+        fieldControl: this.assoContactForm
+      }
+    ];
+
+    this.assoCompanyFormConfig = [
+      {
+        id: '',
+        type: CONTROL_TYPE.Multiselect,
+        layoutDefine: {
+          row: 0,
+          column: 0
+        },
+        options: assoCompanyList,
+        fieldControl: this.assoCompanyForm
+      }
+    ];
+
+    this.assoContactForm.setValue(this.activity.associationContactUidList, { emitEvent: false });
+    this.assoCompanyForm.setValue(this.activity.associationCompanyUidList, { emitEvent: false });
   }
 
   generateTimeDurations(intervalMinutes: number = 15, iterations: number = 32): any[] {
@@ -290,23 +394,26 @@ export class ActivityBlockComponent implements OnChanges {
     });
   }
 
-  popMessage(message: string, title: string, severity: string = 'success',) {
-    this.messageService.add({ severity: severity, summary: title, detail: message });
-  }
-
   fileUpload(event: any) {
     let list: File[] = event.target.files;
 
     for (let i = 0; i < list.length; i++) {
-      if (!this.activity.attachmentList.find(item => item.fileName === list[i].name)) {
+      if (!this.activity.attachmentList?.find(item => item.fileName === list[i].name)) {
         if (list[i].size > this.fileMaxSize) {
-          this.popMessage(`File size is exceed. (${this.returnFileSize(list[i].size)})`, "File size error", "error");
+          this.popMessage({
+            message: `File size is exceed. (${this.returnFileSize(list[i].size)})`,
+            severity: 'error'
+          });
           break;
         }
         this.attachmentList.push(list[i]);
+        console.log(this.attachmentList)
       }
       else {
-        this.popMessage(`(${list[i].name}) is duplicated.`, "File duplicated", "error");
+        this.popMessage({
+          message: `(${list[i].name}) is duplicated.`,
+          severity: 'error'
+        });
       }
     }
   }
@@ -327,18 +434,89 @@ export class ActivityBlockComponent implements OnChanges {
     this.activity.attachmentList = this.activity.attachmentList.filter(item => item.fileName !== file.name)
   }
 
-  updateContent() {
+  updateActivity() {
+    this.popMessage({
+      message: this.translateService.instant('MESSAGE.UPDATING_ACTIVITY'),
+      isLoading: true,
+      severity: 'info'
+    });
     this.activityService.updateActivity({
-      uid: this.activity.uid,
-      activityContent: this.editorFormControl.value
+      activityContent: this.editorFormControl.value,
+      ...this.updateAct
     }).subscribe(res => {
       if (res.isSuccess) {
-        this.editorFormControl = new FormControl(this.editorFormControl.value);
-        this.activity.activityContent = this.editorFormControl.value;
-        this.readonly = true;
+        if (this.attachmentList && this.attachmentList.length > 0) {
+          this.attachmentList.forEach(file => {
+            this.commonService.uploadFile(file, "Activity").subscribe(res2 => {
+              if (res2.isSuccess) {
+                let uploadAttach: AttachmentDto = {
+                  activityUid: this.activity.uid,
+                  folderName: "Activity",
+                  fileName: res2.data.metadata.name,
+                  fullPath: res2.data.metadata.fullPath,
+                  fileSize: res2.data.metadata.size
+                }
+
+                this.activityService.uploadAttachment([uploadAttach]).subscribe(res3 => {
+                  if (res3.isSuccess) {
+                    this.activityService.updateActivity({
+                      uid: res3.data[0].activityUid,
+                      attachmentUid: this.returnAttactmentList(this.activity.attachmentUid, res3.data[0].uid),
+                    }).subscribe(
+                      {
+                        next: res4 => {
+                          if (res4.isSuccess) {
+                            this.editorFormControl = new FormControl(this.editorFormControl.value);
+                            this.activity.activityContent = this.editorFormControl.value;
+                            this.readonly = true;
+                            this.clearMessage();
+                          }
+                          else {
+                            this.popMessage({
+                              message: res4.responseMessage,
+                              severity: 'error'
+                            });
+                          }
+                        },
+                        error: err => {
+                          this.popMessage({
+                            message: err,
+                            severity: 'error'
+                          });
+                        }
+                      }
+                    )
+                  }
+                  else {
+                    this.popMessage({
+                      message: res.responseMessage,
+                      severity: 'error'
+                    });
+                  }
+                });
+              }
+              else {
+                this.popMessage({
+                  message: res.responseMessage,
+                  severity: 'error'
+                });
+              }
+            });
+          });
+        }
+        else {
+          this.editorFormControl = new FormControl(this.editorFormControl.value);
+          this.activity.activityContent = this.editorFormControl.value;
+          this.readonly = true;
+          this.clearMessage();
+        }
       }
       else {
-        this.popMessage(res.responseMessage, "Error", "error");
+        this.clearMessage();
+        this.popMessage({
+          message: res.responseMessage,
+          severity: 'error'
+        });
       }
 
     });
@@ -346,10 +524,25 @@ export class ActivityBlockComponent implements OnChanges {
 
   panelOnClick() {
     this.activity.isExpand = !this.activity.isExpand;
-    console.log(this.activity.isExpand)
   }
 
   returnModuleInfo(code: string, id: string): string {
     return this.activityControlList.find(control => control.moduleCode === code)!.subActivityControl.find(item => item.uid === id)!.moduleName;
+  }
+
+  returnAttactmentList(attactmentList: string[], attachmentUid: string | undefined): string[] {
+    if (!attachmentUid) {
+      this.popMessage({
+        message: this.translateService.instant('ERROR.ATTACHMENT_UPDATE_ERROR'),
+        severity: 'error'
+      });
+    }
+    else {
+      if (!attactmentList.find(s => s === attachmentUid)) {
+        attactmentList.push(attachmentUid);
+        return attactmentList;
+      }
+    }
+    return [];
   }
 }

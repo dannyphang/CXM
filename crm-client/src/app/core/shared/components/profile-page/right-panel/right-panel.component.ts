@@ -65,7 +65,10 @@ export class RightPanelComponent extends BaseCoreAbstract {
               ];
             }
             else {
-              this.popMessage(res.responseMessage, "Error", "error");
+              this.popMessage({
+                message: res.responseMessage,
+                severity: 'error'
+              });
             }
 
           });
@@ -95,7 +98,10 @@ export class RightPanelComponent extends BaseCoreAbstract {
               ];
             }
             else {
-              this.popMessage(res.responseMessage, "Error", "error");
+              this.popMessage({
+                message: res.responseMessage,
+                severity: 'error'
+              });
             }
 
           });
@@ -127,7 +133,10 @@ export class RightPanelComponent extends BaseCoreAbstract {
     }
     this.commonService.createAssociation(createAsso).subscribe(res => {
       if (!res.isSuccess) {
-        this.popMessage(res.responseMessage, "Error", "error");
+        this.popMessage({
+          message: res.responseMessage,
+          severity: 'error'
+        });
       }
     })
   }

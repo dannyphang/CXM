@@ -1,3 +1,5 @@
+<app-toast></app-toast>
+
 <div class="tw-flex profile-box">
   <p-splitter
     [panelSizes]="[15, 70]"
@@ -36,16 +38,23 @@
         "
         [rounded]="true"
         (onClick)="isRightPanelShow = !isRightPanelShow"
+        [buttonClass]="'tw-p-[0px!important]'"
+        class="tw-absolute tw-pt-[4px]"
+        [ngClass]="{
+          'panel-right-pos-on': isRightPanelShow, 
+          'panel-right-pos-off': !isRightPanelShow, 
+        }"
       ></app-base-button>
     </ng-template>
   </p-splitter>
 
+  <!-- Right Panel -->
   <app-right-panel
     [ngClass]="{
       'tw-w-[20%]': isRightPanelShow,
       'tw-w-0': !isRightPanelShow
     }"
-    (rightPanelOpenEmit)="updateRightPanelShow()"
+    class="tw-absolute tw-right-0 tw-w-[20%] tw-transform tw-transition-transform tw-duration-1000"
     *ngIf="isRightPanelShow"
     [module]="module"
     [propertiesList]="propertiesList"

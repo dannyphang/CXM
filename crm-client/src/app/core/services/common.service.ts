@@ -226,6 +226,14 @@ export class ResponseModel<T> {
     responseMessage: string;
 }
 
+export class MessageModel {
+    message: string;
+    severity?: 'success' | 'info' | 'error';
+    key?: string;
+    icon?: string;
+    isLoading?: boolean;
+}
+
 export class BasedDto {
     tenantId?: string;
     createdDate?: Date;
@@ -306,7 +314,7 @@ export class ContactDto extends BasedDto {
     contactLeadStatusUid?: string;
     contactProperties: string;
     contactProfilePhotoUrl?: string;
-    associationList: CompanyDto[];
+    association: AssociationDto;
     [key: string]: any;
 }
 
@@ -348,7 +356,7 @@ export class CompanyDto extends BasedDto {
     companyLeadStatusId?: string;
     companyProperties: string;
     companyProfilePhotoUrl?: string;
-    associationList: ContactDto[];
+    association: AssociationDto;
     [key: string]: any;
 }
 
@@ -365,11 +373,8 @@ export class UpdateCompanyDto {
 }
 
 export class AssociationDto {
-    uid: string;
-    contactAssoList: ContactDto[];
-    companyAssoList: CompanyDto[];
-    module: string;
-    profileUid: string;
+    companyList: CompanyDto[];
+    contactList: ContactDto[];
 }
 
 export class CreateAssociationDto {

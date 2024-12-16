@@ -16,7 +16,7 @@
   </ng-template>
   <app-base-form [formConfig]="activityFormConfig"></app-base-form>
 
-  <div class="text-editor">
+  <div class="text-editor tw-px-[var(--content-gap)]">
     <p-editor
       [formControl]="editorFormControl"
       [style]="{ height: '200px' }"
@@ -26,7 +26,9 @@
     />
   </div>
 
-  <div class="tw-flex tw-justify-between tw-items-center">
+  <div
+    class="tw-flex tw-justify-between tw-items-center tw-px-[var(--content-gap)]"
+  >
     <div class="tw-grid tw-items-center">
       {{ contentWordLength }} / {{ editorContentLimit }}
       {{ "ACTIVITY.WORDS" | translate }}
@@ -35,10 +37,18 @@
       [iconName]="'pi pi-plus'"
       [rounded]="true"
       (onClick)="uploader.click()"
-      class="tw-mt-[15px]"
+      class="tw-mt-[var(--content-gap)]"
       [pTooltip]="'BUTTON.ATTACH_FILE' | translate"
     ></app-base-button>
-    <app-base-button label="Associated with 1 records" [isTextStyle]="true" />
+    <app-base-button
+      [label]="
+        'Associated with ' +
+        (assoContactForm.value?.length + assoCompanyForm.value?.length) +
+        ' records'
+      "
+      [isTextStyle]="true"
+      (onClick)="assoPanel.toggle($event)"
+    ></app-base-button>
   </div>
 
   <input
@@ -51,10 +61,10 @@
   />
 
   <div
-    class="attachment-div tw-mt-[15px] tw-flex"
+    class="attachment-div tw-mt-[var(--content-gap)] tw-flex"
     *ngIf="attachmentList.length > 0"
   >
-    <div class="tw-grid tw-items-center tw-mr-[15px]">
+    <div class="tw-grid tw-items-center tw-mr-[var(--content-gap)]">
       <div class="pi pi-paperclip"></div>
     </div>
     <div class="attachment-chip-div tw-flex tw-flex-wrap">
@@ -70,17 +80,50 @@
   </div>
 
   <ng-template pTemplate="footer">
-    <app-base-button
-      label="Cancel"
-      [isTextStyle]="true"
-      severity="secondary"
-      (onClick)="closeDialog()"
-    />
-    <app-base-button
-      label="Save"
-      severity="primary"
-      (onClick)="save()"
-      [disabled]="!this.activityFormGroup.valid"
-    />
+    <div class="tw-flex tw-justify-between">
+      <app-base-button
+        [label]="'BUTTON.CANCEL'"
+        [isTextStyle]="true"
+        [outlined]="true"
+        (onClick)="closeDialog()"
+      />
+      <app-base-button
+        [label]="'BUTTON.SAVE'"
+        (onClick)="save()"
+        [disabled]="!this.activityFormGroup.valid"
+      />
+    </div>
   </ng-template>
 </p-dialog>
+
+<p-overlayPanel #assoPanel>
+  <div class="asso-div tw-flex">
+    <p-tabView>
+      <!-- contact tab -->
+      <p-tabPanel>
+        <ng-template pTemplate="header">
+          <div styleClass="tw-flex tw-w-full tw-justify-between">
+            {{ "PROFILE.CONTACTS" | translate }}
+          </div>
+          <div>({{ assoContactForm.value?.length ?? 0 }})</div>
+        </ng-template>
+        <div>
+          <app-base-form [formConfig]="assoContactFormConfig"></app-base-form>
+        </div>
+      </p-tabPanel>
+
+      <!-- company tab -->
+      <p-tabPanel>
+        <ng-template pTemplate="header">
+          <div styleClass="tw-flex tw-w-full tw-justify-between">
+            {{ "PROFILE.COMPANYS" | translate }}
+          </div>
+          <div>({{ assoCompanyForm.value?.length ?? 0 }})</div>
+        </ng-template>
+        <div>
+          <app-base-form [formConfig]="assoCompanyFormConfig"></app-base-form>
+        </div>
+      </p-tabPanel>
+    </p-tabView>
+  </div>
+</p-overlayPanel>

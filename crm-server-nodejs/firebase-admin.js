@@ -5,8 +5,8 @@ import { getAuth } from "firebase-admin/auth";
 import config from "./config.js";
 
 initializeApp({
-  credential: cert(config.serviceAcc),
-  storageBucket: config.firebaseConfig.storageBucket,
+    credential: cert(config.serviceAcc),
+    storageBucket: config.firebaseConfig.storageBucket,
 });
 
 const db = getFirestore();

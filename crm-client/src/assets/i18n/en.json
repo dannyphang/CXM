@@ -3,7 +3,11 @@
     "CONTACT": "Contact",
     "COMPANY": "Company",
     "DATA_LOADING": "Data loading...",
-    "LOADING": "Loading"
+    "LOADING": "Loading {{module}}",
+    "SEARCH": "Search",
+    "ACTIVITY": "Activity",
+    "TENANT": "Tenant",
+    "USER": "User"
   },
   "HEADER": {
     "SETTING": "Setting"
@@ -21,7 +25,8 @@
     "INVALID_NUMBER": "Invalid Number",
     "INVALID_SELECTION_MSG": "Please enter a valid value from the list.",
     "INVALID_DATE_MSG": "Please enter a correct date format.",
-    "INVALID_NUMBER_MSG": "Please enter a valid number."
+    "INVALID_NUMBER_MSG": "Please enter a valid number.",
+    "ATTACHMENT_UPDATE_ERROR": "Something wrong with the file."
   },
   "MESSAGE": {
     "DELETED_SUCCESSFULLY": "The {{module}}(s) are deleted successfully.",
@@ -29,7 +34,14 @@
     "SUCCESS": "Success",
     "UPDATED_SUCCESSFULLY": "Updated successfully.",
     "CANNOT_DELETE_SYSTEM_PROPERTY": "System property is not allow to delete.",
-    "ERROR": "Error"
+    "ERROR": "Error",
+    "COPY_TEXT": "Copy text",
+    "COPY_TEXT_DETAIL": "Successful copied text",
+    "COPY_EMAIL": "Copy email to clipboard",
+    "UPLOADING": "Uploading...",
+    "CREATING_ACTIVITY": "Creating activity...",
+    "UPDATING_ACTIVITY": "Updating activity...",
+    "UPLOADING_FILE": "Uploading file..."
   },
   "BUTTON": {
     "SAVE": "Save",
@@ -72,18 +84,28 @@
     "SELECT": "Select"
   },
   "ACTIVITY": {
+    "MODULE": {
+      "CALL": "Call",
+      "EMAIL": "Email",
+      "NOTE": "Note",
+      "MEET": "Meeting"
+    },
     "WORDS": "words",
     "EDITOR_PLACEHOLDER": "Describe the log...",
     "PINNED": "Pinned",
     "UPCOMING": "UpComing",
+    "PAST": "Past",
     "OUTCOME": "Outcome",
-    "DIRECT": "Direction"
+    "DIRECT": "Direction",
+    "PIN": "Pin",
+    "UNPIN": "Unpin"
   },
   "PROFILE": {
     "AVATAR_EDIT": "Edit profile picture",
     "CREATE_PROFILE": "Create Profile",
     "CONTACTS": "Contacts",
-    "COMPANYS": "Companys",
+    "COMPANYS": "Companies",
+    "SELECTED": "Selected",
     "ADVANCE_FILTER": "Advance filter",
     "PROPERTY": "Property",
     "CONDITION": "Condition",

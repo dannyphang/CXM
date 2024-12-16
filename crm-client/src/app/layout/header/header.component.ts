@@ -64,7 +64,6 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
 
     this.searchFormControl.valueChanges.pipe(debounceTime(2000),
       distinctUntilChanged()).subscribe(value => {
-        console.log(value);
       });
   }
 
@@ -73,7 +72,6 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
       if (this.tenantList.find(t => t.uid === this.user?.defaultTenantId)) {
         this.authService.tenant = this.tenantList.find(t => t.uid === this.user.defaultTenantId)!;
         this.tenantFormControl = new FormControl(this.authService.tenant.uid);
-        console.log(this.tenantFormControl.value)
       }
     }
 
@@ -133,7 +131,6 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
   }
 
   onTenantChange() {
-    console.log(this.router.url)
     this.authService.updateUserFirestore([{
       uid: this.authService.user!.uid,
       defaultTenantId: this.tenantFormControl.value,
@@ -142,7 +139,10 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
         window.location.reload();
       }
       else {
-        this.popMessage(res.responseMessage, "Error", "error");
+        this.popMessage({
+          message: res.responseMessage,
+          severity: 'error'
+        });
       }
     })
 

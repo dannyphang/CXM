@@ -3,6 +3,7 @@ import { Component, EventEmitter, Inject, Output, ViewChild } from '@angular/cor
 import { ThemeService } from '../../../services/theme.service';
 import { OverlayPanelComponent } from '../panel/overlay-panel/overlay-panel.component';
 import Blobity from 'blobity';
+import { FormControl } from '@angular/forms';
 
 @Component({
   selector: 'app-toggle-theme',
@@ -40,11 +41,20 @@ export class ToggleThemeComponent {
     }
   ];
   isBlobityOn: boolean = true;
+  blobityFormControl: FormControl = new FormControl(true);
 
   constructor(
     private themeService: ThemeService,
   ) {
 
+  }
+
+  ngOnInit() {
+    this.blobityFormControl.valueChanges.subscribe(val => {
+      this.isBlobityOn = val;
+      // this.blobityFormControl.setValue(this.isBlobityOn, { emitEvent: false });
+      this.blobityClick.emit(this.isBlobityOn);
+    })
   }
 
   togglePanel() {
@@ -56,25 +66,5 @@ export class ToggleThemeComponent {
     this.themeList.forEach((theme) => {
       theme.file === file ? theme.icon = "pi pi-check" : theme.icon = "";
     });
-  }
-
-  inputSwitchUpdate() {
-    this.isBlobityOn = !this.isBlobityOn;
-    // let blobity = new Blobity();
-    // if (!this.isBlobityOn) {
-    //   blobity.updateOptions({ size: 0, dotSize: 0 })
-    // }
-    // else {
-    //   const options = {
-    //     color: "rgb(180, 180, 180)",
-    //     zIndex: 1,
-    //     dotColor: "rgb(50, 200, 200)",
-    //     opacity: 0.2,
-    //     size: 20,
-    //     kineticMorphing: false
-    //   };
-    //   blobity.updateOptions(options);
-    // }
-    this.blobityClick.emit(this.isBlobityOn);
   }
 }
