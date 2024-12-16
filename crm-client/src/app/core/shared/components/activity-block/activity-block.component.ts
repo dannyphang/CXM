@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, NgZone, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { ActivityDto, ActivityModuleDto, ActivityService, UpdateActivityDto } from '../../../services/activity.service';
 import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
-import { CompanyDto, ContactDto, ModuleDto } from '../../../services/common.service';
+import { AttachmentDto, CommonService, CompanyDto, ContactDto, ModuleDto } from '../../../services/common.service';
 import { CONTROL_TYPE, FormConfig, OptionsModel } from '../../../services/components.service';
 import { MessageService } from 'primeng/api';
 import { EDITOR_CONTENT_LIMIT, ATTACHMENT_MAX_SIZE } from '../../constants/common.constants';
@@ -54,7 +54,8 @@ export class ActivityBlockComponent extends BaseCoreAbstract implements OnChange
     private activityService: ActivityService,
     private ngZone: NgZone,
     protected override messageService: MessageService,
-    private translateService: TranslateService
+    private translateService: TranslateService,
+    private commonService: CommonService,
   ) {
     super(messageService);
   }
@@ -444,10 +445,71 @@ export class ActivityBlockComponent extends BaseCoreAbstract implements OnChange
       ...this.updateAct
     }).subscribe(res => {
       if (res.isSuccess) {
-        this.editorFormControl = new FormControl(this.editorFormControl.value);
-        this.activity.activityContent = this.editorFormControl.value;
-        this.readonly = true;
-        this.clearMessage();
+        if (this.attachmentList && this.attachmentList.length > 0) {
+          this.attachmentList.forEach(file => {
+            this.commonService.uploadFile(file, "Activity").subscribe(res2 => {
+              if (res2.isSuccess) {
+                let uploadAttach: AttachmentDto = {
+                  activityUid: this.activity.uid,
+                  folderName: "Activity",
+                  fileName: res2.data.metadata.name,
+                  fullPath: res2.data.metadata.fullPath,
+                  fileSize: res2.data.metadata.size
+                }
+
+                this.activityService.uploadAttachment([uploadAttach]).subscribe(res3 => {
+                  if (res3.isSuccess) {
+                    this.activityService.updateActivity({
+                      uid: res3.data[0].activityUid,
+                      attachmentUid: this.returnAttactmentList(this.activity.attachmentUid, res3.data[0].uid),
+                    }).subscribe(
+                      {
+                        next: res4 => {
+                          if (res4.isSuccess) {
+                            this.editorFormControl = new FormControl(this.editorFormControl.value);
+                            this.activity.activityContent = this.editorFormControl.value;
+                            this.readonly = true;
+                            this.clearMessage();
+                          }
+                          else {
+                            this.popMessage({
+                              message: res4.responseMessage,
+                              severity: 'error'
+                            });
+                          }
+                        },
+                        error: err => {
+                          this.popMessage({
+                            message: err,
+                            severity: 'error'
+                          });
+                        }
+                      }
+                    )
+                  }
+                  else {
+                    this.popMessage({
+                      message: res.responseMessage,
+                      severity: 'error'
+                    });
+                  }
+                });
+              }
+              else {
+                this.popMessage({
+                  message: res.responseMessage,
+                  severity: 'error'
+                });
+              }
+            });
+          });
+        }
+        else {
+          this.editorFormControl = new FormControl(this.editorFormControl.value);
+          this.activity.activityContent = this.editorFormControl.value;
+          this.readonly = true;
+          this.clearMessage();
+        }
       }
       else {
         this.clearMessage();
@@ -466,5 +528,21 @@ export class ActivityBlockComponent extends BaseCoreAbstract implements OnChange
 
   returnModuleInfo(code: string, id: string): string {
     return this.activityControlList.find(control => control.moduleCode === code)!.subActivityControl.find(item => item.uid === id)!.moduleName;
+  }
+
+  returnAttactmentList(attactmentList: string[], attachmentUid: string | undefined): string[] {
+    if (!attachmentUid) {
+      this.popMessage({
+        message: this.translateService.instant('ERROR.ATTACHMENT_UPDATE_ERROR'),
+        severity: 'error'
+      });
+    }
+    else {
+      if (!attactmentList.find(s => s === attachmentUid)) {
+        attactmentList.push(attachmentUid);
+        return attactmentList;
+      }
+    }
+    return [];
   }
 }
