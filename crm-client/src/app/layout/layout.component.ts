@@ -26,34 +26,22 @@ export class LayoutComponent extends BaseCoreAbstract implements OnInit {
 
   ngOnInit() {
     // this.initBlobity(true);
-    this.popMessage({
-      key: 'user',
-      message: this.translateService.instant('COMMON.LOADING',
-        {
-          module: this.translateService.instant('COMMON.USER')
-        }
-      ),
-      severity: 'info',
-      isLoading: true
-    });
     this.authService.initAuth();
     this.authService.getCurrentUser().then(res => {
       if (res) {
         this.authService.getUser(res.uid).subscribe(res2 => {
           if (res2.isSuccess) {
             this.user = res2.data;
-
-            this.clearMessage('user');
-            this.popMessage({
-              key: 'tenant',
-              message: this.translateService.instant('COMMON.LOADING',
-                {
-                  module: this.translateService.instant('COMMON.TENANT')
-                }
-              ),
-              severity: 'info',
-              isLoading: true
-            });
+            // this.popMessage({
+            //   key: 'tenant',
+            //   message: this.translateService.instant('COMMON.LOADING',
+            //     {
+            //       module: this.translateService.instant('COMMON.TENANT')
+            //     }
+            //   ),
+            //   severity: 'info',
+            //   isLoading: true
+            // });
 
             this.authService.getTenantsByUserId(this.user.uid).subscribe(res3 => {
               if (res3.isSuccess) {
@@ -64,7 +52,7 @@ export class LayoutComponent extends BaseCoreAbstract implements OnInit {
                     value: t.uid
                   }
                 });
-                this.clearMessage('tenant');
+                // this.clearMessage('tenant');
               }
             });
           }

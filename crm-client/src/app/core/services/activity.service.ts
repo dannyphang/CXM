@@ -29,12 +29,12 @@ export class ActivityService {
         return this.http.get<ResponseModel<ActivityDto>>(apiConfig.baseUrl + '/activity/' + id).pipe();
     }
 
-    createActivity(createdActivitiesList: CreateActivityDto[]): Observable<ResponseModel<CreateActivityDto[]>> {
-        return this.http.post<ResponseModel<CreateActivityDto[]>>(apiConfig.baseUrl + '/activity', { createdActivitiesList }).pipe();
+    createActivity(createdActivitiesList: CreateActivityDto[]): Observable<ResponseModel<ActivityDto[]>> {
+        return this.http.post<ResponseModel<ActivityDto[]>>(apiConfig.baseUrl + '/activity', { createdActivitiesList }).pipe();
     }
 
-    uploadAttachment(attachmentList: AttachmentDto[]): Observable<ResponseModel<AttachmentDto>> {
-        return this.http.post<ResponseModel<AttachmentDto>>(apiConfig.baseUrl + '/activity/upload', { attachmentList }).pipe();
+    uploadAttachment(attachmentList: AttachmentDto[]): Observable<ResponseModel<AttachmentDto[]>> {
+        return this.http.post<ResponseModel<AttachmentDto[]>>(apiConfig.baseUrl + '/activity/upload', { attachmentList }).pipe();
     }
 
     deleteActivity(activityUid: string): Observable<ResponseModel<ActivityDto>> {
@@ -69,7 +69,7 @@ export class ActivityDto extends BasedDto {
     isExpand: boolean;
     associationContactUidList: string[];
     associationCompanyUidList: string[];
-    attachmentUid: string;
+    attachmentUid: string[];
     attachmentList: AttachmentDto[];
     association: AssociationDto;
 }
@@ -87,7 +87,7 @@ export class UpdateActivityDto extends BasedDto {
     isPinned?: boolean;
     associationContactUidList?: string[];
     associationCompanyUidList?: string[];
-    attachmentUid?: string;
+    attachmentUid?: string[];
     attachmentList?: AttachmentDto[];
 }
 
@@ -103,6 +103,6 @@ export class CreateActivityDto extends BasedDto {
     activityContent: string;
     associationContactUidList: string[];
     associationCompanyUidList: string[];
-    attachmentUid?: string;
+    attachmentUid?: string[];
     isPinned?: boolean;
 }

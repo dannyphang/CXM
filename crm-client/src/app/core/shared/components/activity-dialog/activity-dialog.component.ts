@@ -8,6 +8,7 @@ import { FileSelectEvent, UploadEvent } from 'primeng/fileupload';
 import { MessageService } from 'primeng/api';
 import { BaseCoreAbstract } from '../../base/base-core.abstract';
 import { AuthService } from '../../../services/auth.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-activity-dialog',
@@ -57,7 +58,8 @@ export class ActivityDialogComponent extends BaseCoreAbstract implements OnChang
     private activityService: ActivityService,
     private ngZone: NgZone,
     protected override messageService: MessageService,
-    private authService: AuthService
+    private authService: AuthService,
+    private translateService: TranslateService
   ) {
     super(messageService);
   }
@@ -413,11 +415,16 @@ export class ActivityDialogComponent extends BaseCoreAbstract implements OnChang
         activityDuration: this.activityFormGroup.controls['DURAT'].value,
         associationContactUidList: this.assoContactForm.value ?? [],
         associationCompanyUidList: this.assoCompanyForm.value ?? [],
-        attachmentUid: '',
+        attachmentUid: [],
         createdBy: this.authService.userC.uid,
         createdDate: new Date()
       }
 
+      this.popMessage({
+        message: this.translateService.instant('MESSAGE.CREATING_ACTIVITY'),
+        isLoading: true,
+        severity: 'info'
+      });
       this.activityService.createActivity([createActivity]).subscribe(res => {
         if (res.isSuccess) {
           if (this.attachmentList.length > 0) {
@@ -434,7 +441,31 @@ export class ActivityDialogComponent extends BaseCoreAbstract implements OnChang
 
                   this.activityService.uploadAttachment([uploadAttach]).subscribe(res3 => {
                     if (res3.isSuccess) {
-                      this.closeDialog();
+                      this.activityService.updateActivity({
+                        uid: res3.data[0].activityUid,
+                        attachmentUid: this.returnAttactmentList(res.data[0].attachmentUid, res3.data[0].uid),
+                      }).subscribe(
+                        {
+                          next: res4 => {
+                            if (res4.isSuccess) {
+                              this.clearMessage();
+                              this.closeDialog();
+                            }
+                            else {
+                              this.popMessage({
+                                message: res4.responseMessage,
+                                severity: 'error'
+                              });
+                            }
+                          },
+                          error: err => {
+                            this.popMessage({
+                              message: err,
+                              severity: 'error'
+                            });
+                          }
+                        }
+                      )
                     }
                     else {
                       this.popMessage({
@@ -454,6 +485,7 @@ export class ActivityDialogComponent extends BaseCoreAbstract implements OnChang
             });
           }
           else {
+            this.clearMessage();
             this.closeDialog();
           }
         }
@@ -465,5 +497,21 @@ export class ActivityDialogComponent extends BaseCoreAbstract implements OnChang
         }
       });
     }
+  }
+
+  returnAttactmentList(attactmentList: string[], attachmentUid: string | undefined): string[] {
+    if (!attachmentUid) {
+      this.popMessage({
+        message: this.translateService.instant('ERROR.ATTACHMENT_UPDATE_ERROR'),
+        severity: 'error'
+      });
+    }
+    else {
+      if (!attactmentList.find(s => s === attachmentUid)) {
+        attactmentList.push(attachmentUid);
+        return attactmentList;
+      }
+    }
+    return [];
   }
 }

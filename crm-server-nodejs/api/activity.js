@@ -96,6 +96,17 @@ router.post("/getActivitiesByProfileId", async (req, res) => {
                     if (contactPromises) {
                         act.association.contactList = await Promise.all(contactPromises);
                     }
+
+                    // Fetch attachment list
+                    if (act.attachmentUid && act.attachmentUid.length > 0) {
+                        const attachmentPromises = act.attachmentUid?.map(async (uid) => {
+                            const ss = await db.default.db.collection(attachmentCollection).doc(uid).get();
+                            return ss.data()?.statusId == 1 ? ss.data() : {};
+                        });
+                        if (attachmentPromises) {
+                            act.attachmentList = await Promise.all(attachmentPromises);
+                        }
+                    }
                 })
             );
 
@@ -201,7 +212,7 @@ router.post("/upload", async (req, res) => {
 
             createDoc.push(prop);
 
-            await newRef.set(prop).doc(prop.uid);
+            await newRef.set(prop);
         });
         res.status(200).json(responseModel({ data: list }));
     } catch (error) {

@@ -10,8 +10,8 @@
         .activity-panel-header {
           width: 100%;
           display: grid;
-          grid-template-areas: " activity-title-label activity-action-button activity-date";
-          grid-template-columns: 1fr auto auto;
+          grid-template-areas: " activity-title-label empty-block activity-action-button activity-date";
+          grid-template-columns: auto 1fr auto auto;
           column-gap: var(--content-gap-xs);
           align-items: center;
           margin-right: var(--content-gap);
@@ -71,9 +71,8 @@
 
 .readonly-content-div {
   border: 1px solid transparent;
-  padding-left: var(--content-gap);
-  padding-right: var(--content-gap);
-  min-height: 100px;
+  padding: 0 var(--content-gap);
+  margin-bottom: var(--content-gap);
   max-height: 300px;
   overflow: auto;
 }

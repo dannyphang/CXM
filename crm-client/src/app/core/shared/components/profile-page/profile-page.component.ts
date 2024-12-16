@@ -103,7 +103,6 @@ export class ProfilePageComponent extends BaseCoreAbstract implements OnChanges 
   getActivities() {
     if (this.profileUid) {
       this.popMessage({
-        key: 'activity',
         message: this.translateService.instant('COMMON.LOADING',
           {
             module: this.translateService.instant('COMMON.ACTIVITY')
@@ -115,7 +114,7 @@ export class ProfilePageComponent extends BaseCoreAbstract implements OnChanges 
       this.activityService.getAllActivitiesByProfileId(this.profileUid).subscribe(res => {
         if (res.isSuccess) {
           this.activitiesList = res.data;
-          this.clearMessage('activity');
+          this.clearMessage();
         }
         else {
           this.popMessage({

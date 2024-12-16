@@ -25,6 +25,7 @@ export class ActivityBlockComponent extends BaseCoreAbstract implements OnChange
   @Output() activityReload: EventEmitter<any> = new EventEmitter<any>();
 
   readonly: boolean = true;
+  contentReadonly: boolean = true;
   activityFormConfig: FormConfig[] = [];
   activityFormGroup: FormGroup = new FormGroup({
     CONT: new FormControl(this.module === "CONT" ? [this.contactProfile.contactId] : []),
@@ -46,7 +47,7 @@ export class ActivityBlockComponent extends BaseCoreAbstract implements OnChange
   assoCompanyFormConfig: FormConfig[] = [];
   assoCompanyForm: FormControl = new FormControl([]);
   assoContactForm: FormControl = new FormControl([]);
-
+  updateAct: UpdateActivityDto = new UpdateActivityDto();
   actionMenu: any[] = [];
 
   constructor(
@@ -61,39 +62,39 @@ export class ActivityBlockComponent extends BaseCoreAbstract implements OnChange
   ngOnInit() {
     this.componentList.forEach(comp => {
       this.activityFormGroup.controls[comp].valueChanges.subscribe(value => {
-        let updateAct: UpdateActivityDto = {
-          uid: this.activity.uid
-        }
+        console.log(value)
+        this.updateAct.uid = this.activity.uid
 
         switch (comp) {
           case 'CONT':
             break;
           case 'DATE':
           case 'TIME':
-            updateAct.activityDatetime = new Date(value);
+            this.updateAct.activityDatetime = new Date(value);
             break;
           case 'OUTCOME_C':
           case 'OUTCOME_M':
-            updateAct.activityOutcomeId = value;
+            this.updateAct.activityOutcomeId = value;
             break;
           case 'DIRECT':
-            updateAct.activityDirectionId = value;
+            this.updateAct.activityDirectionId = value;
             break;
           case 'DURAT':
-            updateAct.activityDuration = value;
+            this.updateAct.activityDuration = value;
             break;
           default:
           // console.log(comp);
         }
 
-        this.activityService.updateActivity(updateAct).subscribe(res => {
-          if (!res.isSuccess) {
-            this.popMessage({
-              message: res.responseMessage,
-              severity: 'error'
-            });
-          }
-        });
+        // this.activityService.updateActivity(updateAct).subscribe(res => {
+        //   if (!res.isSuccess) {
+        //     this.popMessage({
+        //       message: res.responseMessage,
+        //       severity: 'error'
+        //     });
+        //   }
+        // });
+        this.readonly = false;
       })
     })
   }
@@ -280,7 +281,6 @@ export class ActivityBlockComponent extends BaseCoreAbstract implements OnChange
 
     if (this.module === 'CONT') {
       if (!contactList.find(c => c.value === this.contactProfile?.uid)) {
-        console.log(this.contactProfile)
         contactList.push({
           label: `${this.contactProfile.contactFirstName} ${this.contactProfile.contactLastName}  (${this.contactProfile.contactEmail})`,
           value: this.contactProfile.uid
@@ -301,17 +301,14 @@ export class ActivityBlockComponent extends BaseCoreAbstract implements OnChange
   }
 
   assignActivityValue() {
-    this.activityFormGroup = new FormGroup({
-      CONT: new FormControl(this.activity.activityContactedIdList),
-      DATE: new FormControl(new Date(this.activity.activityDatetime)),
-      TIME: new FormControl(new Date(this.activity.activityDatetime)),
-      OUTCOME_C: new FormControl(this.activity.activityOutcomeId),
-      DIRECT: new FormControl(this.activity.activityDirectionId),
-      OUTCOME_M: new FormControl(this.activity.activityOutcomeId),
-      DURAT: new FormControl(this.activity.activityDuration),
-    })
+    this.activityFormGroup.controls['CONT'].setValue(this.activity.activityContactedIdList, { emitEvent: false })
+    this.activityFormGroup.controls['DATE'].setValue(this.activity.activityDatetime, { emitEvent: false })
+    this.activityFormGroup.controls['TIME'].setValue(this.activity.activityDatetime, { emitEvent: false })
+    this.activityFormGroup.controls['OUTCOME_C'].setValue(this.activity.activityOutcomeId, { emitEvent: false })
+    this.activityFormGroup.controls['DIRECT'].setValue(this.activity.activityDirectionId, { emitEvent: false })
+    this.activityFormGroup.controls['OUTCOME_M'].setValue(this.activity.activityOutcomeId, { emitEvent: false })
+    this.activityFormGroup.controls['DURAT'].setValue(this.activity.activityDuration, { emitEvent: false })
     this.editorFormControl = new FormControl(this.activity.activityContent);
-
   }
 
   setAssociation() {
@@ -400,7 +397,7 @@ export class ActivityBlockComponent extends BaseCoreAbstract implements OnChange
     let list: File[] = event.target.files;
 
     for (let i = 0; i < list.length; i++) {
-      if (!this.activity.attachmentList.find(item => item.fileName === list[i].name)) {
+      if (!this.activity.attachmentList?.find(item => item.fileName === list[i].name)) {
         if (list[i].size > this.fileMaxSize) {
           this.popMessage({
             message: `File size is exceed. (${this.returnFileSize(list[i].size)})`,
@@ -409,6 +406,7 @@ export class ActivityBlockComponent extends BaseCoreAbstract implements OnChange
           break;
         }
         this.attachmentList.push(list[i]);
+        console.log(this.attachmentList)
       }
       else {
         this.popMessage({
@@ -435,10 +433,15 @@ export class ActivityBlockComponent extends BaseCoreAbstract implements OnChange
     this.activity.attachmentList = this.activity.attachmentList.filter(item => item.fileName !== file.name)
   }
 
-  updateContent() {
+  updateActivity() {
+    this.popMessage({
+      message: this.translateService.instant('MESSAGE.UPDATING_ACTIVITY'),
+      isLoading: true,
+      severity: 'info'
+    });
     this.activityService.updateActivity({
-      uid: this.activity.uid,
-      activityContent: this.editorFormControl.value
+      activityContent: this.editorFormControl.value,
+      ...this.updateAct
     }).subscribe(res => {
       if (res.isSuccess) {
         this.editorFormControl = new FormControl(this.editorFormControl.value);
