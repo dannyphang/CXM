@@ -1,6 +1,4 @@
-<div
-  class="tw-border-[1px] tw-border-[var(--primary-color)] tw-flex tw-justify-between"
->
+<div class="tw-flex tw-justify-between asso-block-div">
   <div class="tw-grid">
     <app-base-button
       [isTextStyle]="true"
@@ -22,7 +20,7 @@
       "
     ></app-base-button>
   </div>
-  <div>
+  <div class="tw-grid tw-items-center tw-p-[var(--content-gap)]">
     <p-avatar
       *ngIf="
         !contactProfile.contactProfilePhotoUrl &&

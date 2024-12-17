@@ -10,6 +10,7 @@ import { DEFAULT_PROFILE_PIC_URL } from '../../../constants/common.constants';
 import { BasePropertyAbstract } from '../../../base/base-property.abstract';
 import { AuthService } from '../../../../services/auth.service';
 import { TranslateService } from '@ngx-translate/core';
+import { ToastService } from '../../../../services/toast.service';
 
 @Component({
   selector: 'app-left-panel',
@@ -56,12 +57,12 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
     private router: Router,
     protected override formBuilder: FormBuilder,
     protected override commonService: CommonService,
-    protected override messageService: MessageService,
     private storageService: StorageService,
     protected override authService: AuthService,
-    protected override translateService: TranslateService
+    protected override translateService: TranslateService,
+    protected override toastService: ToastService
   ) {
-    super(formBuilder, commonService, messageService, authService, translateService);
+    super(formBuilder, commonService, toastService, authService, translateService);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -109,7 +110,7 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
         });
       }
       else {
-        this.popMessage({
+        this.toastService.addSingle({
           message: res.responseMessage,
           severity: 'error'
         });
@@ -119,10 +120,11 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
   }
 
   copyEmailToClipboard(copiedText: string) {
-    navigator.clipboard.writeText(copiedText);
-    this.popMessage({
+    this.toastService.addSingle({
+      // key: 'copy',
       message: this.translateService.instant("MESSAGE.COPY_TEXT_DETAIL")
     });
+    navigator.clipboard.writeText(copiedText);
   }
 
   editPic() {
@@ -148,11 +150,6 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
 
   imageFileUploadBtn() {
     if (this.profileImg !== DEFAULT_PROFILE_PIC_URL && this.profilePhotoFile) {
-      this.popMessage({
-        message: this.translateService.instant('MESSAGE.UPLOADING'),
-        severity: 'info',
-        isLoading: true
-      });
       this.storageService.uploadImage(this.profilePhotoFile, this.module === 'CONT' ? "Image/Contact/" : "Image/Company/").then(url => {
         this.profileImg = url;
         if (this.module === 'CONT') {
@@ -164,11 +161,10 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
           this.commonService.updateContact([updateContact], this.authService.user?.uid ?? 'SYSTEM').subscribe(res => {
             if (res.isSuccess) {
               this.isShowAvatarEditDialog = false;
-              this.clearMessage();
               this.profileUpdateEmit.emit(updateContact);
             }
             else {
-              this.popMessage({
+              this.toastService.addSingle({
                 message: res.responseMessage,
                 severity: 'error'
               });
@@ -187,7 +183,7 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
               this.profileUpdateEmit.emit(updateCompany);
             }
             else {
-              this.popMessage({
+              this.toastService.addSingle({
                 message: res.responseMessage,
                 severity: 'error'
               });

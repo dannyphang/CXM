@@ -10,6 +10,10 @@
 
 :host ::ng-deep {
   .profile-box {
+    p-splitter {
+      width: 100%;
+    }
+
     .p-splitter {
       background-color: transparent;
       border-width: 0;

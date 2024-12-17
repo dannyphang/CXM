@@ -314,7 +314,7 @@ export class ContactDto extends BasedDto {
     contactLeadStatusUid?: string;
     contactProperties: string;
     contactProfilePhotoUrl?: string;
-    association: AssociationDto;
+    association?: AssociationDto;
     [key: string]: any;
 }
 
@@ -356,7 +356,7 @@ export class CompanyDto extends BasedDto {
     companyLeadStatusId?: string;
     companyProperties: string;
     companyProfilePhotoUrl?: string;
-    association: AssociationDto;
+    association?: AssociationDto;
     [key: string]: any;
 }
 

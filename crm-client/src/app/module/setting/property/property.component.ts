@@ -9,6 +9,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { map, Observable, pairwise } from 'rxjs';
 import { list } from 'firebase/storage';
 import { AuthService } from '../../../core/services/auth.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 interface Column {
   field: string;
@@ -20,7 +21,7 @@ interface Column {
   templateUrl: './property.component.html',
   styleUrl: './property.component.scss'
 })
-export class PropertyComponent extends BaseCoreAbstract {
+export class PropertyComponent {
   ROW_PER_PAGE_DEFAULT = ROW_PER_PAGE_DEFAULT;
   ROW_PER_PAGE_DEFAULT_LIST = ROW_PER_PAGE_DEFAULT_LIST;
   moduleOptions: OptionsModel[] = [];
@@ -87,12 +88,12 @@ export class PropertyComponent extends BaseCoreAbstract {
 
   constructor(
     private commonService: CommonService,
-    protected override messageService: MessageService,
     private translateService: TranslateService,
     private formBuilder: FormBuilder,
-    private authService: AuthService
+    private authService: AuthService,
+    private toastService: ToastService
   ) {
-    super(messageService);
+
   }
 
   ngOnInit() {
@@ -118,7 +119,7 @@ export class PropertyComponent extends BaseCoreAbstract {
         this.propertiesList.sort((a, b) => a.order - b.order);
       }
       else {
-        this.popMessage({
+        this.toastService.addSingle({
           message: res.responseMessage,
           severity: 'error'
         });
@@ -272,7 +273,7 @@ export class PropertyComponent extends BaseCoreAbstract {
         console.log(this.moduleOptions)
       }
       else {
-        this.popMessage({
+        this.toastService.addSingle({
           message: res.responseMessage,
           severity: 'error'
         });
@@ -302,7 +303,7 @@ export class PropertyComponent extends BaseCoreAbstract {
         if (defaultCount > 1) {
           this.propertyDetailFormGroup.controls['propertiesLookup'].setValue(prev, { emitEvent: false });
 
-          this.popMessage({
+          this.toastService.addSingle({
             message: this.translateService.instant('MESSAGE.ONLY_ONE_DEFAULT'),
             severity: 'error'
           });
@@ -694,7 +695,7 @@ export class PropertyComponent extends BaseCoreAbstract {
 
   delete() {
     if (this.selectedProperty.find(p => p.isSystem)) {
-      this.popMessage({
+      this.toastService.addSingle({
         message: this.translateService.instant("MESSAGE.CANNOT_DELETE_SYSTEM_PROPERTY"),
         severity: 'error'
       });
@@ -702,11 +703,11 @@ export class PropertyComponent extends BaseCoreAbstract {
     else {
       this.commonService.deleteProperty(this.selectedProperty, this.authService.user?.uid ?? 'SYSTEM').subscribe(res => {
         if (res.isSuccess) {
-          this.popMessage({ message: res.responseMessage });
+          this.toastService.addSingle({ message: res.responseMessage });
           this.getAllProperties(this.moduleFormControl.value ?? 'CONT');
         }
         else {
-          this.popMessage({
+          this.toastService.addSingle({
             message: res.responseMessage,
             severity: 'error'
           });
@@ -784,12 +785,12 @@ export class PropertyComponent extends BaseCoreAbstract {
 
             this.commonService.createPropertyLookup(createPropLookup).subscribe(res => {
               if (res.isSuccess) {
-                this.popMessage({ message: res.responseMessage });
+                this.toastService.addSingle({ message: res.responseMessage });
                 this.closeDialog();
                 this.getAllProperties(this.moduleFormControl.value ?? 'CONT');
               }
               else {
-                this.popMessage({
+                this.toastService.addSingle({
                   message: res.responseMessage,
                   severity: 'error'
                 });
@@ -797,7 +798,7 @@ export class PropertyComponent extends BaseCoreAbstract {
             });
           }
           else {
-            this.popMessage({
+            this.toastService.addSingle({
               message: this.translateService.instant('MESSAGE.PROPERTY_NOT_EDITABLE')
             });
 
@@ -805,7 +806,7 @@ export class PropertyComponent extends BaseCoreAbstract {
           }
         }
         else {
-          this.popMessage({
+          this.toastService.addSingle({
             message: res.responseMessage,
             severity: 'error'
           });
@@ -870,7 +871,7 @@ export class PropertyComponent extends BaseCoreAbstract {
 
                 }
                 else {
-                  this.popMessage({
+                  this.toastService.addSingle({
                     message: res.responseMessage,
                     severity: 'error'
                   });
@@ -879,7 +880,7 @@ export class PropertyComponent extends BaseCoreAbstract {
             }
           }
           else {
-            this.popMessage({
+            this.toastService.addSingle({
               message: res.responseMessage,
               severity: 'error'
             });
@@ -888,7 +889,7 @@ export class PropertyComponent extends BaseCoreAbstract {
       }
     }
     else {
-      this.popMessage({
+      this.toastService.addSingle({
         message: this.translateService.instant('MESSAGE.PROPERTY_NOT_EDITABLE'),
         severity: 'error'
       });

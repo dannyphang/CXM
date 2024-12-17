@@ -9,13 +9,14 @@ import { MessageService } from 'primeng/api';
 import { BaseCoreAbstract } from '../../base/base-core.abstract';
 import { AuthService } from '../../../services/auth.service';
 import { TranslateService } from '@ngx-translate/core';
+import { ToastService } from '../../../services/toast.service';
 
 @Component({
   selector: 'app-activity-dialog',
   templateUrl: './activity-dialog.component.html',
   styleUrl: './activity-dialog.component.scss'
 })
-export class ActivityDialogComponent extends BaseCoreAbstract implements OnChanges {
+export class ActivityDialogComponent implements OnChanges {
   @Input() contactProfile: ContactDto = new ContactDto();
   @Input() companyProfile: CompanyDto = new CompanyDto();
   @Input() module: "CONT" | "COMP" = "CONT";
@@ -57,11 +58,11 @@ export class ActivityDialogComponent extends BaseCoreAbstract implements OnChang
     private formBuilder: FormBuilder,
     private activityService: ActivityService,
     private ngZone: NgZone,
-    protected override messageService: MessageService,
     private authService: AuthService,
-    private translateService: TranslateService
+    private translateService: TranslateService,
+    private toastService: ToastService
   ) {
-    super(messageService);
+
   }
 
   ngOnInit() {
@@ -287,7 +288,7 @@ export class ActivityDialogComponent extends BaseCoreAbstract implements OnChang
   getContactedList(): OptionsModel[] {
     if (this.module === 'COMP') {
       let contactList: OptionsModel[] = [];
-      this.companyProfile.association.contactList.forEach(profile => {
+      this.companyProfile.association?.contactList.forEach(profile => {
         contactList.push({
           label: `${profile.contactFirstName} ${profile.contactLastName}  (${profile.contactEmail})`,
           value: profile.uid
@@ -367,7 +368,7 @@ export class ActivityDialogComponent extends BaseCoreAbstract implements OnChang
     for (let i = 0; i < list.length; i++) {
       if (!this.attachmentList.find(item => item.name === list[i].name)) {
         if (list[i].size > this.fileMaxSize) {
-          this.popMessage({
+          this.toastService.addSingle({
             message: `File size is exceed. (${this.returnFileSize(list[i].size)})`,
             severity: 'error'
           });
@@ -376,7 +377,7 @@ export class ActivityDialogComponent extends BaseCoreAbstract implements OnChang
         this.attachmentList.push(list[i]);
       }
       else {
-        this.popMessage({
+        this.toastService.addSingle({
           message: `(${list[i].name}) is duplicated.`,
           severity: 'error'
         });
@@ -420,7 +421,8 @@ export class ActivityDialogComponent extends BaseCoreAbstract implements OnChang
         createdDate: new Date()
       }
 
-      this.popMessage({
+      this.toastService.addSingle({
+        key: 'activity',
         message: this.translateService.instant('MESSAGE.CREATING_ACTIVITY'),
         isLoading: true,
         severity: 'info'
@@ -448,18 +450,18 @@ export class ActivityDialogComponent extends BaseCoreAbstract implements OnChang
                         {
                           next: res4 => {
                             if (res4.isSuccess) {
-                              this.clearMessage();
+                              this.toastService.clear('activity');
                               this.closeDialog();
                             }
                             else {
-                              this.popMessage({
+                              this.toastService.addSingle({
                                 message: res4.responseMessage,
                                 severity: 'error'
                               });
                             }
                           },
                           error: err => {
-                            this.popMessage({
+                            this.toastService.addSingle({
                               message: err,
                               severity: 'error'
                             });
@@ -468,7 +470,7 @@ export class ActivityDialogComponent extends BaseCoreAbstract implements OnChang
                       )
                     }
                     else {
-                      this.popMessage({
+                      this.toastService.addSingle({
                         message: res.responseMessage,
                         severity: 'error'
                       });
@@ -476,7 +478,8 @@ export class ActivityDialogComponent extends BaseCoreAbstract implements OnChang
                   });
                 }
                 else {
-                  this.popMessage({
+                  this.toastService.addSingle({
+                    key: 'error',
                     message: res.responseMessage,
                     severity: 'error'
                   });
@@ -485,12 +488,12 @@ export class ActivityDialogComponent extends BaseCoreAbstract implements OnChang
             });
           }
           else {
-            this.clearMessage();
+            this.toastService.clear('activity');
             this.closeDialog();
           }
         }
         else {
-          this.popMessage({
+          this.toastService.addSingle({
             message: res.responseMessage,
             severity: 'error'
           });
@@ -501,7 +504,7 @@ export class ActivityDialogComponent extends BaseCoreAbstract implements OnChang
 
   returnAttactmentList(attactmentList: string[], attachmentUid: string | undefined): string[] {
     if (!attachmentUid) {
-      this.popMessage({
+      this.toastService.addSingle({
         message: this.translateService.instant('ERROR.ATTACHMENT_UPDATE_ERROR'),
         severity: 'error'
       });

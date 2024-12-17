@@ -5,6 +5,7 @@ import { MessageService } from 'primeng/api';
 import { FormControl, FormGroup } from '@angular/forms';
 import { CommonService } from '../../core/services/common.service';
 import { AuthService } from '../../core/services/auth.service';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-home',
@@ -25,7 +26,8 @@ export class HomeComponent implements OnInit {
 
   constructor(
     private messageService: MessageService,
-    private authService: AuthService
+    private authService: AuthService,
+    private toastService: ToastService
   ) {
 
   }
@@ -176,8 +178,10 @@ export class HomeComponent implements OnInit {
   }
 
   show() {
-    this.messageService.add({ severity: 'success', detail: 'Message Content', sticky: true, icon: 'pi pi-spin pi-spinner' });
-    // console.log(this.formG.controls)
+    // this.messageService.add({ severity: 'success', detail: 'Message Content', sticky: true, icon: 'pi pi-spin pi-spinner' });
+    this.toastService.addSingle({
+      message: "testing"
+    })
   }
 
   showSidePanelBtn(position: 'left' | 'right' | 'top' | 'bottom') {

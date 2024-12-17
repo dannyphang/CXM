@@ -6,13 +6,14 @@ import { FormControl } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { BaseCoreAbstract } from '../../../base/base-core.abstract';
 import { AuthService } from '../../../../services/auth.service';
+import { ToastService } from '../../../../services/toast.service';
 
 @Component({
   selector: 'app-right-panel',
   templateUrl: './right-panel.component.html',
   styleUrl: './right-panel.component.scss'
 })
-export class RightPanelComponent extends BaseCoreAbstract {
+export class RightPanelComponent {
   @Input() propertiesList: PropertyGroupDto[] = [];
   @Input() module: 'CONT' | 'COMP' = 'CONT';
   @Input() contactProfile: ContactDto = new ContactDto();
@@ -26,10 +27,10 @@ export class RightPanelComponent extends BaseCoreAbstract {
   constructor(
     private commonService: CommonService,
     private activityService: ActivityService,
-    protected override messageService: MessageService,
-    private authService: AuthService
+    private authService: AuthService,
+    private toastService: ToastService
   ) {
-    super(messageService);
+
   }
 
   ngOnInit() {
@@ -65,7 +66,7 @@ export class RightPanelComponent extends BaseCoreAbstract {
               ];
             }
             else {
-              this.popMessage({
+              this.toastService.addSingle({
                 message: res.responseMessage,
                 severity: 'error'
               });
@@ -98,7 +99,7 @@ export class RightPanelComponent extends BaseCoreAbstract {
               ];
             }
             else {
-              this.popMessage({
+              this.toastService.addSingle({
                 message: res.responseMessage,
                 severity: 'error'
               });
@@ -133,7 +134,7 @@ export class RightPanelComponent extends BaseCoreAbstract {
     }
     this.commonService.createAssociation(createAsso).subscribe(res => {
       if (!res.isSuccess) {
-        this.popMessage({
+        this.toastService.addSingle({
           message: res.responseMessage,
           severity: 'error'
         });

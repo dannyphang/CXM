@@ -7,8 +7,9 @@ import { BaseCoreAbstract } from "./base-core.abstract";
 import { MessageService } from "primeng/api";
 import { AuthService } from "../../services/auth.service";
 import { TranslateService } from "@ngx-translate/core";
+import { ToastService } from "../../services/toast.service";
 
-export abstract class BasePropertyAbstract extends BaseCoreAbstract {
+export abstract class BasePropertyAbstract {
     profileFormGroup: FormGroup = new FormGroup({});
     initProfileFormGroup: FormGroup = new FormGroup({});
     countryFormId: string = "";
@@ -24,11 +25,11 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
     constructor(
         protected formBuilder: FormBuilder,
         protected commonService: CommonService,
-        protected override messageService: MessageService,
+        protected toastService: ToastService,
         protected authService: AuthService,
         protected translateService: TranslateService
     ) {
-        super(messageService);
+
     }
 
     /**  
@@ -454,13 +455,13 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
             this.commonService.updateContact([updateContact], this.authService.user?.uid ?? 'SYSTEM').subscribe(res => {
                 if (res.isSuccess) {
                     this.propUpdateList = [];
-                    this.popMessage({
+                    this.toastService.addSingle({
                         message: res.responseMessage,
                     });
                     this.showFormUpdateSidebar = false;
                 }
                 else {
-                    this.popMessage({
+                    this.toastService.addSingle({
                         message: res.responseMessage,
                         severity: 'error'
                     });

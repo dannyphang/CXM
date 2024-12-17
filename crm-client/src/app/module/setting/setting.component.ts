@@ -9,16 +9,15 @@ import { AuthService, UserDto } from '../../core/services/auth.service';
   templateUrl: './setting.component.html',
   styleUrl: './setting.component.scss'
 })
-export class SettingComponent extends BaseCoreAbstract {
+export class SettingComponent {
   settingMenuItem: MenuItem[] = [];
   userC: UserDto;
 
   constructor(
-    protected override messageService: MessageService,
     private translateService: TranslateService,
     private authService: AuthService
   ) {
-    super(messageService);
+
   }
 
   ngOnInit() {

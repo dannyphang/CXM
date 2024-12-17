@@ -1,0 +1,8 @@
+.asso-block-div {
+  border: 1px solid var(--primary-color-text);
+  border-radius: var(--border-radius);
+
+  &:hover {
+    border: 1px solid var(--primary-color);
+  }
+}

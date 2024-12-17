@@ -12,13 +12,14 @@ import { BaseDataSourceActionEvent, CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig,
 import { ROW_PER_PAGE_DEFAULT, ROW_PER_PAGE_DEFAULT_LIST, EMPTY_VALUE_STRING, NUMBER_OF_EXCEL_INSERT_ROW } from '../../constants/common.constants';
 import * as XLSX from 'xlsx';
 import { BaseCoreAbstract } from '../../base/base-core.abstract';
+import { ToastService } from '../../../services/toast.service';
 
 @Component({
   selector: 'app-contact-company-page',
   templateUrl: './contact-company-page.component.html',
   styleUrl: './contact-company-page.component.scss'
 })
-export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnChanges {
+export class ContactCompanyPageComponent implements OnChanges {
   ROW_PER_PAGE_DEFAULT = ROW_PER_PAGE_DEFAULT;
   ROW_PER_PAGE_DEFAULT_LIST = ROW_PER_PAGE_DEFAULT_LIST;
   EMPTY_VALUE_STRING = EMPTY_VALUE_STRING;
@@ -62,10 +63,10 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
     private router: Router,
     private formBuilder: FormBuilder,
     private translateService: TranslateService,
-    protected override messageService: MessageService,
     private authService: AuthService,
+    private toastService: ToastService
   ) {
-    super(messageService);
+
 
     if (this.router.url === '/contact') {
       this.module = 'CONT';
@@ -97,7 +98,7 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
         });
       }
       else {
-        this.popMessage({
+        this.toastService.addSingle({
           message: res.responseMessage,
           severity: 'error'
         });
@@ -147,9 +148,20 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
     else {
       this.getCompany();
     }
-
+    this.toastService.addSingle({
+      message: this.translateService.instant(
+        "COMMON.LOADING",
+        {
+          module: this.translateService.instant('COMMON.PROPERTY')
+        }
+      ),
+      isLoading: true,
+      severity: 'info'
+    });
     this.commonService.getAllPropertiesByModule(this.module, this.authService.tenant?.uid).subscribe((res) => {
       if (res.isSuccess) {
+        this.toastService.clear();
+
         this.modulePropertyList = res.data;
 
         res.data.forEach((item) => {
@@ -345,7 +357,7 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
         this.tableLoading[this.activeTabPanel] = false;
       }
       else {
-        this.popMessage({
+        this.toastService.addSingle({
           message: res.responseMessage,
           severity: 'error'
         });
@@ -372,14 +384,14 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
                       item.filterFieldControl.setValue(res.data[0].uid);
                     }
                     else {
-                      this.popMessage({
+                      this.toastService.addSingle({
                         message: 'Something wrong on searching of State',
                         severity: 'error'
                       });
                     }
                   }
                   else {
-                    this.popMessage({
+                    this.toastService.addSingle({
                       message: res.responseMessage,
                       severity: 'error'
                     });
@@ -393,14 +405,14 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
                       item.filterFieldControl.setValue(res.data[0].uid);
                     }
                     else {
-                      this.popMessage({
+                      this.toastService.addSingle({
                         message: 'Something wrong on searching of City',
                         severity: 'error'
                       });
                     }
                   }
                   else {
-                    this.popMessage({
+                    this.toastService.addSingle({
                       message: res.responseMessage,
                       severity: 'error'
                     });
@@ -552,7 +564,7 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
             this.tableLoading[this.activeTabPanel] = false;
           }
           else {
-            this.popMessage({
+            this.toastService.addSingle({
               message: res.responseMessage,
               severity: 'error'
             });
@@ -584,7 +596,7 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
         this.tableLoading[this.activeTabPanel] = false;
       }
       else {
-        this.popMessage({
+        this.toastService.addSingle({
           message: res.responseMessage,
           severity: 'error'
         });
@@ -600,7 +612,7 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
         this.tableLoading[this.activeTabPanel] = false;
       }
       else {
-        this.popMessage({
+        this.toastService.addSingle({
           message: res.responseMessage,
           severity: 'error'
         });
@@ -914,7 +926,7 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
               this.getContact();
             }
             else {
-              this.popMessage({
+              this.toastService.addSingle({
                 message: res.responseMessage,
                 severity: 'error'
               });
@@ -929,7 +941,7 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
               this.getCompany();
             }
             else {
-              this.popMessage({
+              this.toastService.addSingle({
                 message: res.responseMessage,
                 severity: 'error'
               });
@@ -1017,8 +1029,7 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
       this.propertyValueUpdate(this.createFormConfig);
     }
     else {
-      console.log(this.createFormGroup.controls)
-      this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Profile is not created. Please check again.' });
+      // TODO: this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Profile is not created. Please check again.' });
     }
   }
 
@@ -1079,16 +1090,25 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
         newCompany.companyOwnerUid = this.authService.currentUser()!.uid;
       }
     });
+    this.toastService.addSingle({
+      message: this.translateService.instant("MESSAGE.CREATING"),
+      isLoading: true,
+      severity: 'info'
+    });
     if (this.module === "CONT") {
       newContact.contactProperties = JSON.stringify(profileProperty);
       this.commonService.createContact([newContact]).subscribe(res => {
         if (res.isSuccess) {
+          this.toastService.clear();
+          this.toastService.addSingle({
+            message: this.translateService.instant("MESSAGE.CREATED_SUCCESSFULLY")
+          });
           this.displayCreateDialog = false;
 
           this.getContact();
         }
         else {
-          this.popMessage({
+          this.toastService.addSingle({
             message: res.responseMessage,
             severity: 'error'
           });
@@ -1099,12 +1119,16 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
       newCompany.companyProperties = JSON.stringify(profileProperty);
       this.commonService.createCompany([newCompany]).subscribe(res => {
         if (res.isSuccess) {
+          this.toastService.clear();
+          this.toastService.addSingle({
+            message: this.translateService.instant("MESSAGE.CREATED_SUCCESSFULLY")
+          });
           this.displayCreateDialog = false;
 
           this.getCompany();
         }
         else {
-          this.popMessage({
+          this.toastService.addSingle({
             message: res.responseMessage,
             severity: 'error'
           });
@@ -1116,16 +1140,22 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
   }
 
   delete() {
+    this.toastService.addSingle({
+      message: this.translateService.instant("MESSAGE.DELETING"),
+      isLoading: true,
+      severity: 'info'
+    });
     if (this.module === 'CONT') {
       this.commonService.deleteContact(this.selectedProfile as ContactDto[], this.authService.user?.uid ?? 'SYSTEM').subscribe(res => {
         if (res.isSuccess) {
-          this.popMessage({
+          this.toastService.clear();
+          this.toastService.addSingle({
             message: this.translateService.instant("MESSAGE.DELETED_SUCCESSFULLY", { module: this.translateService.instant("COMMON.CONTACT") })
           });
           this.getContact();
         }
         else {
-          this.popMessage({
+          this.toastService.addSingle({
             message: res.responseMessage,
             severity: 'error'
           });
@@ -1135,14 +1165,15 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
     else {
       this.commonService.deleteCompany(this.selectedProfile as CompanyDto[], this.authService.user?.uid ?? 'SYSTEM').subscribe(res => {
         if (res.isSuccess) {
-          this.popMessage({
+          this.toastService.clear();
+          this.toastService.addSingle({
             message: this.translateService.instant("MESSAGE.DELETED_SUCCESSFULLY", { module: this.translateService.instant("COMMON.CONTACT") })
           });
 
           this.getCompany();
         }
         else {
-          this.popMessage({
+          this.toastService.addSingle({
             message: res.responseMessage,
             severity: 'error'
           });
@@ -1181,11 +1212,12 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
       this.tabFilterList[newPanelIndex] = [];
     }
     else {
-      this.messageService.add({
-        severity: 'info',
-        summary: this.translateService.instant('COMMON.DATA_LOADING'),
-        detail: this.translateService.instant('COMMON.DATA_LOADING')
-      });
+      // TODO
+      // this.messageService.add({
+      //   severity: 'info',
+      //   summary: this.translateService.instant('COMMON.DATA_LOADING'),
+      //   detail: this.translateService.instant('COMMON.DATA_LOADING')
+      // });
     }
   }
 
@@ -1249,7 +1281,7 @@ export class ContactCompanyPageComponent extends BaseCoreAbstract implements OnC
       });
     }
     else {
-      this.messageService.add({ severity: 'info', summary: 'Loading', detail: this.translateService.instant('COMMON.DATA_LOADING') });
+      // TODO: this.messageService.add({ severity: 'info', summary: 'Loading', detail: this.translateService.instant('COMMON.DATA_LOADING') });
     }
   }
 

@@ -7,6 +7,7 @@ import { BasePropertyAbstract } from '../../base/base-property.abstract';
 import { MessageService } from 'primeng/api';
 import { AuthService } from '../../../services/auth.service';
 import { TranslateService } from '@ngx-translate/core';
+import { ToastService } from '../../../services/toast.service';
 
 @Component({
   selector: 'app-all-properties-page',
@@ -27,11 +28,11 @@ export class AllPropertiesPageComponent extends BasePropertyAbstract implements 
   constructor(
     protected override formBuilder: FormBuilder,
     protected override commonService: CommonService,
-    protected override messageService: MessageService,
     protected override authService: AuthService,
-    protected override translateService: TranslateService
+    protected override translateService: TranslateService,
+    protected override toastService: ToastService
   ) {
-    super(formBuilder, commonService, messageService, authService, translateService);
+    super(formBuilder, commonService, toastService, authService, translateService);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -49,7 +50,7 @@ export class AllPropertiesPageComponent extends BasePropertyAbstract implements 
           this.checkFormValueChange(this.propertyList);
         }
         else {
-          this.popMessage({
+          this.toastService.addSingle({
             message: res.responseMessage,
             severity: 'error'
           });
