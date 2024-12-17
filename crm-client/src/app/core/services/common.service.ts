@@ -218,6 +218,15 @@ export class CommonService {
     getCityByCityName(cityName: string): Observable<ResponseModel<CityDto[]>> {
         return this.http.get<ResponseModel<CityDto[]>>(apiConfig.baseUrl + '/location/city/name/' + cityName);
     }
+
+    removeAsso(module: 'CONT' | 'COMP', uid: string, assoUid: string) {
+        if (module === 'CONT') {
+
+        }
+        else {
+            return this.http.put<ResponseModel<UpdateCompanyDto[]>>(apiConfig.baseUrl + '/company', { companyList, user: userUid }).pipe();
+        }
+    }
 }
 
 export class ResponseModel<T> {

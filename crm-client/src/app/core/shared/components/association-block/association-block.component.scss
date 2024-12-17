@@ -1,8 +1,15 @@
 .asso-block-div {
+  position: relative;
   border: 1px solid var(--primary-color-text);
   border-radius: var(--border-radius);
 
   &:hover {
     border: 1px solid var(--primary-color);
   }
+}
+
+.more-button {
+  position: absolute;
+  top: 0;
+  right: 0;
 }

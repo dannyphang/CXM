@@ -13,9 +13,21 @@ export class ToastService {
     ) { }
 
     addSingle(toastConfig: MessageModel) {
-        console.log(toastConfig)
+        switch (toastConfig.severity) {
+            case 'success':
+            case undefined:
+                toastConfig.severity = 'success';
+                toastConfig.icon = 'pi pi-check'
+                break;
+            case 'error':
+                toastConfig.icon = 'pi pi-times-circle';
+                break;
+            case 'info':
+                toastConfig.icon = 'pi pi-info-circle';
+                break;
+        }
         this.messageService.add({
-            severity: toastConfig.severity ?? 'success',
+            severity: toastConfig.severity,
             detail:
                 typeof toastConfig.message === 'string'
                     ? this.translateService.instant(
@@ -24,13 +36,26 @@ export class ToastService {
                     : '',
             key: 'tr',
             sticky: toastConfig.isLoading,
-            icon: toastConfig.isLoading ? "pi pi-spin pi-spinner" : undefined,
+            icon: toastConfig.isLoading ? "pi pi-spin pi-spinner" : toastConfig.icon,
         });
     }
 
     addMultiple(toastConfig: MessageModel[]) {
         this.messageService.addAll(
             toastConfig.map((i) => {
+                switch (i.severity) {
+                    case 'success':
+                    case undefined:
+                        i.severity = 'success';
+                        i.icon = 'pi pi-check'
+                        break;
+                    case 'error':
+                        i.icon = 'pi pi-times-circle';
+                        break;
+                    case 'info':
+                        i.icon = 'pi pi-info-circle';
+                        break;
+                }
                 return {
                     severity: i.severity,
                     detail: this.translateService.instant(i.message),
