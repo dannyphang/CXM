@@ -2,3 +2,19 @@ body {
   height: 100vh;
   background-color: aqua;
 }
+
+:host ::ng-deep {
+  .p-toast {
+    width: 250px;
+    z-index: 9999 !important;
+
+    .p-toast-message-content {
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+}
+
+.toast-div {
+  gap: var(--content-gap);
+}

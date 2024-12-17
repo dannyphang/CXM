@@ -44,7 +44,7 @@ import { PickListModule } from 'primeng/picklist';
 import { DividerModule } from 'primeng/divider';
 import { TreeSelectModule } from 'primeng/treeselect';
 
-import { MessageService } from 'primeng/api';
+import { MessageService as PrimeNGMessage } from 'primeng/api';
 
 const PRIMENG_MODULES = [
     InputNumberModule,
@@ -102,8 +102,8 @@ const PRIMENG_MODULES = [
         PRIMENG_MODULES
     ],
     providers: [
-        MessageService,
-        TerminalService
+        PrimeNGMessage,
+        TerminalService,
     ]
 })
 

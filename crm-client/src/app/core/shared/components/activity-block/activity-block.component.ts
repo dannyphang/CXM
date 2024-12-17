@@ -7,13 +7,14 @@ import { MessageService } from 'primeng/api';
 import { EDITOR_CONTENT_LIMIT, ATTACHMENT_MAX_SIZE } from '../../constants/common.constants';
 import { BaseCoreAbstract } from '../../base/base-core.abstract';
 import { TranslateService } from '@ngx-translate/core';
+import { ToastService } from '../../../services/toast.service';
 
 @Component({
   selector: 'app-activity-block',
   templateUrl: './activity-block.component.html',
   styleUrl: './activity-block.component.scss'
 })
-export class ActivityBlockComponent extends BaseCoreAbstract implements OnChanges {
+export class ActivityBlockComponent implements OnChanges {
   @Input() activity: ActivityDto = new ActivityDto();
   @Input() activityModule: ModuleDto = new ModuleDto();
   @Input() activityModuleList: ModuleDto[] = [];
@@ -53,11 +54,11 @@ export class ActivityBlockComponent extends BaseCoreAbstract implements OnChange
   constructor(
     private activityService: ActivityService,
     private ngZone: NgZone,
-    protected override messageService: MessageService,
     private translateService: TranslateService,
     private commonService: CommonService,
+    private toastService: ToastService
   ) {
-    super(messageService);
+
   }
 
   ngOnInit() {
@@ -89,7 +90,7 @@ export class ActivityBlockComponent extends BaseCoreAbstract implements OnChange
 
         // this.activityService.updateActivity(updateAct).subscribe(res => {
         //   if (!res.isSuccess) {
-        //     this.popMessage({
+        //     this.toastService.addSingle({
         //       message: res.responseMessage,
         //       severity: 'error'
         //     });
@@ -118,7 +119,7 @@ export class ActivityBlockComponent extends BaseCoreAbstract implements OnChange
                 this.activityReload.emit();
               }
               else {
-                this.popMessage({
+                this.toastService.addSingle({
                   message: res.responseMessage,
                   severity: 'error'
                 });
@@ -135,7 +136,7 @@ export class ActivityBlockComponent extends BaseCoreAbstract implements OnChange
               statusId: 2
             }).subscribe(res => {
               if (res.isSuccess) {
-                this.popMessage({
+                this.toastService.addSingle({
                   message: this.translateService.instant("MESSAGE.DELETED_SUCCESSFULLY", {
                     module: this.translateService.instant(`ACTIVITY.MODULE.${this.activity.activityModuleCode}`)
                   })
@@ -143,7 +144,7 @@ export class ActivityBlockComponent extends BaseCoreAbstract implements OnChange
                 this.activityReload.emit();
               }
               else {
-                this.popMessage({
+                this.toastService.addSingle({
                   message: res.responseMessage,
                   severity: 'error'
                 });
@@ -289,7 +290,7 @@ export class ActivityBlockComponent extends BaseCoreAbstract implements OnChange
       }
     }
     else if (this.module === 'COMP') {
-      this.companyProfile.association.contactList.forEach(co => {
+      this.companyProfile.association?.contactList.forEach(co => {
         if (!contactList.find(c => c.value === co.uid)) {
           contactList.push({
             label: `${co.contactFirstName} ${co.contactLastName}  (${co.contactEmail})`,
@@ -400,17 +401,16 @@ export class ActivityBlockComponent extends BaseCoreAbstract implements OnChange
     for (let i = 0; i < list.length; i++) {
       if (!this.activity.attachmentList?.find(item => item.fileName === list[i].name)) {
         if (list[i].size > this.fileMaxSize) {
-          this.popMessage({
+          this.toastService.addSingle({
             message: `File size is exceed. (${this.returnFileSize(list[i].size)})`,
             severity: 'error'
           });
           break;
         }
         this.attachmentList.push(list[i]);
-        console.log(this.attachmentList)
       }
       else {
-        this.popMessage({
+        this.toastService.addSingle({
           message: `(${list[i].name}) is duplicated.`,
           severity: 'error'
         });
@@ -435,7 +435,8 @@ export class ActivityBlockComponent extends BaseCoreAbstract implements OnChange
   }
 
   updateActivity() {
-    this.popMessage({
+    this.toastService.addSingle({
+      key: 'update_activity',
       message: this.translateService.instant('MESSAGE.UPDATING_ACTIVITY'),
       isLoading: true,
       severity: 'info'
@@ -469,17 +470,17 @@ export class ActivityBlockComponent extends BaseCoreAbstract implements OnChange
                             this.editorFormControl = new FormControl(this.editorFormControl.value);
                             this.activity.activityContent = this.editorFormControl.value;
                             this.readonly = true;
-                            this.clearMessage();
+                            this.toastService.clear('update_activity');
                           }
                           else {
-                            this.popMessage({
+                            this.toastService.addSingle({
                               message: res4.responseMessage,
                               severity: 'error'
                             });
                           }
                         },
                         error: err => {
-                          this.popMessage({
+                          this.toastService.addSingle({
                             message: err,
                             severity: 'error'
                           });
@@ -488,7 +489,7 @@ export class ActivityBlockComponent extends BaseCoreAbstract implements OnChange
                     )
                   }
                   else {
-                    this.popMessage({
+                    this.toastService.addSingle({
                       message: res.responseMessage,
                       severity: 'error'
                     });
@@ -496,7 +497,7 @@ export class ActivityBlockComponent extends BaseCoreAbstract implements OnChange
                 });
               }
               else {
-                this.popMessage({
+                this.toastService.addSingle({
                   message: res.responseMessage,
                   severity: 'error'
                 });
@@ -508,12 +509,12 @@ export class ActivityBlockComponent extends BaseCoreAbstract implements OnChange
           this.editorFormControl = new FormControl(this.editorFormControl.value);
           this.activity.activityContent = this.editorFormControl.value;
           this.readonly = true;
-          this.clearMessage();
+          this.toastService.clear('update_activity');
         }
       }
       else {
-        this.clearMessage();
-        this.popMessage({
+        this.toastService.clear('update_activity');
+        this.toastService.addSingle({
           message: res.responseMessage,
           severity: 'error'
         });
@@ -527,12 +528,12 @@ export class ActivityBlockComponent extends BaseCoreAbstract implements OnChange
   }
 
   returnModuleInfo(code: string, id: string): string {
-    return this.activityControlList.find(control => control.moduleCode === code)!.subActivityControl.find(item => item.uid === id)!.moduleName;
+    return this.activityControlList.find(control => control.moduleCode === code)?.subActivityControl.find(item => item.uid === id)?.moduleName ?? '';
   }
 
   returnAttactmentList(attactmentList: string[], attachmentUid: string | undefined): string[] {
     if (!attachmentUid) {
-      this.popMessage({
+      this.toastService.addSingle({
         message: this.translateService.instant('ERROR.ATTACHMENT_UPDATE_ERROR'),
         severity: 'error'
       });

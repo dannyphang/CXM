@@ -7,7 +7,8 @@
     "SEARCH": "Search",
     "ACTIVITY": "Activity",
     "TENANT": "Tenant",
-    "USER": "User"
+    "USER": "User",
+    "PROPERTY": "Property"
   },
   "HEADER": {
     "SETTING": "Setting"
@@ -41,7 +42,12 @@
     "UPLOADING": "Uploading...",
     "CREATING_ACTIVITY": "Creating activity...",
     "UPDATING_ACTIVITY": "Updating activity...",
-    "UPLOADING_FILE": "Uploading file..."
+    "UPLOADING_FILE": "Uploading file...",
+    "DELETING": "Deleting...",
+    "CREATING": "Creating...",
+    "CREATED_SUCCESSFULLY": "Created successfully.",
+    "REMOVING_ASSO": "Removing association...",
+    "REMOVING_SUCCESSFUL": "Removed successfully."
   },
   "BUTTON": {
     "SAVE": "Save",

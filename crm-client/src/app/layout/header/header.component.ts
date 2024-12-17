@@ -9,13 +9,14 @@ import { User } from 'firebase/auth';
 import { DEFAULT_PROFILE_PIC_URL } from '../../core/shared/constants/common.constants';
 import { OptionsModel } from '../../core/services/components.service';
 import { BaseCoreAbstract } from '../../core/shared/base/base-core.abstract';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrl: './header.component.scss'
 })
-export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
+export class HeaderComponent implements OnChanges {
   @Input() user: UserDto;
   @Input() tenantList: TenantDto[] = [];
   @Input() tenantOptionsList: OptionsModel[] = [];
@@ -31,9 +32,9 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
   constructor(
     private router: Router,
     private authService: AuthService,
-    protected override messageService: MessageService
+    private toastService: ToastService
   ) {
-    super(messageService);
+
     this.tenantFormControl.valueChanges.subscribe(val => {
       let selectedTenant = this.tenantList.find(t => t.uid === val)!;
       this.authService.tenant = selectedTenant;
@@ -139,7 +140,7 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
         window.location.reload();
       }
       else {
-        this.popMessage({
+        this.toastService.addSingle({
           message: res.responseMessage,
           severity: 'error'
         });

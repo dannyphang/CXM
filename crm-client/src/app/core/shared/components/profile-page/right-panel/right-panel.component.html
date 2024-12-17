@@ -1,4 +1,5 @@
 <div class="tw-p-[var(--content-gap)] tw-pt-0">
+  <!-- contact/company asso -->
   <app-accordion-panel
     class="profile-right-panel-div"
     [iconPos]="'start'"
@@ -14,8 +15,8 @@
           }}
           ({{
             module === "CONT"
-              ? contactProfile.association.companyList.length
-              : companyProfile.association.contactList.length
+              ? contactProfile.association?.companyList?.length
+              : companyProfile.association?.contactList?.length
           }})
         </div>
 
@@ -38,33 +39,41 @@
       <div *ngIf="module === 'CONT'">
         <div
           *ngFor="
-            let asso of contactProfile.association.companyList;
+            let asso of contactProfile.association?.companyList;
             let i = index
           "
         >
           <app-asso-block
             [module]="module"
             [companyProfile]="asso"
+            [profileUid]="contactProfile.uid"
+            (removeAssoEmit)="assoEmitToParent('CONT')"
           ></app-asso-block>
-          <p-divider
-            *ngIf="i !== contactProfile.association.companyList.length - 1"
-          ></p-divider>
+          <div *ngIf="contactProfile.association?.companyList">
+            <p-divider
+              *ngIf="i !== contactProfile.association?.companyList?.length! - 1"
+            ></p-divider>
+          </div>
         </div>
       </div>
       <div *ngIf="module === 'COMP'">
         <div
           *ngFor="
-            let asso of companyProfile.association.contactList;
+            let asso of companyProfile.association?.contactList;
             let i = index
           "
         >
           <app-asso-block
             [module]="module"
             [contactProfile]="asso"
+            [profileUid]="companyProfile.uid"
+            (removeAssoEmit)="assoEmitToParent('COMP')"
           ></app-asso-block>
-          <p-divider
-            *ngIf="i !== companyProfile.association.contactList.length - 1"
-          ></p-divider>
+          <div *ngIf="companyProfile.association?.contactList">
+            <p-divider
+              *ngIf="i !== companyProfile.association?.contactList?.length! - 1"
+            ></p-divider>
+          </div>
         </div>
       </div>
     </div>
@@ -75,13 +84,15 @@
 <p-dialog
   [(visible)]="showAddAssoSidebar"
   [position]="'right'"
-  styleClass="tw-w-[30%] tw-h-[100%] tw-m-[var(--content-gap)]"
+  styleClass="tw-w-[100%] tw-h-[100%] tw-m-[var(--content-gap)]"
+  [modal]="true"
+  [draggable]="false"
 >
   <ng-template pTemplate="content">
     <app-base-form [formConfig]="assoFormConfig"></app-base-form>
   </ng-template>
   <ng-template pTemplate="footer">
-    <div class="tw-flex tw-justify-between tw-flex-wrap tw-items-center">
+    <div class="tw-flex tw-justify-between tw-self-center">
       <app-base-button
         [label]="'BUTTON.CANCEL' | translate"
         [isTextStyle]="true"

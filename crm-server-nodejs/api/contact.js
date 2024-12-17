@@ -224,6 +224,50 @@ router.put("/", async (req, res) => {
   }
 });
 
+// remove asso
+router.put("/removeAsso", async (req, res) => {
+  const data = req.body.data;
+
+  try {
+    const assoSnapshot = await db.default.db
+      .collection(associationCollection)
+      .where("statusId", "==", 1)
+      .where("profileUid", "==", data.uid)
+      .where("module", "==", data.module)
+      .where("assoProfileUid", "==", data.assoUid)
+      .get();
+
+    const assoList = assoSnapshot.docs.map((doc) => {
+      return doc.data();
+    });
+
+    if (assoList[0]) {
+      assoList[0].statusId = 2;
+      assoList[0].modifiedDate = new Date();
+
+      let newRef = db.default.db.collection(associationCollection).doc(assoList[0].uid);
+      await newRef.update(assoList[0]);
+
+      res.status(200).json(responseModel({ data: null }));
+    } else {
+      res.status(200).json(
+        responseModel({
+          isSuccess: false,
+          responseMessage: "Association not found",
+        })
+      );
+    }
+  } catch (error) {
+    console.log("error", error);
+    res.status(400).json(
+      responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
+  }
+});
+
 function convertFirebaseDateFormat(date) {
   return date.toDate();
 }

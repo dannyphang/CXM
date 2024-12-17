@@ -218,6 +218,20 @@ export class CommonService {
     getCityByCityName(cityName: string): Observable<ResponseModel<CityDto[]>> {
         return this.http.get<ResponseModel<CityDto[]>>(apiConfig.baseUrl + '/location/city/name/' + cityName);
     }
+
+    removeAsso(module: 'CONT' | 'COMP', uid: string, assoUid: string): Observable<ResponseModel<any[]>> {
+        let data = {
+            module: module,
+            uid: uid,
+            assoUid: assoUid
+        }
+        if (module === 'CONT') {
+            return this.http.put<ResponseModel<any>>(apiConfig.baseUrl + '/contact/removeAsso', { data }).pipe();
+        }
+        else {
+            return this.http.put<ResponseModel<any>>(apiConfig.baseUrl + '/company/removeAsso', { data }).pipe();
+        }
+    }
 }
 
 export class ResponseModel<T> {
@@ -314,7 +328,7 @@ export class ContactDto extends BasedDto {
     contactLeadStatusUid?: string;
     contactProperties: string;
     contactProfilePhotoUrl?: string;
-    association: AssociationDto;
+    association?: AssociationDto;
     [key: string]: any;
 }
 
@@ -356,7 +370,7 @@ export class CompanyDto extends BasedDto {
     companyLeadStatusId?: string;
     companyProperties: string;
     companyProfilePhotoUrl?: string;
-    association: AssociationDto;
+    association?: AssociationDto;
     [key: string]: any;
 }
 

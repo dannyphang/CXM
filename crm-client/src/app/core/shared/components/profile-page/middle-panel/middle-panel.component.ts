@@ -4,13 +4,14 @@ import { FormControl } from '@angular/forms';
 import { ActivityDto, ActivityModuleDto, ActivityService } from '../../../../services/activity.service';
 import { MessageService } from 'primeng/api';
 import { BaseCoreAbstract } from '../../../base/base-core.abstract';
+import { ToastService } from '../../../../services/toast.service';
 
 @Component({
   selector: 'app-middle-panel',
   templateUrl: './middle-panel.component.html',
   styleUrl: './middle-panel.component.scss'
 })
-export class MiddlePanelComponent extends BaseCoreAbstract implements OnInit, OnChanges {
+export class MiddlePanelComponent implements OnInit, OnChanges {
   @Input() propertiesList: ModuleDto[] = [];
   @Input() module: 'CONT' | 'COMP' = 'CONT';
   @Input() contactProfile: ContactDto = new ContactDto();
@@ -50,9 +51,9 @@ export class MiddlePanelComponent extends BaseCoreAbstract implements OnInit, On
   constructor(
     private commonService: CommonService,
     private activityService: ActivityService,
-    protected override messageService: MessageService,
+    private toastService: ToastService
   ) {
-    super(messageService);
+
 
   }
 
@@ -67,7 +68,7 @@ export class MiddlePanelComponent extends BaseCoreAbstract implements OnInit, On
         this.activityControlList = res.data.activityControlList;
       }
       else {
-        this.popMessage({
+        this.toastService.addSingle({
           message: res.responseMessage,
           severity: 'error'
         });

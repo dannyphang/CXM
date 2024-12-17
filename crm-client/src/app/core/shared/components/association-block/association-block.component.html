@@ -1,6 +1,17 @@
 <div
-  class="tw-border-[1px] tw-border-[var(--primary-color)] tw-flex tw-justify-between"
+  class="tw-flex tw-justify-between asso-block-div"
+  (mouseenter)="isHover = true"
+  (mouseleave)="isHover = false"
 >
+  <a
+    *ngIf="isHover"
+    class="more-button tw-bg-[var(--text-color-secondary)] tw-text-[var(--primary-color-text)] tw-py-[var(--content-gap-xxs)] tw-px-[var(--content-gap-s)] tw-rounded-tr-[var(--border-radius)] tw-cursor-pointer"
+    (click)="assoActionMenu.toggle($event); $event.stopPropagation()"
+    >More
+    <span
+      class="pi pi-sort-down-fill tw-text-[var(--primary-color-text)] tw-text-[10px]"
+    ></span>
+  </a>
   <div class="tw-grid">
     <app-base-button
       [isTextStyle]="true"
@@ -22,7 +33,7 @@
       "
     ></app-base-button>
   </div>
-  <div>
+  <div class="tw-grid tw-items-center tw-p-[var(--content-gap)]">
     <p-avatar
       *ngIf="
         !contactProfile.contactProfilePhotoUrl &&
@@ -49,3 +60,5 @@
     />
   </div>
 </div>
+
+<p-tieredMenu #assoActionMenu [model]="actionMenu" [popup]="true" />

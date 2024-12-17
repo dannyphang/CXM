@@ -7,13 +7,14 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { DEFAULT_PROFILE_PIC_URL } from '../../../core/shared/constants/common.constants';
 import { StorageService } from '../../../core/services/storage.service';
 import { AuthService, CreateUserDto, UserDto } from '../../../core/services/auth.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-create',
   templateUrl: './create.component.html',
   styleUrl: './create.component.scss'
 })
-export class CreateComponent extends BaseCoreAbstract {
+export class CreateComponent {
   userProfile: UserDto;
   createFormConfig: FormConfig[] = [];
   createFormGroup: FormGroup = new FormGroup({
@@ -33,12 +34,12 @@ export class CreateComponent extends BaseCoreAbstract {
   profilePhotoUrl = '';
 
   constructor(
-    protected override messageService: MessageService,
     private translateService: TranslateService,
     private storageService: StorageService,
-    private authService: AuthService
+    private authService: AuthService,
+    private toastService: ToastService
   ) {
-    super(messageService);
+
   }
 
   ngOnInit() {
@@ -145,12 +146,12 @@ export class CreateComponent extends BaseCoreAbstract {
         if (this.profilePhotoUrl) {
           this.authService.updateUserFirestore([{ profilePhotoUrl: this.profilePhotoUrl, uid: this.userProfile.uid }], this.authService.user?.uid ?? 'SYSTEM').subscribe(res => {
             if (res.isSuccess) {
-              this.popMessage({
+              this.toastService.addSingle({
                 message: res.responseMessage
               });
             }
             else {
-              this.popMessage({
+              this.toastService.addSingle({
                 message: res.responseMessage,
                 severity: 'error'
               });
@@ -201,12 +202,12 @@ export class CreateComponent extends BaseCoreAbstract {
 
     this.authService.updateUserFirestore([updateUser], this.authService.user?.uid ?? 'SYSTEM').subscribe(res => {
       if (res.isSuccess) {
-        this.popMessage({
+        this.toastService.addSingle({
           message: res.responseMessage,
         });
       }
       else {
-        this.popMessage({
+        this.toastService.addSingle({
           message: res.responseMessage,
           severity: 'error'
         });

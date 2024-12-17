@@ -1,17 +1,19 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as Blobity from 'blobity';
 import { AuthService, TenantDto, UserDto } from '../core/services/auth.service';
 import { OptionsModel } from '../core/services/components.service';
 import { BaseCoreAbstract } from '../core/shared/base/base-core.abstract';
-import { MessageService } from 'primeng/api';
+import { Message, MessageService } from 'primeng/api';
+import { Subscription } from 'rxjs';
+import { ToastService } from '../core/services/toast.service';
 
 @Component({
   selector: 'app-layout',
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.scss'
 })
-export class LayoutComponent extends BaseCoreAbstract implements OnInit {
+export class LayoutComponent implements OnInit {
   user: UserDto;
   tenantList: TenantDto[] = [];
   tenantOptionsList: OptionsModel[] = [];
@@ -19,9 +21,10 @@ export class LayoutComponent extends BaseCoreAbstract implements OnInit {
   constructor(
     private authService: AuthService,
     private translateService: TranslateService,
-    protected override messageService: MessageService,
+    private cdRef: ChangeDetectorRef,
+    private toastService: ToastService
   ) {
-    super(messageService);
+
   }
 
   ngOnInit() {
@@ -32,16 +35,16 @@ export class LayoutComponent extends BaseCoreAbstract implements OnInit {
         this.authService.getUser(res.uid).subscribe(res2 => {
           if (res2.isSuccess) {
             this.user = res2.data;
-            // this.popMessage({
-            //   key: 'tenant',
-            //   message: this.translateService.instant('COMMON.LOADING',
-            //     {
-            //       module: this.translateService.instant('COMMON.TENANT')
-            //     }
-            //   ),
-            //   severity: 'info',
-            //   isLoading: true
-            // });
+            this.toastService.addSingle({
+              key: 'tenant',
+              message: this.translateService.instant('COMMON.LOADING',
+                {
+                  module: this.translateService.instant('COMMON.TENANT')
+                }
+              ),
+              severity: 'info',
+              isLoading: true
+            });
 
             this.authService.getTenantsByUserId(this.user.uid).subscribe(res3 => {
               if (res3.isSuccess) {
@@ -52,7 +55,7 @@ export class LayoutComponent extends BaseCoreAbstract implements OnInit {
                     value: t.uid
                   }
                 });
-                // this.clearMessage('tenant');
+                this.toastService.clear('tenant');
               }
             });
           }

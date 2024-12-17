@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, SimpleChange, SimpleChanges } from '@angular/core';
 import { ActivityService } from '../../../../services/activity.service';
 import { PropertyGroupDto, ContactDto, CompanyDto, CommonService, CreateAssociationDto } from '../../../../services/common.service';
 import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../../../../services/components.service';
@@ -6,17 +6,19 @@ import { FormControl } from '@angular/forms';
 import { MessageService } from 'primeng/api';
 import { BaseCoreAbstract } from '../../../base/base-core.abstract';
 import { AuthService } from '../../../../services/auth.service';
+import { ToastService } from '../../../../services/toast.service';
 
 @Component({
   selector: 'app-right-panel',
   templateUrl: './right-panel.component.html',
   styleUrl: './right-panel.component.scss'
 })
-export class RightPanelComponent extends BaseCoreAbstract {
+export class RightPanelComponent {
   @Input() propertiesList: PropertyGroupDto[] = [];
   @Input() module: 'CONT' | 'COMP' = 'CONT';
   @Input() contactProfile: ContactDto = new ContactDto();
   @Input() companyProfile: CompanyDto = new CompanyDto();
+  @Output() getProfileEmit: EventEmitter<any> = new EventEmitter();
   showAddAssoSidebar: boolean = false;
   assoPanelExpand: boolean = true;
 
@@ -26,10 +28,16 @@ export class RightPanelComponent extends BaseCoreAbstract {
   constructor(
     private commonService: CommonService,
     private activityService: ActivityService,
-    protected override messageService: MessageService,
-    private authService: AuthService
+    private authService: AuthService,
+    private toastService: ToastService
   ) {
-    super(messageService);
+
+  }
+
+  ngOnChange(changes: SimpleChanges) {
+    if (changes['contactProfile'] && changes['contactProfile'].currentValue) {
+      console.log(this.contactProfile)
+    }
   }
 
   ngOnInit() {
@@ -65,7 +73,7 @@ export class RightPanelComponent extends BaseCoreAbstract {
               ];
             }
             else {
-              this.popMessage({
+              this.toastService.addSingle({
                 message: res.responseMessage,
                 severity: 'error'
               });
@@ -98,7 +106,7 @@ export class RightPanelComponent extends BaseCoreAbstract {
               ];
             }
             else {
-              this.popMessage({
+              this.toastService.addSingle({
                 message: res.responseMessage,
                 severity: 'error'
               });
@@ -133,11 +141,18 @@ export class RightPanelComponent extends BaseCoreAbstract {
     }
     this.commonService.createAssociation(createAsso).subscribe(res => {
       if (!res.isSuccess) {
-        this.popMessage({
+        this.toastService.addSingle({
           message: res.responseMessage,
           severity: 'error'
         });
       }
+      else {
+        this.closeSidebar();
+      }
     })
+  }
+
+  assoEmitToParent(module: 'CONT' | 'COMP') {
+    this.getProfileEmit.emit(module);
   }
 }

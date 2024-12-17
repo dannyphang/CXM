@@ -7,13 +7,14 @@ import { BaseCoreAbstract } from '../../base/base-core.abstract';
 import { MessageService } from 'primeng/api';
 import { AuthService } from '../../../services/auth.service';
 import { TranslateService } from '@ngx-translate/core';
+import { ToastService } from '../../../services/toast.service';
 
 @Component({
   selector: 'app-profile-page',
   templateUrl: './profile-page.component.html',
   styleUrl: './profile-page.component.scss'
 })
-export class ProfilePageComponent extends BaseCoreAbstract implements OnChanges {
+export class ProfilePageComponent implements OnChanges {
   @Input() module: 'CONT' | 'COMP' = 'CONT';
   @Input() propertiesList: PropertyGroupDto[] = [];
   @Input() profileUid: string = '';
@@ -27,12 +28,10 @@ export class ProfilePageComponent extends BaseCoreAbstract implements OnChanges 
     private activityService: ActivityService,
     private route: ActivatedRoute,
     private titleService: Title,
-    protected override messageService: MessageService,
     private authService: AuthService,
-    private translateService: TranslateService
+    private translateService: TranslateService,
+    private toastService: ToastService
   ) {
-    super(messageService);
-
     this.route.params.subscribe((params) => {
       this.profileUid = params['id'];
     });
@@ -52,17 +51,27 @@ export class ProfilePageComponent extends BaseCoreAbstract implements OnChanges 
       }
 
       // this.getProperties();
-      this.getActivities();
+      // this.getActivities();
     }
   }
 
   getProperties() {
+    this.toastService.addSingle({
+      message: this.translateService.instant('COMMON.LOADING',
+        {
+          module: this.translateService.instant('COMMON.PROPERTY')
+        }
+      ),
+      severity: 'info',
+      isLoading: true,
+      key: 'property'
+    });
     this.commonService.getAllPropertiesByModule(this.module, this.authService.tenant?.uid).subscribe((res) => {
       if (res.isSuccess) {
         this.propertiesList = res.data;
       }
       else {
-        this.popMessage({
+        this.toastService.addSingle({
           message: res.responseMessage,
           severity: 'error'
         });
@@ -71,13 +80,23 @@ export class ProfilePageComponent extends BaseCoreAbstract implements OnChanges 
   }
 
   getContact() {
+    this.toastService.addSingle({
+      message: this.translateService.instant('COMMON.LOADING',
+        {
+          module: this.translateService.instant('COMMON.CONTACT')
+        }
+      ),
+      severity: 'info',
+      isLoading: true,
+      key: 'contact'
+    });
     this.commonService.getContactById(this.profileUid).subscribe((res) => {
       if (res.isSuccess) {
         this.contactProfile = res.data;
         this.titleService.setTitle(`${this.contactProfile.contactFirstName} ${this.contactProfile.contactLastName}`);
       }
       else {
-        this.popMessage({
+        this.toastService.addSingle({
           message: res.responseMessage,
           severity: 'error'
         });
@@ -86,13 +105,23 @@ export class ProfilePageComponent extends BaseCoreAbstract implements OnChanges 
   }
 
   getCompany() {
+    this.toastService.addSingle({
+      message: this.translateService.instant('COMMON.LOADING',
+        {
+          module: this.translateService.instant('COMMON.COMPANY')
+        }
+      ),
+      severity: 'info',
+      isLoading: true,
+      key: 'company'
+    });
     this.commonService.getCompanyById(this.profileUid).subscribe((res) => {
       if (res.isSuccess) {
         this.companyProfile = res.data;
         this.titleService.setTitle(`${this.companyProfile.companyName}`);
       }
       else {
-        this.popMessage({
+        this.toastService.addSingle({
           message: res.responseMessage,
           severity: 'error'
         });
@@ -102,26 +131,27 @@ export class ProfilePageComponent extends BaseCoreAbstract implements OnChanges 
 
   getActivities() {
     if (this.profileUid) {
-      this.popMessage({
+      this.toastService.addSingle({
         message: this.translateService.instant('COMMON.LOADING',
           {
             module: this.translateService.instant('COMMON.ACTIVITY')
           }
         ),
         severity: 'info',
-        isLoading: true
+        isLoading: true,
+        key: 'activity'
       });
       this.activityService.getAllActivitiesByProfileId(this.profileUid).subscribe(res => {
         if (res.isSuccess) {
           this.activitiesList = res.data;
-          this.clearMessage();
         }
         else {
-          this.popMessage({
+          this.toastService.addSingle({
             message: res.responseMessage,
             severity: 'error'
           });
         }
+        this.toastService.clear('activity');
       })
     }
   }
@@ -137,5 +167,9 @@ export class ProfilePageComponent extends BaseCoreAbstract implements OnChanges 
 
   updateRightPanelShow() {
     this.isRightPanelShow = !this.isRightPanelShow;
+  }
+
+  returnEvent(event: any): 'CONT' | 'COMP' {
+    return event;
   }
 }

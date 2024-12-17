@@ -1,14 +1,7 @@
-<app-toast></app-toast>
+<!-- <app-toast></app-toast> -->
 
 <div class="tw-flex profile-box">
-  <p-splitter
-    [panelSizes]="[15, 70]"
-    [minSizes]="[10, 50]"
-    [ngClass]="{
-      'tw-w-[80%]': isRightPanelShow,
-      'tw-w-full': !isRightPanelShow
-    }"
-  >
+  <p-splitter [panelSizes]="[20, 80]" [minSizes]="[10, 50]">
     <ng-template pTemplate>
       <app-left-panel
         class="left-panel-area tw-w-full"
@@ -21,16 +14,33 @@
     </ng-template>
 
     <ng-template pTemplate>
-      <app-middle-panel
-        [module]="module"
-        [contactProfile]="contactProfile"
-        [companyProfile]="companyProfile"
-        [activitiesList]="activitiesList"
-        class="middle-panel-area tw-w-full"
-        (activityListEmit)="getActivities()"
-      ></app-middle-panel>
+      <p-splitter [panelSizes]="[75, 25]" [minSizes]="[50, 20]">
+        <ng-template pTemplate>
+          <app-middle-panel
+            [module]="module"
+            [contactProfile]="contactProfile"
+            [companyProfile]="companyProfile"
+            [activitiesList]="activitiesList"
+            class="middle-panel-area tw-w-full"
+            (activityListEmit)="getActivities()"
+          ></app-middle-panel>
+        </ng-template>
 
-      <app-base-button
+        <ng-template pTemplate>
+          <app-right-panel
+            class="tw-w-full"
+            [module]="module"
+            [propertiesList]="propertiesList"
+            [contactProfile]="contactProfile"
+            [companyProfile]="companyProfile"
+            (getProfileEmit)="
+              returnEvent($event) === 'CONT' ? getContact() : getCompany()
+            "
+          ></app-right-panel>
+        </ng-template>
+      </p-splitter>
+
+      <!-- <app-base-button
         [iconName]="
           isRightPanelShow
             ? 'pi pi-angle-double-right'
@@ -44,21 +54,7 @@
           'panel-right-pos-on': isRightPanelShow, 
           'panel-right-pos-off': !isRightPanelShow, 
         }"
-      ></app-base-button>
+      ></app-base-button> -->
     </ng-template>
   </p-splitter>
-
-  <!-- Right Panel -->
-  <app-right-panel
-    [ngClass]="{
-      'tw-w-[20%]': isRightPanelShow,
-      'tw-w-0': !isRightPanelShow
-    }"
-    class="tw-absolute tw-right-0 tw-w-[20%] tw-transform tw-transition-transform tw-duration-1000"
-    *ngIf="isRightPanelShow"
-    [module]="module"
-    [propertiesList]="propertiesList"
-    [contactProfile]="contactProfile"
-    [companyProfile]="companyProfile"
-  ></app-right-panel>
 </div>
