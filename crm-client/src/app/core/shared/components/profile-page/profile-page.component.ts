@@ -32,8 +32,6 @@ export class ProfilePageComponent implements OnChanges {
     private translateService: TranslateService,
     private toastService: ToastService
   ) {
-
-
     this.route.params.subscribe((params) => {
       this.profileUid = params['id'];
     });
@@ -52,8 +50,8 @@ export class ProfilePageComponent implements OnChanges {
         this.getCompany();
       }
 
-      this.getProperties();
-      this.getActivities();
+      // this.getProperties();
+      // this.getActivities();
     }
   }
 
@@ -169,5 +167,9 @@ export class ProfilePageComponent implements OnChanges {
 
   updateRightPanelShow() {
     this.isRightPanelShow = !this.isRightPanelShow;
+  }
+
+  returnEvent(event: any): 'CONT' | 'COMP' {
+    return event;
   }
 }

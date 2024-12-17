@@ -46,6 +46,8 @@
           <app-asso-block
             [module]="module"
             [companyProfile]="asso"
+            [profileUid]="contactProfile.uid"
+            (removeAssoEmit)="assoEmitToParent('CONT')"
           ></app-asso-block>
           <div *ngIf="contactProfile.association?.companyList">
             <p-divider
@@ -64,6 +66,8 @@
           <app-asso-block
             [module]="module"
             [contactProfile]="asso"
+            [profileUid]="companyProfile.uid"
+            (removeAssoEmit)="assoEmitToParent('COMP')"
           ></app-asso-block>
           <div *ngIf="companyProfile.association?.contactList">
             <p-divider

@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, Output, SimpleChange, SimpleChanges } from '@angular/core';
 import { ActivityService } from '../../../../services/activity.service';
 import { PropertyGroupDto, ContactDto, CompanyDto, CommonService, CreateAssociationDto } from '../../../../services/common.service';
 import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../../../../services/components.service';
@@ -18,6 +18,7 @@ export class RightPanelComponent {
   @Input() module: 'CONT' | 'COMP' = 'CONT';
   @Input() contactProfile: ContactDto = new ContactDto();
   @Input() companyProfile: CompanyDto = new CompanyDto();
+  @Output() getProfileEmit: EventEmitter<any> = new EventEmitter();
   showAddAssoSidebar: boolean = false;
   assoPanelExpand: boolean = true;
 
@@ -31,6 +32,12 @@ export class RightPanelComponent {
     private toastService: ToastService
   ) {
 
+  }
+
+  ngOnChange(changes: SimpleChanges) {
+    if (changes['contactProfile'] && changes['contactProfile'].currentValue) {
+      console.log(this.contactProfile)
+    }
   }
 
   ngOnInit() {
@@ -139,6 +146,13 @@ export class RightPanelComponent {
           severity: 'error'
         });
       }
+      else {
+        this.closeSidebar();
+      }
     })
+  }
+
+  assoEmitToParent(module: 'CONT' | 'COMP') {
+    this.getProfileEmit.emit(module);
   }
 }

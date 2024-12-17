@@ -33,6 +33,9 @@
             [propertiesList]="propertiesList"
             [contactProfile]="contactProfile"
             [companyProfile]="companyProfile"
+            (getProfileEmit)="
+              returnEvent($event) === 'CONT' ? getContact() : getCompany()
+            "
           ></app-right-panel>
         </ng-template>
       </p-splitter>

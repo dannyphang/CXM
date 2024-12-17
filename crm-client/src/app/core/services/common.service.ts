@@ -219,12 +219,17 @@ export class CommonService {
         return this.http.get<ResponseModel<CityDto[]>>(apiConfig.baseUrl + '/location/city/name/' + cityName);
     }
 
-    removeAsso(module: 'CONT' | 'COMP', uid: string, assoUid: string) {
+    removeAsso(module: 'CONT' | 'COMP', uid: string, assoUid: string): Observable<ResponseModel<any[]>> {
+        let data = {
+            module: module,
+            uid: uid,
+            assoUid: assoUid
+        }
         if (module === 'CONT') {
-
+            return this.http.put<ResponseModel<any>>(apiConfig.baseUrl + '/contact/removeAsso', { data }).pipe();
         }
         else {
-            return this.http.put<ResponseModel<UpdateCompanyDto[]>>(apiConfig.baseUrl + '/company', { companyList, user: userUid }).pipe();
+            return this.http.put<ResponseModel<any>>(apiConfig.baseUrl + '/company/removeAsso', { data }).pipe();
         }
     }
 }

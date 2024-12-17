@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonService, CompanyDto, ContactDto } from '../../../services/common.service';
 import { NavigationExtras, Router } from '@angular/router';
 import { MenuItem } from 'primeng/api';
@@ -11,8 +11,10 @@ import { ToastService } from '../../../services/toast.service';
 })
 export class AssociationBlockComponent {
   @Input() module: 'CONT' | 'COMP' = 'CONT'
-  @Input() contactProfile: ContactDto = new ContactDto();
-  @Input() companyProfile: CompanyDto = new CompanyDto();
+  @Input() contactProfile: ContactDto = new ContactDto(); // asso profile
+  @Input() companyProfile: CompanyDto = new CompanyDto(); // asso profile
+  @Input() profileUid: string;
+  @Output() removeAssoEmit: EventEmitter<any> = new EventEmitter();
 
   isHover: boolean = false;
 
@@ -21,27 +23,20 @@ export class AssociationBlockComponent {
       label: 'Delete',
       icon: 'pi pi-trash',
       command: () => {
-        // this.commonService.delete
-
-        // this.activityService.updateActivity({
-        //   uid: this.activity.uid,
-        //   statusId: 2
-        // }).subscribe(res => {
-        //   if (res.isSuccess) {
-        //     this.toastService.addSingle({
-        //       message: this.translateService.instant("MESSAGE.DELETED_SUCCESSFULLY", {
-        //         module: this.translateService.instant(`ACTIVITY.MODULE.${this.activity.activityModuleCode}`)
-        //       })
-        //     })
-        //     this.activityReload.emit();
-        //   }
-        //   else {
-        //     this.toastService.addSingle({
-        //       message: res.responseMessage,
-        //       severity: 'error'
-        //     });
-        //   }
-        // })
+        this.toastService.addSingle({
+          message: 'MESSAGE.REMOVING_ASSO',
+          severity: 'info',
+          isLoading: true
+        })
+        this.commonService.removeAsso(this.module, this.profileUid, this.module === 'COMP' ? this.contactProfile.uid : this.companyProfile.uid).subscribe(res => {
+          if (res.isSuccess) {
+            this.toastService.clear();
+            this.toastService.addSingle({
+              message: 'MESSAGE.REMOVING_SUCCESSFUL',
+            })
+            this.removeAssoEmit.emit();
+          }
+        });
       }
     }
   ]
