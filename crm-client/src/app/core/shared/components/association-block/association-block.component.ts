@@ -63,4 +63,11 @@ export class AssociationBlockComponent {
       this.router.navigate(['contact/profile/' + this.contactProfile.uid], navigationExtras);
     }
   }
+
+  copy() {
+    navigator.clipboard.writeText(this.module === 'CONT' ? this.companyProfile.companyEmail : this.contactProfile.contactEmail);
+    this.toastService.addSingle({
+      message: "MESSAGE.COPY_TEXT_DETAIL"
+    });
+  }
 }

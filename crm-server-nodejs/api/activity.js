@@ -52,7 +52,7 @@ router.get("/", async (req, res) => {
 router.post("/getActivitiesByProfileId", async (req, res) => {
     try {
         let profileUid = func.body(req).data.profileUid;
-        console.log(func.body(req));
+
         const snapshot = await db.default.db
             .collection(activityCollection)
             .where(

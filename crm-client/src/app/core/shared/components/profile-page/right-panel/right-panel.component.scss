@@ -21,3 +21,10 @@
     }
   }
 }
+
+.asso-panel-header-div {
+  display: grid;
+  grid-template-areas: "asso-header-div add-asso-btn";
+  grid-template-columns: 1fr auto;
+  align-items: center;
+}
