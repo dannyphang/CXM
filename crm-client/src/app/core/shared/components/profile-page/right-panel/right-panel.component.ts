@@ -49,7 +49,7 @@ export class RightPanelComponent {
     switch (field) {
       case 'asso':
         if (this.module === 'COMP') {
-          this.commonService.getAllContact(this.authService.tenant.uid).subscribe(res => {
+          this.commonService.getAllContact().subscribe(res => {
             if (res.isSuccess) {
               let contList: OptionsModel[] = [];
               res.data.forEach(cont => {
@@ -82,7 +82,7 @@ export class RightPanelComponent {
           });
         }
         else {
-          this.commonService.getAllCompany(this.authService.tenant.uid).subscribe(res => {
+          this.commonService.getAllCompany().subscribe(res => {
             if (res.isSuccess) {
               let compList: OptionsModel[] = [];
               res.data.forEach(comp => {

@@ -2,7 +2,7 @@ import { Router } from "express";
 import express from "express";
 const router = Router();
 import * as db from "../firebase-admin.js";
-import responseModel from "../shared/function.js";
+import * as func from "../shared/function.js";
 import { Filter } from "firebase-admin/firestore";
 import { DEFAULT_SYSTEM_TENANT } from "../shared/constant.js";
 
@@ -20,11 +20,11 @@ router.get("/" + propertiesCollection, async (req, res) => {
 
         const list = snapshot.docs.map((doc) => doc.data());
 
-        res.status(200).json(responseModel({ data: list }));
+        res.status(200).json(func.responseModel({ data: list }));
     } catch (error) {
         console.log("error", error);
         res.status(400).json(
-            responseModel({
+            func.responseModel({
                 isSuccess: false,
                 responseMessage: error,
             })
@@ -34,8 +34,8 @@ router.get("/" + propertiesCollection, async (req, res) => {
 
 // get all properties with lookup by module
 router.get("/" + propertiesCollection + "/module", async (req, res) => {
-    const moduleCode = req.headers.modulecode;
-    const tenantId = req.headers.tenantid;
+    const moduleCode = func.body(req).headers.modulecode;
+    const tenantId = func.body(req).tenantId;
     try {
         const snapshot = await db.default.db
             .collection(propertiesCollection)
@@ -101,11 +101,11 @@ router.get("/" + propertiesCollection + "/module", async (req, res) => {
             }
         });
 
-        res.status(200).json(responseModel({ data: moduleList }));
+        res.status(200).json(func.responseModel({ data: moduleList }));
     } catch (error) {
         console.log("error", error);
         res.status(400).json(
-            responseModel({
+            func.responseModel({
                 isSuccess: false,
                 responseMessage: error,
             })
@@ -115,8 +115,8 @@ router.get("/" + propertiesCollection + "/module", async (req, res) => {
 
 // get all properties with lookup by module for create contact/company profile
 router.get("/" + propertiesCollection + "/module/create", async (req, res) => {
-    const moduleCode = req.headers.modulecode;
-
+    const moduleCode = func.body(req).headers.modulecode;
+    const tenantId = func.body(req).tenantId;
     try {
         const snapshot = await db.default.db
             .collection(propertiesCollection)
@@ -154,11 +154,11 @@ router.get("/" + propertiesCollection + "/module/create", async (req, res) => {
             }
         });
 
-        res.status(200).json(responseModel({ data: moduleList }));
+        res.status(200).json(func.responseModel({ data: moduleList }));
     } catch (error) {
         console.log("error", error);
         res.status(400).json(
-            responseModel({
+            func.responseModel({
                 isSuccess: false,
                 responseMessage: error,
             })
@@ -168,7 +168,7 @@ router.get("/" + propertiesCollection + "/module/create", async (req, res) => {
 
 // create properties
 router.post("/" + propertiesCollection, async (req, res) => {
-    const list = JSON.parse(JSON.stringify(req.body));
+    const list = JSON.parse(JSON.stringify(func.body(req).data));
 
     try {
         const createDoc = [];
@@ -184,14 +184,17 @@ router.post("/" + propertiesCollection, async (req, res) => {
             prop.uid = newRef.id;
             prop.order = newId;
             prop.createdDate = new Date();
+            prop.createdBy = func.body(req).userId;
             prop.modifiedDate = new Date();
+            prop.modifiedBy = func.body(req).userId;
+            prop.tenantId = func.body(req).tenantId;
 
             createDoc.push(prop);
 
             await newRef.set(prop);
             if (index === list.length - 1) {
                 res.status(200).json(
-                    responseModel({
+                    func.responseModel({
                         data: createDoc,
                         responseMessage: `Created ${list.length} record(s) successfully.`,
                     })
@@ -201,7 +204,7 @@ router.post("/" + propertiesCollection, async (req, res) => {
     } catch (error) {
         console.log(error);
         res.status(400).json(
-            responseModel({
+            func.responseModel({
                 isSuccess: false,
                 responseMessage: error,
             })
@@ -212,17 +215,17 @@ router.post("/" + propertiesCollection, async (req, res) => {
 // update properties
 router.put("/" + propertiesCollection + "/update", async (req, res) => {
     try {
-        req.body.propertyList.forEach(async (prop) => {
+        func.body(req).data.propertyList.forEach(async (prop) => {
             let newRef = db.default.db.collection(propertiesCollection).doc(prop.uid);
 
             await newRef.update({
                 prop,
                 modifiedDate: new Date(),
-                modifiedBy: req.body.user,
+                modifiedBy: func.body(req).userId,
             });
         });
 
-        res.status(200).json(responseModel({ responseMessage: "Updated successfully" }));
+        res.status(200).json(func.responseModel({ responseMessage: "Updated successfully" }));
     } catch (e) {
         console.log(e);
         res.status(400).json(e);
@@ -232,17 +235,17 @@ router.put("/" + propertiesCollection + "/update", async (req, res) => {
 // delete properties
 router.put("/" + propertiesCollection + "/delete", async (req, res) => {
     try {
-        req.body.propertyList.forEach(async (prop) => {
+        func.body(req).data.propertyList.forEach(async (prop) => {
             let newRef = db.default.db.collection(propertiesCollection).doc(prop.uid);
 
             await newRef.update({
                 statusId: 2,
                 modifiedDate: new Date(),
-                modifiedBy: req.body.user,
+                modifiedBy: func.body(req).userId,
             });
         });
 
-        res.status(200).json(responseModel({ responseMessage: "Deleted successfully" }));
+        res.status(200).json(func.responseModel({ responseMessage: "Deleted successfully" }));
     } catch (e) {
         console.log(e);
         res.status(400).json(e);
@@ -251,6 +254,7 @@ router.put("/" + propertiesCollection + "/delete", async (req, res) => {
 
 // get all properties lookup
 router.get("/" + propertiesLookupCollection, async (req, res) => {
+    const tenantId = func.body(req).tenantId;
     try {
         const snapshot = await db.default.db
             .collection(propertiesLookupCollection)
@@ -260,11 +264,11 @@ router.get("/" + propertiesLookupCollection, async (req, res) => {
             .get();
         const list = snapshot.docs.map((doc) => doc.data());
 
-        res.status(200).json(responseModel({ data: list }));
+        res.status(200).json(func.responseModel({ data: list }));
     } catch (error) {
         console.log("error", error);
         res.status(400).json(
-            responseModel({
+            func.responseModel({
                 isSuccess: false,
                 responseMessage: error,
             })
@@ -274,7 +278,7 @@ router.get("/" + propertiesLookupCollection, async (req, res) => {
 
 // create properties lookup
 router.post("/" + propertiesLookupCollection, async (req, res) => {
-    const list = JSON.parse(JSON.stringify(req.body));
+    const list = JSON.parse(JSON.stringify(func.body(req).data));
 
     try {
         const createDoc = [];
@@ -290,6 +294,8 @@ router.post("/" + propertiesLookupCollection, async (req, res) => {
             prop.propertyLookupId = newId;
             prop.createdDate = new Date();
             prop.modifiedDate = new Date();
+            prop.modifiedBy = func.body(req).userId;
+            prop.createdBy = func.body(req).userId;
 
             createDoc.push(prop);
 
@@ -297,7 +303,7 @@ router.post("/" + propertiesLookupCollection, async (req, res) => {
 
             if (index === list.length - 1) {
                 res.status(200).json(
-                    responseModel({
+                    func.responseModel({
                         data: createDoc,
                         responseMessage: `Created ${list.length} record(s) successfully.`,
                     })
@@ -307,7 +313,7 @@ router.post("/" + propertiesLookupCollection, async (req, res) => {
     } catch (error) {
         console.log(error);
         res.status(400).json(
-            responseModel({
+            func.responseModel({
                 isSuccess: false,
                 responseMessage: error,
             })
@@ -318,17 +324,17 @@ router.post("/" + propertiesLookupCollection, async (req, res) => {
 // update properties lookup
 router.put("/" + propertiesCollection + "/update", async (req, res) => {
     try {
-        req.body.propertyList.forEach(async (prop) => {
+        func.body(req).data.propertyList.forEach(async (prop) => {
             let newRef = db.default.db.collection(propertiesLookupCollection).doc(prop.uid);
 
             await newRef.update({
                 prop,
                 modifiedDate: new Date(),
-                modifiedBy: req.body.user,
+                modifiedBy: func.body(req).userId,
             });
         });
 
-        res.status(200).json(responseModel({ responseMessage: "Updated successfully" }));
+        res.status(200).json(func.responseModel({ responseMessage: "Updated successfully" }));
     } catch (e) {
         console.log(e);
         res.status(400).json(e);
@@ -338,6 +344,7 @@ router.put("/" + propertiesCollection + "/update", async (req, res) => {
 // get all module code
 router.get("/" + moduleCodeCollection, async (req, res) => {
     try {
+        const tenantId = func.body(req).tenantId;
         const snapshot = await db.default.db
             .collection(moduleCodeCollection)
             .where(Filter.or(Filter.where("tenantId", "==", tenantId), Filter.where("tenantId", "==", DEFAULT_SYSTEM_TENANT)))
@@ -347,11 +354,11 @@ router.get("/" + moduleCodeCollection, async (req, res) => {
 
         const list = snapshot.docs.map((doc) => doc.data());
 
-        res.status(200).json(responseModel({ data: list }));
+        res.status(200).json(func.responseModel({ data: list }));
     } catch (error) {
         console.log("error", error);
         res.status(400).json(
-            responseModel({
+            func.responseModel({
                 isSuccess: false,
                 responseMessage: error,
             })
@@ -362,7 +369,7 @@ router.get("/" + moduleCodeCollection, async (req, res) => {
 // get module code by module type
 router.get("/" + moduleCodeCollection + "/moduleType", async (req, res) => {
     try {
-        const moduleType = req.headers.moduletype;
+        const moduleType = func.body(req).headers.moduletype;
         // const tenantId = req.headers.tenantid;
 
         const snapshot = await db.default.db
@@ -380,11 +387,11 @@ router.get("/" + moduleCodeCollection + "/moduleType", async (req, res) => {
 
         const list = snapshot.docs.map((doc) => doc.data());
 
-        res.status(200).json(responseModel({ data: list }));
+        res.status(200).json(func.responseModel({ data: list }));
     } catch (error) {
         console.log("error", error);
         res.status(400).json(
-            responseModel({
+            func.responseModel({
                 isSuccess: false,
                 responseMessage: error,
             })
@@ -395,8 +402,8 @@ router.get("/" + moduleCodeCollection + "/moduleType", async (req, res) => {
 // get module code by module type
 router.get("/" + moduleCodeCollection + "/subModule/code", async (req, res) => {
     try {
-        const submoduleCode = req.headers.submodulecode;
-        const tenantId = req.headers.tenantid;
+        const submoduleCode = func.body(req).headers.submodulecode;
+        const tenantId = func.body(req).tenantId;
 
         const snapshot = await db.default.db
             .collection(moduleCodeCollection)
@@ -409,11 +416,11 @@ router.get("/" + moduleCodeCollection + "/subModule/code", async (req, res) => {
 
         const list = snapshot.docs.map((doc) => doc.data());
 
-        res.status(200).json(responseModel({ data: list }));
+        res.status(200).json(func.responseModel({ data: list }));
     } catch (error) {
         console.log("error", error);
         res.status(400).json(
-            responseModel({
+            func.responseModel({
                 isSuccess: false,
                 responseMessage: error,
             })
@@ -442,7 +449,7 @@ router.get("/activityModule", async (req, res) => {
         });
 
         res.status(200).json(
-            responseModel({
+            func.responseModel({
                 data: {
                     activityModuleList,
                     activityControlList,
@@ -452,7 +459,7 @@ router.get("/activityModule", async (req, res) => {
     } catch (error) {
         console.log("error", error);
         res.status(400).json(
-            responseModel({
+            func.responseModel({
                 isSuccess: false,
                 responseMessage: error,
             })
@@ -462,7 +469,7 @@ router.get("/activityModule", async (req, res) => {
 
 // create module code
 router.post("/" + moduleCodeCollection, async (req, res) => {
-    const list = JSON.parse(JSON.stringify(req.body));
+    const list = JSON.parse(JSON.stringify(func.body(req).data));
 
     try {
         const createDoc = [];
@@ -472,17 +479,19 @@ router.post("/" + moduleCodeCollection, async (req, res) => {
             prop.uid = newRef.id;
             prop.createdDate = new Date();
             prop.modifiedDate = new Date();
+            prop.createdBy = func.body(req).userId;
+            prop.modifiedBy = func.body(req).userId;
 
             createDoc.push(prop);
 
             await newRef.set(prop);
         });
 
-        res.status(200).json(responseModel({ data: createDoc }));
+        res.status(200).json(func.responseModel({ data: createDoc }));
     } catch (error) {
         console.log(error);
         res.status(400).json(
-            responseModel({
+            func.responseModel({
                 isSuccess: false,
                 responseMessage: error,
             })
@@ -519,7 +528,7 @@ router.post("/asso", async (req, res) => {
                 createDoc.push(asso);
                 await newRef.set(asso);
 
-                res.status(200).json(responseModel({ data: createDoc }));
+                res.status(200).json(func.responseModel({ data: createDoc }));
             });
         } else if (body.module === "COMP") {
             body.contactAssoList.forEach((cont) => {
@@ -539,11 +548,11 @@ router.post("/asso", async (req, res) => {
             });
         }
 
-        res.status(200).json(responseModel({ data: createDoc }));
+        res.status(200).json(func.responseModel({ data: createDoc }));
     } catch (error) {
         console.log(error);
         res.status(400).json(
-            responseModel({
+            func.responseModel({
                 isSuccess: false,
                 responseMessage: error,
             })

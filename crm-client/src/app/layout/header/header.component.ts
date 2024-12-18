@@ -4,12 +4,13 @@ import { Form, FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
 import { MenuItem, MessageService, TreeNode } from 'primeng/api';
 import { debounceTime, distinctUntilChanged, map } from 'rxjs';
-import { AuthService, TenantDto, UserDto } from '../../core/services/auth.service';
+import { AuthService } from '../../core/services/auth.service';
 import { User } from 'firebase/auth';
 import { DEFAULT_PROFILE_PIC_URL } from '../../core/shared/constants/common.constants';
 import { OptionsModel } from '../../core/services/components.service';
 import { BaseCoreAbstract } from '../../core/shared/base/base-core.abstract';
 import { ToastService } from '../../core/services/toast.service';
+import { UserDto, TenantDto, CoreHttpService } from '../../core/services/core-http.service';
 
 @Component({
   selector: 'app-header',
@@ -32,12 +33,13 @@ export class HeaderComponent implements OnChanges {
   constructor(
     private router: Router,
     private authService: AuthService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private coreService: CoreHttpService
   ) {
 
     this.tenantFormControl.valueChanges.subscribe(val => {
       let selectedTenant = this.tenantList.find(t => t.uid === val)!;
-      this.authService.tenant = selectedTenant;
+      this.coreService.tenant = selectedTenant;
     })
   }
 
@@ -71,8 +73,8 @@ export class HeaderComponent implements OnChanges {
   ngOnChanges(changes: SimpleChanges) {
     if (changes['tenantOptionsList'] && changes['tenantOptionsList'].currentValue) {
       if (this.tenantList.find(t => t.uid === this.user?.defaultTenantId)) {
-        this.authService.tenant = this.tenantList.find(t => t.uid === this.user.defaultTenantId)!;
-        this.tenantFormControl = new FormControl(this.authService.tenant.uid);
+        this.coreService.tenant = this.tenantList.find(t => t.uid === this.user.defaultTenantId)!;
+        this.tenantFormControl = new FormControl(this.coreService.tenant.uid);
       }
     }
 
@@ -133,9 +135,9 @@ export class HeaderComponent implements OnChanges {
 
   onTenantChange() {
     this.authService.updateUserFirestore([{
-      uid: this.authService.user!.uid,
+      uid: this.coreService.user!.uid,
       defaultTenantId: this.tenantFormControl.value,
-    }], this.authService.user?.uid ?? "SYSTEM").subscribe(res => {
+    }]).subscribe(res => {
       if (res.isSuccess) {
         window.location.reload();
       }

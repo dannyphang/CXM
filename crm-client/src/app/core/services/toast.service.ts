@@ -1,7 +1,7 @@
 import { Injectable, NgZone } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { MessageService } from 'primeng/api';
-import { MessageModel } from './common.service';
+import { MessageModel } from './core-http.service';
 
 @Injectable({
     providedIn: 'root',
