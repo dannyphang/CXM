@@ -2,56 +2,37 @@ import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { FirebaseApp, initializeApp } from "firebase/app";
 import {
-    getAuth,
     createUserWithEmailAndPassword,
-    sendPasswordResetEmail,
     signInWithEmailAndPassword,
     updateProfile,
-    updateEmail,
-    sendEmailVerification,
-    updatePassword,
-    reauthenticateWithCredential,
-    deleteUser,
     signOut,
     Auth,
     User,
-    UserCredential,
-    onAuthStateChanged,
+    getAuth,
 } from "firebase/auth";
-import { BasedDto, CommonService, ResponseModel } from "./common.service";
+import { CommonService } from "./common.service";
 import apiConfig from "../../../environments/apiConfig";
 import { Observable } from "rxjs";
+import { BasedDto, CoreHttpService, ResponseModel, TenantDto, UserDto } from "./core-http.service";
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
     SERVICE_PATH = 'auth';
     app: FirebaseApp;
     auth: Auth;
-    user: User | null;
-    userC: UserDto;
-    tenant: TenantDto;
 
     constructor(
-        private http: HttpClient,
-        private commonService: CommonService,
+        private coreService: CoreHttpService
     ) {
 
     }
 
     initAuth() {
-        this.commonService.getEnvToken().subscribe(res => {
+        this.coreService.getEnvToken().subscribe(res => {
             this.app = initializeApp(res);
             this.auth = getAuth(this.app);
-            this.getCurrentUser();
+            this.coreService.getCurrentUser();
         })
-    }
-
-    set setCurrentTenant(tenant: TenantDto) {
-        this.tenant = tenant;
-    }
-
-    currentUser(): User | null {
-        return this.user;
     }
 
     signUp(email: string, password: string) {
@@ -62,10 +43,10 @@ export class AuthService {
         return await signInWithEmailAndPassword(this.auth, email, password)
             .then((userCredential) => {
                 console.log(userCredential)
-                this.user = this.auth.currentUser;
+                this.coreService.user = this.auth.currentUser;
                 return {
                     status: true,
-                    user: this.user
+                    user: this.coreService.user
                 };
             })
             .catch((error) => {
@@ -88,28 +69,6 @@ export class AuthService {
         });
     }
 
-    async getCurrentUser(): Promise<User | null> {
-        return new Promise((resolve, reject) => {
-            this.commonService.getEnvToken().subscribe(res => {
-                this.app = initializeApp(res);
-                this.auth = getAuth(this.app);
-                this.auth ? onAuthStateChanged(this.auth, (user) => {
-                    if (user) {
-                        this.user = user;
-                        this.getUser(this.user.uid).subscribe(res => {
-                            if (res.isSuccess) {
-                                this.userC = res.data;
-                                resolve(this.user);
-                            }
-                        })
-                    } else {
-                        resolve(null);
-                    }
-                }) : resolve(null);
-            });
-        });
-    }
-
     updateCurrentUserInfo() {
         updateProfile(this.auth.currentUser!, {
             displayName: "Danny Phang 2"
@@ -123,7 +82,7 @@ export class AuthService {
     }
 
     getAllUser() {
-        return this.http.get<any>(`${apiConfig.baseUrl}/${this.SERVICE_PATH}` + '/allUser').pipe();
+        return this.coreService.get<any>('auth/allUser').pipe();
     }
 
     updateUser(updateData: any) {
@@ -137,35 +96,29 @@ export class AuthService {
 
     }
 
-    createUser(user: CreateUserDto[], createBy: string): Observable<ResponseModel<any>> {
-        return this.http.post<ResponseModel<any>>(apiConfig.baseUrl + '/auth/user', { user, createdBy: createBy }).pipe();
+    createUser(user: CreateUserDto[]): Observable<ResponseModel<any>> {
+        return this.coreService.post<any>('auth/user', { user }).pipe();
     }
 
-    getUser(userUid: string): Observable<ResponseModel<UserDto>> {
-        return this.http.get<ResponseModel<UserDto>>(apiConfig.baseUrl + '/auth/user/' + userUid).pipe();
-    }
-
-    updateUserFirestore(user: CreateUserDto[], updateBy: string): Observable<ResponseModel<any>> {
-        return this.http.put<ResponseModel<any>>(apiConfig.baseUrl + '/auth/user/update', { user, updatedBy: updateBy }).pipe();
-    }
-
-    getTenantsByUserId(userId: string): Observable<ResponseModel<TenantDto[]>> {
-        return this.http.get<ResponseModel<TenantDto[]>>(apiConfig.baseUrl + '/auth/tenant/' + userId).pipe();
+    updateUserFirestore(user: CreateUserDto[]): Observable<ResponseModel<any>> {
+        return this.coreService.put<any>('auth/user/update', { user }).pipe();
     }
 
     getAllRoles(): Observable<ResponseModel<RoleDto[]>> {
-        return this.http.get<ResponseModel<RoleDto[]>>(apiConfig.baseUrl + '/auth/role').pipe();
+        return this.coreService.get<RoleDto[]>('auth/role').pipe();
     }
 
     getUserByEmail(email: string): Observable<ResponseModel<UserDto>> {
         let headers = {
             'email': email
         }
-        return this.http.get<ResponseModel<UserDto>>((apiConfig.baseUrl + '/auth/user/email'), { headers }).pipe();
+        return this.coreService.get<UserDto>('auth/user/email', {
+            header: headers
+        }).pipe();
     }
 
     setUserRoleAndTenant(updateList: UpdateUserRoleDto[]): Observable<ResponseModel<any>> {
-        return this.http.put<ResponseModel<any>>(apiConfig.baseUrl + '/auth/userRole/update', { updateList }).pipe();
+        return this.coreService.put<any>('auth/userRole/update', { updateList }).pipe();
     }
 }
 
@@ -180,24 +133,6 @@ export class CreateUserDto extends BasedDto {
     uid: string;
     defaultTenantId?: string;
     roleId?: number;
-}
-
-export class UserDto extends BasedDto {
-    uid: string;
-    firstName: string;
-    lastName: string;
-    nickname: string;
-    displayName: string;
-    phoneNumber: string;
-    profilePhotoUrl: string;
-    email: string;
-    roleId: number;
-    defaultTenantId?: string;
-}
-
-export class TenantDto extends BasedDto {
-    uid: string;
-    tenantName: string;
 }
 
 export class RoleDto extends BasedDto {

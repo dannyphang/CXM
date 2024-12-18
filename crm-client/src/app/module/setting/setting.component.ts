@@ -1,8 +1,9 @@
-import { Component, HostListener } from '@angular/core';
+import { Component, HostListener, SimpleChanges } from '@angular/core';
 import { MenuItem, MessageService } from 'primeng/api';
 import { BaseCoreAbstract } from '../../core/shared/base/base-core.abstract';
 import { TranslateService } from '@ngx-translate/core';
-import { AuthService, UserDto } from '../../core/services/auth.service';
+import { AuthService } from '../../core/services/auth.service';
+import { CoreHttpService, UserDto } from '../../core/services/core-http.service';
 
 @Component({
   selector: 'app-setting',
@@ -15,13 +16,15 @@ export class SettingComponent {
 
   constructor(
     private translateService: TranslateService,
-    private authService: AuthService
+    private authService: AuthService,
+    private coreService: CoreHttpService
   ) {
 
   }
 
   ngOnInit() {
-    this.userC = this.authService.userC;
+    this.userC = this.coreService.userC;
+    console.log(this.userC)
     this.settingMenuItem = [
       {
         label: this.translateService.instant('SETTING.GENERAL'),
@@ -42,7 +45,7 @@ export class SettingComponent {
             element.scrollIntoView({ behavior: 'smooth', block: 'start' });
           }
         },
-        visible: this.userC.roleId === 1,
+        visible: this.userC?.roleId === 1,
       },
       {
         label: this.translateService.instant('SETTING.PROPERTY'),

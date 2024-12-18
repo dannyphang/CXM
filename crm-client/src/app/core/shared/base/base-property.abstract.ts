@@ -8,6 +8,7 @@ import { MessageService } from "primeng/api";
 import { AuthService } from "../../services/auth.service";
 import { TranslateService } from "@ngx-translate/core";
 import { ToastService } from "../../services/toast.service";
+import { CoreHttpService } from "../../services/core-http.service";
 
 export abstract class BasePropertyAbstract {
     profileFormGroup: FormGroup = new FormGroup({});
@@ -27,7 +28,8 @@ export abstract class BasePropertyAbstract {
         protected commonService: CommonService,
         protected toastService: ToastService,
         protected authService: AuthService,
-        protected translateService: TranslateService
+        protected translateService: TranslateService,
+        protected coreService: CoreHttpService
     ) {
 
     }
@@ -416,7 +418,7 @@ export abstract class BasePropertyAbstract {
             let updateContact: UpdateContactDto = new UpdateContactDto();
             let profileProperty: PropertyDataDto[] = JSON.parse(contactProfile.contactProperties);
             updateContact.uid = contactProfile.uid;
-            updateContact.modifiedBy = this.authService.user!.uid
+            updateContact.modifiedBy = this.coreService.user!.uid
             this.propUpdateList.forEach(prop => {
                 switch (prop.property.propertyCode) {
                     case 'first_name':
@@ -452,7 +454,7 @@ export abstract class BasePropertyAbstract {
                 }
             });
 
-            this.commonService.updateContact([updateContact], this.authService.user?.uid ?? 'SYSTEM').subscribe(res => {
+            this.commonService.updateContact([updateContact]).subscribe(res => {
                 if (res.isSuccess) {
                     this.propUpdateList = [];
                     this.toastService.addSingle({
@@ -472,7 +474,7 @@ export abstract class BasePropertyAbstract {
             let updateCompany: UpdateCompanyDto = new UpdateCompanyDto();
             let profileProperty: PropertyDataDto[] = JSON.parse(companyProfile.companyProperties);
             updateCompany.uid = companyProfile.uid;
-            updateCompany.modifiedBy = this.authService.user!.uid,
+            updateCompany.modifiedBy = this.coreService.user!.uid,
 
                 this.propUpdateList.forEach(prop => {
                     switch (prop.property.propertyCode) {
@@ -506,7 +508,7 @@ export abstract class BasePropertyAbstract {
                     }
                 });
 
-            this.commonService.updateCompany([updateCompany], this.authService.user?.uid ?? 'SYSTEM').subscribe(res => {
+            this.commonService.updateCompany([updateCompany]).subscribe(res => {
                 this.propUpdateList = [];
                 this.showFormUpdateSidebar = false;
             });

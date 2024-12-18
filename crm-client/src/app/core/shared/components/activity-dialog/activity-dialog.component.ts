@@ -10,6 +10,7 @@ import { BaseCoreAbstract } from '../../base/base-core.abstract';
 import { AuthService } from '../../../services/auth.service';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastService } from '../../../services/toast.service';
+import { CoreHttpService } from '../../../services/core-http.service';
 
 @Component({
   selector: 'app-activity-dialog',
@@ -60,7 +61,8 @@ export class ActivityDialogComponent implements OnChanges {
     private ngZone: NgZone,
     private authService: AuthService,
     private translateService: TranslateService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private coreService: CoreHttpService
   ) {
 
   }
@@ -417,7 +419,7 @@ export class ActivityDialogComponent implements OnChanges {
         associationContactUidList: this.assoContactForm.value ?? [],
         associationCompanyUidList: this.assoCompanyForm.value ?? [],
         attachmentUid: [],
-        createdBy: this.authService.userC.uid,
+        createdBy: this.coreService.userC.uid,
         createdDate: new Date()
       }
 

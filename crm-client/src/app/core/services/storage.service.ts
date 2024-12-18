@@ -3,6 +3,8 @@ import { Injectable } from "@angular/core";
 import { FirebaseApp, initializeApp } from "firebase/app";
 import { CommonService } from "./common.service";
 import { FirebaseStorage, getDownloadURL, getStorage, ref, uploadBytes } from "firebase/storage";
+import { AuthService } from "./auth.service";
+import { CoreHttpService } from "./core-http.service";
 
 @Injectable({ providedIn: 'root' })
 export class StorageService {
@@ -10,10 +12,9 @@ export class StorageService {
     storage: FirebaseStorage;
 
     constructor(
-        private http: HttpClient,
-        private commonService: CommonService,
+        private coreService: CoreHttpService
     ) {
-        this.commonService.getEnvToken().subscribe(res => {
+        this.coreService.getEnvToken().subscribe(res => {
             this.app = initializeApp(res);
             this.storage = getStorage();
         });

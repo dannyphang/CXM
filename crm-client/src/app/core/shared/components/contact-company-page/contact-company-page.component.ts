@@ -13,6 +13,7 @@ import { ROW_PER_PAGE_DEFAULT, ROW_PER_PAGE_DEFAULT_LIST, EMPTY_VALUE_STRING, NU
 import * as XLSX from 'xlsx';
 import { BaseCoreAbstract } from '../../base/base-core.abstract';
 import { ToastService } from '../../../services/toast.service';
+import { CoreHttpService } from '../../../services/core-http.service';
 
 @Component({
   selector: 'app-contact-company-page',
@@ -64,7 +65,8 @@ export class ContactCompanyPageComponent implements OnChanges {
     private formBuilder: FormBuilder,
     private translateService: TranslateService,
     private authService: AuthService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private coreService: CoreHttpService
   ) {
 
 
@@ -158,7 +160,7 @@ export class ContactCompanyPageComponent implements OnChanges {
       isLoading: true,
       severity: 'info'
     });
-    this.commonService.getAllPropertiesByModule(this.module, this.authService.tenant?.uid).subscribe((res) => {
+    this.commonService.getAllPropertiesByModule(this.module).subscribe((res) => {
       if (res.isSuccess) {
         this.toastService.clear();
 
@@ -365,6 +367,7 @@ export class ContactCompanyPageComponent implements OnChanges {
     });
   }
 
+  // TODO
   returnFilteredProfileList() {
     if (this.module === 'CONT') {
       let tempProfileList: ContactDto[] = [];
@@ -372,7 +375,7 @@ export class ContactCompanyPageComponent implements OnChanges {
         this.getContact();
       }
       else {
-        this.commonService.getAllContact(this.authService.tenant.uid).subscribe(res => {
+        this.commonService.getAllContact().subscribe(res => {
           if (res.isSuccess) {
             this.tableLoading[this.activeTabPanel] = true;
             this.tabFilterList[this.activeTabPanel].forEach((item: Filter) => {
@@ -553,7 +556,7 @@ export class ContactCompanyPageComponent implements OnChanges {
                 }
               });
 
-              tempProfileList
+              // tempProfileList
             });
             this.contactList = [];
             tempProfileList.forEach(cont => {
@@ -575,14 +578,11 @@ export class ContactCompanyPageComponent implements OnChanges {
     else {
 
     }
-
-
-    return [];
   }
 
   getContact() {
     this.tableLoading[this.activeTabPanel] = true;
-    this.commonService.getAllContact(this.authService.tenant?.uid).subscribe((res) => {
+    this.commonService.getAllContact().subscribe((res) => {
       if (res.isSuccess) {
         res.data.forEach(cont => {
           let prop: PropertyDataDto[] = JSON.parse(cont.contactProperties);
@@ -606,7 +606,7 @@ export class ContactCompanyPageComponent implements OnChanges {
 
   getCompany() {
     this.tableLoading[this.activeTabPanel] = true;
-    this.commonService.getAllCompany(this.authService.tenant?.uid).subscribe((res) => {
+    this.commonService.getAllCompany().subscribe((res) => {
       if (res.isSuccess) {
         this.companyList = res.data;
         this.tableLoading[this.activeTabPanel] = false;
@@ -1019,13 +1019,13 @@ export class ContactCompanyPageComponent implements OnChanges {
   }
 
   toCreate() {
-    if (this.authService.currentUser()) {
+    if (this.coreService.currentUser()) {
       this.displayCreateDialog = true;
     }
   }
 
   create() {
-    if (this.createFormGroup.valid) {
+    if (true) {
       this.propertyValueUpdate(this.createFormConfig);
     }
     else {
@@ -1063,7 +1063,7 @@ export class ContactCompanyPageComponent implements OnChanges {
             }
         };
 
-        newContact.contactOwnerUid = this.authService.currentUser()!.uid;
+        newContact.contactOwnerUid = this.coreService.currentUser()!.uid;
       }
       else {
         switch (prop.propertyCode) {
@@ -1087,7 +1087,7 @@ export class ContactCompanyPageComponent implements OnChanges {
             }
         };
 
-        newCompany.companyOwnerUid = this.authService.currentUser()!.uid;
+        newCompany.companyOwnerUid = this.coreService.currentUser()!.uid;
       }
     });
     this.toastService.addSingle({
@@ -1146,7 +1146,7 @@ export class ContactCompanyPageComponent implements OnChanges {
       severity: 'info'
     });
     if (this.module === 'CONT') {
-      this.commonService.deleteContact(this.selectedProfile as ContactDto[], this.authService.user?.uid ?? 'SYSTEM').subscribe(res => {
+      this.commonService.deleteContact(this.selectedProfile as ContactDto[]).subscribe(res => {
         if (res.isSuccess) {
           this.toastService.clear();
           this.toastService.addSingle({
@@ -1163,7 +1163,7 @@ export class ContactCompanyPageComponent implements OnChanges {
       });
     }
     else {
-      this.commonService.deleteCompany(this.selectedProfile as CompanyDto[], this.authService.user?.uid ?? 'SYSTEM').subscribe(res => {
+      this.commonService.deleteCompany(this.selectedProfile as CompanyDto[]).subscribe(res => {
         if (res.isSuccess) {
           this.toastService.clear();
           this.toastService.addSingle({

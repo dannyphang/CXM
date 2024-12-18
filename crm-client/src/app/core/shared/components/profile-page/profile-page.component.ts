@@ -51,7 +51,7 @@ export class ProfilePageComponent implements OnChanges {
       }
 
       // this.getProperties();
-      // this.getActivities();
+      this.getActivities();
     }
   }
 
@@ -66,7 +66,7 @@ export class ProfilePageComponent implements OnChanges {
       isLoading: true,
       key: 'property'
     });
-    this.commonService.getAllPropertiesByModule(this.module, this.authService.tenant?.uid).subscribe((res) => {
+    this.commonService.getAllPropertiesByModule(this.module).subscribe((res) => {
       if (res.isSuccess) {
         this.propertiesList = res.data;
       }
