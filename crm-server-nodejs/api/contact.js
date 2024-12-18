@@ -158,8 +158,6 @@ router.post("/", async (req, res) => {
     }
 });
 
-function checkUnique(contact) {}
-
 // delete contact
 router.put("/delete", async (req, res) => {
     try {

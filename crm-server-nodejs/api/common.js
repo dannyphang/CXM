@@ -560,4 +560,17 @@ router.post("/asso", async (req, res) => {
     }
 });
 
+router.post("/checkUnique", async (req, res) => {
+    try {
+    } catch (error) {
+        console.log(error);
+        res.status(400).json(
+            func.responseModel({
+                isSuccess: false,
+                responseMessage: error,
+            })
+        );
+    }
+});
+
 export default router;
