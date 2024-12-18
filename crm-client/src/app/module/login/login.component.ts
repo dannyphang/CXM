@@ -155,8 +155,7 @@ export class LoginComponent {
           roleId: 3
         }
 
-        this.authService.createUser([createUser], user.uid).subscribe(res => {
-          console.log(res)
+        this.authService.createUser([createUser]).subscribe(res => {
           if (res.isSuccess) {
             this.router.navigate(["/signin"])
           }

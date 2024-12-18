@@ -1,12 +1,13 @@
 import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as Blobity from 'blobity';
-import { AuthService, TenantDto, UserDto } from '../core/services/auth.service';
+import { AuthService } from '../core/services/auth.service';
 import { OptionsModel } from '../core/services/components.service';
 import { BaseCoreAbstract } from '../core/shared/base/base-core.abstract';
 import { Message, MessageService } from 'primeng/api';
 import { Subscription } from 'rxjs';
 import { ToastService } from '../core/services/toast.service';
+import { CoreHttpService, TenantDto, UserDto } from '../core/services/core-http.service';
 
 @Component({
   selector: 'app-layout',
@@ -22,7 +23,8 @@ export class LayoutComponent implements OnInit {
     private authService: AuthService,
     private translateService: TranslateService,
     private cdRef: ChangeDetectorRef,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private coreService: CoreHttpService
   ) {
 
   }
@@ -30,9 +32,9 @@ export class LayoutComponent implements OnInit {
   ngOnInit() {
     // this.initBlobity(true);
     this.authService.initAuth();
-    this.authService.getCurrentUser().then(res => {
+    this.coreService.getCurrentUser().then(res => {
       if (res) {
-        this.authService.getUser(res.uid).subscribe(res2 => {
+        this.coreService.getUser(res.uid).subscribe(res2 => {
           if (res2.isSuccess) {
             this.user = res2.data;
             this.toastService.addSingle({
@@ -46,7 +48,7 @@ export class LayoutComponent implements OnInit {
               isLoading: true
             });
 
-            this.authService.getTenantsByUserId(this.user.uid).subscribe(res3 => {
+            this.coreService.getTenantsByUserId(this.user.uid).subscribe(res3 => {
               if (res3.isSuccess) {
                 this.tenantList = res3.data;
                 this.tenantOptionsList = this.tenantList.map(t => {

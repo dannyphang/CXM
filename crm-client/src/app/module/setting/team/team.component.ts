@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { AuthService, UpdateUserRoleDto } from '../../../core/services/auth.service';
 import { OptionsModel } from '../../../core/services/components.service';
+import { CoreHttpService } from '../../../core/services/core-http.service';
 
 @Component({
   selector: 'app-team',
@@ -14,7 +15,8 @@ export class TeamComponent {
 
   constructor(
     private formBuilder: FormBuilder,
-    private authService: AuthService
+    private authService: AuthService,
+    private coreService: CoreHttpService
   ) {
 
   }
@@ -106,8 +108,8 @@ export class TeamComponent {
       return {
         email: i.email,
         roleId: i.role,
-        modifiedBy: this.authService.userC.uid,
-        tenantId: this.authService.tenant.uid
+        modifiedBy: this.coreService.userC.uid,
+        tenantId: this.coreService.tenant.uid
       }
     });
 

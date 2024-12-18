@@ -6,8 +6,9 @@ import { CONTROL_TYPE, FormConfig } from '../../../core/services/components.serv
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { DEFAULT_PROFILE_PIC_URL } from '../../../core/shared/constants/common.constants';
 import { StorageService } from '../../../core/services/storage.service';
-import { AuthService, CreateUserDto, UserDto } from '../../../core/services/auth.service';
+import { AuthService, CreateUserDto } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { CoreHttpService, UserDto } from '../../../core/services/core-http.service';
 
 @Component({
   selector: 'app-create',
@@ -37,7 +38,8 @@ export class CreateComponent {
     private translateService: TranslateService,
     private storageService: StorageService,
     private authService: AuthService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private coreService: CoreHttpService
   ) {
 
   }
@@ -66,7 +68,7 @@ export class CreateComponent {
     //     });
     //   }
     // })
-    this.userProfile = this.authService.userC;
+    this.userProfile = this.coreService.userC;
     this.createFormGroup.controls['displayName'].setValue(this.userProfile.displayName, { emitEvent: false });
     this.createFormGroup.controls['first_name'].setValue(this.userProfile.firstName, { emitEvent: false });
     this.createFormGroup.controls['last_name'].setValue(this.userProfile.lastName, { emitEvent: false });
@@ -144,7 +146,7 @@ export class CreateComponent {
         this.profileImg = url;
         this.profilePhotoUrl = url;
         if (this.profilePhotoUrl) {
-          this.authService.updateUserFirestore([{ profilePhotoUrl: this.profilePhotoUrl, uid: this.userProfile.uid }], this.authService.user?.uid ?? 'SYSTEM').subscribe(res => {
+          this.authService.updateUserFirestore([{ profilePhotoUrl: this.profilePhotoUrl, uid: this.userProfile.uid }]).subscribe(res => {
             if (res.isSuccess) {
               this.toastService.addSingle({
                 message: res.responseMessage
@@ -200,7 +202,7 @@ export class CreateComponent {
       profilePhotoUrl: this.profilePhotoUrl ?? ''
     }
 
-    this.authService.updateUserFirestore([updateUser], this.authService.user?.uid ?? 'SYSTEM').subscribe(res => {
+    this.authService.updateUserFirestore([updateUser]).subscribe(res => {
       if (res.isSuccess) {
         this.toastService.addSingle({
           message: res.responseMessage,

@@ -10,6 +10,7 @@ import { map, Observable, pairwise } from 'rxjs';
 import { list } from 'firebase/storage';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { CoreHttpService } from '../../../core/services/core-http.service';
 
 interface Column {
   field: string;
@@ -91,7 +92,8 @@ export class PropertyComponent {
     private translateService: TranslateService,
     private formBuilder: FormBuilder,
     private authService: AuthService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private coreService: CoreHttpService
   ) {
 
   }
@@ -107,7 +109,7 @@ export class PropertyComponent {
   getAllProperties(module: string) {
     this.tableLoading = true;
 
-    this.commonService.getAllPropertiesByModule(module, this.authService.tenant?.uid).subscribe(res => {
+    this.commonService.getAllPropertiesByModule(module).subscribe(res => {
       this.propertiesList = [];
       if (res.isSuccess) {
         res.data.forEach(group => {
@@ -263,7 +265,7 @@ export class PropertyComponent {
       this.getAllProperties(val);
     });
 
-    this.commonService.getAllModuleByModuleType('MODULE', this.authService.tenant.uid).subscribe(res => {
+    this.commonService.getAllModuleByModuleType('MODULE').subscribe(res => {
       if (res.isSuccess) {
         this.moduleOptions = res.data.map(i => ({
           label: i.moduleName,
@@ -581,7 +583,7 @@ export class PropertyComponent {
   }
 
   getModuleListByModuleType(moduleType: string): Observable<OptionsModel[]> {
-    return this.commonService.getAllModuleByModuleType(moduleType, this.authService.tenant.uid).pipe(
+    return this.commonService.getAllModuleByModuleType(moduleType).pipe(
       map(res => {
         return res.data.map(val => ({
           value: val.moduleCode,
@@ -592,7 +594,7 @@ export class PropertyComponent {
   }
 
   getModuleGroupList(): Observable<any[]> {
-    return this.commonService.getSubModuleByModule(this.propertyDetailFormGroup.controls['module'].value, this.authService.tenant.uid).pipe(
+    return this.commonService.getSubModuleByModule(this.propertyDetailFormGroup.controls['module'].value).pipe(
       map(res => {
         return res.data.map(val => ({
           value: val.moduleCode,
@@ -701,7 +703,7 @@ export class PropertyComponent {
       });
     }
     else {
-      this.commonService.deleteProperty(this.selectedProperty, this.authService.user?.uid ?? 'SYSTEM').subscribe(res => {
+      this.commonService.deleteProperty(this.selectedProperty, this.coreService.user?.uid ?? 'SYSTEM').subscribe(res => {
         if (res.isSuccess) {
           this.toastService.addSingle({ message: res.responseMessage });
           this.getAllProperties(this.moduleFormControl.value ?? 'CONT');
@@ -752,11 +754,11 @@ export class PropertyComponent {
         dateRangeStart: this.propertyDetailFormGroup.controls['dateRangeStart'].value,
         dateRangeEnd: this.propertyDetailFormGroup.controls['dateRangeEnd'].value,
         regaxFormat: this.propertyDetailFormGroup.controls['regaxFormat'].value,
-        createdBy: this.authService.user?.uid,
-        modifiedBy: this.authService.user?.uid,
+        createdBy: this.coreService.user?.uid,
+        modifiedBy: this.coreService.user?.uid,
         statusId: 1,
-        dealOwner: this.authService.user?.uid ?? 'SYSTEM',
-        tenantId: this.authService.tenant?.uid
+        dealOwner: this.coreService.user?.uid ?? 'SYSTEM',
+        tenantId: this.coreService.tenant?.uid
       }
 
       this.commonService.createProperties([createPropertyObj]).subscribe(res => {
@@ -777,10 +779,10 @@ export class PropertyComponent {
               isVisible: item.isVisible,
               isDefault: item.isDefault,
               isSystem: false,
-              createdBy: this.authService.user?.uid,
-              modifiedBy: this.authService.user?.uid,
+              createdBy: this.coreService.user?.uid,
+              modifiedBy: this.coreService.user?.uid,
               statusId: 1,
-              tenantId: this.authService.tenant?.uid
+              tenantId: this.coreService.tenant?.uid
             }) as CreatePropertyLookupDto);
 
             this.commonService.createPropertyLookup(createPropLookup).subscribe(res => {
@@ -845,7 +847,7 @@ export class PropertyComponent {
           regaxFormat: this.propertyDetailFormGroup.controls['regaxFormat'].value
         }
 
-        this.commonService.updateProperties([update], this.authService.user?.uid ?? 'SYSTEM').subscribe(res => {
+        this.commonService.updateProperties([update], this.coreService.user?.uid ?? 'SYSTEM').subscribe(res => {
           if (res.isSuccess) {
             if (this.propertyDetailFormGroup.controls['propertiesLookup'].value?.length > 0) {
               let updateLookupList: UpdatePropertyLookupDto[] = [];
@@ -866,7 +868,7 @@ export class PropertyComponent {
                 });
               });
 
-              this.commonService.updatePropertiesLookup(updateLookupList, this.authService.user?.uid ?? 'SYSTEM').subscribe(res => {
+              this.commonService.updatePropertiesLookup(updateLookupList, this.coreService.user?.uid ?? 'SYSTEM').subscribe(res => {
                 if (res.isSuccess) {
 
                 }

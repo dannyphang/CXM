@@ -8,6 +8,7 @@ import { MessageService } from 'primeng/api';
 import { AuthService } from '../../../services/auth.service';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastService } from '../../../services/toast.service';
+import { CoreHttpService } from '../../../services/core-http.service';
 
 @Component({
   selector: 'app-all-properties-page',
@@ -30,9 +31,10 @@ export class AllPropertiesPageComponent extends BasePropertyAbstract implements 
     protected override commonService: CommonService,
     protected override authService: AuthService,
     protected override translateService: TranslateService,
-    protected override toastService: ToastService
+    protected override toastService: ToastService,
+    protected override coreService: CoreHttpService
   ) {
-    super(formBuilder, commonService, toastService, authService, translateService);
+    super(formBuilder, commonService, toastService, authService, translateService, coreService);
   }
 
   ngOnChanges(changes: SimpleChanges): void {

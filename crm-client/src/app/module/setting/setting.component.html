@@ -1,6 +1,6 @@
 <!-- <app-toast></app-toast> -->
 
-<div class="setting-container" (scroll)="onScroll($event)">
+<div class="setting-container" (scroll)="onScroll($event)" *ngIf="userC">
   <div
     class="tw-p-[var(--content-gap)] setting-left-container"
     id="setting_left"
@@ -13,7 +13,7 @@
       <app-general></app-general>
     </div>
 
-    <div class="team-content" id="team" *ngIf="userC.roleId === 1">
+    <div class="team-content" id="team" *ngIf="userC?.roleId === 1">
       <app-team></app-team>
     </div>
 

@@ -11,6 +11,7 @@ import { BasePropertyAbstract } from '../../../base/base-property.abstract';
 import { AuthService } from '../../../../services/auth.service';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastService } from '../../../../services/toast.service';
+import { CoreHttpService } from '../../../../services/core-http.service';
 
 @Component({
   selector: 'app-left-panel',
@@ -60,9 +61,10 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
     private storageService: StorageService,
     protected override authService: AuthService,
     protected override translateService: TranslateService,
-    protected override toastService: ToastService
+    protected override toastService: ToastService,
+    protected override coreService: CoreHttpService
   ) {
-    super(formBuilder, commonService, toastService, authService, translateService);
+    super(formBuilder, commonService, toastService, authService, translateService, coreService);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -156,9 +158,9 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
           let updateContact: UpdateContactDto = {
             uid: this.contactProfile.uid,
             contactProfilePhotoUrl: this.profileImg,
-            modifiedBy: this.authService.user!.uid
+            modifiedBy: this.coreService.user!.uid
           }
-          this.commonService.updateContact([updateContact], this.authService.user?.uid ?? 'SYSTEM').subscribe(res => {
+          this.commonService.updateContact([updateContact]).subscribe(res => {
             if (res.isSuccess) {
               this.isShowAvatarEditDialog = false;
               this.profileUpdateEmit.emit(updateContact);
@@ -175,9 +177,9 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
           let updateCompany: UpdateCompanyDto = {
             uid: this.companyProfile.uid,
             companyProfilePhotoUrl: this.profileImg,
-            modifiedBy: this.authService.user!.uid
+            modifiedBy: this.coreService.user!.uid
           }
-          this.commonService.updateCompany([updateCompany], this.authService.user?.uid ?? 'SYSTEM').subscribe(res => {
+          this.commonService.updateCompany([updateCompany]).subscribe(res => {
             if (res.isSuccess) {
               this.isShowAvatarEditDialog = false;
               this.profileUpdateEmit.emit(updateCompany);
