@@ -20,6 +20,7 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
   @Output() activityListEmit: EventEmitter<any> = new EventEmitter<any>();
 
   isOpenDialog: boolean = false;
+  isOpenCreateDialog: boolean = false;
   activityModuleList: ModuleDto[] = [];
   activityControlList: ActivityModuleDto[] = [];
   searchControl: FormControl = new FormControl();
@@ -82,7 +83,7 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
 
   }
 
-  returnActivityLable(moduleCode: string) {
+  returnLogActivityLable(moduleCode: string) {
     switch (moduleCode) {
       case 'NOTE':
         return 'Log Note';
@@ -97,6 +98,21 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
     }
   }
 
+  returnCreateActivityLable(moduleCode: string) {
+    switch (moduleCode) {
+      case 'NOTE':
+        return 'Create Note';
+      case 'EMAIL':
+        return 'Create Email';
+      case 'CALL':
+        return 'Create Call';
+      case 'MEET':
+        return 'Create Meeting';
+      default:
+        return '';
+    }
+  }
+
   getActivityControlList(activity: ModuleDto): any {
     return this.activityControlList;
   }
@@ -106,8 +122,18 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
     this.dialogActivityTab = activityTab;
   }
 
+  activityCreateButtonOnClick(activityTab: ModuleDto) {
+    this.isOpenCreateDialog = true;
+    this.dialogActivityTab = activityTab;
+  }
+
   activityDialogCloseEmit() {
     this.isOpenDialog = false;
+    this.activityListEmit.emit();
+  }
+
+  activityCreateDialogCloseEmit() {
+    this.isOpenCreateDialog = false;
     this.activityListEmit.emit();
   }
 

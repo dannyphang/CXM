@@ -124,6 +124,38 @@
       >
       </app-base-label>
     </div>
+
+    <!-- chips -->
+    <div class="input-number-container" *ngIf="mode === 'chips'">
+      <p-chips
+        [allowDuplicate]="false"
+        [separator]="seperator"
+        [disabled]="disabled"
+        [formControl]="fieldControl"
+        (onBlur)="onBlur()"
+        [maxlength]="maxLength"
+        placeholder="{{ placeholder | translate }}"
+        [ngClass]="{
+          invalid: checkInvalidField(),
+          'pr-30': !!iconUrl,
+          'pl-30': !!leftIconUrl || !!prefix,
+          disabled: disabled
+        }"
+        [inputStyle]="{ 'padding-left': paddingForPrefix + 'px' }"
+        pAutoFocus
+        [autofocus]="autoFocus"
+        [onlyNumber]="onlyNumber"
+      >
+        <!-- <ng-template let-item pTemplate="item">
+          <app-chip [label]="item"></app-chip>
+        </ng-template> -->
+      </p-chips>
+
+      <img *ngIf="!!iconUrl" [src]="iconUrl" />
+      <img class="leftIcon" *ngIf="!!leftIconUrl" [src]="leftIconUrl" />
+      <div #prefix_content class="prefix" *ngIf="!!prefix">{{ prefix }}</div>
+      <div *ngIf="suffix" class="suffix">{{ suffix }}</div>
+    </div>
   </p-iconField>
 
   <!-- error message -->

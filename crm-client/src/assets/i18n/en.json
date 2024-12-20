@@ -52,6 +52,7 @@
   "BUTTON": {
     "SAVE": "Save",
     "CANCEL": "Cancel",
+    "SEND": "Send",
     "EDIT": "Edit",
     "UPDATE": "Update",
     "ACTION": "Action",
@@ -87,10 +88,17 @@
     "MORE_THAN": "More than",
     "IS_KNOWN": "Is known",
     "IS_NOT_KNOWN": "Is unknown",
-    "SELECT": "Select"
+    "SELECT": "Select",
+    "TO": "To",
+    "FROM": "From",
+    "SUBJECT": "Subject"
   },
   "ACTIVITY": {
     "MODULE": {
+      "LOGGED_CALL": "Logged Call",
+      "LOGGED_EMAIL": "Logged Email",
+      "LOGGED_NOTE": "Logged Note",
+      "LOGGED_MEET": "Logged Meeting",
       "CALL": "Call",
       "EMAIL": "Email",
       "NOTE": "Note",

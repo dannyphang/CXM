@@ -115,11 +115,21 @@
           onclick=""
         >
           <div class="">
-            <app-base-button
-              [label]="returnActivityLable(activityTab.moduleCode)"
-              class="tw-flex tw-justify-end tw-mb-[15px]"
-              (onClick)="activityButtonOnClick(activityTab)"
-            ></app-base-button>
+            <div
+              class="tw-flex tw-justify-end tw-mb-[var(--content-gap)] tw-gap-[var(--content-gap)]"
+            >
+              <app-base-button
+                [outlined]="true"
+                [label]="returnLogActivityLable(activityTab.moduleCode)"
+                class=""
+                (onClick)="activityButtonOnClick(activityTab)"
+              ></app-base-button>
+
+              <app-base-button
+                [label]="returnCreateActivityLable(activityTab.moduleCode)"
+                (onClick)="activityCreateButtonOnClick(activityTab)"
+              ></app-base-button>
+            </div>
 
             <!-- Pinned -->
             <div
@@ -238,6 +248,15 @@
   [companyProfile]="companyProfile"
   [activityControlListInput]="getActivityControlList(dialogActivityTab)"
   [activityModuleList]="activityModuleList"
-  [header]="returnActivityLable(dialogActivityTab.moduleCode)"
+  [header]="returnLogActivityLable(dialogActivityTab.moduleCode)"
   (close)="activityDialogCloseEmit()"
 ></app-activity-dialog>
+
+<app-activity-create-dialog
+  [module]="module"
+  [activityModule]="dialogActivityTab"
+  [visible]="isOpenCreateDialog"
+  [contactProfile]="contactProfile"
+  [companyProfile]="companyProfile"
+  (close)="activityCreateDialogCloseEmit()"
+></app-activity-create-dialog>

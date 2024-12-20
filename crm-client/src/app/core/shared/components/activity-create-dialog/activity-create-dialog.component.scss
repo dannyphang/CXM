@@ -1,0 +1,13 @@
+::ng-deep {
+  .p-dialog-content {
+    padding: 0px;
+  }
+
+  .p-dialog-footer {
+    padding: 0px;
+  }
+
+  .p-dialog .p-dialog-footer button {
+    margin: 0px !important;
+  }
+}

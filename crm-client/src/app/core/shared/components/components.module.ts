@@ -42,6 +42,8 @@ import { EditorComponent } from './editor/editor.component';
 import { AssociationBlockComponent } from './association-block/association-block.component';
 import { OnlyNumberDirective } from '../directives/only-number.directive';
 import { PasswordValidator } from '../directives/password.directive';
+import { ActivityCreateDialogComponent } from './activity-create-dialog/activity-create-dialog.component';
+import { EmailComponent } from './activity-create-dialog/components/email/email.component';
 
 const components = [
   BaseInputComponent,
@@ -79,6 +81,8 @@ const components = [
   ActivityBlockComponent,
   EditorComponent,
   AssociationBlockComponent,
+  ActivityCreateDialogComponent,
+  EmailComponent,
 ];
 
 @NgModule({

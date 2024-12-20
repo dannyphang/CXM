@@ -11,7 +11,7 @@
       (click)="panelOnClick()"
     >
       <app-base-label
-        [label]="activity.activityModuleCode"
+        [label]="'ACTIVITY.MODULE.LOGGED_' + activity.activityModuleCode"
         class="tw-ml-[6px] activity-title-label tw-grid tw-items-center"
         (mouseenter)="activityInfoPanel.toggle($event)"
         (mouseleave)="activityInfoPanel.toggle($event)"
