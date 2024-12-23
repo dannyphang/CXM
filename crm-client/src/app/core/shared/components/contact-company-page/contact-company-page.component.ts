@@ -1097,23 +1097,25 @@ export class ContactCompanyPageComponent implements OnChanges {
     });
     if (this.module === "CONT") {
       newContact.contactProperties = JSON.stringify(profileProperty);
-      this.commonService.createContact([newContact]).subscribe(res => {
-        if (res.isSuccess) {
-          this.toastService.clear();
-          this.toastService.addSingle({
-            message: this.translateService.instant("MESSAGE.CREATED_SUCCESSFULLY")
-          });
-          this.displayCreateDialog = false;
+      // this.commonService.createContact([newContact]).subscribe(res => {
+      //   if (res.isSuccess) {
+      //     this.toastService.clear();
+      //     this.toastService.addSingle({
+      //       message: this.translateService.instant("MESSAGE.CREATED_SUCCESSFULLY")
+      //     });
+      //     this.displayCreateDialog = false;
 
-          this.getContact();
-        }
-        else {
-          this.toastService.addSingle({
-            message: res.responseMessage,
-            severity: 'error'
-          });
-        }
-      });
+      //     this.getContact();
+      //   }
+      //   else {
+      //     this.toastService.addSingle({
+      //       message: res.responseMessage,
+      //       severity: 'error'
+      //     });
+      //   }
+      // });
+
+
     }
     else {
       newCompany.companyProperties = JSON.stringify(profileProperty);

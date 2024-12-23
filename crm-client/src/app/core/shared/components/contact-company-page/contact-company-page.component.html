@@ -1,251 +1,5 @@
 <!-- <app-toast></app-toast> -->
 <div class="page-container tw-m-[15px]">
-  <!-- <div class="tw-flex">
-    <div class="tw-justify-between tw-w-full tw-grid tw-items-center">
-      <app-base-label
-        [label]="'COMMON.COMPANY' | translate"
-        *ngIf="module === 'COMP'"
-      ></app-base-label>
-      <app-base-label
-        [label]="'COMMON.CONTACT' | translate"
-        *ngIf="module === 'CONT'"
-      ></app-base-label>
-    </div>
-    <div class="action-div tw-flex"></div>
-  </div> -->
-
-  <!-- create dialog -->
-  <p-dialog
-    [header]="'PROFILE.CREATE_PROFILE' | translate"
-    [(visible)]="displayCreateDialog"
-    [style]="{ width: '70%' }"
-  >
-    <app-base-form [formConfig]="createFormConfig"></app-base-form>
-
-    <ng-template pTemplate="footer">
-      <app-base-button
-        [label]="'BUTTON.CANCEL' | translate"
-        [isTextStyle]="true"
-        severity="secondary"
-        (click)="displayCreateDialog = false"
-      />
-      <app-base-button
-        [label]="'BUTTON.CREATE' | translate"
-        severity="primary"
-        (click)="create()"
-      />
-    </ng-template>
-  </p-dialog>
-
-  <!-- advance filter dialog -->
-  <p-dialog
-    [(visible)]="isShowFilter"
-    [position]="'right'"
-    styleClass="tw-h-full tw-w-[50%]"
-    [draggable]="false"
-    [resizable]="true"
-    [header]="'PROFILE.ADVANCE_FILTER' | translate"
-    [modal]="true"
-  >
-    <ng-template pTemplate="content" class="tw-overflow-hidden">
-      <div class="tw-flex tw-h-full">
-        <p-scrollPanel class="filter-left tw-w-[50%] tw-overflow-auto">
-          <div
-            *ngFor="let item of tempFilterList[this.activeTabPanel]"
-            class="tw-border tw-border-[var(--primary-color)] tw-border-solid tw-mb-[var(--content-gap)] tw-mr-[var(--content-gap)] tw-p-[var(--content-gap)] tw-rounded-[var(--border-radius)]"
-          >
-            <div class="tw-flex tw-justify-between tw-items-center">
-              <h3>{{ item.property.propertyName }}</h3>
-              <app-base-button
-                [isTextStyle]="true"
-                [iconName]="'pi pi-trash'"
-                [rounded]="true"
-                (onClick)="deleteFilter(item.property)"
-                [pTooltip]="'BUTTON.REMOVE_FILTER' | translate"
-              ></app-base-button>
-            </div>
-
-            <app-base-dropdown
-              [options]="item.condition"
-              [label]="'PROFILE.CONDITION' | translate"
-              [fieldControl]="item.conditionFieldControl"
-            ></app-base-dropdown>
-
-            <div
-              *ngIf="
-                item.conditionFieldControl.value !== 'is_known' &&
-                item.conditionFieldControl.value !== 'is_not_known'
-              "
-              class="tw-mt-[var(--content-gap-xs)]"
-            >
-              <ng-container
-                *ngIf="
-                  item.property.propertyType === CONTROL_TYPE_CODE.Dropdown ||
-                    item.property.propertyType ===
-                      CONTROL_TYPE_CODE.Multiselect ||
-                    item.property.propertyType === CONTROL_TYPE_CODE.Checkbox ||
-                    item.property.propertyType ===
-                      CONTROL_TYPE_CODE.MultiCheckbox ||
-                    item.property.propertyType === CONTROL_TYPE_CODE.Radio ||
-                    item.property.propertyType === CONTROL_TYPE_CODE.Country ||
-                    item.property.propertyType === CONTROL_TYPE_CODE.User;
-                  else notDropdown
-                "
-              >
-                <app-base-multiselect
-                  [dataSourceAction]="item.options"
-                  [label]="'PROFILE.VALUE' | translate"
-                  [fieldControl]="item.filterFieldControl"
-                ></app-base-multiselect>
-              </ng-container>
-              <ng-template #notDropdown>
-                <ng-container
-                  *ngIf="
-                    item.property.propertyType === CONTROL_TYPE_CODE.Date ||
-                      item.property.propertyType ===
-                        CONTROL_TYPE_CODE.DateTime ||
-                      item.property.propertyType === CONTROL_TYPE_CODE.Time;
-                    else defaultType
-                  "
-                >
-                  <app-base-datepicker
-                    [label]="'PROFILE.VALUE' | translate"
-                    [fieldControl]="item.filterFieldControl"
-                    [showTime]="
-                      item.property.propertyType !== CONTROL_TYPE_CODE.Date
-                    "
-                    [timeOnly]="
-                      item.property.propertyType === CONTROL_TYPE_CODE.Time
-                    "
-                  ></app-base-datepicker>
-                </ng-container>
-                <ng-template #defaultType>
-                  <app-base-input
-                    *ngIf="
-                      item.property.propertyType !==
-                        CONTROL_TYPE_CODE.Dropdown &&
-                      item.property.propertyType !==
-                        CONTROL_TYPE_CODE.Multiselect &&
-                      item.property.propertyType !==
-                        CONTROL_TYPE_CODE.Checkbox &&
-                      item.property.propertyType !==
-                        CONTROL_TYPE_CODE.MultiCheckbox &&
-                      item.property.propertyType !== CONTROL_TYPE_CODE.Radio &&
-                      item.property.propertyType !==
-                        CONTROL_TYPE_CODE.Country &&
-                      item.property.propertyType !== CONTROL_TYPE_CODE.User
-                    "
-                    [label]="'PROFILE.VALUE' | translate"
-                    [mode]="item.mode"
-                    [fieldControl]="item.filterFieldControl"
-                  ></app-base-input>
-                </ng-template>
-              </ng-template>
-            </div>
-          </div>
-        </p-scrollPanel>
-
-        <p-scrollPanel
-          class="filter-right tw-border-0 tw-border-l tw-border-[var(--primary-color)] tw-border-solid tw-w-[50%] tw-overflow-auto tw-pl-[var(--content-gap)]"
-        >
-          <app-base-input
-            [placeholder]="'INPUT.SEARCH' | translate"
-            [fieldControl]="filterSearch"
-            [autoFocus]="isShowFilter"
-          ></app-base-input>
-
-          <div
-            *ngFor="let grp of modulePropertyList"
-            class="tw-mt-[var(--content-gap-s)]"
-          >
-            <app-base-label [label]="grp.moduleName"></app-base-label>
-            <div *ngFor="let prop of grp.propertiesList">
-              <app-base-button
-                [isTextStyle]="true"
-                [label]="returnFilterProperty(prop).property.propertyName"
-                styleClass="tw-w-full tw-text-left"
-                (onClick)="filterClick(returnFilterProperty(prop).property)"
-                [rightIcon]="false"
-                [iconName]="returnFilterProperty(prop).icon"
-                *ngIf="
-                  filterSearch.value === '' ||
-                  prop.propertyName
-                    .toLowerCase()
-                    .includes(filterSearch.value.toLowerCase())
-                "
-              ></app-base-button>
-            </div>
-          </div>
-        </p-scrollPanel>
-      </div>
-    </ng-template>
-
-    <ng-template pTemplate="footer">
-      <div class="tw-flex tw-justify-between">
-        <app-base-button
-          [label]="'BUTTON.CANCEL' | translate"
-          [outlined]="true"
-          (onClick)="closeFilter()"
-        ></app-base-button>
-        <app-base-button
-          [label]="'BUTTON.SUBMIT' | translate"
-          (onClick)="filterSubmit()"
-        ></app-base-button>
-      </div>
-    </ng-template>
-  </p-dialog>
-
-  <!-- Table Column filtering -->
-  <p-dialog
-    [(visible)]="isShowTableColumnFilter"
-    [position]="'right'"
-    styleClass="tw-h-full tw-w-[70%]"
-    [draggable]="false"
-    [resizable]="true"
-    [header]="'PROFILE.COLUMN_FILTER' | translate"
-    [modal]="true"
-  >
-    <p-pickList
-      [source]="propertiesList2"
-      [target]="columnPropertiesList[activeTabPanel]"
-      [targetHeader]="'PROFILE.SELECTED_COLUMN' | translate"
-      [dragdrop]="true"
-      [responsive]="true"
-      filterBy="propertyName"
-      showTargetFilter="false"
-      [sourceStyle]="{ height: '30rem' }"
-      [targetStyle]="{ height: '30rem' }"
-      (onMoveToTarget)="onMoveToTarget($event)"
-      (onTargetReorder)="reorderTarget($event)"
-      [showSourceControls]="false"
-      [showTargetControls]="false"
-      [rightButtonAriaLabel]="'BUTTON.TO_RIGHT' | translate"
-      [leftButtonAriaLabel]="'BUTTON.TO_LEFT' | translate"
-      [allRightButtonAriaLabel]="'BUTTON.ALL_TO_RIGHT' | translate"
-      [allLeftButtonAriaLabel]="'BUTTON.ALL_TO_LEFT' | translate"
-    >
-      <ng-template let-prop pTemplate="item">
-        <div>
-          {{ prop?.propertyName }}
-        </div>
-      </ng-template>
-    </p-pickList>
-
-    <ng-template pTemplate="footer">
-      <div class="tw-flex tw-justify-between">
-        <app-base-button
-          [label]="'BUTTON.CANCEL' | translate"
-          [outlined]="true"
-          (onClick)="closeTableColumnFilter()"
-        ></app-base-button>
-        <app-base-button
-          [label]="'BUTTON.SUBMIT' | translate"
-          (onClick)="tableColumnFilterSubmit()"
-        ></app-base-button>
-      </div>
-    </ng-template>
-  </p-dialog>
-
   <p-tabView
     class="contact-company-tab-view"
     (onChange)="tabViewOnChange($event)"
@@ -339,7 +93,7 @@
                   (onClick)="toCreate()"
                 ></app-base-button>
                 <app-base-button
-                  icon="pi pi-trash"
+                  [iconName]="'pi pi-trash'"
                   [rounded]="true"
                   [isTextStyle]="true"
                   (onClick)="delete()"
@@ -514,6 +268,234 @@
     </p-tabPanel>
   </p-tabView>
 </div>
+
+<!-- create dialog -->
+<p-dialog
+  [header]="'PROFILE.CREATE_PROFILE' | translate"
+  [(visible)]="displayCreateDialog"
+  [style]="{ width: '70%' }"
+>
+  <app-base-form [formConfig]="createFormConfig"></app-base-form>
+
+  <ng-template pTemplate="footer">
+    <app-base-button
+      [label]="'BUTTON.CANCEL' | translate"
+      [isTextStyle]="true"
+      severity="secondary"
+      (click)="displayCreateDialog = false"
+    />
+    <app-base-button
+      [label]="'BUTTON.CREATE' | translate"
+      severity="primary"
+      (click)="create()"
+    />
+  </ng-template>
+</p-dialog>
+
+<!-- advance filter dialog -->
+<p-dialog
+  [(visible)]="isShowFilter"
+  [position]="'right'"
+  styleClass="tw-h-full tw-w-[50%]"
+  [draggable]="false"
+  [resizable]="true"
+  [header]="'PROFILE.ADVANCE_FILTER' | translate"
+  [modal]="true"
+>
+  <ng-template pTemplate="content" class="tw-overflow-hidden">
+    <div class="tw-flex tw-h-full">
+      <p-scrollPanel class="filter-left tw-w-[50%] tw-overflow-auto">
+        <div
+          *ngFor="let item of tempFilterList[this.activeTabPanel]"
+          class="tw-border tw-border-[var(--primary-color)] tw-border-solid tw-mb-[var(--content-gap)] tw-mr-[var(--content-gap)] tw-p-[var(--content-gap)] tw-rounded-[var(--border-radius)]"
+        >
+          <div class="tw-flex tw-justify-between tw-items-center">
+            <h3>{{ item.property.propertyName }}</h3>
+            <app-base-button
+              [isTextStyle]="true"
+              [iconName]="'pi pi-trash'"
+              [rounded]="true"
+              (onClick)="deleteFilter(item.property)"
+              [pTooltip]="'BUTTON.REMOVE_FILTER' | translate"
+            ></app-base-button>
+          </div>
+
+          <app-base-dropdown
+            [options]="item.condition"
+            [label]="'PROFILE.CONDITION' | translate"
+            [fieldControl]="item.conditionFieldControl"
+          ></app-base-dropdown>
+
+          <div
+            *ngIf="
+              item.conditionFieldControl.value !== 'is_known' &&
+              item.conditionFieldControl.value !== 'is_not_known'
+            "
+            class="tw-mt-[var(--content-gap-xs)]"
+          >
+            <ng-container
+              *ngIf="
+                item.property.propertyType === CONTROL_TYPE_CODE.Dropdown ||
+                  item.property.propertyType ===
+                    CONTROL_TYPE_CODE.Multiselect ||
+                  item.property.propertyType === CONTROL_TYPE_CODE.Checkbox ||
+                  item.property.propertyType ===
+                    CONTROL_TYPE_CODE.MultiCheckbox ||
+                  item.property.propertyType === CONTROL_TYPE_CODE.Radio ||
+                  item.property.propertyType === CONTROL_TYPE_CODE.Country ||
+                  item.property.propertyType === CONTROL_TYPE_CODE.User;
+                else notDropdown
+              "
+            >
+              <app-base-multiselect
+                [dataSourceAction]="item.options"
+                [label]="'PROFILE.VALUE' | translate"
+                [fieldControl]="item.filterFieldControl"
+              ></app-base-multiselect>
+            </ng-container>
+            <ng-template #notDropdown>
+              <ng-container
+                *ngIf="
+                  item.property.propertyType === CONTROL_TYPE_CODE.Date ||
+                    item.property.propertyType === CONTROL_TYPE_CODE.DateTime ||
+                    item.property.propertyType === CONTROL_TYPE_CODE.Time;
+                  else defaultType
+                "
+              >
+                <app-base-datepicker
+                  [label]="'PROFILE.VALUE' | translate"
+                  [fieldControl]="item.filterFieldControl"
+                  [showTime]="
+                    item.property.propertyType !== CONTROL_TYPE_CODE.Date
+                  "
+                  [timeOnly]="
+                    item.property.propertyType === CONTROL_TYPE_CODE.Time
+                  "
+                ></app-base-datepicker>
+              </ng-container>
+              <ng-template #defaultType>
+                <app-base-input
+                  *ngIf="
+                    item.property.propertyType !== CONTROL_TYPE_CODE.Dropdown &&
+                    item.property.propertyType !==
+                      CONTROL_TYPE_CODE.Multiselect &&
+                    item.property.propertyType !== CONTROL_TYPE_CODE.Checkbox &&
+                    item.property.propertyType !==
+                      CONTROL_TYPE_CODE.MultiCheckbox &&
+                    item.property.propertyType !== CONTROL_TYPE_CODE.Radio &&
+                    item.property.propertyType !== CONTROL_TYPE_CODE.Country &&
+                    item.property.propertyType !== CONTROL_TYPE_CODE.User
+                  "
+                  [label]="'PROFILE.VALUE' | translate"
+                  [mode]="item.mode"
+                  [fieldControl]="item.filterFieldControl"
+                ></app-base-input>
+              </ng-template>
+            </ng-template>
+          </div>
+        </div>
+      </p-scrollPanel>
+
+      <p-scrollPanel
+        class="filter-right tw-border-0 tw-border-l tw-border-[var(--primary-color)] tw-border-solid tw-w-[50%] tw-overflow-auto tw-pl-[var(--content-gap)]"
+      >
+        <app-base-input
+          [placeholder]="'INPUT.SEARCH' | translate"
+          [fieldControl]="filterSearch"
+          [autoFocus]="isShowFilter"
+        ></app-base-input>
+
+        <div
+          *ngFor="let grp of modulePropertyList"
+          class="tw-mt-[var(--content-gap-s)]"
+        >
+          <app-base-label [label]="grp.moduleName"></app-base-label>
+          <div *ngFor="let prop of grp.propertiesList">
+            <app-base-button
+              [isTextStyle]="true"
+              [label]="returnFilterProperty(prop).property.propertyName"
+              styleClass="tw-w-full tw-text-left"
+              (onClick)="filterClick(returnFilterProperty(prop).property)"
+              [rightIcon]="false"
+              [iconName]="returnFilterProperty(prop).icon"
+              *ngIf="
+                filterSearch.value === '' ||
+                prop.propertyName
+                  .toLowerCase()
+                  .includes(filterSearch.value.toLowerCase())
+              "
+            ></app-base-button>
+          </div>
+        </div>
+      </p-scrollPanel>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <div class="tw-flex tw-justify-between">
+      <app-base-button
+        [label]="'BUTTON.CANCEL' | translate"
+        [outlined]="true"
+        (onClick)="closeFilter()"
+      ></app-base-button>
+      <app-base-button
+        [label]="'BUTTON.SUBMIT' | translate"
+        (onClick)="filterSubmit()"
+      ></app-base-button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<!-- Table Column filtering -->
+<p-dialog
+  [(visible)]="isShowTableColumnFilter"
+  [position]="'right'"
+  styleClass="tw-h-full tw-w-[70%]"
+  [draggable]="false"
+  [resizable]="true"
+  [header]="'PROFILE.COLUMN_FILTER' | translate"
+  [modal]="true"
+>
+  <p-pickList
+    [source]="propertiesList2"
+    [target]="columnPropertiesList[activeTabPanel]"
+    [targetHeader]="'PROFILE.SELECTED_COLUMN' | translate"
+    [dragdrop]="true"
+    [responsive]="true"
+    filterBy="propertyName"
+    showTargetFilter="false"
+    [sourceStyle]="{ height: '30rem' }"
+    [targetStyle]="{ height: '30rem' }"
+    (onMoveToTarget)="onMoveToTarget($event)"
+    (onTargetReorder)="reorderTarget($event)"
+    [showSourceControls]="false"
+    [showTargetControls]="false"
+    [rightButtonAriaLabel]="'BUTTON.TO_RIGHT' | translate"
+    [leftButtonAriaLabel]="'BUTTON.TO_LEFT' | translate"
+    [allRightButtonAriaLabel]="'BUTTON.ALL_TO_RIGHT' | translate"
+    [allLeftButtonAriaLabel]="'BUTTON.ALL_TO_LEFT' | translate"
+  >
+    <ng-template let-prop pTemplate="item">
+      <div>
+        {{ prop?.propertyName }}
+      </div>
+    </ng-template>
+  </p-pickList>
+
+  <ng-template pTemplate="footer">
+    <div class="tw-flex tw-justify-between">
+      <app-base-button
+        [label]="'BUTTON.CANCEL' | translate"
+        [outlined]="true"
+        (onClick)="closeTableColumnFilter()"
+      ></app-base-button>
+      <app-base-button
+        [label]="'BUTTON.SUBMIT' | translate"
+        (onClick)="tableColumnFilterSubmit()"
+      ></app-base-button>
+    </div>
+  </ng-template>
+</p-dialog>
 
 <input
   type="file"

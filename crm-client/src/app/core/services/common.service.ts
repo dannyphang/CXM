@@ -229,6 +229,15 @@ export class CommonService {
             return this.coreService.put<any>('company/removeAsso', { data }).pipe();
         }
     }
+
+    checkPropertyUnique(module: 'CONT' | 'COMP', propertyList: PropertiesDto[], propertyDataList: PropertyDataDto[]): Observable<ResponseModel<boolean>> {
+        let data = {
+            module: module,
+            propertyList: propertyList,
+            propertyDataList: propertyDataList
+        }
+        return this.coreService.get<boolean>('common/checkUnique' + { data }).pipe();
+    }
 }
 
 export class ModuleDto extends BasedDto {
