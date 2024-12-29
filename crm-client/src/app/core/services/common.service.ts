@@ -3,12 +3,14 @@ import { Observable } from "rxjs"; import apiConfig from "../../../environments/
 import { CONTROL_TYPE_CODE } from "./components.service";
 import { TranslateService } from "@ngx-translate/core";
 import { BasedDto, CoreHttpService, ResponseModel } from "./core-http.service";
+import { ToastService } from "./toast.service";
 
 @Injectable({ providedIn: 'root' })
 export class CommonService {
     constructor(
         private translateService: TranslateService,
         private coreService: CoreHttpService,
+        private toastService: ToastService,
     ) {
 
     }
@@ -230,13 +232,31 @@ export class CommonService {
         }
     }
 
-    checkPropertyUnique(module: 'CONT' | 'COMP', propertyList: PropertiesDto[], propertyDataList: PropertyDataDto[]): Observable<ResponseModel<boolean>> {
-        let data = {
-            module: module,
-            propertyList: propertyList,
-            propertyDataList: propertyDataList
-        }
-        return this.coreService.get<boolean>('common/checkUnique' + { data }).pipe();
+    checkPropertyUnique(module: 'CONT' | 'COMP', propertyList: PropertiesDto[], propertyDataList: PropertyDataDto[]): Promise<boolean> {
+        return new Promise((resolve, reject) => {
+            let data = {
+                module: module,
+                propertyList: propertyList,
+                propertyDataList: propertyDataList
+            }
+            this.coreService.post<PropertyDataDto[]>('common/checkUnique', { data }).pipe().subscribe(res => {
+                if (res.isSuccess) {
+                    resolve(true);
+                }
+                else {
+                    this.toastService.clear();
+                    res.data.forEach(pd => {
+                        this.toastService.addSingle({
+                            message: this.translateService.instant('ERROR.NOT_UNIQUE', {
+                                property: propertyList.find(p => p.uid === pd.uid).propertyName
+                            }),
+                            severity: 'error'
+                        })
+                    })
+
+                }
+            });
+        });
     }
 }
 

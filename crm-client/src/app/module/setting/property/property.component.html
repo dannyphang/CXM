@@ -176,17 +176,21 @@
   </ng-template>
 
   <ng-template pTemplate="footer">
-    <app-base-button
-      [label]="'BUTTON.CANCEL' | translate"
-      [isTextStyle]="true"
-      (click)="closeDialog()"
-    />
-    <app-base-button
-      [label]="
-        editMode ? ('BUTTON.UPDATE' | translate) : ('BUTTON.CREATE' | translate)
-      "
-      [outlined]="true"
-      (click)="create()"
-    />
+    <div class="tw-flex tw-justify-between">
+      <app-base-button
+        [label]="'BUTTON.CANCEL' | translate"
+        [isTextStyle]="true"
+        (click)="closeDialog()"
+      />
+      <app-base-button
+        [label]="
+          editMode
+            ? ('BUTTON.UPDATE' | translate)
+            : ('BUTTON.CREATE' | translate)
+        "
+        [outlined]="true"
+        (click)="create()"
+      />
+    </div>
   </ng-template>
 </p-dialog>

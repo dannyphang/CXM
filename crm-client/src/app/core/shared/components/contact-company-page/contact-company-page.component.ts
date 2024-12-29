@@ -9,7 +9,7 @@ import { debounceTime, distinctUntilChanged, map, Observable, of } from 'rxjs';
 import { AuthService } from '../../../services/auth.service';
 import { CommonService, CompanyDto, ContactDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, PropertyLookupDto, UserDto } from '../../../services/common.service';
 import { BaseDataSourceActionEvent, CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../../../services/components.service';
-import { ROW_PER_PAGE_DEFAULT, ROW_PER_PAGE_DEFAULT_LIST, EMPTY_VALUE_STRING, NUMBER_OF_EXCEL_INSERT_ROW } from '../../constants/common.constants';
+import { ROW_PER_PAGE_DEFAULT, ROW_PER_PAGE_DEFAULT_LIST, EMPTY_VALUE_STRING, NUMBER_OF_EXCEL_INSERT_ROW, DOWNLOAD_IMPORT_PROFILE_TEMPLATE_FILE_NAME_XLSX } from '../../constants/common.constants';
 import * as XLSX from 'xlsx';
 import { BaseCoreAbstract } from '../../base/base-core.abstract';
 import { ToastService } from '../../../services/toast.service';
@@ -25,6 +25,7 @@ export class ContactCompanyPageComponent implements OnChanges {
   ROW_PER_PAGE_DEFAULT_LIST = ROW_PER_PAGE_DEFAULT_LIST;
   EMPTY_VALUE_STRING = EMPTY_VALUE_STRING;
   NUMBER_OF_EXCEL_INSERT_ROW = NUMBER_OF_EXCEL_INSERT_ROW;
+  DOWNLOAD_IMPORT_PROFILE_TEMPLATE_FILE_NAME_XLSX = DOWNLOAD_IMPORT_PROFILE_TEMPLATE_FILE_NAME_XLSX;
   module: 'CONT' | 'COMP' = 'CONT';
   contactList: ContactDto[] = [];
   companyList: CompanyDto[] = [];
@@ -999,7 +1000,7 @@ export class ContactCompanyPageComponent implements OnChanges {
 
     workbook.xlsx.writeBuffer().then((buffer) => {
       const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-      saveAs(blob, 'dropdown-example.xlsx');
+      saveAs(blob, DOWNLOAD_IMPORT_PROFILE_TEMPLATE_FILE_NAME_XLSX);
     });
   }
 
@@ -1025,7 +1026,7 @@ export class ContactCompanyPageComponent implements OnChanges {
   }
 
   create() {
-    if (true) {
+    if (this.createFormGroup.valid) {
       this.propertyValueUpdate(this.createFormConfig);
     }
     else {
@@ -1037,6 +1038,8 @@ export class ContactCompanyPageComponent implements OnChanges {
     let newContact: ContactDto = new ContactDto();
     let newCompany: CompanyDto = new CompanyDto();
     let profileProperty: PropertyDataDto[] = [];
+    let profilePropertyCheckUnique: PropertyDataDto[] = [];
+
     this.createFormPropertyList.forEach(prop => {
       if (this.module === 'CONT') {
         switch (prop.propertyCode) {
@@ -1089,6 +1092,15 @@ export class ContactCompanyPageComponent implements OnChanges {
 
         newCompany.companyOwnerUid = this.coreService.currentUser()!.uid;
       }
+
+      let inputValue = form.find(item => item.name === prop.propertyCode)?.fieldControl.value;
+      if (inputValue) {
+        profilePropertyCheckUnique.push({
+          uid: prop.uid,
+          propertyCode: prop.propertyCode,
+          value: inputValue
+        });
+      }
     });
     this.toastService.addSingle({
       message: this.translateService.instant("MESSAGE.CREATING"),
@@ -1097,42 +1109,49 @@ export class ContactCompanyPageComponent implements OnChanges {
     });
     if (this.module === "CONT") {
       newContact.contactProperties = JSON.stringify(profileProperty);
-      // this.commonService.createContact([newContact]).subscribe(res => {
-      //   if (res.isSuccess) {
-      //     this.toastService.clear();
-      //     this.toastService.addSingle({
-      //       message: this.translateService.instant("MESSAGE.CREATED_SUCCESSFULLY")
-      //     });
-      //     this.displayCreateDialog = false;
 
-      //     this.getContact();
-      //   }
-      //   else {
-      //     this.toastService.addSingle({
-      //       message: res.responseMessage,
-      //       severity: 'error'
-      //     });
-      //   }
-      // });
+      this.commonService.checkPropertyUnique(this.module, this.createFormPropertyList, profilePropertyCheckUnique).then(isValid => {
+        if (isValid) {
+          this.commonService.createContact([newContact]).subscribe(res => {
+            if (res.isSuccess) {
+              this.toastService.clear();
+              this.toastService.addSingle({
+                message: this.translateService.instant("MESSAGE.CREATED_SUCCESSFULLY")
+              });
+              this.displayCreateDialog = false;
 
-
+              this.getContact();
+            }
+            else {
+              this.toastService.addSingle({
+                message: res.responseMessage,
+                severity: 'error'
+              });
+            }
+          });
+        }
+      });
     }
     else {
       newCompany.companyProperties = JSON.stringify(profileProperty);
-      this.commonService.createCompany([newCompany]).subscribe(res => {
-        if (res.isSuccess) {
-          this.toastService.clear();
-          this.toastService.addSingle({
-            message: this.translateService.instant("MESSAGE.CREATED_SUCCESSFULLY")
-          });
-          this.displayCreateDialog = false;
+      this.commonService.checkPropertyUnique(this.module, this.createFormPropertyList, profilePropertyCheckUnique).then(isValid => {
+        if (isValid) {
+          this.commonService.createCompany([newCompany]).subscribe(res => {
+            if (res.isSuccess) {
+              this.toastService.clear();
+              this.toastService.addSingle({
+                message: this.translateService.instant("MESSAGE.CREATED_SUCCESSFULLY")
+              });
+              this.displayCreateDialog = false;
 
-          this.getCompany();
-        }
-        else {
-          this.toastService.addSingle({
-            message: res.responseMessage,
-            severity: 'error'
+              this.getCompany();
+            }
+            else {
+              this.toastService.addSingle({
+                message: res.responseMessage,
+                severity: 'error'
+              });
+            }
           });
         }
       });

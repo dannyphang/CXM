@@ -27,7 +27,8 @@
     "INVALID_SELECTION_MSG": "Please enter a valid value from the list.",
     "INVALID_DATE_MSG": "Please enter a correct date format.",
     "INVALID_NUMBER_MSG": "Please enter a valid number.",
-    "ATTACHMENT_UPDATE_ERROR": "Something wrong with the file."
+    "ATTACHMENT_UPDATE_ERROR": "Something wrong with the file.",
+    "NOT_UNIQUE": "{{property}} must be unique."
   },
   "MESSAGE": {
     "DELETED_SUCCESSFULLY": "The {{module}}(s) are deleted successfully.",

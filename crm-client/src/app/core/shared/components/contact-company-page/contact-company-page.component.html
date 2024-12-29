@@ -178,28 +178,31 @@
 
                   <!-- profile name -->
                   <div *ngSwitchCase="'contactFirstName'">
-                    <app-base-button
-                      [label]="profile[col.code]"
-                      [isTextStyle]="true"
+                    <a
+                      class="tw-cursor-pointer hover:tw-underline tw-text-[var(--primary-color)]"
+                      (click)="toProfile(profile)"
                       [pTooltip]="profile[col.code]"
-                      (onClick)="toProfile(profile)"
-                    ></app-base-button>
+                    >
+                      {{ profile[col.code] }}
+                    </a>
                   </div>
                   <div *ngSwitchCase="'contactLastName'">
-                    <app-base-button
-                      [label]="profile[col.code]"
-                      [isTextStyle]="true"
+                    <a
+                      class="tw-cursor-pointer hover:tw-underline tw-text-[var(--primary-color)]"
+                      (click)="toProfile(profile)"
                       [pTooltip]="profile[col.code]"
-                      (onClick)="toProfile(profile)"
-                    ></app-base-button>
+                    >
+                      {{ profile[col.code] }}
+                    </a>
                   </div>
                   <div *ngSwitchCase="'companyName'">
-                    <app-base-button
-                      [label]="profile[col.code]"
-                      [isTextStyle]="true"
+                    <a
+                      class="tw-cursor-pointer hover:tw-underline tw-text-[var(--primary-color)]"
+                      (click)="toProfile(profile)"
                       [pTooltip]="profile[col.code]"
-                      (onClick)="toProfile(profile)"
-                    ></app-base-button>
+                    >
+                      {{ profile[col.code] }}
+                    </a>
                   </div>
                   <div
                     *ngSwitchCase="'contactLeadStatusUid'"
@@ -278,17 +281,19 @@
   <app-base-form [formConfig]="createFormConfig"></app-base-form>
 
   <ng-template pTemplate="footer">
-    <app-base-button
-      [label]="'BUTTON.CANCEL' | translate"
-      [isTextStyle]="true"
-      severity="secondary"
-      (click)="displayCreateDialog = false"
-    />
-    <app-base-button
-      [label]="'BUTTON.CREATE' | translate"
-      severity="primary"
-      (click)="create()"
-    />
+    <div class="tw-flex tw-justify-between">
+      <app-base-button
+        [label]="'BUTTON.CANCEL' | translate"
+        [isTextStyle]="true"
+        severity="secondary"
+        (click)="displayCreateDialog = false"
+      />
+      <app-base-button
+        [label]="'BUTTON.CREATE' | translate"
+        severity="primary"
+        (click)="create()"
+      />
+    </div>
   </ng-template>
 </p-dialog>
 

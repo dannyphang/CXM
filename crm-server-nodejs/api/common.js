@@ -645,16 +645,20 @@ router.post("/asso", async (req, res) => {
 // check property unique
 router.post("/checkUnique", async (req, res) => {
   try {
-    // check other profile(contact/company) property value by same tenant
+    // Extract data from the request body
     let propertyList = func.body(req).data.data.propertyList;
     let module = func.body(req).data.data.module;
     let propertyDataList = func.body(req).data.data.propertyDataList;
+    let tenantId = func.body(req).tenantId;
 
-    propertyList.forEach(async (p) => {
+    let notUniqueProperties = []; // Collect all non-unique properties here
+
+    // Use for...of to allow async/await
+    for (const [index, p] of propertyList.entries()) {
       if (p.isUnique) {
         let collectionName = module === "CONT" ? contactCollectionName : companyCollectionName;
 
-        // get all profile from tenantId
+        // Fetch all profiles for the tenant
         const snapshot = await db.default.db
           .collection(collectionName)
           .where(
@@ -666,15 +670,13 @@ router.post("/checkUnique", async (req, res) => {
           .where("statusId", "==", 1)
           .get();
 
-        const profileList = snapshot.docs.map((doc) => {
-          return doc.data();
-        });
+        const profileList = snapshot.docs.map((doc) => doc.data());
 
         let pCode = "";
-        // check if the property is in json property or not
-        // and the property must not be editable
-        if (!p.isDefaultProperty && !p.isEditable) {
-          // not in json property
+        let stopHere = false;
+        // Determine property code
+        if (!p.isDefaultProperty && p.isEditable) {
+          // Property is not in JSON property
           switch (p.propertyCode) {
             case "first_name":
               pCode = "contactFirstName";
@@ -684,6 +686,7 @@ router.post("/checkUnique", async (req, res) => {
               break;
             case "email":
               pCode = module === "CONT" ? "contactEmail" : "companyEmail";
+              stopHere = true;
               break;
             case "phone_number":
               pCode = "contactPhone";
@@ -696,17 +699,53 @@ router.post("/checkUnique", async (req, res) => {
               break;
           }
         } else {
-          // its in json property
+          // Property is in JSON property
           pCode = p.propertyCode;
         }
+
+        // loop profile
+        let mergedProfileList = [];
+        profileList.forEach((profile) => {
+          // merge ori and property obj
+          let propertyObjList = JSON.parse(
+            module === "CONT" ? profile.contactProperties : profile.companyProperties
+          );
+
+          const newPropertyObject = propertyObjList.reduce((acc, obj) => {
+            acc[obj.propertyCode] = obj.value;
+            return acc;
+          }, {});
+
+          let mergedProfile = {
+            ...profile,
+            ...newPropertyObject,
+          };
+          mergedProfileList.push(mergedProfile);
+        });
+
+        // Check if the profile contains this value
+        const propertyValue = propertyDataList.find((pdl) => pdl.uid === p.uid)?.value ?? null;
+        const isNotUnique = mergedProfileList.some((profile) => profile[pCode] === propertyValue);
+
+        if (isNotUnique) {
+          notUniqueProperties.push(propertyDataList.find((pd) => pd.uid === p.uid));
+        }
       }
-    });
+    }
+
+    // Respond with the result
+    res.status(200).json(
+      func.responseModel({
+        isSuccess: notUniqueProperties.length === 0,
+        data: notUniqueProperties ?? null,
+      })
+    );
   } catch (error) {
-    console.log(error);
+    console.error(error);
     res.status(400).json(
       func.responseModel({
         isSuccess: false,
-        responseMessage: error,
+        responseMessage: error.message,
       })
     );
   }
