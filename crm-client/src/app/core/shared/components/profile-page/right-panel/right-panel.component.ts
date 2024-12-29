@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output, SimpleChange, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChange, SimpleChanges } from '@angular/core';
 import { ActivityService } from '../../../../services/activity.service';
 import { PropertyGroupDto, ContactDto, CompanyDto, CommonService, CreateAssociationDto } from '../../../../services/common.service';
 import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../../../../services/components.service';
@@ -13,14 +13,14 @@ import { ToastService } from '../../../../services/toast.service';
   templateUrl: './right-panel.component.html',
   styleUrl: './right-panel.component.scss'
 })
-export class RightPanelComponent {
+export class RightPanelComponent implements OnChanges {
   @Input() propertiesList: PropertyGroupDto[] = [];
   @Input() module: 'CONT' | 'COMP' = 'CONT';
   @Input() contactProfile: ContactDto = new ContactDto();
   @Input() companyProfile: CompanyDto = new CompanyDto();
   @Output() getProfileEmit: EventEmitter<any> = new EventEmitter();
   showAddAssoSidebar: boolean = false;
-  assoPanelExpand: boolean = true;
+  assoPanelExpand: boolean = false;
 
   assoFormConfig: FormConfig[] = [];
   assoFormControl: FormControl = new FormControl([]);
@@ -34,9 +34,12 @@ export class RightPanelComponent {
 
   }
 
-  ngOnChange(changes: SimpleChanges) {
+  ngOnChanges(changes: SimpleChanges) {
     if (changes['contactProfile'] && changes['contactProfile'].currentValue) {
-      console.log(this.contactProfile)
+      this.assoPanelExpand = this.contactProfile.association?.companyList?.length > 0 ? true : false;
+    }
+    if (changes['companyProfile'] && changes['companyProfile'].currentValue) {
+      this.assoPanelExpand = this.companyProfile.association?.contactList?.length > 0 ? true : false;
     }
   }
 

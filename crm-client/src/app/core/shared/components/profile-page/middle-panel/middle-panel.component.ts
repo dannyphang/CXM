@@ -28,7 +28,7 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
   actionMenu: any[] = [
     {
       label: 'Collapse all',
-      icon: '',
+      icon: 'pi pi-arrow-down-left-and-arrow-up-right-to-center',
       command: () => {
         this.activitiesList.forEach(act => {
           act.isExpand = act.isExpand ? false : act.isExpand;
@@ -37,7 +37,7 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
     },
     {
       label: 'Expand all',
-      icon: '',
+      icon: 'pi pi-arrow-up-right-and-arrow-down-left-from-center',
       command: () => {
         this.activitiesList.forEach(act => {
           act.isExpand = true;

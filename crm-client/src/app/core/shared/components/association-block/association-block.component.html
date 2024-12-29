@@ -1,5 +1,5 @@
 <div
-  class="tw-flex tw-justify-between asso-block-div"
+  class="asso-block-div"
   (mouseenter)="isHover = true"
   (mouseleave)="isHover = false"
 >
@@ -12,28 +12,35 @@
       class="pi pi-sort-down-fill tw-text-[var(--primary-color-text)] tw-text-[10px]"
     ></span>
   </a>
-  <div class="tw-grid">
-    <app-base-button
-      [isTextStyle]="true"
-      [label]="
-        module === 'CONT'
+  <div class="asso-detail-div">
+    <a
+      class="tw-cursor-pointer hover:tw-underline tw-w-full tw-text-ellipsis tw-overflow-hidden"
+      (click)="toProfile()"
+    >
+      {{
+        module === "CONT"
           ? companyProfile.companyName
           : contactProfile.contactFirstName +
-            ' ' +
+            " " +
             contactProfile.contactLastName
-      "
-      (onClick)="toProfile()"
-    ></app-base-button>
-    <app-base-button
-      [isTextStyle]="true"
-      [label]="
-        module === 'CONT'
+      }}
+    </a>
+
+    <a
+      class="tw-cursor-pointer hover:tw-underline tw-w-full tw-text-ellipsis tw-overflow-hidden"
+      (click)="copy()"
+      [pTooltip]="'MESSAGE.COPY_EMAIL' | translate"
+    >
+      {{
+        module === "CONT"
           ? companyProfile.companyEmail
           : contactProfile.contactEmail
-      "
-    ></app-base-button>
+      }}
+    </a>
   </div>
-  <div class="tw-grid tw-items-center tw-p-[var(--content-gap)]">
+  <div
+    class="tw-grid tw-items-center tw-p-[var(--content-gap)] asso-avatar-div"
+  >
     <p-avatar
       *ngIf="
         !contactProfile.contactProfilePhotoUrl &&

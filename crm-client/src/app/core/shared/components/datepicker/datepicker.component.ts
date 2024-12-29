@@ -166,8 +166,8 @@ export class BaseDatepickerComponent
     this.date_to.addValidators(this.invalidDateFormat(this.dateFormat));
 
     if (this.fieldControl.hasValidator(Validators.required)) {
-      this.fieldControl.removeValidators(Validators.required);
-      this.fieldControl.addValidators(this.customRequiredValidatorRange2);
+      // this.fieldControl.removeValidators(Validators.required);
+      // this.fieldControl.addValidators(this.customRequiredValidatorRange2);
       this.date_from.addValidators(Validators.required);
       this.date_to.addValidators(Validators.required);
     }

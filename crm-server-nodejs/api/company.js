@@ -48,6 +48,7 @@ router.get("/", async (req, res) => {
 router.get("/:id", async (req, res) => {
     const id = req.params.id;
     try {
+        let tenantId = func.body(req).tenantId;
         const snapshot = await db.default.db.collection(companyCollectionName).doc(id).get();
 
         const assoSnapshot = await db.default.db.collection(associationCollection).orderBy("createdDate").where("statusId", "==", 1).where("profileUid", "==", id).get();
