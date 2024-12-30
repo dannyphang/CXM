@@ -2,7 +2,7 @@ import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
 import { map, Observable } from "rxjs";
 import apiConfig from "../../../environments/apiConfig";
-import { AssociationDto, AttachmentDto, ModuleDto } from "./common.service";
+import { AssociationDto, AttachmentDto, CompanyDto, ContactDto, ModuleDto } from "./common.service";
 import { DateFilterFn } from "@angular/material/datepicker";
 import { producerAccessed } from "@angular/core/primitives/signals";
 import { BasedDto, CoreHttpService, ResponseModel } from "./core-http.service";
@@ -42,6 +42,10 @@ export class ActivityService {
     updateActivity(updateActivity: UpdateActivityDto): Observable<ResponseModel<ActivityDto>> {
         return this.coreService.put<ActivityDto>('activity/' + updateActivity.uid, { updateActivity }).pipe();
     }
+
+    sendEmail(data: SendEmailDto, activityModule: ModuleDto): Observable<ResponseModel<any>> {
+        return this.coreService.post<any>('activity/email', { data, activityModule }).pipe();
+    }
 }
 
 export class ActivityModuleDto extends ModuleDto {
@@ -51,6 +55,7 @@ export class ActivityModuleDto extends ModuleDto {
 export class ActivitiesModuleListDto {
     activityControlList: ActivityModuleDto[];
     activityModuleList: ModuleDto[];
+    subActivityModuleList: ModuleDto[];
 }
 
 export class ActivityDto extends BasedDto {
@@ -63,6 +68,7 @@ export class ActivityDto extends BasedDto {
     activityContent: string;
     activityModuleId: string;
     activityModuleCode: string;
+    activityModuleSubCode: string;
     isPinned: boolean;
     isExpand: boolean;
     associationContactUidList: string[];
@@ -92,9 +98,10 @@ export class UpdateActivityDto extends BasedDto {
 export class CreateActivityDto extends BasedDto {
     uid?: string;
     activityModuleCode: string;
+    activityModuleSubCode: string;
     activityModuleId: string;
     activityContactedIdList?: string[];
-    activityDatetime?: Date;
+    activityDatetime?: string;
     activityOutcomeId?: string;
     activityDirectionId?: string;
     activityDuration?: string;
@@ -103,4 +110,15 @@ export class CreateActivityDto extends BasedDto {
     associationCompanyUidList: string[];
     attachmentUid?: string[];
     isPinned?: boolean;
+}
+
+export class SendEmailDto extends BasedDto {
+    toEmailUid: string[];
+    toEmail: string[];
+    fromEmail: string;
+    toName?: string[];
+    fromName?: string;
+    subject: string;
+    content: string;
+    emailDateTime: string;
 }

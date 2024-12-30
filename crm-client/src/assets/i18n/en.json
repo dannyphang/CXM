@@ -48,7 +48,8 @@
     "CREATING": "Creating...",
     "CREATED_SUCCESSFULLY": "Created successfully.",
     "REMOVING_ASSO": "Removing association...",
-    "REMOVING_SUCCESSFUL": "Removed successfully."
+    "REMOVING_SUCCESSFUL": "Removed successfully.",
+    "SENDING_EMAIL": "Sending Email"
   },
   "BUTTON": {
     "SAVE": "Save",

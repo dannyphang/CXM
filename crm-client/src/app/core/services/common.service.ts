@@ -28,7 +28,6 @@ export class CommonService {
     }
 
     getContactById(id: string): Observable<ResponseModel<ContactDto>> {
-        console.log(id)
         return this.coreService.get<ContactDto>('contact/' + id).pipe();
     }
 

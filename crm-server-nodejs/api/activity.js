@@ -4,6 +4,8 @@ const router = Router();
 import * as db from "../firebase-admin.js";
 import { Filter } from "firebase-admin/firestore";
 import * as func from "../shared/function.js";
+import emailjs from "@emailjs/nodejs";
+import config from "../config.js";
 
 router.use(express.json());
 
@@ -130,10 +132,12 @@ router.post("/getActivitiesByProfileId", async (req, res) => {
 router.get("/activityModule", async (req, res) => {
     try {
         const snapshot = await db.default.db.collection(moduleCodeCollection).where("moduleType", "==", "ACTIVITY_TYPE").where("statusId", "==", 1).orderBy("moduleId").get();
+        const subModuleSnapshot = await db.default.db.collection(moduleCodeCollection).where("moduleType", "==", "SUB_ACTIVITY_TYPE").where("statusId", "==", 1).orderBy("moduleId").get();
         const actCtrSnapshot = await db.default.db.collection(moduleCodeCollection).where("moduleType", "==", "ACTIVITY_CONTROL").where("statusId", "==", 1).orderBy("moduleId").get();
         const subActCtrSnapshot = await db.default.db.collection(moduleCodeCollection).where("moduleType", "==", "SUB_ACTIVITY_CONTROL").where("statusId", "==", 1).get();
 
         const activityModuleList = snapshot.docs.map((doc) => doc.data());
+        const subActivityModuleList = subModuleSnapshot.docs.map((doc) => doc.data());
         const activityControlList = actCtrSnapshot.docs.map((doc) => doc.data());
         const subActivityControlList = subActCtrSnapshot.docs.map((doc) => doc.data());
 
@@ -146,19 +150,12 @@ router.get("/activityModule", async (req, res) => {
             });
         });
 
-        activityModuleList.sort((a, b) => {
-            return a.moduleId - b.moduleId;
-        });
-
-        activityControlList.sort((a, b) => {
-            return a.moduleId - b.moduleId;
-        });
-
         res.status(200).json(
             func.responseModel({
                 data: {
                     activityModuleList,
                     activityControlList,
+                    subActivityModuleList,
                 },
             })
         );
@@ -259,7 +256,7 @@ router.delete("/:uid", async (req, res) => {
 router.put("/:uid", async (req, res) => {
     try {
         const uid = req.params.uid;
-        let updateBody = func.body(req).data.updateBody;
+        let updateBody = func.body(req).data.updateActivity;
 
         updateBody.modifiedDate = new Date();
 
@@ -284,5 +281,99 @@ function convertFirebaseDateFormat(date) {
         return date;
     }
 }
+
+router.post("/email", async (req, res) => {
+    try {
+        const emailData = func.body(req).data.data;
+        const activityModule = func.body(req).data.activityModule;
+        const emailConfig = config.emailjs;
+        const tenantId = func.body(req).tenantId;
+
+        // Initialize emailjs
+        emailjs.init({
+            publicKey: emailConfig.publicKey,
+            privateKey: emailConfig.privateKey,
+        });
+
+        // Extract and validate the toEmail array
+        const toEmailList = emailData.toEmail;
+        const validEmails = toEmailList.filter((email) => email && email.trim() !== "");
+
+        if (validEmails.length === 0) {
+            return res.status(400).json(
+                func.responseModel({
+                    isSuccess: false,
+                    responseMessage: "No valid email addresses provided",
+                })
+            );
+        }
+
+        // Prepare email sending promises
+        const emailPromises = validEmails.map(async (email, index) => {
+            let newRef = db.default.db.collection(activityCollection).doc();
+            let prop = {};
+            prop.uid = newRef.id;
+
+            prop.activityModuleCode = activityModule.moduleCode;
+            prop.activityModuleSubCode = activityModule.moduleSubCode;
+            prop.activityModuleId = activityModule.uid;
+            prop.activityContactedIdList = [emailData.toEmailUid[index]];
+            prop.activityDatetime = new Date();
+            prop.activityContent = emailData.content;
+
+            prop.createdDate = new Date();
+            prop.modifiedDate = new Date();
+            prop.statusId = 1;
+            prop.tenantId = tenantId;
+
+            await newRef.set(prop);
+
+            // send email
+            return emailjs.send(emailConfig.serviceId, emailConfig.templateId, {
+                toEmail: email,
+                fromEmail: emailData.fromEmail,
+                subject: emailData.subject,
+                content: emailData.content,
+            });
+        });
+
+        // Execute all promises and wait for them to complete
+        const results = await Promise.all(
+            emailPromises.map(
+                (p) => p.catch((err) => ({ error: err })) // Catch individual promise rejections
+            )
+        );
+
+        // Check for errors in the results
+        const errors = results.filter((result) => result.error);
+        if (errors.length > 0) {
+            console.log(results);
+            return res.status(500).json(
+                func.responseModel({
+                    isSuccess: false,
+                    responseMessage: errors,
+                })
+            );
+        }
+
+        // If all emails succeeded
+        res.status(200).json(
+            func.responseModel({
+                isSuccess: true,
+                data: emailData,
+                responseMessage: "Emails sent successfully",
+            })
+        );
+    } catch (error) {
+        console.error(error);
+        res.status(500).json(
+            func.responseModel({
+                isSuccess: false,
+                responseMessage: "An error occurred while sending emails",
+                error,
+            })
+        );
+    }
+});
 
 export default router;

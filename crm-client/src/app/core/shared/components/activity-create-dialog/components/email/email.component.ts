@@ -1,7 +1,9 @@
-import { Component, Input, NgZone } from '@angular/core';
+import { Component, EventEmitter, Input, NgZone, Output } from '@angular/core';
 import { ContactDto, CompanyDto } from '../../../../../services/common.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { CONTROL_TYPE, FormConfig } from '../../../../../services/components.service';
+import { CONTROL_TYPE, FormConfig, OptionsModel } from '../../../../../services/components.service';
+import { SendEmailDto } from '../../../../../services/activity.service';
+import { CoreHttpService } from '../../../../../services/core-http.service';
 
 @Component({
   selector: 'app-email',
@@ -12,6 +14,7 @@ export class EmailComponent {
   @Input() contactProfile: ContactDto = new ContactDto();
   @Input() companyProfile: CompanyDto = new CompanyDto();
   @Input() module: "CONT" | "COMP" = "CONT";
+  @Output() emailValueEmit: EventEmitter<SendEmailDto> = new EventEmitter<SendEmailDto>();
   createEmailFormGroup: FormGroup = new FormGroup({
     toEmail: new FormControl([], Validators.required),
     fromEmail: new FormControl('', Validators.required),
@@ -29,6 +32,7 @@ export class EmailComponent {
 
   constructor(
     private ngZone: NgZone,
+    private coreHTTPService: CoreHttpService
 
   ) {
 
@@ -36,20 +40,47 @@ export class EmailComponent {
 
   ngOnInit() {
     this.initCreatForm();
+
+    this.createEmailFormGroup.valueChanges.subscribe(change => {
+      this.emailValueEmit.emit({
+        toEmailUid: this.module === 'CONT' ? [this.contactProfile.contactEmail] : [this.companyProfile.companyEmail],
+        toEmail: change.toEmail,
+        fromEmail: change.fromEmail,
+        subject: change.subject,
+        content: this.editorFormControl.value,
+        emailDateTime: new Date().toUTCString(),
+      });
+    });
+
+    this.editorFormControl.valueChanges.subscribe(change => {
+      this.emailValueEmit.emit({
+        toEmailUid: this.module === 'CONT' ? [this.contactProfile.contactEmail] : [this.companyProfile.companyEmail],
+        toEmail: this.createEmailFormGroup.controls['toEmail'].value,
+        fromEmail: this.createEmailFormGroup.controls['fromEmail'].value,
+        subject: this.createEmailFormGroup.controls['subject'].value,
+        content: change,
+        emailDateTime: new Date().toUTCString(),
+      });
+    })
   }
 
   initCreatForm() {
+    let emailList: OptionsModel[] = [
+      {
+        label: this.module === 'CONT' ? this.contactProfile.contactEmail : this.companyProfile.companyEmail,
+        value: this.module === 'CONT' ? this.contactProfile.contactEmail : this.companyProfile.companyEmail,
+      }
+    ]
     this.createEmailFormConfig = [
       {
         label: 'INPUT.TO',
         fieldControl: this.createEmailFormGroup.controls['toEmail'],
-        type: CONTROL_TYPE.Textbox,
+        type: CONTROL_TYPE.Multiselect,
         layoutDefine: {
           row: 0,
           column: 0
         },
-        mode: 'chips',
-        seperator: ' '
+        options: emailList
       },
       {
         label: 'INPUT.FROM',
@@ -59,7 +90,8 @@ export class EmailComponent {
           row: 0,
           column: 1
         },
-        mode: 'email'
+        mode: 'email',
+        disabled: true,
       },
       {
         label: 'INPUT.SUBJECT',
@@ -70,6 +102,8 @@ export class EmailComponent {
           column: 0
         },
       },
-    ]
+    ];
+
+    this.createEmailFormGroup.controls['fromEmail'].setValue(this.coreHTTPService.userC.email, { emitEvent: false })
   }
 }

@@ -17,10 +17,11 @@
   <ng-template pTemplate="content">
     <!-- email -->
     <app-email
-      *ngIf="activityModule.moduleCode === 'EMAIL'"
+      *ngIf="activityModule.moduleSubCode === 'EMAIL'"
       [module]="module"
       [contactProfile]="contactProfile"
       [companyProfile]="companyProfile"
+      (emailValueEmit)="emailValueEmit($event)"
     ></app-email>
   </ng-template>
 
@@ -33,7 +34,7 @@
       ></app-base-button>
       <app-base-button
         [label]="'BUTTON.SEND'"
-        (onClick)="closeDialog()"
+        (onClick)="send()"
       ></app-base-button>
     </div>
   </ng-template>

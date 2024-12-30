@@ -122,13 +122,13 @@
             >
               <app-base-button
                 [outlined]="true"
-                [label]="returnLogActivityLable(activityTab.moduleCode)"
+                [label]="returnLogActivityLable(activityTab)"
                 class=""
                 (onClick)="activityButtonOnClick(activityTab)"
               ></app-base-button>
 
               <app-base-button
-                [label]="returnCreateActivityLable(activityTab.moduleCode)"
+                [label]="returnCreateActivityLable(activityTab)"
                 (onClick)="activityCreateButtonOnClick(activityTab)"
               ></app-base-button>
             </div>
@@ -155,7 +155,6 @@
                 class="tw-pb-[15px]"
               >
                 <app-activity-block
-                  *ngIf="activity.activityModuleCode === activityTab.moduleCode"
                   [activityModule]="activityTab"
                   [activityControlList]="getActivityControlList(activityTab)"
                   [activityModuleList]="activityModuleList"
@@ -191,7 +190,6 @@
                 class="tw-pb-[15px]"
               >
                 <app-activity-block
-                  *ngIf="activity.activityModuleCode === activityTab.moduleCode"
                   [activityModule]="activityTab"
                   [activityControlList]="getActivityControlList(activityTab)"
                   [activityModuleList]="activityModuleList"
@@ -250,7 +248,7 @@
   [companyProfile]="companyProfile"
   [activityControlListInput]="getActivityControlList(dialogActivityTab)"
   [activityModuleList]="activityModuleList"
-  [header]="returnLogActivityLable(dialogActivityTab.moduleCode)"
+  [header]="returnLogActivityLable(dialogActivityTab)"
   (close)="activityDialogCloseEmit()"
 ></app-activity-dialog>
 

@@ -64,7 +64,6 @@ export class ActivityBlockComponent implements OnChanges {
   ngOnInit() {
     this.componentList.forEach(comp => {
       this.activityFormGroup.controls[comp].valueChanges.subscribe(value => {
-        console.log(value)
         this.updateAct.uid = this.activity.uid
 
         switch (comp) {
