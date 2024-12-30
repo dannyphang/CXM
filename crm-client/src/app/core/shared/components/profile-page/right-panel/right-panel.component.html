@@ -5,32 +5,53 @@
     [iconPos]="'start'"
     [isExpand]="assoPanelExpand"
   >
-    <div acc-panel-header class="tw-w-full" (click)="panelOnClick('asso')">
-      <div class="tw-flex tw-justify-between tw-flex-wrap tw-items-center">
-        <div>
+    <!-- panel header -->
+    <div
+      acc-panel-header
+      class="tw-w-full"
+      (click)="panelOnClick('asso')"
+      [pTooltip]="
+        module === 'CONT'
+          ? ('PROFILE.COMPANYS' | translate) +
+            ' (' +
+            (contactProfile.association?.companyList?.length ?? 0) +
+            ')'
+          : ('PROFILE.CONTACTS' | translate) +
+            ' (' +
+            (companyProfile.association?.contactList?.length ?? 0) +
+            ')'
+      "
+    >
+      <div class="asso-panel-header-div">
+        <div
+          class="asso-header-div tw-text-ellipsis tw-overflow-hidden tw-whitespace-nowrap"
+        >
           {{
             module === "CONT"
-              ? ("PROFILE.COMPANYS" | translate)
-              : ("PROFILE.CONTACTS" | translate)
+              ? ("PROFILE.COMPANYS" | translate) +
+                " (" +
+                (contactProfile.association?.companyList?.length ?? 0) +
+                ")"
+              : ("PROFILE.CONTACTS" | translate) +
+                " (" +
+                (companyProfile.association?.contactList?.length ?? 0) +
+                ")"
           }}
-          ({{
-            module === "CONT"
-              ? contactProfile.association?.companyList?.length
-              : companyProfile.association?.contactList?.length
-          }})
         </div>
 
-        <div>
-          <app-base-button
-            [isTextStyle]="true"
-            [label]="'BUTTON.ADD' | translate"
-            [rightIcon]="false"
-            [iconName]="'pi pi-plus'"
-            (onClick)="openSidebar('asso')"
-          ></app-base-button>
-        </div>
+        <!-- add asso -->
+        <app-base-button
+          [isTextStyle]="true"
+          [label]="'BUTTON.ADD' | translate"
+          [rightIcon]="false"
+          [iconName]="'pi pi-plus'"
+          (onClick)="openSidebar('asso')"
+          class="add-asso-btn"
+        ></app-base-button>
       </div>
     </div>
+
+    <!-- panel body -->
     <div
       acc-panel-body
       class="right-panel-content-div"
@@ -84,7 +105,7 @@
 <p-dialog
   [(visible)]="showAddAssoSidebar"
   [position]="'right'"
-  styleClass="tw-w-[100%] tw-h-[100%] tw-m-[var(--content-gap)]"
+  styleClass="tw-w-[30%] tw-h-[100%] tw-m-[var(--content-gap)]"
   [modal]="true"
   [draggable]="false"
 >

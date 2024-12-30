@@ -2,10 +2,22 @@
   position: relative;
   border: 1px solid var(--primary-color-text);
   border-radius: var(--border-radius);
+  display: grid;
+  grid-template-areas: "asso-detail-div asso-avatar-div";
+  grid-template-columns: 1fr auto;
+  width: 100%;
 
   &:hover {
     border: 1px solid var(--primary-color);
   }
+}
+
+.asso-detail-div {
+  padding: var(--content-gap);
+  gap: var(--content-gap);
+  display: grid;
+  // overflow: hidden;
+  // text-overflow: ellipsis;
 }
 
 .more-button {

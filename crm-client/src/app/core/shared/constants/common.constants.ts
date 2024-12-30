@@ -22,3 +22,5 @@ export const DEFAULT_PROFILE_PIC_URL = "https://firebasestorage.googleapis.com/v
 export const EMAIL_REGEX = new RegExp(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
 
 export const URL_REGEX = new RegExp(/^(https?:\/\/)?(www\.)?([a-zA-Z0-9]+(\.[a-zA-Z]{2,})+)(:[0-9]{1,5})?(\/[^\s]*)?$/);
+
+export const DOWNLOAD_IMPORT_PROFILE_TEMPLATE_FILE_NAME_XLSX = 'template_example.xlsx';

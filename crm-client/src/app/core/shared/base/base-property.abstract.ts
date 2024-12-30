@@ -417,8 +417,12 @@ export abstract class BasePropertyAbstract {
         if (module === 'CONT') {
             let updateContact: UpdateContactDto = new UpdateContactDto();
             let profileProperty: PropertyDataDto[] = JSON.parse(contactProfile.contactProperties);
+            let profilePropertyCheckUnique: PropertyDataDto[] = [];
+            let updatePropertyList: PropertiesDto[] = [];
+
             updateContact.uid = contactProfile.uid;
-            updateContact.modifiedBy = this.coreService.user!.uid
+            updateContact.modifiedBy = this.coreService.user!.uid;
+
             this.propUpdateList.forEach(prop => {
                 switch (prop.property.propertyCode) {
                     case 'first_name':
@@ -452,20 +456,30 @@ export abstract class BasePropertyAbstract {
                         }
                         updateContact.contactProperties = JSON.stringify(profileProperty);
                 }
+                profilePropertyCheckUnique.push({
+                    uid: prop.property.uid,
+                    propertyCode: prop.property.propertyCode,
+                    value: this.commonService.setPropertyDataValue(prop.property, prop.value)
+                });
+                updatePropertyList.push(prop.property);
             });
 
-            this.commonService.updateContact([updateContact]).subscribe(res => {
-                if (res.isSuccess) {
-                    this.propUpdateList = [];
-                    this.toastService.addSingle({
-                        message: res.responseMessage,
-                    });
-                    this.showFormUpdateSidebar = false;
-                }
-                else {
-                    this.toastService.addSingle({
-                        message: res.responseMessage,
-                        severity: 'error'
+            this.commonService.checkPropertyUnique(module, updatePropertyList, profilePropertyCheckUnique).then(isValid => {
+                if (isValid) {
+                    this.commonService.updateContact([updateContact]).subscribe(res => {
+                        if (res.isSuccess) {
+                            this.propUpdateList = [];
+                            this.toastService.addSingle({
+                                message: res.responseMessage,
+                            });
+                            this.showFormUpdateSidebar = false;
+                        }
+                        else {
+                            this.toastService.addSingle({
+                                message: res.responseMessage,
+                                severity: 'error'
+                            });
+                        }
                     });
                 }
             });
@@ -473,44 +487,56 @@ export abstract class BasePropertyAbstract {
         else {
             let updateCompany: UpdateCompanyDto = new UpdateCompanyDto();
             let profileProperty: PropertyDataDto[] = JSON.parse(companyProfile.companyProperties);
+            let profilePropertyCheckUnique: PropertyDataDto[] = [];
+            let updatePropertyList: PropertiesDto[] = [];
+
             updateCompany.uid = companyProfile.uid;
-            updateCompany.modifiedBy = this.coreService.user!.uid,
+            updateCompany.modifiedBy = this.coreService.user!.uid;
 
-                this.propUpdateList.forEach(prop => {
-                    switch (prop.property.propertyCode) {
-                        case 'company_name':
-                            updateCompany.companyName = prop.value;
-                            break;
-                        case 'company_website_url':
-                            updateCompany.companyWebsite = prop.value;
-                            break;
-                        case 'company_email':
-                            updateCompany.companyEmail = prop.value;
-                            break;
-                        case 'company_owner':
-                            updateCompany.companyOwnerUid = prop.value;
-                            break;
-                        case 'lead_status':
-                            updateCompany.companyLeadStatusId = prop.value;
-                            break;
-                        default:
-                            if (!profileProperty.find(item => item.uid === prop.property.uid)) {
-                                profileProperty.push({
-                                    uid: prop.property.uid,
-                                    propertyCode: prop.property.propertyCode,
-                                    value: this.commonService.setPropertyDataValue(prop.property, prop.value)
-                                });
-                            }
-                            else {
-                                profileProperty.find(item => item.uid === prop.property.uid)!.value = this.commonService.setPropertyDataValue(prop.property, prop.value);
-                            }
-                            updateCompany.companyProperties = JSON.stringify(profileProperty);
-                    }
+            this.propUpdateList.forEach(prop => {
+                switch (prop.property.propertyCode) {
+                    case 'company_name':
+                        updateCompany.companyName = prop.value;
+                        break;
+                    case 'company_website_url':
+                        updateCompany.companyWebsite = prop.value;
+                        break;
+                    case 'company_email':
+                        updateCompany.companyEmail = prop.value;
+                        break;
+                    case 'company_owner':
+                        updateCompany.companyOwnerUid = prop.value;
+                        break;
+                    case 'lead_status':
+                        updateCompany.companyLeadStatusId = prop.value;
+                        break;
+                    default:
+                        if (!profileProperty.find(item => item.uid === prop.property.uid)) {
+                            profileProperty.push({
+                                uid: prop.property.uid,
+                                propertyCode: prop.property.propertyCode,
+                                value: this.commonService.setPropertyDataValue(prop.property, prop.value)
+                            });
+                        }
+                        else {
+                            profileProperty.find(item => item.uid === prop.property.uid)!.value = this.commonService.setPropertyDataValue(prop.property, prop.value);
+                        }
+                        updateCompany.companyProperties = JSON.stringify(profileProperty);
+                }
+
+                profilePropertyCheckUnique.push({
+                    uid: prop.property.uid,
+                    propertyCode: prop.property.propertyCode,
+                    value: this.commonService.setPropertyDataValue(prop.property, prop.value)
                 });
+                updatePropertyList.push(prop.property);
+            });
 
-            this.commonService.updateCompany([updateCompany]).subscribe(res => {
-                this.propUpdateList = [];
-                this.showFormUpdateSidebar = false;
+            this.commonService.checkPropertyUnique(module, updatePropertyList, profilePropertyCheckUnique).then(isValid => {
+                this.commonService.updateCompany([updateCompany]).subscribe(res => {
+                    this.propUpdateList = [];
+                    this.showFormUpdateSidebar = false;
+                });
             });
         }
     }

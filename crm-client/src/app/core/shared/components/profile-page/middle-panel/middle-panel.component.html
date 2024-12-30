@@ -1,6 +1,6 @@
 <!-- <app-toast></app-toast> -->
 
-<div class="tw-w-full">
+<div class="tw-w-full tw-px-[var(--content-gap)]">
   <p-tabView class="middle-profile-tabView tw-w-full">
     <p-tabPanel header="Activities">
       <div class="tw-flex tw-justify-between">
@@ -11,6 +11,8 @@
           [fieldControl]="searchControl"
           class="tw-w-[40%]"
         ></app-base-input>
+
+        <!-- middle panel action button -->
         <div>
           <app-base-button
             [iconName]="'pi pi-ellipsis-v'"
