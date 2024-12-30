@@ -17,6 +17,7 @@ import { ToastService } from '../../../services/toast.service';
 export class ActivityBlockComponent implements OnChanges {
   @Input() activity: ActivityDto = new ActivityDto();
   @Input() activityModule: ModuleDto = new ModuleDto();
+  @Input() subActivityModule: ModuleDto[] = [];
   @Input() activityModuleList: ModuleDto[] = [];
   @Input() activityControlList: ActivityModuleDto[] = [];
   @Input() module: 'CONT' | 'COMP' = 'CONT';
@@ -164,6 +165,12 @@ export class ActivityBlockComponent implements OnChanges {
         this.assignForm();
       }
       this.setAssociation();
+    }
+    if (changes['activityModule'] && changes['activityModule'].currentValue) {
+      console.log(this.activityModule)
+    }
+    if (changes['subActivityModule'] && changes['subActivityModule'].currentValue) {
+      console.log(this.subActivityModule)
     }
   }
 

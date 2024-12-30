@@ -48,7 +48,7 @@ export class EmailComponent {
         fromEmail: change.fromEmail,
         subject: change.subject,
         content: this.editorFormControl.value,
-        emailDateTime: new Date().toUTCString(),
+        emailDateTime: new Date(),
       });
     });
 
@@ -59,7 +59,7 @@ export class EmailComponent {
         fromEmail: this.createEmailFormGroup.controls['fromEmail'].value,
         subject: this.createEmailFormGroup.controls['subject'].value,
         content: change,
-        emailDateTime: new Date().toUTCString(),
+        emailDateTime: new Date(),
       });
     })
   }

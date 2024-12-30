@@ -137,4 +137,12 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
     }
     return this.activitiesList.filter(act => act.activityModuleSubCode === code && act.isPinned);
   }
+
+  returnModule(activity: ActivityDto) {
+    return this.activityModuleList.find(a => a.moduleCode === activity.activityModuleSubCode);
+  }
+
+  returnSubModuleList(activityTab: ModuleDto): ModuleDto[] {
+    return this.subActivityModuleList.filter(a => a.moduleSubCode === activityTab.moduleCode);
+  }
 }

@@ -44,6 +44,7 @@
               class="tw-pb-[15px]"
             >
               <app-activity-block
+                [activityModule]="returnModule(activity)"
                 [activityControlList]="activityControlList"
                 [activityModuleList]="activityModuleList"
                 [activity]="activity"
@@ -70,6 +71,7 @@
               class="tw-pb-[15px]"
             >
               <app-activity-block
+                [activityModule]="returnModule(activity)"
                 [activityControlList]="activityControlList"
                 [activityModuleList]="activityModuleList"
                 [activity]="activity"
@@ -97,6 +99,7 @@
               class="tw-pb-[15px]"
             >
               <app-activity-block
+                [activityModule]="returnModule(activity)"
                 [activityControlList]="activityControlList"
                 [activityModuleList]="activityModuleList"
                 [activity]="activity"
@@ -155,6 +158,7 @@
                 class="tw-pb-[15px]"
               >
                 <app-activity-block
+                  [subActivityModule]="returnSubModuleList(activityTab)"
                   [activityModule]="activityTab"
                   [activityControlList]="getActivityControlList(activityTab)"
                   [activityModuleList]="activityModuleList"
@@ -190,6 +194,7 @@
                 class="tw-pb-[15px]"
               >
                 <app-activity-block
+                  [subActivityModule]="returnSubModuleList(activityTab)"
                   [activityModule]="activityTab"
                   [activityControlList]="getActivityControlList(activityTab)"
                   [activityModuleList]="activityModuleList"
@@ -221,6 +226,8 @@
                 class="tw-pb-[15px]"
               >
                 <app-activity-block
+                  [subActivityModule]="returnSubModuleList(activityTab)"
+                  [activityModule]="activityTab"
                   [activityControlList]="activityControlList"
                   [activityModuleList]="activityModuleList"
                   [activity]="activity"

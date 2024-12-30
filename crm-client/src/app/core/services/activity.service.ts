@@ -101,7 +101,7 @@ export class CreateActivityDto extends BasedDto {
     activityModuleSubCode: string;
     activityModuleId: string;
     activityContactedIdList?: string[];
-    activityDatetime?: string;
+    activityDatetime?: Date;
     activityOutcomeId?: string;
     activityDirectionId?: string;
     activityDuration?: string;
@@ -120,5 +120,5 @@ export class SendEmailDto extends BasedDto {
     fromName?: string;
     subject: string;
     content: string;
-    emailDateTime: string;
+    emailDateTime: Date;
 }

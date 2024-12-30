@@ -385,8 +385,6 @@ export class ActivityDialogComponent implements OnChanges {
         });
       }
     }
-
-    console.log(this.attachmentList)
   }
 
   returnFileSize(bytes: number = 0, decimals: number = 2) {
