@@ -166,12 +166,6 @@ export class ActivityBlockComponent implements OnChanges {
       }
       this.setAssociation();
     }
-    if (changes['activityModule'] && changes['activityModule'].currentValue) {
-      console.log(this.activityModule)
-    }
-    if (changes['subActivityModule'] && changes['subActivityModule'].currentValue) {
-      console.log(this.subActivityModule)
-    }
   }
 
   assignForm() {

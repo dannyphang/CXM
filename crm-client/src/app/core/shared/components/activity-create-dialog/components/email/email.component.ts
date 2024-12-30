@@ -43,7 +43,7 @@ export class EmailComponent {
 
     this.createEmailFormGroup.valueChanges.subscribe(change => {
       this.emailValueEmit.emit({
-        toEmailUid: this.module === 'CONT' ? [this.contactProfile.contactEmail] : [this.companyProfile.companyEmail],
+        toEmailUid: this.module === 'CONT' ? [this.contactProfile.uid] : [this.companyProfile.uid],
         toEmail: change.toEmail,
         fromEmail: change.fromEmail,
         subject: change.subject,
@@ -54,7 +54,7 @@ export class EmailComponent {
 
     this.editorFormControl.valueChanges.subscribe(change => {
       this.emailValueEmit.emit({
-        toEmailUid: this.module === 'CONT' ? [this.contactProfile.contactEmail] : [this.companyProfile.companyEmail],
+        toEmailUid: this.module === 'CONT' ? [this.contactProfile.uid] : [this.companyProfile.uid],
         toEmail: this.createEmailFormGroup.controls['toEmail'].value,
         fromEmail: this.createEmailFormGroup.controls['fromEmail'].value,
         subject: this.createEmailFormGroup.controls['subject'].value,
