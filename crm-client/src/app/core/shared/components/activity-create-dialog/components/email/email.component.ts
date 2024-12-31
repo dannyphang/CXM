@@ -1,8 +1,8 @@
-import { Component, EventEmitter, Input, NgZone, Output } from '@angular/core';
+import { Component, EventEmitter, Input, NgZone, Output, SimpleChanges } from '@angular/core';
 import { ContactDto, CompanyDto } from '../../../../../services/common.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { CONTROL_TYPE, FormConfig, OptionsModel } from '../../../../../services/components.service';
-import { SendEmailDto } from '../../../../../services/activity.service';
+import { EmailDto } from '../../../../../services/activity.service';
 import { CoreHttpService } from '../../../../../services/core-http.service';
 
 @Component({
@@ -14,7 +14,8 @@ export class EmailComponent {
   @Input() contactProfile: ContactDto = new ContactDto();
   @Input() companyProfile: CompanyDto = new CompanyDto();
   @Input() module: "CONT" | "COMP" = "CONT";
-  @Output() emailValueEmit: EventEmitter<SendEmailDto> = new EventEmitter<SendEmailDto>();
+  @Output() emailValueEmit: EventEmitter<EmailDto> = new EventEmitter<EmailDto>();
+
   createEmailFormGroup: FormGroup = new FormGroup({
     toEmail: new FormControl([], Validators.required),
     fromEmail: new FormControl('', Validators.required),
@@ -30,12 +31,28 @@ export class EmailComponent {
     });
   }
 
+  assoContactFormConfig: FormConfig[] = [];
+  assoCompanyFormConfig: FormConfig[] = [];
+  assoCompanyForm: FormControl = new FormControl([]);
+  assoContactForm: FormControl = new FormControl([]);
+  assoCompanyList: OptionsModel[] = [];
+  assoContactList: OptionsModel[] = [];
+
   constructor(
     private ngZone: NgZone,
     private coreHTTPService: CoreHttpService
 
   ) {
 
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['contactProfile'] && changes['contactProfile'].currentValue) {
+      this.setAssociation();
+    }
+    if (changes['companyProfile'] && changes['companyProfile'].currentValue) {
+      this.setAssociation();
+    }
   }
 
   ngOnInit() {
@@ -49,6 +66,8 @@ export class EmailComponent {
         subject: change.subject,
         content: this.editorFormControl.value,
         emailDateTime: new Date(),
+        contactAssoList: this.assoContactForm.value,
+        companyAssoList: this.assoCompanyForm.value
       });
     });
 
@@ -60,8 +79,36 @@ export class EmailComponent {
         subject: this.createEmailFormGroup.controls['subject'].value,
         content: change,
         emailDateTime: new Date(),
+        contactAssoList: this.assoContactForm.value,
+        companyAssoList: this.assoCompanyForm.value
       });
-    })
+    });
+
+    this.assoContactForm.valueChanges.subscribe(change => {
+      this.emailValueEmit.emit({
+        toEmailUid: this.module === 'CONT' ? [this.contactProfile.uid] : [this.companyProfile.uid],
+        toEmail: this.createEmailFormGroup.controls['toEmail'].value,
+        fromEmail: this.createEmailFormGroup.controls['fromEmail'].value,
+        subject: this.createEmailFormGroup.controls['subject'].value,
+        content: this.editorFormControl.value,
+        emailDateTime: new Date(),
+        contactAssoList: change,
+        companyAssoList: this.assoCompanyForm.value
+      });
+    });
+
+    this.assoCompanyForm.valueChanges.subscribe(change => {
+      this.emailValueEmit.emit({
+        toEmailUid: this.module === 'CONT' ? [this.contactProfile.uid] : [this.companyProfile.uid],
+        toEmail: this.createEmailFormGroup.controls['toEmail'].value,
+        fromEmail: this.createEmailFormGroup.controls['fromEmail'].value,
+        subject: this.createEmailFormGroup.controls['subject'].value,
+        content: this.editorFormControl.value,
+        emailDateTime: new Date(),
+        contactAssoList: this.assoContactForm.value,
+        companyAssoList: change
+      });
+    });
   }
 
   initCreatForm() {
@@ -104,6 +151,74 @@ export class EmailComponent {
       },
     ];
 
-    this.createEmailFormGroup.controls['fromEmail'].setValue(this.coreHTTPService.userC.email, { emitEvent: false })
+    this.createEmailFormGroup.controls['fromEmail'].setValue(this.coreHTTPService.userC.email)
+  }
+
+  setAssociation() {
+    this.assoCompanyList = [];
+    this.assoContactList = [];
+
+    // assign association 
+    if (this.module === 'CONT' && this.contactProfile.association) {
+      this.contactProfile.association.companyList.forEach(profile => {
+        this.assoCompanyList.push({
+          label: `${profile.companyName} (${profile.companyEmail})`,
+          value: profile.uid
+        });
+      });
+
+      this.assoContactList.push({
+        label: `${this.contactProfile.contactFirstName} ${this.contactProfile.contactLastName} (${this.contactProfile.contactEmail})`,
+        value: this.contactProfile.uid
+      });
+    }
+    else if (this.module === 'COMP' && this.companyProfile.association) {
+      this.companyProfile.association.contactList.forEach(profile => {
+        this.assoContactList.push({
+          label: `${profile.contactFirstName} ${profile.contactLastName}  (${profile.contactEmail})`,
+          value: profile.uid
+        });
+      });
+
+      this.assoCompanyList.push({
+        label: `${this.companyProfile.companyName} (${this.companyProfile.companyEmail})`,
+        value: this.companyProfile.uid
+      });
+    }
+
+    this.assoContactFormConfig = [
+      {
+        id: '',
+        type: CONTROL_TYPE.Multiselect,
+        layoutDefine: {
+          row: 0,
+          column: 0
+        },
+        options: this.assoContactList,
+        fieldControl: this.assoContactForm
+      }
+    ];
+
+    this.assoCompanyFormConfig = [
+      {
+        id: '',
+        type: CONTROL_TYPE.Multiselect,
+        layoutDefine: {
+          row: 0,
+          column: 0
+        },
+        options: this.assoCompanyList,
+        fieldControl: this.assoCompanyForm
+      }
+    ];
+
+    if (this.module === 'CONT' && this.contactProfile.association) {
+      this.assoContactForm.setValue([this.contactProfile.uid]);
+      this.assoContactForm.disable();
+    }
+    else if (this.module === 'COMP' && this.companyProfile.association) {
+      this.assoCompanyForm.setValue([this.companyProfile.uid]);
+      this.assoCompanyForm.disable();
+    }
   }
 }

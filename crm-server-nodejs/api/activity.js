@@ -204,7 +204,6 @@ router.post("/", async (req, res) => {
     const createDoc = [];
 
     list.forEach(async (prop) => {
-      console.log(prop);
       let newRef = db.default.db.collection(activityCollection).doc();
       prop.uid = newRef.id;
       prop.createdDate = new Date();
@@ -313,8 +312,8 @@ function convertFirebaseDateFormat(date) {
 
 router.post("/email", async (req, res) => {
   try {
-    const emailData = func.body(req).data.data;
-    const activityModule = func.body(req).data.activityModule;
+    // const emailData = func.body(req).data.data;
+    const createActivity = func.body(req).data.createActivity;
     const emailConfig = config.emailjs;
     const tenantId = func.body(req).tenantId;
 
@@ -325,7 +324,7 @@ router.post("/email", async (req, res) => {
     });
 
     // Extract and validate the toEmail array
-    const toEmailList = emailData.toEmail;
+    const toEmailList = createActivity.activityType.email.toEmail;
     const validEmails = toEmailList.filter((email) => email && email.trim() !== "");
 
     if (validEmails.length === 0) {
@@ -340,16 +339,8 @@ router.post("/email", async (req, res) => {
     // Prepare email sending promises
     const emailPromises = validEmails.map(async (email, index) => {
       let newRef = db.default.db.collection(activityCollection).doc();
-      let prop = {};
+      let prop = createActivity;
       prop.uid = newRef.id;
-
-      prop.activityModuleCode = activityModule.moduleCode;
-      prop.activityModuleSubCode = activityModule.moduleSubCode;
-      prop.activityModuleId = activityModule.uid;
-      prop.activityContactedIdList = [emailData.toEmailUid[index]];
-      prop.activityDatetime = emailData.emailDateTime;
-      prop.activityContent = emailData.content;
-
       prop.createdDate = new Date();
       prop.modifiedDate = new Date();
       prop.statusId = 1;
@@ -360,9 +351,9 @@ router.post("/email", async (req, res) => {
       // send email
       return emailjs.send(emailConfig.serviceId, emailConfig.templateId, {
         toEmail: email,
-        fromEmail: emailData.fromEmail,
-        subject: emailData.subject,
-        content: emailData.content,
+        fromEmail: createActivity.activityType.email.fromEmail,
+        subject: createActivity.activityType.email.subject,
+        content: createActivity.activityType.email.content,
       });
     });
 
@@ -389,7 +380,6 @@ router.post("/email", async (req, res) => {
     res.status(200).json(
       func.responseModel({
         isSuccess: true,
-        data: emailData,
         responseMessage: "Emails sent successfully",
       })
     );

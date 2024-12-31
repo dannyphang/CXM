@@ -51,11 +51,9 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
   dialogActivityTab: ModuleDto = new ModuleDto();
 
   constructor(
-    private commonService: CommonService,
     private activityService: ActivityService,
     private toastService: ToastService
   ) {
-
 
   }
 
