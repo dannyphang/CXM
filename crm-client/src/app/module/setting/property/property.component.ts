@@ -736,6 +736,7 @@ export class PropertyComponent {
         moduleCode: this.propertyDetailFormGroup.controls['module'].value,
         moduleCat: this.propertyDetailFormGroup.controls['group'].value,
         propertyType: this.propertyDetailFormGroup.controls['type'].value,
+        isDefaultProperty: true,
         isUnique: this.propertyDetailFormGroup.controls['isUnique'].value,
         isMandatory: this.propertyDetailFormGroup.controls['isMandatory'].value,
         isEditable: this.propertyDetailFormGroup.controls['isEditable'].value,

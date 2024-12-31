@@ -468,6 +468,7 @@ export class CreatePropertyDto extends BasedDto {
     moduleCode: string;
     moduleCat: string;
     propertyType: string;
+    isDefaultProperty: boolean;
     isMandatory: boolean;
     isEditable: boolean;
     isVisible: boolean;
