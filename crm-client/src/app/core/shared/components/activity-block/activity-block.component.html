@@ -47,7 +47,13 @@
     <!-- panel body -->
     <div acc-panel-body class="activity-panel-content-div">
       <!-- email -->
-      <app-base-form [formConfig]="emailFormConfig"></app-base-form>
+      <app-base-form
+        [formConfig]="emailFormConfig"
+        *ngIf="
+          activity.activityModuleCode === 'CREATE' &&
+          activity.activityModuleSubCode === 'EMAIL'
+        "
+      ></app-base-form>
 
       <div class="text-editor">
         <div
