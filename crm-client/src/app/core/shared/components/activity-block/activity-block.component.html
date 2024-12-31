@@ -46,6 +46,9 @@
 
     <!-- panel body -->
     <div acc-panel-body class="activity-panel-content-div">
+      <!-- email -->
+      <app-base-form [formConfig]="emailFormConfig"></app-base-form>
+
       <div class="text-editor">
         <div
           [innerHTML]="activity.activityContent"

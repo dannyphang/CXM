@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
 import { ContactDto, CompanyDto, ModuleDto } from '../../../services/common.service';
-import { ActivityService, SendEmailDto } from '../../../services/activity.service';
+import { ActivityService, CreateActivityDto, EmailDto } from '../../../services/activity.service';
 import { ToastService } from '../../../services/toast.service';
 
 @Component({
@@ -18,7 +18,7 @@ export class ActivityCreateDialogComponent {
   header: string = '';
 
   // email
-  emailData: SendEmailDto = new SendEmailDto();
+  emailData: EmailDto = new EmailDto();
 
   constructor(
     private activityService: ActivityService,
@@ -42,7 +42,7 @@ export class ActivityCreateDialogComponent {
     this.close.emit();
   }
 
-  emailValueEmit(event: SendEmailDto) {
+  emailValueEmit(event: EmailDto) {
     this.emailData = event;
   }
 
@@ -54,7 +54,20 @@ export class ActivityCreateDialogComponent {
           isLoading: true,
           severity: 'info'
         })
-        this.activityService.sendEmail(this.emailData, this.activityModule).subscribe(res => {
+        let newActivity: CreateActivityDto = {
+          activityModuleCode: this.activityModule.moduleCode,
+          activityModuleSubCode: this.activityModule.moduleSubCode,
+          activityModuleId: this.activityModule.uid,
+          activityContactedIdList: this.emailData.toEmailUid,
+          activityDatetime: this.emailData.emailDateTime,
+          activityContent: this.emailData.content,
+          associationContactUidList: this.emailData.contactAssoList,
+          associationCompanyUidList: this.emailData.companyAssoList,
+          activityType: {
+            email: this.emailData
+          }
+        }
+        this.activityService.sendEmail(this.emailData, newActivity).subscribe(res => {
           this.toastService.clear();
           if (res.isSuccess) {
             this.closeDialog()

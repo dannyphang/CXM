@@ -9,4 +9,45 @@
       [placeholder]="'ACTIVITY.EDITOR_PLACEHOLDER' | translate"
     />
   </div>
+  <app-base-button
+    [label]="
+      'Associated with ' +
+      (assoContactForm.value?.length + assoCompanyForm.value?.length) +
+      ' records'
+    "
+    [isTextStyle]="true"
+    (onClick)="assoPanel.toggle($event)"
+  ></app-base-button>
 </div>
+
+<p-overlayPanel #assoPanel>
+  <div class="asso-div tw-flex">
+    <p-tabView>
+      <!-- contact tab -->
+      <p-tabPanel>
+        <ng-template pTemplate="header">
+          <div styleClass="tw-flex tw-w-full tw-justify-between">
+            {{ "PROFILE.CONTACTS" | translate }}
+          </div>
+          <div>({{ assoContactForm.value?.length ?? 0 }})</div>
+        </ng-template>
+        <div>
+          <app-base-form [formConfig]="assoContactFormConfig"></app-base-form>
+        </div>
+      </p-tabPanel>
+
+      <!-- company tab -->
+      <p-tabPanel>
+        <ng-template pTemplate="header">
+          <div styleClass="tw-flex tw-w-full tw-justify-between">
+            {{ "PROFILE.COMPANYS" | translate }}
+          </div>
+          <div>({{ assoCompanyForm.value?.length ?? 0 }})</div>
+        </ng-template>
+        <div>
+          <app-base-form [formConfig]="assoCompanyFormConfig"></app-base-form>
+        </div>
+      </p-tabPanel>
+    </p-tabView>
+  </div>
+</p-overlayPanel>

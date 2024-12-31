@@ -43,8 +43,8 @@ export class ActivityService {
         return this.coreService.put<ActivityDto>('activity/' + updateActivity.uid, { updateActivity }).pipe();
     }
 
-    sendEmail(data: SendEmailDto, activityModule: ModuleDto): Observable<ResponseModel<any>> {
-        return this.coreService.post<any>('activity/email', { data, activityModule }).pipe();
+    sendEmail(data: EmailDto, createActivity: CreateActivityDto): Observable<ResponseModel<any>> {
+        return this.coreService.post<any>('activity/email', { data, createActivity }).pipe();
     }
 }
 
@@ -76,6 +76,7 @@ export class ActivityDto extends BasedDto {
     attachmentUid: string[];
     attachmentList: AttachmentDto[];
     association: AssociationDto;
+    activityType: ActivityTypeDto;
 }
 
 export class UpdateActivityDto extends BasedDto {
@@ -110,9 +111,10 @@ export class CreateActivityDto extends BasedDto {
     associationCompanyUidList: string[];
     attachmentUid?: string[];
     isPinned?: boolean;
+    activityType?: ActivityTypeDto;
 }
 
-export class SendEmailDto extends BasedDto {
+export class EmailDto extends BasedDto {
     toEmailUid: string[];
     toEmail: string[];
     fromEmail: string;
@@ -121,4 +123,11 @@ export class SendEmailDto extends BasedDto {
     subject: string;
     content: string;
     emailDateTime: Date;
+    contactAssoList?: string[];
+    companyAssoList?: string[];
 }
+
+export class ActivityTypeDto {
+    email?: EmailDto;
+}
+

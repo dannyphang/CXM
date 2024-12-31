@@ -52,6 +52,13 @@ export class ActivityBlockComponent implements OnChanges {
   updateAct: UpdateActivityDto = new UpdateActivityDto();
   actionMenu: any[] = [];
 
+  emailFormGroup: FormGroup = new FormGroup({
+    toEmail: new FormControl([], Validators.required),
+    fromEmail: new FormControl('', Validators.required),
+    subject: new FormControl(''),
+  });
+  emailFormConfig: FormConfig[] = [];
+
   constructor(
     private activityService: ActivityService,
     private ngZone: NgZone,
@@ -270,6 +277,52 @@ export class ActivityBlockComponent implements OnChanges {
     });
     this.activityFormConfig = formsConfig;
 
+    // assign email form
+    let emailList: OptionsModel[] = [
+      {
+        label: this.module === 'CONT' ? this.contactProfile.contactEmail : this.companyProfile.companyEmail,
+        value: this.module === 'CONT' ? this.contactProfile.contactEmail : this.companyProfile.companyEmail,
+      }
+    ]
+    this.emailFormConfig = [
+      {
+        label: 'INPUT.TO',
+        fieldControl: this.emailFormGroup.controls['toEmail'],
+        type: CONTROL_TYPE.Multiselect,
+        layoutDefine: {
+          row: 0,
+          column: 0
+        },
+        options: emailList,
+        disabled: true
+      },
+      {
+        label: 'INPUT.FROM',
+        fieldControl: this.emailFormGroup.controls['fromEmail'],
+        type: CONTROL_TYPE.Textbox,
+        layoutDefine: {
+          row: 0,
+          column: 1
+        },
+        mode: 'email',
+        disabled: true,
+      },
+      {
+        label: 'INPUT.SUBJECT',
+        fieldControl: this.emailFormGroup.controls['subject'],
+        type: CONTROL_TYPE.Textbox,
+        layoutDefine: {
+          row: 1,
+          column: 0
+        },
+        disabled: true
+      },
+    ];
+
+    // this.emailFormGroup.controls['toEmail'].setValue()
+    this.emailFormGroup.controls['fromEmail'].setValue(this.activity.activityType?.email?.fromEmail ?? '', { emitEvent: false })
+    this.emailFormGroup.controls['toEmail'].setValue(this.activity.activityType?.email?.toEmailUid ?? [], { emitEvent: false })
+    this.emailFormGroup.controls['subject'].setValue(this.activity.activityType?.email?.subject ?? '', { emitEvent: false })
   }
 
   getContactedList(): OptionsModel[] {
@@ -359,6 +412,15 @@ export class ActivityBlockComponent implements OnChanges {
 
     this.assoContactForm.setValue(this.activity.associationContactUidList, { emitEvent: false });
     this.assoCompanyForm.setValue(this.activity.associationCompanyUidList, { emitEvent: false });
+
+    this.assoContactForm.valueChanges.subscribe(change => {
+      this.updateAct.associationContactUidList = change;
+      this.readonly = false;
+    });
+    this.assoCompanyForm.valueChanges.subscribe(change => {
+      this.updateAct.associationCompanyUidList = change;
+      this.readonly = false;
+    });
   }
 
   generateTimeDurations(intervalMinutes: number = 15, iterations: number = 32): any[] {
