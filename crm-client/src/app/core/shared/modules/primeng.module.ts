@@ -43,6 +43,7 @@ import { DragDropModule } from 'primeng/dragdrop';
 import { PickListModule } from 'primeng/picklist';
 import { DividerModule } from 'primeng/divider';
 import { TreeSelectModule } from 'primeng/treeselect';
+import { ChipsModule } from 'primeng/chips';
 
 import { MessageService as PrimeNGMessage } from 'primeng/api';
 
@@ -91,7 +92,8 @@ const PRIMENG_MODULES = [
     DragDropModule,
     PickListModule,
     DividerModule,
-    TreeSelectModule
+    TreeSelectModule,
+    ChipsModule
 ]
 
 @NgModule({

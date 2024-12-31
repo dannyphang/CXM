@@ -103,7 +103,7 @@ export class ActivityDialogComponent implements OnChanges {
   }
 
   assignForm() {
-    switch (this.activityModule.moduleCode) {
+    switch (this.activityModule.moduleSubCode) {
       case 'NOTE':
         this.componentList = [];
         break;
@@ -385,8 +385,6 @@ export class ActivityDialogComponent implements OnChanges {
         });
       }
     }
-
-    console.log(this.attachmentList)
   }
 
   returnFileSize(bytes: number = 0, decimals: number = 2) {
@@ -409,6 +407,7 @@ export class ActivityDialogComponent implements OnChanges {
     if (this.activityFormGroup.valid) {
       let createActivity: CreateActivityDto = {
         activityModuleCode: this.activityModule.moduleCode,
+        activityModuleSubCode: this.activityModule.moduleSubCode,
         activityModuleId: this.activityModule.uid,
         activityContent: this.editorFormControl.value,
         activityContactedIdList: this.activityFormGroup.controls['CONT'].value,

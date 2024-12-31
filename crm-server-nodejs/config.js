@@ -25,6 +25,10 @@ const {
   auth_provider_x509_cert_url,
   client_x509_cert_url,
   universe_domain,
+  EMAILJS_PUBLIC_KEY,
+  EMAILJS_PRIVATE_KEY,
+  EMAILJS_SERVICE_ID,
+  EMAILJS_TEMPLATE_ID,
 } = process.env;
 
 assert(PORT, "Port is required");
@@ -55,5 +59,11 @@ export default {
     auth_provider_x509_cert_url: auth_provider_x509_cert_url,
     client_x509_cert_url: client_x509_cert_url,
     universe_domain: universe_domain,
+  },
+  emailjs: {
+    publicKey: EMAILJS_PUBLIC_KEY,
+    privateKey: EMAILJS_PRIVATE_KEY,
+    serviceId: EMAILJS_SERVICE_ID,
+    templateId: EMAILJS_TEMPLATE_ID,
   },
 };

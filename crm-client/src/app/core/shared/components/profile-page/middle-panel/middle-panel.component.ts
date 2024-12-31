@@ -20,8 +20,10 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
   @Output() activityListEmit: EventEmitter<any> = new EventEmitter<any>();
 
   isOpenDialog: boolean = false;
+  isOpenCreateDialog: boolean = false;
   activityModuleList: ModuleDto[] = [];
   activityControlList: ActivityModuleDto[] = [];
+  subActivityModuleList: ModuleDto[] = [];
   searchControl: FormControl = new FormControl();
   searchIcon: string = "pi pi-search";
 
@@ -66,6 +68,7 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
       if (res.isSuccess) {
         this.activityModuleList = res.data.activityModuleList;
         this.activityControlList = res.data.activityControlList;
+        this.subActivityModuleList = res.data.subActivityModuleList;
       }
       else {
         this.toastService.addSingle({
@@ -82,19 +85,12 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
 
   }
 
-  returnActivityLable(moduleCode: string) {
-    switch (moduleCode) {
-      case 'NOTE':
-        return 'Log Note';
-      case 'EMAIL':
-        return 'Log Email';
-      case 'CALL':
-        return 'Log Call';
-      case 'MEET':
-        return 'Log Meeting';
-      default:
-        return '';
-    }
+  returnLogActivityLable(module: ModuleDto) {
+    return this.subActivityModuleList.find(sam => sam.moduleCode === 'LOG' && sam.moduleSubCode === module.moduleCode)?.moduleName;
+  }
+
+  returnCreateActivityLable(module: ModuleDto) {
+    return this.subActivityModuleList.find(sam => sam.moduleCode === 'CREATE' && sam.moduleSubCode === module.moduleCode)?.moduleName;
   }
 
   getActivityControlList(activity: ModuleDto): any {
@@ -103,7 +99,12 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
 
   activityButtonOnClick(activityTab: ModuleDto) {
     this.isOpenDialog = true;
-    this.dialogActivityTab = activityTab;
+    this.dialogActivityTab = this.subActivityModuleList.find(sam => sam.moduleSubCode === activityTab.moduleCode);
+  }
+
+  activityCreateButtonOnClick(activityTab: ModuleDto) {
+    this.isOpenCreateDialog = true;
+    this.dialogActivityTab = this.subActivityModuleList.find(sam => sam.moduleSubCode === activityTab.moduleCode && sam.moduleCode === 'CREATE');
   }
 
   activityDialogCloseEmit() {
@@ -111,24 +112,37 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
     this.activityListEmit.emit();
   }
 
+  activityCreateDialogCloseEmit() {
+    this.isOpenCreateDialog = false;
+    this.activityListEmit.emit();
+  }
+
   returnUpComingActivityList(code: string): ActivityDto[] {
     if (code === 'ALL') {
       return this.activitiesList.filter(act => !act.isPinned && new Date(act.activityDatetime) >= new Date());
     }
-    return this.activitiesList.filter(act => act.activityModuleCode === code && !act.isPinned && new Date(act.activityDatetime) >= new Date());
+    return this.activitiesList.filter(act => act.activityModuleSubCode === code && !act.isPinned && new Date(act.activityDatetime) >= new Date());
   }
 
   returnPastActivityList(code: string): ActivityDto[] {
     if (code === 'ALL') {
       return this.activitiesList.filter(act => !act.isPinned && new Date(act.activityDatetime) < new Date());
     }
-    return this.activitiesList.filter(act => act.activityModuleCode === code && !act.isPinned && new Date(act.activityDatetime) < new Date());
+    return this.activitiesList.filter(act => act.activityModuleSubCode === code && !act.isPinned && new Date(act.activityDatetime) < new Date());
   }
 
   returnIsPinnedActivityList(code: string): ActivityDto[] {
     if (code === 'ALL') {
       return this.activitiesList.filter(act => act.isPinned);
     }
-    return this.activitiesList.filter(act => act.activityModuleCode === code && act.isPinned);
+    return this.activitiesList.filter(act => act.activityModuleSubCode === code && act.isPinned);
+  }
+
+  returnModule(activity: ActivityDto) {
+    return this.activityModuleList.find(a => a.moduleCode === activity.activityModuleSubCode);
+  }
+
+  returnSubModuleList(activityTab: ModuleDto): ModuleDto[] {
+    return this.subActivityModuleList.filter(a => a.moduleSubCode === activityTab.moduleCode);
   }
 }

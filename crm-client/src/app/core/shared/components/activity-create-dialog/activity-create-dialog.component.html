@@ -1,0 +1,41 @@
+<p-dialog
+  [(visible)]="visible"
+  [style]="{ width: '70%' }"
+  [modal]="false"
+  [closable]="false"
+>
+  <ng-template pTemplate="header">
+    <div class="activity-dialog-header tw-w-full">
+      <div class="header-line tw-flex tw-justify-center">
+        <span class="header-line-span"></span>
+      </div>
+      <div>
+        <h3>{{ header }}</h3>
+      </div>
+    </div>
+  </ng-template>
+  <ng-template pTemplate="content">
+    <!-- email -->
+    <app-email
+      *ngIf="activityModule.moduleSubCode === 'EMAIL'"
+      [module]="module"
+      [contactProfile]="contactProfile"
+      [companyProfile]="companyProfile"
+      (emailValueEmit)="emailValueEmit($event)"
+    ></app-email>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <div class="tw-flex tw-justify-between tw-p-[var(--content-gap)]">
+      <app-base-button
+        [outlined]="true"
+        [label]="'BUTTON.CANCEL'"
+        (onClick)="closeDialog()"
+      ></app-base-button>
+      <app-base-button
+        [label]="'BUTTON.SEND'"
+        (onClick)="send()"
+      ></app-base-button>
+    </div>
+  </ng-template>
+</p-dialog>
