@@ -15,7 +15,7 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
   @Input() propertiesList: ModuleDto[] = [];
   @Input() module: 'CONT' | 'COMP' = 'CONT';
   @Input() contactProfile: ContactDto = new ContactDto();
-  @Input() companyProfile: CompanyDto = new CompanyDto(); // TODO: company profile
+  @Input() companyProfile: CompanyDto = new CompanyDto();
   @Input() activitiesList: ActivityDto[] = [];
   @Output() activityListEmit: EventEmitter<any> = new EventEmitter<any>();
 

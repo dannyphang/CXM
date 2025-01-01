@@ -69,8 +69,6 @@ export class ContactCompanyPageComponent implements OnChanges {
     private toastService: ToastService,
     private coreService: CoreHttpService
   ) {
-
-
     if (this.router.url === '/contact') {
       this.module = 'CONT';
     }
@@ -368,7 +366,6 @@ export class ContactCompanyPageComponent implements OnChanges {
     });
   }
 
-  // TODO
   returnFilteredProfileList() {
     if (this.module === 'CONT') {
       let tempProfileList: ContactDto[] = [];
@@ -556,8 +553,6 @@ export class ContactCompanyPageComponent implements OnChanges {
                   });
                 }
               });
-
-              // tempProfileList
             });
             this.contactList = [];
             tempProfileList.forEach(cont => {
@@ -1549,12 +1544,7 @@ export class ContactCompanyPageComponent implements OnChanges {
 
     Object.assign(this.tabFilterList[this.activeTabPanel], this.tempFilterList[this.activeTabPanel]);
 
-    if (this.module === 'CONT') {
-      this.returnFilteredProfileList();
-    }
-    else {
-      this.returnFilteredProfileList();
-    }
+    this.returnFilteredProfileList();
     this.closeFilter();
   }
 

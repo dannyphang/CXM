@@ -32,7 +32,7 @@
         >
           <ng-template pTemplate="caption">
             <div class="tw-flex tw-justify-between">
-              <div class="tw-flex">
+              <div class="tw-flex tw-flex-wrap">
                 <app-base-button
                   [label]="
                     'BUTTON.ADVANCE_FILTER'
@@ -63,7 +63,7 @@
                 ></app-base-button>
               </div>
 
-              <div class="tw-flex">
+              <div class="tw-flex tw-flex-wrap">
                 <app-base-button
                   [iconName]="'pi pi-upload'"
                   [rounded]="true"
@@ -455,7 +455,7 @@
 <p-dialog
   [(visible)]="isShowTableColumnFilter"
   [position]="'right'"
-  styleClass="tw-h-full tw-w-[70%]"
+  styleClass="tw-h-full tw-w-[50%]"
   [draggable]="false"
   [resizable]="true"
   [header]="'PROFILE.COLUMN_FILTER' | translate"
