@@ -1,19 +1,20 @@
-import { Component, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, HostListener, OnChanges, SimpleChanges, ViewChild, ViewChildren } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { NavigationExtras, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import * as ExcelJS from 'exceljs';
 import saveAs from 'file-saver';
-import { MessageService } from 'primeng/api';
+import { MenuItem, MessageService } from 'primeng/api';
 import { debounceTime, distinctUntilChanged, map, Observable, of } from 'rxjs';
 import { AuthService } from '../../../services/auth.service';
-import { CommonService, CompanyDto, ContactDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, PropertyLookupDto, UserDto } from '../../../services/common.service';
+import { CommonService, CompanyDto, ContactDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, PropertyLookupDto, UserDto, WindowSizeDto } from '../../../services/common.service';
 import { BaseDataSourceActionEvent, CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../../../services/components.service';
 import { ROW_PER_PAGE_DEFAULT, ROW_PER_PAGE_DEFAULT_LIST, EMPTY_VALUE_STRING, NUMBER_OF_EXCEL_INSERT_ROW, DOWNLOAD_IMPORT_PROFILE_TEMPLATE_FILE_NAME_XLSX } from '../../constants/common.constants';
 import * as XLSX from 'xlsx';
 import { BaseCoreAbstract } from '../../base/base-core.abstract';
 import { ToastService } from '../../../services/toast.service';
 import { CoreHttpService } from '../../../services/core-http.service';
+import { Table } from 'primeng/table';
 
 @Component({
   selector: 'app-contact-company-page',
@@ -21,6 +22,8 @@ import { CoreHttpService } from '../../../services/core-http.service';
   styleUrl: './contact-company-page.component.scss'
 })
 export class ContactCompanyPageComponent implements OnChanges {
+  @ViewChild('dt') pageTable?: Table;
+  @ViewChild('uploader') uploader?: HTMLInputElement;
   ROW_PER_PAGE_DEFAULT = ROW_PER_PAGE_DEFAULT;
   ROW_PER_PAGE_DEFAULT_LIST = ROW_PER_PAGE_DEFAULT_LIST;
   EMPTY_VALUE_STRING = EMPTY_VALUE_STRING;
@@ -30,6 +33,8 @@ export class ContactCompanyPageComponent implements OnChanges {
   contactList: ContactDto[] = [];
   companyList: CompanyDto[] = [];
   modulePropertyList: PropertyGroupDto[] = [];
+
+  windowSize: WindowSizeDto = new WindowSizeDto();
 
   CONTROL_TYPE_CODE = CONTROL_TYPE_CODE;
   propertiesList: PropertiesDto[] = [];
@@ -59,6 +64,8 @@ export class ContactCompanyPageComponent implements OnChanges {
   stateFormId: string = "";
   countryOptionList: OptionsModel[] = [];
   stateList: Observable<OptionsModel[]>;
+  filterMenuModel: MenuItem[] = [];
+  actionMenuModel: MenuItem[] = [];
 
   constructor(
     private commonService: CommonService,
@@ -69,8 +76,6 @@ export class ContactCompanyPageComponent implements OnChanges {
     private toastService: ToastService,
     private coreService: CoreHttpService
   ) {
-
-
     if (this.router.url === '/contact') {
       this.module = 'CONT';
     }
@@ -85,9 +90,17 @@ export class ContactCompanyPageComponent implements OnChanges {
         index: 0,
       }
     ];
+
     this.tabFilterList[this.activeTabPanel] = [];
     this.tempFilterList[this.activeTabPanel] = [];
     this.columnPropertiesList[this.activeTabPanel] = [];
+    this.windowSize = this.commonService.windowSize;
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize() {
+    this.commonService.updateWindowSize();
+    this.windowSize = this.commonService.windowSize;
   }
 
   async ngOnInit() {
@@ -108,8 +121,9 @@ export class ContactCompanyPageComponent implements OnChanges {
       }
     });
     this.initTableConfig();
-    this.initCreateFormConfig();
-    // this.filterTableConfig();
+    Promise.all([this.initCreateFormConfig()]).then(_ => {
+      this.initMenuItem();
+    });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -138,203 +152,78 @@ export class ContactCompanyPageComponent implements OnChanges {
     }
   }
 
-  initCreateFormConfig() {
-    this.tableLoading[this.activeTabPanel] = true;
-    let createPropCount = 0;
-    let formsConfig: FormConfig[] = [];
+  initCreateFormConfig(): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      this.tableLoading[this.activeTabPanel] = true;
+      let createPropCount = 0;
+      let formsConfig: FormConfig[] = [];
 
-    this.createFormGroup = this.formBuilder.group({});
+      this.createFormGroup = this.formBuilder.group({});
 
-    if (this.module === 'CONT') {
-      this.getContact();
-    }
-    else {
-      this.getCompany();
-    }
-    this.toastService.addSingle({
-      message: this.translateService.instant(
-        "COMMON.LOADING",
-        {
-          module: this.translateService.instant('COMMON.PROPERTY')
-        }
-      ),
-      isLoading: true,
-      severity: 'info'
-    });
-    this.commonService.getAllPropertiesByModule(this.module).subscribe((res) => {
-      if (res.isSuccess) {
-        this.toastService.clear();
+      if (this.module === 'CONT') {
+        this.getContact();
+      }
+      else {
+        this.getCompany();
+      }
+      this.toastService.addSingle({
+        message: this.translateService.instant(
+          "COMMON.LOADING",
+          {
+            module: this.translateService.instant('COMMON.PROPERTY')
+          }
+        ),
+        isLoading: true,
+        severity: 'info'
+      });
+      this.commonService.getAllPropertiesByModule(this.module).subscribe((res) => {
+        if (res.isSuccess) {
+          this.toastService.clear();
 
-        this.modulePropertyList = res.data;
+          this.modulePropertyList = res.data;
 
-        res.data.forEach((item) => {
-          item.propertiesList.forEach((prop) => {
-            this.propertiesList.push(prop);
-            this.propertiesList2.push(prop);
-            this.headerKeyMapping[prop.propertyName] = prop.propertyCode;
+          res.data.forEach((item) => {
+            item.propertiesList.forEach((prop) => {
+              this.propertiesList.push(prop);
+              this.propertiesList2.push(prop);
+              this.headerKeyMapping[prop.propertyName] = prop.propertyCode;
 
-            if (this.module === 'CONT') {
-              this.contactList.forEach(cont => {
-                let contactProp: PropertyDataDto[] = JSON.parse(cont.contactProperties);
+              if (this.module === 'CONT') {
+                this.contactList.forEach(cont => {
+                  let contactProp: PropertyDataDto[] = JSON.parse(cont.contactProperties);
 
-                contactProp.forEach(p => {
-                  cont[p.propertyCode] = p.value;
-                });
-              })
-            }
-            else {
-
-            }
-
-            // only display property that is system property which is not storing inside the properties column
-            if (!prop.isDefaultProperty) {
-              this.profileProperty.push(prop);
-              if (prop.isVisible) {
-                let config: any = {
-                  header: prop.propertyName,
-                  code: this.bindCode(prop.propertyCode),
-                  order: prop.order,
-                  type: prop.propertyType
-                };
-                this.tableConfig[this.activeTabPanel].push(config);
+                  contactProp.forEach(p => {
+                    cont[p.propertyCode] = p.value;
+                  });
+                })
               }
-            }
+              else {
 
+              }
 
-            // for create contact/company properties
-            if (prop.isMandatory && prop.isEditable) {
-              this.createFormPropertyList.push(prop);
-
-              let control = new FormControl(this.commonService.returnControlTypeEmptyValue(prop), prop.isMandatory ? Validators.required : null);
-              this.createFormGroup.addControl(prop.propertyCode, control);
-
-              let forms: FormConfig = {
-                id: prop.uid,
-                name: prop.propertyCode,
-                type: CONTROL_TYPE.Textbox,
-                label: prop.propertyName,
-                fieldControl: this.createFormGroup.controls[prop.propertyCode],
-                layoutDefine: {
-                  row: createPropCount,
-                  column: 0,
-                }
-              };
-
-              if (prop.propertyType === CONTROL_TYPE_CODE.Textbox || prop.propertyType === CONTROL_TYPE_CODE.Textarea || prop.propertyType === CONTROL_TYPE_CODE.Email || prop.propertyType === CONTROL_TYPE_CODE.Phone || prop.propertyType === CONTROL_TYPE_CODE.Url || prop.propertyType === CONTROL_TYPE_CODE.Number) {
-                forms = {
-                  id: prop.uid,
-                  name: prop.propertyCode,
-                  type: CONTROL_TYPE.Textbox,
-                  label: prop.propertyName,
-                  fieldControl: this.createFormGroup.controls[prop.propertyCode],
-                  layoutDefine: {
-                    row: createPropCount,
-                    column: 0,
-                  },
-                  mode: this.returnTextMode(prop.propertyType),
+              // only display property that is system property which is not storing inside the properties column
+              if (!prop.isDefaultProperty) {
+                this.profileProperty.push(prop);
+                if (prop.isVisible) {
+                  let config: any = {
+                    header: prop.propertyName,
+                    code: this.bindCode(prop.propertyCode),
+                    order: prop.order,
+                    type: prop.propertyType
+                  };
+                  this.tableConfig[this.activeTabPanel].push(config);
                 }
               }
-              else if (prop.propertyType === CONTROL_TYPE_CODE.Checkbox || prop.propertyType === CONTROL_TYPE_CODE.MultiCheckbox || prop.propertyType === CONTROL_TYPE_CODE.Multiselect || prop.propertyType === CONTROL_TYPE_CODE.Dropdown || prop.propertyType === CONTROL_TYPE_CODE.Radio) {
-                let propertyLookupList: OptionsModel[] = [];
-                prop.propertyLookupList.forEach((item) => {
-                  propertyLookupList.push({ label: (item as PropertyLookupDto).propertyLookupLabel, value: item.uid });
-                });
 
-                forms = {
-                  id: prop.uid,
-                  name: prop.propertyCode,
-                  type: prop.propertyType === CONTROL_TYPE_CODE.Checkbox || prop.propertyType === CONTROL_TYPE_CODE.MultiCheckbox ? CONTROL_TYPE.Checkbox : prop.propertyType === CONTROL_TYPE_CODE.Multiselect ? CONTROL_TYPE.Multiselect : prop.propertyType === CONTROL_TYPE_CODE.Dropdown ? CONTROL_TYPE.Dropdown : CONTROL_TYPE.Radio,
-                  label: prop.propertyName,
-                  fieldControl: this.createFormGroup.controls[prop.propertyCode],
-                  layoutDefine: {
-                    row: createPropCount,
-                    column: 0,
-                  },
-                  options: propertyLookupList,
-                }
-              }
-              else if (prop.propertyType === CONTROL_TYPE_CODE.DateTime || prop.propertyType === CONTROL_TYPE_CODE.Date || prop.propertyType === CONTROL_TYPE_CODE.Time) {
-                forms = {
-                  id: prop.uid,
-                  name: prop.propertyCode,
-                  type: CONTROL_TYPE.Calendar,
-                  label: prop.propertyName,
-                  fieldControl: this.createFormGroup.controls[prop.propertyCode],
-                  layoutDefine: {
-                    row: createPropCount,
-                    column: 0,
-                  },
-                  timeOnly: prop.propertyType === CONTROL_TYPE_CODE.Time ? true : false,
-                  showTime: prop.propertyType !== CONTROL_TYPE_CODE.Date ? true : false
-                }
-              }
-              else if (prop.propertyType === CONTROL_TYPE_CODE.User) {
-                let propertyLookupList: OptionsModel[] = [];
-                prop.propertyLookupList.forEach((item) => {
-                  propertyLookupList.push({ label: `${(item as UserDto).displayName}`, value: item.uid });
-                });
 
-                forms = {
-                  id: prop.uid,
-                  name: prop.propertyCode,
-                  type: CONTROL_TYPE.Dropdown,
-                  label: prop.propertyName,
-                  fieldControl: this.createFormGroup.controls[prop.propertyCode],
-                  layoutDefine: {
-                    row: createPropCount,
-                    column: 0,
-                  },
-                  options: propertyLookupList
-                }
-              }
-              else if (prop.propertyType === CONTROL_TYPE_CODE.Country) {
-                this.countryFormId = prop.uid;
-                forms = {
-                  id: prop.uid,
-                  name: prop.propertyCode,
-                  type: CONTROL_TYPE.Dropdown,
-                  label: prop.propertyName,
-                  fieldControl: this.createFormGroup.controls[prop.propertyCode],
-                  layoutDefine: {
-                    row: createPropCount,
-                    column: 0,
-                  },
-                  options: this.countryOptionList
-                }
-              }
-              else if (prop.propertyType === CONTROL_TYPE_CODE.State) {
-                this.stateFormId = prop.uid;
-                forms = {
-                  id: prop.uid,
-                  name: prop.propertyCode,
-                  type: CONTROL_TYPE.Dropdown,
-                  label: prop.propertyName,
-                  fieldControl: this.createFormGroup.controls[prop.propertyCode],
-                  layoutDefine: {
-                    row: createPropCount,
-                    column: 0,
-                  },
-                  dataSourceDependOn: [this.countryFormId],
-                  dataSourceAction: () => this.getStateList()
-                }
-              }
-              else if (prop.propertyType === CONTROL_TYPE_CODE.City) {
-                forms = {
-                  id: prop.uid,
-                  name: prop.propertyCode,
-                  type: CONTROL_TYPE.Dropdown,
-                  label: prop.propertyName,
-                  fieldControl: this.createFormGroup.controls[prop.propertyCode],
-                  layoutDefine: {
-                    row: createPropCount,
-                    column: 0,
-                  },
-                  dataSourceDependOn: [this.stateFormId],
-                  dataSourceAction: () => this.getCityList()
-                }
-              }
-              else if (prop.propertyType === CONTROL_TYPE_CODE.Postcode) {
-                forms = {
+              // for create contact/company properties
+              if (prop.isMandatory && prop.isEditable) {
+                this.createFormPropertyList.push(prop);
+
+                let control = new FormControl(this.commonService.returnControlTypeEmptyValue(prop), prop.isMandatory ? Validators.required : null);
+                this.createFormGroup.addControl(prop.propertyCode, control);
+
+                let forms: FormConfig = {
                   id: prop.uid,
                   name: prop.propertyCode,
                   type: CONTROL_TYPE.Textbox,
@@ -344,27 +233,155 @@ export class ContactCompanyPageComponent implements OnChanges {
                     row: createPropCount,
                     column: 0,
                   }
+                };
+
+                if (prop.propertyType === CONTROL_TYPE_CODE.Textbox || prop.propertyType === CONTROL_TYPE_CODE.Textarea || prop.propertyType === CONTROL_TYPE_CODE.Email || prop.propertyType === CONTROL_TYPE_CODE.Phone || prop.propertyType === CONTROL_TYPE_CODE.Url || prop.propertyType === CONTROL_TYPE_CODE.Number) {
+                  forms = {
+                    id: prop.uid,
+                    name: prop.propertyCode,
+                    type: CONTROL_TYPE.Textbox,
+                    label: prop.propertyName,
+                    fieldControl: this.createFormGroup.controls[prop.propertyCode],
+                    layoutDefine: {
+                      row: createPropCount,
+                      column: 0,
+                    },
+                    mode: this.returnTextMode(prop.propertyType),
+                  }
                 }
+                else if (prop.propertyType === CONTROL_TYPE_CODE.Checkbox || prop.propertyType === CONTROL_TYPE_CODE.MultiCheckbox || prop.propertyType === CONTROL_TYPE_CODE.Multiselect || prop.propertyType === CONTROL_TYPE_CODE.Dropdown || prop.propertyType === CONTROL_TYPE_CODE.Radio) {
+                  let propertyLookupList: OptionsModel[] = [];
+                  prop.propertyLookupList.forEach((item) => {
+                    propertyLookupList.push({ label: (item as PropertyLookupDto).propertyLookupLabel, value: item.uid });
+                  });
+
+                  forms = {
+                    id: prop.uid,
+                    name: prop.propertyCode,
+                    type: prop.propertyType === CONTROL_TYPE_CODE.Checkbox || prop.propertyType === CONTROL_TYPE_CODE.MultiCheckbox ? CONTROL_TYPE.Checkbox : prop.propertyType === CONTROL_TYPE_CODE.Multiselect ? CONTROL_TYPE.Multiselect : prop.propertyType === CONTROL_TYPE_CODE.Dropdown ? CONTROL_TYPE.Dropdown : CONTROL_TYPE.Radio,
+                    label: prop.propertyName,
+                    fieldControl: this.createFormGroup.controls[prop.propertyCode],
+                    layoutDefine: {
+                      row: createPropCount,
+                      column: 0,
+                    },
+                    options: propertyLookupList,
+                  }
+                }
+                else if (prop.propertyType === CONTROL_TYPE_CODE.DateTime || prop.propertyType === CONTROL_TYPE_CODE.Date || prop.propertyType === CONTROL_TYPE_CODE.Time) {
+                  forms = {
+                    id: prop.uid,
+                    name: prop.propertyCode,
+                    type: CONTROL_TYPE.Calendar,
+                    label: prop.propertyName,
+                    fieldControl: this.createFormGroup.controls[prop.propertyCode],
+                    layoutDefine: {
+                      row: createPropCount,
+                      column: 0,
+                    },
+                    timeOnly: prop.propertyType === CONTROL_TYPE_CODE.Time ? true : false,
+                    showTime: prop.propertyType !== CONTROL_TYPE_CODE.Date ? true : false
+                  }
+                }
+                else if (prop.propertyType === CONTROL_TYPE_CODE.User) {
+                  let propertyLookupList: OptionsModel[] = [];
+                  prop.propertyLookupList.forEach((item) => {
+                    propertyLookupList.push({ label: `${(item as UserDto).displayName}`, value: item.uid });
+                  });
+
+                  forms = {
+                    id: prop.uid,
+                    name: prop.propertyCode,
+                    type: CONTROL_TYPE.Dropdown,
+                    label: prop.propertyName,
+                    fieldControl: this.createFormGroup.controls[prop.propertyCode],
+                    layoutDefine: {
+                      row: createPropCount,
+                      column: 0,
+                    },
+                    options: propertyLookupList
+                  }
+                }
+                else if (prop.propertyType === CONTROL_TYPE_CODE.Country) {
+                  this.countryFormId = prop.uid;
+                  forms = {
+                    id: prop.uid,
+                    name: prop.propertyCode,
+                    type: CONTROL_TYPE.Dropdown,
+                    label: prop.propertyName,
+                    fieldControl: this.createFormGroup.controls[prop.propertyCode],
+                    layoutDefine: {
+                      row: createPropCount,
+                      column: 0,
+                    },
+                    options: this.countryOptionList
+                  }
+                }
+                else if (prop.propertyType === CONTROL_TYPE_CODE.State) {
+                  this.stateFormId = prop.uid;
+                  forms = {
+                    id: prop.uid,
+                    name: prop.propertyCode,
+                    type: CONTROL_TYPE.Dropdown,
+                    label: prop.propertyName,
+                    fieldControl: this.createFormGroup.controls[prop.propertyCode],
+                    layoutDefine: {
+                      row: createPropCount,
+                      column: 0,
+                    },
+                    dataSourceDependOn: [this.countryFormId],
+                    dataSourceAction: () => this.getStateList()
+                  }
+                }
+                else if (prop.propertyType === CONTROL_TYPE_CODE.City) {
+                  forms = {
+                    id: prop.uid,
+                    name: prop.propertyCode,
+                    type: CONTROL_TYPE.Dropdown,
+                    label: prop.propertyName,
+                    fieldControl: this.createFormGroup.controls[prop.propertyCode],
+                    layoutDefine: {
+                      row: createPropCount,
+                      column: 0,
+                    },
+                    dataSourceDependOn: [this.stateFormId],
+                    dataSourceAction: () => this.getCityList()
+                  }
+                }
+                else if (prop.propertyType === CONTROL_TYPE_CODE.Postcode) {
+                  forms = {
+                    id: prop.uid,
+                    name: prop.propertyCode,
+                    type: CONTROL_TYPE.Textbox,
+                    label: prop.propertyName,
+                    fieldControl: this.createFormGroup.controls[prop.propertyCode],
+                    layoutDefine: {
+                      row: createPropCount,
+                      column: 0,
+                    }
+                  }
+                }
+
+                formsConfig.push(forms);
+                createPropCount++;
               }
-
-              formsConfig.push(forms);
-              createPropCount++;
-            }
+            });
           });
-        });
 
-        this.createFormConfig = formsConfig;
+          this.createFormConfig = formsConfig;
 
-        // sort table column
-        this.tableConfig[this.activeTabPanel] = this.tableConfig[this.activeTabPanel].sort((a: any, b: any) => a.order - b.order);
-        this.tableLoading[this.activeTabPanel] = false;
-      }
-      else {
-        this.toastService.addSingle({
-          message: res.responseMessage,
-          severity: 'error'
-        });
-      }
+          // sort table column
+          this.tableConfig[this.activeTabPanel] = this.tableConfig[this.activeTabPanel].sort((a: any, b: any) => a.order - b.order);
+          this.tableLoading[this.activeTabPanel] = false;
+          resolve(true);
+        }
+        else {
+          this.toastService.addSingle({
+            message: res.responseMessage,
+            severity: 'error'
+          });
+        }
+      });
     });
   }
 
@@ -1321,6 +1338,68 @@ export class ContactCompanyPageComponent implements OnChanges {
     this.tableConfig[this.activeTabPanel].sort((a: any, b: any) => a.order - b.order);
   }
 
+  initMenuItem() {
+    this.filterMenuModel = [
+      {
+        label: this.translateService.instant('BUTTON.ADVANCE_FILTER', {
+          numberOfFilter: this.tabFilterList[this.activeTabPanel]?.length ?? 0
+        }),
+        icon: 'pi pi-sliders-h',
+        command: () => {
+          this.advanceFilterBtn();
+        }
+      },
+      {
+        label: this.translateService.instant('BUTTON.EDIT_COLUMN', {
+          numberOfColumn: this.tableConfig[this.activeTabPanel]?.length ?? 0
+        }),
+        icon: 'pi pi-sliders-v',
+        command: () => {
+          this.tableColumnFilterBtn();
+        }
+      },
+    ];
+
+    this.actionMenuModel = [
+      {
+        label: this.translateService.instant('BUTTON.EXPORT'),
+        icon: 'pi pi-upload',
+        command: () => {
+          this.exportFile(this.pageTable?.processedData);
+        }
+      },
+      {
+        label: this.translateService.instant('BUTTON.IMPORT'),
+        icon: 'pi pi-download',
+        command: () => {
+          this.uploader.click();
+        }
+      },
+      {
+        label: this.translateService.instant('BUTTON.DOWNLOAD_TEMPLATE'),
+        icon: 'pi pi-cloud-download',
+        command: () => {
+          this.downloadTemplate();
+        }
+      },
+      {
+        label: this.translateService.instant('BUTTON.CREATE'),
+        icon: 'pi pi-plus',
+        command: () => {
+          this.toCreate();
+        }
+      },
+      {
+        label: this.translateService.instant('BUTTON.DELETE'),
+        icon: 'pi pi-trash',
+        command: () => {
+          this.delete();
+        },
+        visible: this.selectedProfile.length > 0,
+      },
+    ]
+  }
+
   closeFilter() {
     this.isShowFilter = false;
     this.tempFilterList[this.activeTabPanel] = [];
@@ -1555,6 +1634,7 @@ export class ContactCompanyPageComponent implements OnChanges {
     else {
       this.returnFilteredProfileList();
     }
+    this.initMenuItem();
     this.closeFilter();
   }
 
@@ -1618,7 +1698,7 @@ export class ContactCompanyPageComponent implements OnChanges {
         });
       }
     });
-
+    this.initMenuItem();
     this.closeTableColumnFilter();
   }
 
@@ -1651,6 +1731,11 @@ export class ContactCompanyPageComponent implements OnChanges {
         }))
       })
     );
+  }
+
+  tableRowSelect(event: any[]) {
+    this.selectedProfile = event;
+    this.initMenuItem();
   }
 }
 

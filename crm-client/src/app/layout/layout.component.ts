@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import * as Blobity from 'blobity';
 import { AuthService } from '../core/services/auth.service';
@@ -8,6 +8,7 @@ import { Message, MessageService } from 'primeng/api';
 import { Subscription } from 'rxjs';
 import { ToastService } from '../core/services/toast.service';
 import { CoreHttpService, TenantDto, UserDto } from '../core/services/core-http.service';
+import { CommonService } from '../core/services/common.service';
 
 @Component({
   selector: 'app-layout',
@@ -22,6 +23,7 @@ export class LayoutComponent implements OnInit {
   constructor(
     private authService: AuthService,
     private translateService: TranslateService,
+    private commonService: CommonService,
     private cdRef: ChangeDetectorRef,
     private toastService: ToastService,
     private coreService: CoreHttpService
@@ -30,6 +32,8 @@ export class LayoutComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.onResize();
+
     // this.initBlobity(true);
     this.authService.initAuth();
     this.coreService.getCurrentUser().then(res => {
@@ -63,8 +67,12 @@ export class LayoutComponent implements OnInit {
           }
         })
       }
-    })
+    });
+  }
 
+  @HostListener('window:resize', ['$event'])
+  onResize() {
+    this.commonService.updateWindowSize();
   }
 
   initBlobity(isOn: boolean) {
