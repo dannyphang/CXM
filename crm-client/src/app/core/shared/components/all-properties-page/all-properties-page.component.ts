@@ -1,5 +1,5 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonService, CompanyDto, ContactDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, PropertyLookupDto, StateDto, UpdateCompanyDto, UpdateContactDto, UserDto } from '../../../services/common.service';
+import { Component, HostListener, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { CommonService, CompanyDto, ContactDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, PropertyLookupDto, StateDto, UpdateCompanyDto, UpdateContactDto, UserDto, WindowSizeDto } from '../../../services/common.service';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../../../services/components.service';
 import { debounceTime, distinctUntilChanged, map, Observable, ObservableLike, of } from 'rxjs';
@@ -21,6 +21,8 @@ export class AllPropertiesPageComponent extends BasePropertyAbstract implements 
   @Input() contactProfile: ContactDto = new ContactDto();
   @Input() companyProfile: CompanyDto = new CompanyDto();
 
+  windowSize: WindowSizeDto = new WindowSizeDto();
+
   searchControl: FormControl = new FormControl('');
   hideEmptySearchCheckbox = [{ label: 'Hide blank properties', value: true }];
 
@@ -35,6 +37,13 @@ export class AllPropertiesPageComponent extends BasePropertyAbstract implements 
     protected override coreService: CoreHttpService
   ) {
     super(formBuilder, commonService, toastService, authService, translateService, coreService);
+    this.windowSize = this.commonService.windowSize;
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize() {
+    this.commonService.updateWindowSize();
+    this.windowSize = this.commonService.windowSize;
   }
 
   ngOnChanges(changes: SimpleChanges): void {

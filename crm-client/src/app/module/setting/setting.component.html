@@ -4,6 +4,7 @@
   <div
     class="tw-p-[var(--content-gap)] setting-left-container"
     id="setting_left"
+    *ngIf="windowSize.desktop"
   >
     <p-menu [model]="settingMenuItem" id="setting_menu_panel"> </p-menu>
   </div>

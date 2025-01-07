@@ -1,5 +1,5 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonService, CompanyDto, ContactDto, PropertyGroupDto } from '../../../services/common.service';
+import { Component, HostListener, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { CommonService, CompanyDto, ContactDto, PropertyGroupDto, WindowSizeDto } from '../../../services/common.service';
 import { ActivatedRoute } from '@angular/router';
 import { ActivityDto, ActivityService } from '../../../services/activity.service';
 import { Title } from '@angular/platform-browser';
@@ -18,6 +18,9 @@ export class ProfilePageComponent implements OnChanges {
   @Input() module: 'CONT' | 'COMP' = 'CONT';
   @Input() propertiesList: PropertyGroupDto[] = [];
   @Input() profileUid: string = '';
+
+  windowSize: WindowSizeDto = new WindowSizeDto();
+
   contactProfile: ContactDto = new ContactDto();
   companyProfile: CompanyDto = new CompanyDto();
   activitiesList: ActivityDto[] = [];
@@ -35,6 +38,13 @@ export class ProfilePageComponent implements OnChanges {
     this.route.params.subscribe((params) => {
       this.profileUid = params['id'];
     });
+    this.windowSize = this.commonService.windowSize;
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize() {
+    this.commonService.updateWindowSize();
+    this.windowSize = this.commonService.windowSize;
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -50,7 +60,7 @@ export class ProfilePageComponent implements OnChanges {
         this.getCompany();
       }
 
-      // this.getProperties();
+      this.getProperties();
       this.getActivities();
     }
   }

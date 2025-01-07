@@ -8,7 +8,9 @@
     "ACTIVITY": "Activity",
     "TENANT": "Tenant",
     "USER": "User",
-    "PROPERTY": "Property"
+    "PROPERTY": "Property",
+    "RECORDS": "Records",
+    "OTHERS": "Others"
   },
   "HEADER": {
     "SETTING": "Setting"
@@ -58,6 +60,7 @@
     "EDIT": "Edit",
     "UPDATE": "Update",
     "ACTION": "Action",
+    "ACTIONS": "Actions",
     "ATTACH_FILE": "Attach Files",
     "LOGIN": "Login",
     "LOGOUT": "Logout",
@@ -78,7 +81,8 @@
     "TO_Left": "Remove properties from column.",
     "SIGN_UP_LABEL": "Create a new account",
     "SIGN_IN_LABEL": "Go to sign in",
-    "CHECK_USER_EMAIL": "Check email existing"
+    "CHECK_USER_EMAIL": "Check email existing",
+    "FILTER": "Filter"
   },
   "INPUT": {
     "SEARCH": "Search",

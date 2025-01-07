@@ -1,20 +1,23 @@
 <!-- <app-toast></app-toast> -->
 
-<div class="tw-grid tw-p-[15px] allProp-div" *ngIf="propertyConfig.length > 0">
+<div
+  class="tw-grid tw-p-[var(--content-gap)] allProp-div"
+  *ngIf="propertyConfig.length > 0"
+>
   <!-- search bar -->
   <div
-    class="search-div tw-mt-[15px] tw-mb-0 tw-flex tw-flex-wrap tw-items-center"
+    class="search-div tw-grid lg:tw-flex tw-gap-[var(--content-gap)] tw-items-center"
   >
     <app-base-input
       [placeholder]="'Search Properties...'"
       [autoFocus]="true"
       [fieldControl]="searchControl"
-      class="tw-w-[70%]"
+      [class]="windowSize.desktop ? 'tw-w-[70%]' : 'tw-w-full'"
     ></app-base-input>
 
     <app-base-checkbox
       [options]="hideEmptySearchCheckbox"
-      class="tw-mx-[15px]"
+      class=""
       [fieldControl]="hideCheckFormControl"
     ></app-base-checkbox>
   </div>
@@ -22,7 +25,7 @@
   <!-- property form -->
   <div class="panel-div" *ngFor="let propertyGroup of propertyList">
     <div
-      class="tw-mt-[15px]"
+      class="tw-mt-[var(--content-gap)]"
       [ngClass]="{
         'tw-block': tempPropertyConfigNumber[propertyGroup.moduleCode] === 1,
         'tw-hidden': tempPropertyConfigNumber[propertyGroup.moduleCode] !== 1
@@ -46,12 +49,12 @@
 <p-dialog
   [(visible)]="showFormUpdateSidebar"
   [position]="'bottom'"
-  styleClass="tw-w-full tw-m-[15px]"
+  styleClass="tw-w-full tw-m-[var(--content-gap)]"
 >
   <ng-template pTemplate="headless">
     <div
       *ngIf="propUpdateList"
-      class="tw-flex tw-flex-wrap tw-items-center tw-m-[15px]"
+      class="tw-flex tw-flex-wrap tw-items-center tw-m-[var(--content-gap)]"
     >
       <div class="tw-flex">
         <app-base-button
@@ -62,7 +65,7 @@
         ></app-base-button>
         <app-base-button
           [label]="'BUTTON.CANCEL'"
-          class="tw-ml-[15px]"
+          class="tw-ml-[var(--content-gap)]"
           [outlined]="true"
           (onClick)="cancelButton()"
         ></app-base-button>
@@ -75,7 +78,7 @@
           (propUpdateList.length === 1 ? ' property' : ' properties') +
           '.'
         "
-        class="tw-ml-[15px]"
+        class="tw-ml-[var(--content-gap)]"
       ></app-base-label>
     </div>
   </ng-template>

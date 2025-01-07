@@ -7,12 +7,42 @@ import { ToastService } from "./toast.service";
 
 @Injectable({ providedIn: 'root' })
 export class CommonService {
+    windowSize: WindowSizeDto = new WindowSizeDto();
+
     constructor(
         private translateService: TranslateService,
         private coreService: CoreHttpService,
         private toastService: ToastService,
     ) {
 
+    }
+
+    set setWindowSize(windowSize: WindowSizeDto) {
+        this.windowSize = windowSize;
+    }
+
+    updateWindowSize() {
+        if (window.innerWidth <= 640) {
+            this.setWindowSize = {
+                mobile: true,
+                tablet: false,
+                desktop: false
+            };
+        }
+        else if (window.innerWidth > 640 && window.innerWidth <= 768) {
+            this.setWindowSize = {
+                mobile: false,
+                tablet: true,
+                desktop: false
+            };
+        }
+        else {
+            this.setWindowSize = {
+                mobile: false,
+                tablet: false,
+                desktop: true
+            };
+        }
     }
 
     generateGUID(): string {
@@ -257,6 +287,12 @@ export class CommonService {
             });
         });
     }
+}
+
+export class WindowSizeDto {
+    mobile: boolean;
+    tablet: boolean;
+    desktop: boolean;
 }
 
 export class ModuleDto extends BasedDto {

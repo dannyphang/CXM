@@ -1,5 +1,5 @@
-import { Component, EventEmitter, Input, NgZone, OnChanges, OnDestroy, Output, SimpleChanges } from '@angular/core';
-import { AttachmentDto, CommonService, CompanyDto, ContactDto, ModuleDto } from '../../../services/common.service';
+import { Component, EventEmitter, HostListener, Input, NgZone, OnChanges, OnDestroy, Output, SimpleChanges } from '@angular/core';
+import { AttachmentDto, CommonService, CompanyDto, ContactDto, ModuleDto, WindowSizeDto } from '../../../services/common.service';
 import { FormBuilder, FormControl, FormGroup, NgModel, Validators } from '@angular/forms';
 import { CONTROL_TYPE, FormConfig, OptionsModel } from '../../../services/components.service';
 import { ActivityDto, ActivityModuleDto, ActivityService, CreateActivityDto } from '../../../services/activity.service';
@@ -27,6 +27,8 @@ export class ActivityDialogComponent implements OnChanges {
   @Input() activityModuleList: ModuleDto[] = [];
   @Input() header: string = 'Activity Dialog';
   @Output() close: EventEmitter<any> = new EventEmitter<any>();
+
+  windowSize: WindowSizeDto = new WindowSizeDto();
 
   activityControlList: ActivityModuleDto[] = [];
   activityFormConfig: FormConfig[] = [];
@@ -64,7 +66,13 @@ export class ActivityDialogComponent implements OnChanges {
     private toastService: ToastService,
     private coreService: CoreHttpService
   ) {
+    this.windowSize = this.commonService.windowSize;
+  }
 
+  @HostListener('window:resize', ['$event'])
+  onResize() {
+    this.commonService.updateWindowSize();
+    this.windowSize = this.commonService.windowSize;
   }
 
   ngOnInit() {
@@ -208,7 +216,14 @@ export class ActivityDialogComponent implements OnChanges {
           options: this.generateTimeDurations()
         }
       }
-      cols++;
+
+      if (this.windowSize.desktop) {
+        cols++;
+      }
+      else {
+        rows++;
+      }
+
       formsConfig.push(forms);
     });
     this.activityFormConfig = formsConfig;

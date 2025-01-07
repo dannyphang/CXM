@@ -5,6 +5,7 @@ import { AuthService } from "./auth.service";
 import { map, Observable } from "rxjs";
 import { FirebaseApp, initializeApp } from "firebase/app";
 import { Auth, getAuth, onAuthStateChanged, User } from "firebase/auth";
+import { ToastService } from "./toast.service";
 
 @Injectable()
 export class CoreHttpService {
@@ -17,6 +18,7 @@ export class CoreHttpService {
 
     constructor(
         private http: HttpClient,
+        private toastService: ToastService
     ) { }
 
     getTenantsByUserId(userId: string): Observable<ResponseModel<TenantDto[]>> {
@@ -35,8 +37,13 @@ export class CoreHttpService {
         return this.user;
     }
 
-    async getCurrentUser(): Promise<User | null> {
+    async getCurrentUser(): Promise<UserDto> {
         return new Promise((resolve, reject) => {
+            this.toastService.addSingle({
+                message: 'COMMON.LOADING',
+                severity: 'info',
+                isLoading: true
+            })
             this.getEnvToken().subscribe(res => {
                 this.app = initializeApp(res);
                 this.auth = getAuth(this.app);
@@ -46,7 +53,7 @@ export class CoreHttpService {
                         this.getUser(this.user.uid).subscribe(res => {
                             if (res.isSuccess) {
                                 this.userC = res.data;
-                                resolve(this.user);
+                                resolve(this.userC);
                             }
                         })
                     } else {
