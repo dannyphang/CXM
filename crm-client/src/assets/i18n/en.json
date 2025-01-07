@@ -8,7 +8,9 @@
     "ACTIVITY": "Activity",
     "TENANT": "Tenant",
     "USER": "User",
-    "PROPERTY": "Property"
+    "PROPERTY": "Property",
+    "RECORDS": "Records",
+    "OTHERS": "Others"
   },
   "HEADER": {
     "SETTING": "Setting"

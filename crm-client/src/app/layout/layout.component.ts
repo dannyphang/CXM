@@ -35,38 +35,30 @@ export class LayoutComponent implements OnInit {
     this.onResize();
 
     // this.initBlobity(true);
-    this.authService.initAuth();
-    this.coreService.getCurrentUser().then(res => {
-      if (res) {
-        this.coreService.getUser(res.uid).subscribe(res2 => {
-          if (res2.isSuccess) {
-            this.user = res2.data;
-            this.toastService.addSingle({
-              key: 'tenant',
-              message: this.translateService.instant('COMMON.LOADING',
-                {
-                  module: this.translateService.instant('COMMON.TENANT')
-                }
-              ),
-              severity: 'info',
-              isLoading: true
-            });
-
-            this.coreService.getTenantsByUserId(this.user.uid).subscribe(res3 => {
-              if (res3.isSuccess) {
-                this.tenantList = res3.data;
-                this.tenantOptionsList = this.tenantList.map(t => {
-                  return {
-                    label: t.tenantName,
-                    value: t.uid
-                  }
-                });
-                this.toastService.clear('tenant');
-              }
-            });
+    this.authService.initAuth().then(userC => {
+      this.user = userC;
+      this.toastService.addSingle({
+        key: 'tenant',
+        message: this.translateService.instant('COMMON.LOADING',
+          {
+            module: this.translateService.instant('COMMON.TENANT')
           }
-        })
-      }
+        ),
+        severity: 'info',
+        isLoading: true
+      });
+      this.coreService.getTenantsByUserId(this.user.uid).subscribe(res3 => {
+        if (res3.isSuccess) {
+          this.tenantList = res3.data;
+          this.tenantOptionsList = this.tenantList.map(t => {
+            return {
+              label: t.tenantName,
+              value: t.uid
+            }
+          });
+          this.toastService.clear('tenant');
+        }
+      });
     });
   }
 

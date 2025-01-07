@@ -27,12 +27,16 @@ export class AuthService {
 
     }
 
-    initAuth() {
-        this.coreService.getEnvToken().subscribe(res => {
-            this.app = initializeApp(res);
-            this.auth = getAuth(this.app);
-            this.coreService.getCurrentUser();
-        })
+    initAuth(): Promise<UserDto> {
+        return new Promise((resolve, reject) => {
+            this.coreService.getEnvToken().subscribe(res => {
+                this.app = initializeApp(res);
+                this.auth = getAuth(this.app);
+                this.coreService.getCurrentUser().then(user => {
+                    resolve(user);
+                });
+            })
+        });
     }
 
     signUp(email: string, password: string) {

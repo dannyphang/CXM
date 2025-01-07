@@ -46,7 +46,7 @@
 
     <!-- panel body -->
     <div acc-panel-body class="activity-panel-content-div">
-      <!-- email -->
+      <!-- email form -->
       <app-base-form
         [formConfig]="emailFormConfig"
         *ngIf="
@@ -137,7 +137,11 @@
         </div>
       </div>
 
-      <app-base-form [formConfig]="activityFormConfig"></app-base-form>
+      <!-- log activity form -->
+      <app-base-form
+        [formConfig]="activityFormConfig"
+        *ngIf="activity.activityModuleCode === 'LOG'"
+      ></app-base-form>
 
       <!-- footer buttons -->
       <div class="content-btn-div tw-flex tw-justify-between" *ngIf="!readonly">

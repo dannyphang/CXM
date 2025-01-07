@@ -1,6 +1,10 @@
 <p-dialog
   [(visible)]="visible"
-  [style]="{ width: '70%' }"
+  [style]="{
+    width: windowSize.desktop ? '70%' : '100%',
+    maxHeight: windowSize.desktop ? '90%' : '100vh',
+    height: windowSize.desktop ? 'auto' : '100vh'
+  }"
   [modal]="false"
   [closable]="false"
 >

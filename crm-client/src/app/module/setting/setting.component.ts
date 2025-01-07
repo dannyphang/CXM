@@ -4,6 +4,7 @@ import { BaseCoreAbstract } from '../../core/shared/base/base-core.abstract';
 import { TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../core/services/auth.service';
 import { CoreHttpService, UserDto } from '../../core/services/core-http.service';
+import { CommonService, WindowSizeDto } from '../../core/services/common.service';
 
 @Component({
   selector: 'app-setting',
@@ -14,12 +15,15 @@ export class SettingComponent {
   settingMenuItem: MenuItem[] = [];
   userC: UserDto;
 
+  windowSize: WindowSizeDto = new WindowSizeDto();
+
   constructor(
     private translateService: TranslateService,
     private authService: AuthService,
-    private coreService: CoreHttpService
+    private coreService: CoreHttpService,
+    private commonService: CommonService,
   ) {
-
+    this.windowSize = this.commonService.windowSize;
   }
 
   ngOnInit() {
@@ -62,15 +66,23 @@ export class SettingComponent {
 
   @HostListener('window:scroll', ['$event']) // for window scroll events
   onScroll(event: any) {
-    if (window.scrollY > 116) {
-      document.getElementById("setting_left")!.style.width = "280px";
-      document.getElementById("setting_menu_panel")!.style.position = "fixed";
-      document.getElementById("setting_menu_panel")!.style.top = "10px";
+    if (this.windowSize.desktop) {
+      if (window.scrollY > 116) {
+        document.getElementById("setting_left")!.style.width = "280px";
+        document.getElementById("setting_menu_panel")!.style.position = "fixed";
+        document.getElementById("setting_menu_panel")!.style.top = "10px";
+      }
+      else {
+        document.getElementById("setting_left")!.style.width = "auto";
+        document.getElementById("setting_menu_panel")!.style.position = "relative";
+        document.getElementById("setting_menu_panel")!.style.top = "0";
+      }
     }
-    else {
-      document.getElementById("setting_left")!.style.width = "auto";
-      document.getElementById("setting_menu_panel")!.style.position = "relative";
-      document.getElementById("setting_menu_panel")!.style.top = "0";
-    }
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize() {
+    this.commonService.updateWindowSize();
+    this.windowSize = this.commonService.windowSize;
   }
 }

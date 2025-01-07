@@ -1,10 +1,15 @@
 <!-- <app-toast></app-toast> -->
 
 <div class="tw-flex profile-box">
-  <p-splitter [panelSizes]="[20, 80]" [minSizes]="[10, 50]">
+  <!-- desktop -->
+  <p-splitter
+    [panelSizes]="[30, 70]"
+    [minSizes]="[22, 50]"
+    *ngIf="windowSize.desktop"
+  >
     <ng-template pTemplate>
       <app-left-panel
-        class="left-panel-area tw-w-full"
+        class="left-panel-area tw-w-full tw-px-[var(--content-gap)]"
         [module]="module"
         [propertiesList]="propertiesList"
         [contactProfile]="contactProfile"
@@ -21,14 +26,14 @@
             [contactProfile]="contactProfile"
             [companyProfile]="companyProfile"
             [activitiesList]="activitiesList"
-            class="middle-panel-area tw-w-full"
+            class="middle-panel-area tw-w-full tw-px-[var(--content-gap)]"
             (activityListEmit)="getActivities()"
           ></app-middle-panel>
         </ng-template>
 
         <ng-template pTemplate>
           <app-right-panel
-            class="tw-w-full"
+            class="tw-w-full tw-px-[var(--content-gap)]"
             [module]="module"
             [propertiesList]="propertiesList"
             [contactProfile]="contactProfile"
@@ -57,4 +62,48 @@
       ></app-base-button> -->
     </ng-template>
   </p-splitter>
+
+  <!-- not desktop -->
+  <div class="tw-w-full" *ngIf="!windowSize.desktop">
+    <p-tabView class="tw-w-full profile-tab-view">
+      <p-tabPanel
+        [header]="
+          'COMMON.' + (module === 'CONT' ? 'CONTACT' : 'COMPANY') | translate
+        "
+      >
+        <app-left-panel
+          class="left-panel-area tw-w-full"
+          [module]="module"
+          [propertiesList]="propertiesList"
+          [contactProfile]="contactProfile"
+          [companyProfile]="companyProfile"
+          (profileUpdateEmit)="profileUpdate($event)"
+        ></app-left-panel>
+      </p-tabPanel>
+
+      <p-tabPanel [header]="'COMMON.RECORDS' | translate">
+        <app-middle-panel
+          [module]="module"
+          [contactProfile]="contactProfile"
+          [companyProfile]="companyProfile"
+          [activitiesList]="activitiesList"
+          class="middle-panel-area tw-w-full"
+          (activityListEmit)="getActivities()"
+        ></app-middle-panel>
+      </p-tabPanel>
+
+      <p-tabPanel [header]="'COMMON.OTHERS' | translate">
+        <app-right-panel
+          class="tw-w-full"
+          [module]="module"
+          [propertiesList]="propertiesList"
+          [contactProfile]="contactProfile"
+          [companyProfile]="companyProfile"
+          (getProfileEmit)="
+            returnEvent($event) === 'CONT' ? getContact() : getCompany()
+          "
+        ></app-right-panel>
+      </p-tabPanel>
+    </p-tabView>
+  </div>
 </div>
