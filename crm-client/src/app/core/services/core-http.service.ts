@@ -85,13 +85,19 @@ export class CoreHttpService {
     }
 
     post<ResponseBody = any, Body = any>(url: string, body: Body, option?: CoreHttpOption) {
+        const { header, reportProgress, responseType } = option || {}; // Destructure the properties
+
         return this.http.post<ResponseModel<ResponseBody>>(
             `${this.BASE_URL}/${url}`,
             body,
             {
-                headers: this.buildHeader(option)
-            })
+                headers: this.buildHeader({ header }),
+                reportProgress,
+                responseType
+            }
+        );
     }
+
 
     put<ResponseBody = any, Body = any>(url: string, body: Body, option?: CoreHttpOption) {
         return this.http.put<ResponseModel<ResponseBody>>(
@@ -115,6 +121,8 @@ class CoreHttpOption {
     header?: any;
     tenantId?: string;
     userId?: string;
+    reportProgress?: boolean;
+    responseType?: any;
 }
 
 export class ResponseModel<T> {

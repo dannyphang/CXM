@@ -60,7 +60,7 @@ export class ProfilePageComponent implements OnChanges {
         this.getCompany();
       }
 
-      this.getProperties();
+      // this.getProperties();
       this.getActivities();
     }
   }
@@ -104,6 +104,7 @@ export class ProfilePageComponent implements OnChanges {
       if (res.isSuccess) {
         this.contactProfile = res.data;
         this.titleService.setTitle(`${this.contactProfile.contactFirstName} ${this.contactProfile.contactLastName}`);
+        this.toastService.clear();
       }
       else {
         this.toastService.addSingle({

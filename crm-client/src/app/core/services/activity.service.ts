@@ -36,11 +36,11 @@ export class ActivityService {
     }
 
     uploadAttachment(attachmentList: AttachmentDto[]): Observable<ResponseModel<AttachmentDto[]>> {
-        return this.coreService.post<AttachmentDto[]>('activity/upload', { attachmentList }).pipe();
+        return this.coreService.post<AttachmentDto[]>('attachment/upload', { attachmentList }).pipe();
     }
 
-    updateActivity(updateActivity: UpdateActivityDto): Observable<ResponseModel<ActivityDto>> {
-        return this.coreService.put<ActivityDto>('activity/' + updateActivity.uid, { updateActivity }).pipe();
+    updateActivity(updateActivityList: UpdateActivityDto[]): Observable<ResponseModel<ActivityDto>> {
+        return this.coreService.put<ActivityDto>('activity/', { updateActivityList }).pipe();
     }
 
     sendEmail(data: EmailDto, createActivity: CreateActivityDto): Observable<ResponseModel<any>> {

@@ -120,10 +120,10 @@ export class ActivityBlockComponent implements OnChanges {
           icon: this.activity.isPinned ? 'pi pi-star-fill' : 'pi pi-star',
           command: () => {
             this.activity.isPinned = !this.activity.isPinned;
-            this.activityService.updateActivity({
+            this.activityService.updateActivity([{
               uid: this.activity.uid,
               isPinned: this.activity.isPinned
-            }).subscribe(res => {
+            }]).subscribe(res => {
               if (res.isSuccess) {
                 this.activityReload.emit();
               }
@@ -140,10 +140,10 @@ export class ActivityBlockComponent implements OnChanges {
           label: 'Delete',
           icon: 'pi pi-trash',
           command: () => {
-            this.activityService.updateActivity({
+            this.activityService.updateActivity([{
               uid: this.activity.uid,
               statusId: 2
-            }).subscribe(res => {
+            }]).subscribe(res => {
               if (res.isSuccess) {
                 this.toastService.addSingle({
                   message: this.translateService.instant("MESSAGE.DELETED_SUCCESSFULLY", {
@@ -510,10 +510,10 @@ export class ActivityBlockComponent implements OnChanges {
       isLoading: true,
       severity: 'info'
     });
-    this.activityService.updateActivity({
+    this.activityService.updateActivity([{
       activityContent: this.editorFormControl.value,
       ...this.updateAct
-    }).subscribe(res => {
+    }]).subscribe(res => {
       if (res.isSuccess) {
         if (this.attachmentList && this.attachmentList.length > 0) {
           this.attachmentList.forEach(file => {
@@ -529,10 +529,10 @@ export class ActivityBlockComponent implements OnChanges {
 
                 this.activityService.uploadAttachment([uploadAttach]).subscribe(res3 => {
                   if (res3.isSuccess) {
-                    this.activityService.updateActivity({
+                    this.activityService.updateActivity([{
                       uid: res3.data[0].activityUid,
                       attachmentUid: this.returnAttactmentList(this.activity.attachmentUid, res3.data[0].uid),
-                    }).subscribe(
+                    }]).subscribe(
                       {
                         next: res4 => {
                           if (res4.isSuccess) {
