@@ -63,6 +63,16 @@ function getAllPropertiesByModule({ moduleCode, tenantId }) {
     });
 }
 
+function getModuleByModuleType({ moduleType }) {
+    return new Promise(async (resolve, reject) => {
+        const snapshotModule = await firebase.db.collection(moduleCodeCollection).where("moduleType", "==", moduleType).where("statusId", "==", 1).orderBy("moduleId").get();
+
+        const moduleList = snapshotModule.docs.map((doc) => doc.data());
+
+        resolve(moduleList);
+    });
+}
+
 function getAllModuleSub({ moduleCode }) {
     return new Promise(async (resolve, reject) => {
         const snapshotModule = await firebase.db.collection(moduleCodeCollection).where("moduleSubCode", "==", moduleCode).where("statusId", "==", 1).get();
@@ -165,6 +175,7 @@ export {
     getAllModuleBySubModule,
     createModule,
     getAllPropertiesByModule,
+    getModuleByModuleType,
     getAllModuleSub,
     getAllPropertyLookUpList,
     createProperty,

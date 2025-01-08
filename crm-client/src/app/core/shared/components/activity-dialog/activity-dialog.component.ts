@@ -459,10 +459,10 @@ export class ActivityDialogComponent implements OnChanges {
 
                   this.activityService.uploadAttachment([uploadAttach]).subscribe(res3 => {
                     if (res3.isSuccess) {
-                      this.activityService.updateActivity({
+                      this.activityService.updateActivity([{
                         uid: res3.data[0].activityUid,
                         attachmentUid: this.returnAttactmentList(res.data[0].attachmentUid, res3.data[0].uid),
-                      }).subscribe(
+                      }]).subscribe(
                         {
                           next: res4 => {
                             if (res4.isSuccess) {

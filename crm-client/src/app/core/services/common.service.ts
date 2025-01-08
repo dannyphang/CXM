@@ -126,13 +126,12 @@ export class CommonService {
         formData.append('file', file);
         formData.append('folderName', folderName);
 
-        return this.coreService.post<any>('storage/file', formData, {
-            header: {
-                reportProgress: true,
-                responseType: 'json'
-            }
+        return this.coreService.post<any, FormData>('attachment/file', formData, {
+            reportProgress: true,
+            responseType: 'json',
         }).pipe();
     }
+
 
     /**
      * set form control init value

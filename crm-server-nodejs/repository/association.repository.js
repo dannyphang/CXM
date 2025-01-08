@@ -4,7 +4,6 @@ const associationCollection = "association";
 
 function getAssociation(data) {
     return new Promise(async (resolve, reject) => {
-        console.log(data);
         const assoSnapshot = await firebase.db
             .collection(associationCollection)
             .where("statusId", "==", 1)
