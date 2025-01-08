@@ -25,7 +25,7 @@ router.post("/country", async (req, res) => {
         let createdList = [];
 
         list.forEach(async (loc) => {
-            let newRef = db.default.db.collection(countryCollectionName).doc();
+            let newRef = db.db.collection(countryCollectionName).doc();
             loc.uid = newRef.id;
             loc.createdDate = new Date();
             loc.modifiedDate = new Date();
@@ -51,7 +51,7 @@ router.post("/country", async (req, res) => {
 // get all country
 router.get("/country", async (req, res) => {
     try {
-        const snapshot = await db.default.db.collection(countryCollectionName).orderBy("countryId").where("statusId", "==", 1).get();
+        const snapshot = await db.db.collection(countryCollectionName).orderBy("countryId").where("statusId", "==", 1).get();
 
         const list = snapshot.docs.map((doc) => {
             return doc.data();
@@ -81,7 +81,7 @@ router.post("/state", async (req, res) => {
         let createdList = [];
 
         list.forEach(async (loc) => {
-            let newRef = db.default.db.collection(stateCollectionName).doc();
+            let newRef = db.db.collection(stateCollectionName).doc();
             loc.uid = newRef.id;
             loc.createdDate = new Date();
             loc.modifiedDate = new Date();
@@ -107,7 +107,7 @@ router.post("/state", async (req, res) => {
 // get all state
 router.get("/state", async (req, res) => {
     try {
-        const snapshot = await db.default.db.collection(stateCollectionName).orderBy("stateId").where("statusId", "==", 1).get();
+        const snapshot = await db.db.collection(stateCollectionName).orderBy("stateId").where("statusId", "==", 1).get();
 
         const list = snapshot.docs.map((doc) => {
             return doc.data();
@@ -135,10 +135,10 @@ router.get("/state/:id", async (req, res) => {
     try {
         const countryUid = req.params.id;
 
-        const snapshot = await db.default.db.collection(countryCollectionName).doc(countryUid).get();
+        const snapshot = await db.db.collection(countryCollectionName).doc(countryUid).get();
 
         if (snapshot.data().statusId === 1) {
-            const snapshot2 = await db.default.db.collection(stateCollectionName).orderBy("stateId").where("countryId", "==", Number(snapshot.data().countryId)).where("statusId", "==", 1).get();
+            const snapshot2 = await db.db.collection(stateCollectionName).orderBy("stateId").where("countryId", "==", Number(snapshot.data().countryId)).where("statusId", "==", 1).get();
 
             const list = snapshot2.docs.map((doc) => {
                 return doc.data();
@@ -181,7 +181,7 @@ router.post("/city", async (req, res) => {
 
         list.forEach(async (loc, index) => {
             if (index >= (count - 1) * 10000 && index <= count * 10000) {
-                let newRef = db.default.db.collection(cityCollectionName).doc();
+                let newRef = db.db.collection(cityCollectionName).doc();
                 loc.uid = newRef.id;
                 loc.createdDate = new Date();
                 loc.modifiedDate = new Date();
@@ -210,10 +210,10 @@ router.get("/city/:id", async (req, res) => {
     try {
         const stateUid = req.params.id;
 
-        const snapshot = await db.default.db.collection(stateCollectionName).doc(stateUid).get();
+        const snapshot = await db.db.collection(stateCollectionName).doc(stateUid).get();
 
         if (snapshot.data().statusId === 1) {
-            const snapshot2 = await db.default.db.collection(cityCollectionName).orderBy("stateId").where("stateId", "==", Number(snapshot.data().stateId)).where("statusId", "==", 1).get();
+            const snapshot2 = await db.db.collection(cityCollectionName).orderBy("stateId").where("stateId", "==", Number(snapshot.data().stateId)).where("statusId", "==", 1).get();
 
             const list = snapshot2.docs.map((doc) => {
                 return doc.data();
@@ -251,7 +251,7 @@ router.get("/state/name/:stateName", async (req, res) => {
     try {
         const stateName = req.params.stateName;
 
-        const snapshot = await db.default.db.collection(stateCollectionName).where("name", "==", stateName).where("statusId", "==", 1).get();
+        const snapshot = await db.db.collection(stateCollectionName).where("name", "==", stateName).where("statusId", "==", 1).get();
 
         if (snapshot.docs.length > 0) {
             const list = snapshot.docs.map((doc) => {
@@ -290,7 +290,7 @@ router.get("/city/name/:cityName", async (req, res) => {
     try {
         const cityName = req.params.cityName;
 
-        const snapshot = await db.default.db.collection(cityCollectionName).where("name", "==", cityName).where("statusId", "==", 1).get();
+        const snapshot = await db.db.collection(cityCollectionName).where("name", "==", cityName).where("statusId", "==", 1).get();
 
         if (snapshot.docs.length > 0) {
             const list = snapshot.docs.map((doc) => {

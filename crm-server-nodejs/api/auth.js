@@ -111,7 +111,7 @@ router.get("/user/:id", async (req, res) => {
     const id = req.params.id;
 
     try {
-        const snapshot = await firebase.default.db.collection(userCollectionName).doc(id).get();
+        const snapshot = await firebase.db.collection(userCollectionName).doc(id).get();
 
         if (snapshot.data()) {
             const user = snapshot.data()?.statusId == 1 ? snapshot.data() : {};
@@ -175,13 +175,13 @@ router.get("/tenant/:id", async (req, res) => {
     const id = req.params.id;
 
     try {
-        const snapshot = await firebase.default.db.collection(userTenantCollectionName).where("userId", "==", id).where("statusId", "==", 1).get();
+        const snapshot = await firebase.db.collection(userTenantCollectionName).where("userId", "==", id).where("statusId", "==", 1).get();
 
         const userTenantAssoList = snapshot.docs.map((doc) => doc.data());
         let list = [];
 
         userTenantAssoList.forEach(async (t, index) => {
-            let snapshot2 = await firebase.default.db.collection(tenantCollectionName).doc(t.tenantId).get();
+            let snapshot2 = await firebase.db.collection(tenantCollectionName).doc(t.tenantId).get();
 
             list.push(snapshot2.data());
 

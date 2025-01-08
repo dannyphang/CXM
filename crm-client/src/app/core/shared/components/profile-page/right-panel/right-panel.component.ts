@@ -150,6 +150,7 @@ export class RightPanelComponent implements OnChanges {
         });
       }
       else {
+        this.assoEmitToParent(this.module);
         this.closeSidebar();
       }
     })
