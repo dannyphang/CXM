@@ -8,7 +8,7 @@ import { MessageService } from 'primeng/api';
 import { AuthService } from '../../../services/auth.service';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastService } from '../../../services/toast.service';
-import { CoreHttpService } from '../../../services/core-http.service';
+import { CoreHttpService, UserPermissionDto } from '../../../services/core-http.service';
 
 @Component({
   selector: 'app-all-properties-page',
@@ -20,6 +20,7 @@ export class AllPropertiesPageComponent extends BasePropertyAbstract implements 
   @Input() propertyList: PropertyGroupDto[] = [];
   @Input() contactProfile: ContactDto = new ContactDto();
   @Input() companyProfile: CompanyDto = new CompanyDto();
+  @Input() permission: UserPermissionDto[] = [];
 
   windowSize: WindowSizeDto = new WindowSizeDto();
 
@@ -34,9 +35,11 @@ export class AllPropertiesPageComponent extends BasePropertyAbstract implements 
     protected override authService: AuthService,
     protected override translateService: TranslateService,
     protected override toastService: ToastService,
-    protected override coreService: CoreHttpService
+    protected override coreService: CoreHttpService,
+    protected override messageService: MessageService,
+
   ) {
-    super(formBuilder, commonService, toastService, authService, translateService, coreService);
+    super(formBuilder, commonService, toastService, authService, translateService, coreService, messageService);
     this.windowSize = this.commonService.windowSize;
   }
 
@@ -57,7 +60,7 @@ export class AllPropertiesPageComponent extends BasePropertyAbstract implements 
               value: c.uid
             }
           });
-          this.initProfileFormConfig(this.propertyList, this.module, this.contactProfile, this.companyProfile);
+          this.initProfileFormConfig(this.propertyList, this.module, this.contactProfile, this.companyProfile, false, this.permission);
           this.checkFormValueChange(this.propertyList);
         }
         else {

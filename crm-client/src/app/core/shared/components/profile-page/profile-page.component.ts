@@ -8,6 +8,7 @@ import { MessageService } from 'primeng/api';
 import { AuthService } from '../../../services/auth.service';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastService } from '../../../services/toast.service';
+import { CoreHttpService, UserPermissionDto } from '../../../services/core-http.service';
 
 @Component({
   selector: 'app-profile-page',
@@ -18,6 +19,7 @@ export class ProfilePageComponent implements OnChanges {
   @Input() module: 'CONT' | 'COMP' = 'CONT';
   @Input() propertiesList: PropertyGroupDto[] = [];
   @Input() profileUid: string = '';
+  permission: UserPermissionDto[] = [];
 
   windowSize: WindowSizeDto = new WindowSizeDto();
 
@@ -33,7 +35,8 @@ export class ProfilePageComponent implements OnChanges {
     private titleService: Title,
     private authService: AuthService,
     private translateService: TranslateService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private coreService: CoreHttpService
   ) {
     this.route.params.subscribe((params) => {
       this.profileUid = params['id'];
@@ -48,9 +51,6 @@ export class ProfilePageComponent implements OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    if (changes['propertiesList'] && changes['propertiesList'].currentValue) {
-      this.propertiesList = changes['propertiesList'].currentValue;
-    }
 
     if (changes['module'] && changes['module'].currentValue) {
       if (this.module === "CONT") {
@@ -62,7 +62,12 @@ export class ProfilePageComponent implements OnChanges {
 
       // this.getProperties();
       this.getActivities();
+      this.getPermission();
     }
+  }
+
+  getPermission() {
+    this.permission = this.authService.returnPermission(this.coreService.userC.permission);
   }
 
   getProperties() {

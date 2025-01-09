@@ -15,6 +15,7 @@
         [contactProfile]="contactProfile"
         [companyProfile]="companyProfile"
         (profileUpdateEmit)="profileUpdate($event)"
+        [permission]="permission"
       ></app-left-panel>
     </ng-template>
 
@@ -28,6 +29,7 @@
             [activitiesList]="activitiesList"
             class="middle-panel-area tw-w-full tw-px-[var(--content-gap)]"
             (activityListEmit)="getActivities()"
+            [permission]="permission"
           ></app-middle-panel>
         </ng-template>
 

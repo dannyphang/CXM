@@ -3,15 +3,18 @@ import { MenuItem, MessageService } from 'primeng/api';
 import { BaseCoreAbstract } from '../../core/shared/base/base-core.abstract';
 import { TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../core/services/auth.service';
-import { CoreHttpService, UserDto } from '../../core/services/core-http.service';
+import { CoreHttpService, UserDto, UserPermissionDto } from '../../core/services/core-http.service';
 import { CommonService, WindowSizeDto } from '../../core/services/common.service';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-setting',
   templateUrl: './setting.component.html',
   styleUrl: './setting.component.scss'
 })
-export class SettingComponent {
+export class SettingComponent extends BaseCoreAbstract {
+  permission: UserPermissionDto[] = [];
+  module = 'SETTING';
   settingMenuItem: MenuItem[] = [];
   userC: UserDto;
 
@@ -22,7 +25,10 @@ export class SettingComponent {
     private authService: AuthService,
     private coreService: CoreHttpService,
     private commonService: CommonService,
+    protected override messageService: MessageService,
+    private titleService: Title,
   ) {
+    super(messageService);
     this.windowSize = this.commonService.windowSize;
   }
 
@@ -62,6 +68,8 @@ export class SettingComponent {
         }
       },
     ];
+    this.permission = JSON.parse(this.userC.permission);
+    this.titleService.setTitle(this.translateService.instant('COMMON.SETTING'));
   }
 
   @HostListener('window:scroll', ['$event']) // for window scroll events

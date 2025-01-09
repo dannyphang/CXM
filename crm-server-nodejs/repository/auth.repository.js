@@ -88,6 +88,18 @@ function getUserTenantAssoByUserIdAndTenantId({ uid, tenantId }) {
   });
 }
 
+function getUserTenantAssoByTenantId({ uid, tenantId }) {
+  return new Promise(async (resolve, reject) => {
+    let snapshot2 = await firebase.db
+      .collection(userTenantCollectionName)
+      .where("tenantId", "==", tenantId)
+      .where("statusId", "==", 1)
+      .get();
+    const userTenantAssoList = snapshot2.docs.map((doc) => doc.data());
+    resolve(userTenantAssoList);
+  });
+}
+
 function createUserTenantAsso({ asso }) {
   return new Promise(async (resolve, reject) => {
     let newRef = firebase.default.db.collection(userTenantCollectionName).doc();
@@ -127,6 +139,7 @@ export {
   getTenantById,
   getUserTenantAssoByUserId,
   getUserTenantAssoByUserIdAndTenantId,
+  getUserTenantAssoByTenantId,
   createUserTenantAsso,
   createTenant,
   getAllRoles,

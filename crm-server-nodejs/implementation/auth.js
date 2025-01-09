@@ -200,6 +200,32 @@ function updateUserRoleAndTenant({ userId, updateList }) {
   });
 }
 
+function getUserByTenantId({ tenantId }) {
+  return new Promise((resolve, reject) => {
+    try {
+      authRepo.getUserTenantAssoByTenantId({ tenantId }).then((userTenantAssoList) => {
+        let list = [];
+        if (userTenantAssoList.length === 0) {
+          reject("No user found for this tenant.");
+        } else {
+          userTenantAssoList.forEach((u, index) => {
+            authRepo.getUserById({ uid: u.userId }).then((user) => {
+              user.createdDate = func.convertFirebaseDateFormat(user.createdDate);
+              user.modifiedDate = func.convertFirebaseDateFormat(user.modifiedDate);
+              list.push(user);
+              if (userTenantAssoList.length - 1 === index) {
+                resolve(list);
+              }
+            });
+          });
+        }
+      });
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+
 export {
   getAllUsers,
   createUser,
@@ -210,4 +236,5 @@ export {
   createTenant,
   getAllRoles,
   updateUserRoleAndTenant,
+  getUserByTenantId,
 };
