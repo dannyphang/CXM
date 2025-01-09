@@ -74,7 +74,7 @@ export class CoreHttpService {
             this.getCurrentUser();
         }
         const userId = this.userC.uid;
-        const tenantId = this.userC.defaultTenantId;
+        const tenantId = this.userC.setting.defaultTenantId;
 
         // Omit empty headers
         return Object.fromEntries(
@@ -158,10 +158,40 @@ export class UserDto extends BasedDto {
     profilePhotoUrl: string;
     email: string;
     roleId: number;
-    defaultTenantId?: string;
+    permission: string;
+    setting: SettingDto;
 }
 
 export class TenantDto extends BasedDto {
     uid: string;
     tenantName: string;
+}
+
+export class SettingDto {
+    darkMode?: boolean;
+    defaultTenantId?: string;
+    contactTab?: any;
+    companyTab?: any;
+}
+
+export class PermissionObjDto {
+    create: boolean;
+    remove: boolean;
+    update: boolean;
+    display: boolean;
+    download: boolean;
+    export: boolean;
+}
+
+export class UserPermissionDto {
+    module: string;
+    permission: PermissionObjDto;
+}
+
+export class RoleDto extends BasedDto {
+    uid: string;
+    roleId: number;
+    roleName: string;
+    roleCode: string;
+    permission: string;
 }

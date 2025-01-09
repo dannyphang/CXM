@@ -10,13 +10,8 @@ import { PropertyGroupDto, CommonService } from '../../../core/services/common.s
 export class CompanyProfileComponent {
   module: 'CONT' | 'COMP' = 'COMP';
   profileUid: any;
-  propertiesList: PropertyGroupDto[] = [];
-  isLoadingProperties: boolean = true;
-  isLoadingContact: boolean = true;
 
   constructor(
-    private router: Router,
-    private commonService: CommonService,
     private activatedRoute: ActivatedRoute
   ) {
     if (this.activatedRoute.snapshot.queryParamMap) {

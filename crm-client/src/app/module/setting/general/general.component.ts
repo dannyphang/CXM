@@ -1,4 +1,5 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
+import { UserPermissionDto } from '../../../core/services/core-http.service';
 
 @Component({
   selector: 'app-general',
@@ -6,5 +7,7 @@ import { Component } from '@angular/core';
   styleUrl: './general.component.scss'
 })
 export class GeneralComponent {
+  @Input() permission: UserPermissionDto[] = [];
+  @Input() module: string;
 
 }

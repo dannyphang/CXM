@@ -60,6 +60,7 @@
         (onClick)="imageUploader.click()"
         class=""
         [pTooltip]="'BUTTON.ATTACH_FILE' | translate"
+        *ngIf="checkPermission('update', module, permission, roleId)"
       ></app-base-button>
 
       <app-chip
@@ -72,6 +73,7 @@
       <app-base-button
         [label]="'BUTTON.UPLOAD' | translate"
         (onClick)="imageFileUploadBtn()"
+        *ngIf="checkPermission('update', module, permission, roleId)"
       ></app-base-button>
     </div>
   </div>

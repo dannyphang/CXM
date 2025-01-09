@@ -44,6 +44,13 @@
             [filterInputAutoFocus]="true"
           /> -->
 
+          <app-base-button
+            [iconName]="isDarkMode ? 'pi pi-moon' : 'pi pi-sun'"
+            [outlined]="true"
+            class="tw-ml-[var(--content-gap)]"
+            (onClick)="updateThemeMode(!isDarkMode, false)"
+          ></app-base-button>
+
           <app-base-dropdown
             [fieldControl]="tenantFormControl"
             [options]="tenantOptionsList"

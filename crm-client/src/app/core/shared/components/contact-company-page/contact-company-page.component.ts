@@ -67,6 +67,11 @@ export class ContactCompanyPageComponent implements OnChanges {
   filterMenuModel: MenuItem[] = [];
   actionMenuModel: MenuItem[] = [];
 
+  canDownload: boolean = false;
+  canExport: boolean = false;
+  canDelete: boolean = false;
+  canCreate: boolean = false;
+
   constructor(
     private commonService: CommonService,
     private router: Router,
@@ -123,6 +128,10 @@ export class ContactCompanyPageComponent implements OnChanges {
     this.initTableConfig();
     Promise.all([this.initCreateFormConfig()]).then(_ => {
       this.initMenuItem();
+      this.canDownload = this.authService.returnPermission(this.coreService.userC.permission).find(p => p.module === this.module)?.permission.download ?? false;
+      this.canExport = this.authService.returnPermission(this.coreService.userC.permission).find(p => p.module === this.module)?.permission.export ?? false;
+      this.canDelete = this.authService.returnPermission(this.coreService.userC.permission).find(p => p.module === this.module)?.permission.remove ?? false;
+      this.canCreate = this.authService.returnPermission(this.coreService.userC.permission).find(p => p.module === this.module)?.permission.create ?? false;
     });
   }
 

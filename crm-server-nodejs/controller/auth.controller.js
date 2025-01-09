@@ -295,4 +295,38 @@ router.put("/userRole/update", async (req, res) => {
   }
 });
 
+// get all user by tenantId
+router.get("/user/tenant/:id", async (req, res) => {
+  try {
+    authImp
+      .getUserByTenantId({
+        tenantId: req.params.id,
+      })
+      .then((userData) => {
+        res.status(200).json(
+          func.responseModel({
+            data: userData,
+          })
+        );
+      })
+      .catch((error) => {
+        console.log("error", error);
+        res.status(400).json(
+          func.responseModel({
+            isSuccess: false,
+            responseMessage: error,
+          })
+        );
+      });
+  } catch (error) {
+    console.log("error", error);
+    res.status(400).json(
+      func.responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
+  }
+});
+
 export default router;

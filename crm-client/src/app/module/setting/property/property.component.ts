@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Input } from '@angular/core';
 import { ROW_PER_PAGE_DEFAULT, ROW_PER_PAGE_DEFAULT_LIST } from '../../../core/shared/constants/common.constants';
 import { CommonService, CreatePropertyDto, CreatePropertyLookupDto, PropertiesDto, PropertyGroupDto, PropertyLookupDto, UpdatePropertyDto, UpdatePropertyLookupDto, UserDto } from '../../../core/services/common.service';
 import { BaseCoreAbstract } from '../../../core/shared/base/base-core.abstract';
@@ -10,7 +10,7 @@ import { map, Observable, pairwise } from 'rxjs';
 import { list } from 'firebase/storage';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
-import { CoreHttpService } from '../../../core/services/core-http.service';
+import { CoreHttpService, UserPermissionDto } from '../../../core/services/core-http.service';
 
 interface Column {
   field: string;
@@ -22,7 +22,9 @@ interface Column {
   templateUrl: './property.component.html',
   styleUrl: './property.component.scss'
 })
-export class PropertyComponent {
+export class PropertyComponent extends BaseCoreAbstract {
+  @Input() permission: UserPermissionDto[] = [];
+  roleId: number = 0;
   ROW_PER_PAGE_DEFAULT = ROW_PER_PAGE_DEFAULT;
   ROW_PER_PAGE_DEFAULT_LIST = ROW_PER_PAGE_DEFAULT_LIST;
   moduleOptions: OptionsModel[] = [];
@@ -93,13 +95,16 @@ export class PropertyComponent {
     private formBuilder: FormBuilder,
     private authService: AuthService,
     private toastService: ToastService,
-    private coreService: CoreHttpService
+    private coreService: CoreHttpService,
+    protected override messageService: MessageService
   ) {
-
+    super(messageService);
   }
 
   ngOnInit() {
     this.getAllProperties('CONT');
+    this.roleId = this.coreService.userC.roleId;
+    this.initPropertyForm();
   }
 
   get propertiesLookup(): FormArray {
@@ -696,16 +701,36 @@ export class PropertyComponent {
   }
 
   delete() {
-    if (this.selectedProperty.find(p => p.isSystem)) {
-      this.toastService.addSingle({
-        message: this.translateService.instant("MESSAGE.CANNOT_DELETE_SYSTEM_PROPERTY"),
-        severity: 'error'
-      });
+    if (this.checkPermission('remove', this.moduleFormControl.value, this.permission, this.coreService.userC.roleId)) {
+      if (this.selectedProperty.find(p => p.isSystem)) {
+        this.toastService.addSingle({
+          message: "MESSAGE.CANNOT_DELETE_SYSTEM_PROPERTY",
+          severity: 'error'
+        });
+      }
+      else {
+        this.commonService.deleteProperty(this.selectedProperty, this.coreService.user?.uid ?? 'SYSTEM').subscribe(res => {
+          if (res.isSuccess) {
+            this.toastService.addSingle({
+              message: "MESSAGE.SUCCESS"
+            });
+            this.getAllProperties(this.moduleFormControl.value ?? 'CONT');
+          }
+          else {
+            this.toastService.addSingle({
+              message: res.responseMessage,
+              severity: 'error'
+            });
+          }
+        })
+      }
     }
     else {
       this.commonService.deleteProperty(this.selectedProperty, this.coreService.user?.uid ?? 'SYSTEM').subscribe(res => {
         if (res.isSuccess) {
-          this.toastService.addSingle({ message: res.responseMessage });
+          this.toastService.addSingle({
+            message: "MESSAGE.SUCCESS"
+          });
           this.getAllProperties(this.moduleFormControl.value ?? 'CONT');
         }
         else {
@@ -715,6 +740,10 @@ export class PropertyComponent {
           });
         }
       })
+      this.toastService.addSingle({
+        message: "MESSAGE.NO_PERMISSION_DELETE",
+        severity: 'error'
+      });
     }
   }
 
@@ -818,81 +847,89 @@ export class PropertyComponent {
   }
 
   edit() {
-    if (this.editable) {
-      this.propertyDetailFormGroup.markAllAsTouched();
-      if (this.propertyDetailFormGroup.valid) {
-        let update: UpdatePropertyDto = {
-          propertyName: this.propertyDetailFormGroup.controls['label'].value,
-          propertyCode: this.propertyDetailFormGroup.controls['code'].value,
-          moduleCode: this.propertyDetailFormGroup.controls['module'].value,
-          moduleCat: this.propertyDetailFormGroup.controls['group'].value,
-          propertyType: this.propertyDetailFormGroup.controls['type'].value,
-          isUnique: this.propertyDetailFormGroup.controls['isUnique'].value,
-          isMandatory: this.propertyDetailFormGroup.controls['isMandatory'].value,
-          isEditable: this.propertyDetailFormGroup.controls['isEditable'].value,
-          isVisible: this.propertyDetailFormGroup.controls['isVisible'].value,
-          minLength: this.propertyDetailFormGroup.controls['minLength'].value,
-          maxLength: this.propertyDetailFormGroup.controls['maxLength'].value,
-          minValue: this.propertyDetailFormGroup.controls['minValue'].value,
-          maxValue: this.propertyDetailFormGroup.controls['maxValue'].value,
-          maxDecimal: this.propertyDetailFormGroup.controls['maxDecimal'].value,
-          numberOnly: this.propertyDetailFormGroup.controls['numberOnly'].value,
-          noSpecialChar: this.propertyDetailFormGroup.controls['noSpecialChar'].value,
-          futureDateOnly: this.propertyDetailFormGroup.controls['futureDateOnly'].value,
-          pastDateOnly: this.propertyDetailFormGroup.controls['pastDateOnly'].value,
-          weekdayOnly: this.propertyDetailFormGroup.controls['weekdayOnly'].value,
-          weekendOnly: this.propertyDetailFormGroup.controls['weekendOnly'].value,
-          dateRangeStart: this.propertyDetailFormGroup.controls['dateRangeStart'].value,
-          dateRangeEnd: this.propertyDetailFormGroup.controls['dateRangeEnd'].value,
-          regaxFormat: this.propertyDetailFormGroup.controls['regaxFormat'].value
-        }
+    if (this.checkPermission('update', this.moduleFormControl.value, this.permission, this.coreService.userC.roleId)) {
+      if (this.editable) {
+        this.propertyDetailFormGroup.markAllAsTouched();
+        if (this.propertyDetailFormGroup.valid) {
+          let update: UpdatePropertyDto = {
+            propertyName: this.propertyDetailFormGroup.controls['label'].value,
+            propertyCode: this.propertyDetailFormGroup.controls['code'].value,
+            moduleCode: this.propertyDetailFormGroup.controls['module'].value,
+            moduleCat: this.propertyDetailFormGroup.controls['group'].value,
+            propertyType: this.propertyDetailFormGroup.controls['type'].value,
+            isUnique: this.propertyDetailFormGroup.controls['isUnique'].value,
+            isMandatory: this.propertyDetailFormGroup.controls['isMandatory'].value,
+            isEditable: this.propertyDetailFormGroup.controls['isEditable'].value,
+            isVisible: this.propertyDetailFormGroup.controls['isVisible'].value,
+            minLength: this.propertyDetailFormGroup.controls['minLength'].value,
+            maxLength: this.propertyDetailFormGroup.controls['maxLength'].value,
+            minValue: this.propertyDetailFormGroup.controls['minValue'].value,
+            maxValue: this.propertyDetailFormGroup.controls['maxValue'].value,
+            maxDecimal: this.propertyDetailFormGroup.controls['maxDecimal'].value,
+            numberOnly: this.propertyDetailFormGroup.controls['numberOnly'].value,
+            noSpecialChar: this.propertyDetailFormGroup.controls['noSpecialChar'].value,
+            futureDateOnly: this.propertyDetailFormGroup.controls['futureDateOnly'].value,
+            pastDateOnly: this.propertyDetailFormGroup.controls['pastDateOnly'].value,
+            weekdayOnly: this.propertyDetailFormGroup.controls['weekdayOnly'].value,
+            weekendOnly: this.propertyDetailFormGroup.controls['weekendOnly'].value,
+            dateRangeStart: this.propertyDetailFormGroup.controls['dateRangeStart'].value,
+            dateRangeEnd: this.propertyDetailFormGroup.controls['dateRangeEnd'].value,
+            regaxFormat: this.propertyDetailFormGroup.controls['regaxFormat'].value
+          }
 
-        this.commonService.updateProperties([update], this.coreService.user?.uid ?? 'SYSTEM').subscribe(res => {
-          if (res.isSuccess) {
-            if (this.propertyDetailFormGroup.controls['propertiesLookup'].value?.length > 0) {
-              let updateLookupList: UpdatePropertyLookupDto[] = [];
+          this.commonService.updateProperties([update], this.coreService.user?.uid ?? 'SYSTEM').subscribe(res => {
+            if (res.isSuccess) {
+              if (this.propertyDetailFormGroup.controls['propertiesLookup'].value?.length > 0) {
+                let updateLookupList: UpdatePropertyLookupDto[] = [];
 
-              (this.propertyDetailFormGroup.controls['propertiesLookup'].value as {
-                lookupName: string,
-                lookupCode: string,
-                isVisible: boolean,
-                isDefault: boolean,
-                statusId: number
-              }[]).forEach(i => {
-                updateLookupList.push({
-                  propertyLookupLabel: i.lookupName,
-                  propertyLookupCode: i.lookupCode,
-                  isVisible: i.isVisible,
-                  isDefault: i.isDefault,
-                  statusId: i.statusId,
-                });
-              });
-
-              this.commonService.updatePropertiesLookup(updateLookupList, this.coreService.user?.uid ?? 'SYSTEM').subscribe(res => {
-                if (res.isSuccess) {
-
-                }
-                else {
-                  this.toastService.addSingle({
-                    message: res.responseMessage,
-                    severity: 'error'
+                (this.propertyDetailFormGroup.controls['propertiesLookup'].value as {
+                  lookupName: string,
+                  lookupCode: string,
+                  isVisible: boolean,
+                  isDefault: boolean,
+                  statusId: number
+                }[]).forEach(i => {
+                  updateLookupList.push({
+                    propertyLookupLabel: i.lookupName,
+                    propertyLookupCode: i.lookupCode,
+                    isVisible: i.isVisible,
+                    isDefault: i.isDefault,
+                    statusId: i.statusId,
                   });
-                }
+                });
+
+                this.commonService.updatePropertiesLookup(updateLookupList, this.coreService.user?.uid ?? 'SYSTEM').subscribe(res => {
+                  if (res.isSuccess) {
+
+                  }
+                  else {
+                    this.toastService.addSingle({
+                      message: res.responseMessage,
+                      severity: 'error'
+                    });
+                  }
+                });
+              }
+            }
+            else {
+              this.toastService.addSingle({
+                message: res.responseMessage,
+                severity: 'error'
               });
             }
-          }
-          else {
-            this.toastService.addSingle({
-              message: res.responseMessage,
-              severity: 'error'
-            });
-          }
-        })
+          })
+        }
+      }
+      else {
+        this.toastService.addSingle({
+          message: 'MESSAGE.PROPERTY_NOT_EDITABLE',
+          severity: 'error'
+        });
       }
     }
     else {
       this.toastService.addSingle({
-        message: this.translateService.instant('MESSAGE.PROPERTY_NOT_EDITABLE'),
+        message: "MESSAGE.NO_PERMISSION_UPDATE",
         severity: 'error'
       });
     }

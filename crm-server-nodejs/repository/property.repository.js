@@ -8,7 +8,7 @@ const moduleCodeCollection = "moduleCode";
 
 function getAllModuleByModuleType({ tenantId, moduleType }) {
   return new Promise(async (resolve, reject) => {
-    const snapshot = await db.default.db
+    const snapshot = await firebase.db
       .collection(moduleCodeCollection)
       // .where(Filter.or(Filter.where("tenantId", "==", tenantId), Filter.where("tenantId", "==", DEFAULT_SYSTEM_TENANT)))
       .where("statusId", "==", 1)
@@ -23,7 +23,7 @@ function getAllModuleByModuleType({ tenantId, moduleType }) {
 
 function getAllModuleBySubModule({ tenantId, subModuleCode }) {
   return new Promise(async (resolve, reject) => {
-    const snapshot = await db.default.db
+    const snapshot = await firebase.db
       .collection(moduleCodeCollection)
       // .where(Filter.or(Filter.where("tenantId", "==", tenantId), Filter.where("tenantId", "==", DEFAULT_SYSTEM_TENANT)))
       .where("statusId", "==", 1)
@@ -39,7 +39,7 @@ function getAllModuleBySubModule({ tenantId, subModuleCode }) {
 
 function createModule({ module }) {
   return new Promise(async (resolve, reject) => {
-    let newRef = db.default.db.collection(moduleCodeCollection).doc();
+    let newRef = firebase.db.collection(moduleCodeCollection).doc();
     module.uid = newRef.id;
 
     await newRef.set(module);
@@ -131,7 +131,7 @@ function createProperty({ property }) {
 
 function updateProperty({ property }) {
   return new Promise(async (resolve, reject) => {
-    let newRef = db.default.db.collection(propertiesCollection).doc(property.uid);
+    let newRef = firebase.db.collection(propertiesCollection).doc(property.uid);
     await newRef.update(property);
 
     resolve();

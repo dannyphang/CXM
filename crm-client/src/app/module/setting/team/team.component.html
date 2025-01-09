@@ -1,49 +1,271 @@
-<div class="tw-p-[var(--content-gap)] tw-w-full">
-  <div
-    class="tw-pb-[var(--content-gap)]"
-    *ngFor="let team of teamFormArr.controls; let i = index"
-  >
-    <p-divider *ngIf="teamFormArr.controls.length > 1 && i !== 0"></p-divider>
-    <div class="tw-flex tw-w-full">
-      <app-base-input
-        [label]="'SETTING.USER_EMAIL' | translate"
-        [fieldControl]="returnTeamFormControl('email', team)"
-        [mode]="'email'"
-        class="tw-w-full"
-      ></app-base-input>
-      <app-base-dropdown
-        [label]="'SETTING.ROLE' | translate"
-        [fieldControl]="returnTeamFormControl('role', team)"
-        [options]="roleOptions"
-        class="tw-w-[30%] tw-ml-[var(--content-gap)]"
-      ></app-base-dropdown>
-      <app-base-button
-        [iconName]="returnCheckIcon(team)"
-        [rounded]="true"
-        (onClick)="checkUserEmail(team)"
-        [pTooltip]="'BUTTON.CHECK_USER_EMAIL' | translate"
-        class="tw-flex tw-items-end tw-ml-[var(--content-gap)]"
-      ></app-base-button>
-      <app-base-button
-        [iconName]="'pi pi-minus'"
-        [rounded]="true"
+<div class="tw-p-[var(--content-gap)] tw-pt-0 tw-w-full">
+  <h2 class="tw-text-[var(--text-color)]">
+    {{ "SETTING.TEAM_MANAGEMENT" | translate }}
+  </h2>
+
+  <!-- permission table -->
+  <div class="permission-table">
+    <h4 class="tw-text-[var(--text-color)]">
+      {{ "SETTING.PERMISSION_LIST" | translate }}
+    </h4>
+    <p-table
+      #dt
+      [columns]="tableConfig"
+      [value]="selectedUserFormGroup.controls['permission'].value"
+      [resizableColumns]="true"
+      [reorderableColumns]="true"
+      [rowHover]="true"
+      styleClass="p-datatable-gridlines p-datatable-striped"
+      [rows]="ROW_PER_PAGE_DEFAULT"
+      [rowsPerPageOptions]="ROW_PER_PAGE_DEFAULT_LIST"
+    >
+      <ng-template pTemplate="caption">
+        <app-base-dropdown
+          [options]="userListOptions"
+          [fieldControl]="returnSelectUserFormControl()"
+        ></app-base-dropdown>
+      </ng-template>
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th *ngFor="let col of columns">
+            {{ col.header }}
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rowData let-columns="columns">
+        <tr>
+          <td *ngFor="let col of columns">
+            <div *ngIf="col.field === 'module'">
+              {{ rowData[col.field] }}
+            </div>
+            <div
+              *ngIf="col.field !== 'module'"
+              class="tw-flex tw-justify-center"
+            >
+              <p-inputSwitch
+                [ngModel]="rowData.permission[col.field].value"
+                (onChange)="
+                  permissionSwitchOnChange(rowData, col.field, $event)
+                "
+              />
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+    <div
+      class="tw-py-[var(--content-gap)] tw-flex tw-justify-between tw-w-full"
+    >
+      <p-button
+        [label]="'BUTTON.CANCEL' | translate"
         [outlined]="true"
-        (onClick)="removeTeam(i)"
-        class="tw-flex tw-items-end tw-ml-[var(--content-gap)]"
-        *ngIf="teamFormArr.controls.length !== 1"
-      ></app-base-button>
+        (onClick)="initPermissionTable('', true)"
+      ></p-button>
+      <p-button
+        [label]="'BUTTON.SAVE' | translate"
+        (onClick)="submitPermission()"
+        class="tw-ml-[var(--content-gap)]"
+      ></p-button>
     </div>
   </div>
-  <div class="tw-flex tw-justify-center">
-    <app-base-button
-      [iconName]="'pi pi-plus'"
-      [rounded]="true"
-      (onClick)="addTeamFormArr()"
-    ></app-base-button>
-  </div>
 
-  <app-base-button
-    [label]="'BUTTON.SUBMIT' | translate"
-    (onClick)="submitTeam()"
-  ></app-base-button>
+  <!-- update user role -->
+  <div class="user-role-container">
+    <h4 class="tw-text-[var(--text-color)]">
+      {{ "SETTING.USER_LIST" | translate }}
+    </h4>
+
+    <p-table
+      #dtr
+      [columns]="roleTableConfig"
+      [value]="userList"
+      [(selection)]="selectedUser"
+      [resizableColumns]="true"
+      [reorderableColumns]="true"
+      [rowHover]="true"
+      styleClass="p-datatable-gridlines p-datatable-striped"
+      class="profile-company-table"
+      [paginator]="true"
+      [rows]="ROW_PER_PAGE_DEFAULT"
+      [rowsPerPageOptions]="ROW_PER_PAGE_DEFAULT_LIST"
+      [globalFilterFields]="filterField"
+    >
+      <ng-template pTemplate="caption">
+        <div class="tw-flex tw-justify-between">
+          <div class="tw-flex">
+            <app-base-input
+              [iconRightStyle]="'pi pi-search'"
+              [placeholder]="'INPUT.SEARCH' | translate"
+              [fieldControl]="roleSearchFormControl"
+              (input)="
+                dtr.filterGlobal(roleSearchFormControl.value, 'contains')
+              "
+            ></app-base-input>
+          </div>
+
+          <div class="tw-flex">
+            <p-button
+              *ngIf="
+                checkPermission(
+                  'create',
+                  'SETTING',
+                  permission,
+                  currentUser.roleId
+                )
+              "
+              [icon]="'pi pi-plus'"
+              [text]="true"
+              [pTooltip]="'BUTTON.CREATE' | translate"
+              [label]="'COMMON.TENANT' | translate"
+              (onClick)="isAddTenantDialogVisible = true"
+            ></p-button>
+            <p-button
+              *ngIf="
+                checkPermission(
+                  'create',
+                  'SETTING',
+                  permission,
+                  currentUser.roleId
+                )
+              "
+              [icon]="'pi pi-plus'"
+              [text]="true"
+              [pTooltip]="'BUTTON.CREATE' | translate"
+              [label]="'COMMON.ROLE' | translate"
+              (onClick)="isAddRoleDialogVisible = true"
+            ></p-button>
+          </div>
+        </div>
+      </ng-template>
+
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th>
+            <div class="tw-flex tw-justify-center">
+              <p-tableHeaderCheckbox />
+            </div>
+          </th>
+          <th *ngFor="let col of columns">
+            {{ col.header }}
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rowData let-columns="columns">
+        <tr>
+          <td>
+            <div class="tw-flex tw-justify-center">
+              <p-tableCheckbox [value]="rowData" />
+            </div>
+          </td>
+          <td *ngFor="let col of columns">
+            <div *ngIf="col.field !== 'roleId'">
+              {{ rowData[col.field] }}
+            </div>
+            <div *ngIf="col.field === 'roleId'">
+              {{ returnRoleById(rowData[col.field]) }}
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
 </div>
+
+<!-- add role dialog -->
+<p-dialog
+  [(visible)]="isAddRoleDialogVisible"
+  [header]="'SETTING.ASSIGN_ROLE' | translate"
+  styleClass="tw-w-[70%]"
+  [modal]="true"
+  (onHide)="initTeamRole()"
+>
+  <ng-template pTemplate="content">
+    <div
+      class="tw-pb-[var(--content-gap)]"
+      *ngFor="let team of teamFormArr.controls; let i = index"
+    >
+      <p-divider *ngIf="teamFormArr.controls.length > 1 && i !== 0"></p-divider>
+      <div class="tw-flex tw-w-full">
+        <app-base-input
+          [label]="'SETTING.USER_EMAIL' | translate"
+          [fieldControl]="returnTeamFormControl('email', team)"
+          [mode]="'email'"
+          class="tw-w-full"
+        ></app-base-input>
+        <app-base-dropdown
+          [label]="'SETTING.ROLE' | translate"
+          [fieldControl]="returnTeamFormControl('role', team)"
+          [options]="roleOptions"
+          class="tw-w-[30%] tw-ml-[var(--content-gap)]"
+        ></app-base-dropdown>
+        <p-button
+          [icon]="returnCheckIcon(team)"
+          [rounded]="true"
+          (onClick)="checkUserEmail(team)"
+          [pTooltip]="'BUTTON.CHECK_USER_EMAIL' | translate"
+          class="tw-flex tw-items-end tw-ml-[var(--content-gap)]"
+        ></p-button>
+        <p-button
+          [icon]="'pi pi-minus'"
+          [rounded]="true"
+          [outlined]="true"
+          (onClick)="removeTeam(i)"
+          class="tw-flex tw-items-end tw-ml-[var(--content-gap)]"
+          *ngIf="teamFormArr.controls.length !== 1"
+        ></p-button>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <div class="tw-flex tw-justify-between">
+      <p-button
+        [label]="'BUTTON.CANCEL' | translate"
+        [outlined]="true"
+        (onClick)="initTeamRole()"
+      ></p-button>
+
+      <p-button
+        [icon]="'pi pi-plus'"
+        [rounded]="true"
+        (onClick)="addTeamFormArr()"
+      ></p-button>
+
+      <p-button
+        [label]="'BUTTON.SEND' | translate"
+        (onClick)="submitTeam()"
+      ></p-button>
+    </div>
+  </ng-template>
+</p-dialog>
+
+<!-- add tenant dialog -->
+<p-dialog
+  [(visible)]="isAddTenantDialogVisible"
+  [header]="'SETTING.CREATE_TENANT' | translate"
+  styleClass="tw-w-[70%]"
+  [modal]="true"
+  (onHide)="closeTenantDialog()"
+>
+  <ng-template pTemplate="content">
+    <app-base-form
+      [formConfig]="createTenantFormConfig"
+      class=""
+    ></app-base-form>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <div class="tw-flex tw-justify-between">
+      <p-button
+        [label]="'BUTTON.CANCEL' | translate"
+        [outlined]="true"
+        (onClick)="resetTenantForm()"
+      ></p-button>
+
+      <p-button
+        [label]="'BUTTON.CREATE' | translate"
+        (onClick)="createTenant()"
+      ></p-button>
+    </div>
+  </ng-template>
+</p-dialog>

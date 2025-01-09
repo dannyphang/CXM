@@ -43,6 +43,15 @@
 
           <div class="tw-flex">
             <app-base-button
+              *ngIf="
+                selectedProperty.length > 0 &&
+                checkPermission(
+                  'remove',
+                  moduleFormControl.value,
+                  permission,
+                  roleId
+                )
+              "
               [iconName]="'pi pi-plus'"
               [rounded]="true"
               [isTextStyle]="true"
@@ -50,11 +59,19 @@
               (onClick)="toCreate()"
             ></app-base-button>
             <app-base-button
+              *ngIf="
+                selectedProperty.length > 0 &&
+                checkPermission(
+                  'remove',
+                  moduleFormControl.value,
+                  permission,
+                  roleId
+                )
+              "
               [iconName]="'pi pi-trash'"
               [rounded]="true"
               [isTextStyle]="true"
               (onClick)="delete()"
-              *ngIf="selectedProperty.length > 0"
               [pTooltip]="'BUTTON.DELETE' | translate"
             />
           </div>

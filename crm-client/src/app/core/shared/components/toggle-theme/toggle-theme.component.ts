@@ -1,18 +1,22 @@
 import { DOCUMENT } from '@angular/common';
-import { Component, EventEmitter, Inject, Output, ViewChild } from '@angular/core';
+import { Component, EventEmitter, Inject, Input, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { ThemeService } from '../../../services/theme.service';
 import { OverlayPanelComponent } from '../panel/overlay-panel/overlay-panel.component';
 import Blobity from 'blobity';
 import { FormControl } from '@angular/forms';
+import { UserDto } from '../../../services/core-http.service';
 
 @Component({
   selector: 'app-toggle-theme',
   templateUrl: './toggle-theme.component.html',
   styleUrl: './toggle-theme.component.scss'
 })
-export class ToggleThemeComponent {
+export class ToggleThemeComponent implements OnChanges {
+  @Input() user: UserDto;
   @Output() blobityClick: EventEmitter<boolean> = new EventEmitter<boolean>();
   @ViewChild(OverlayPanelComponent, { static: true }) child?: OverlayPanelComponent;
+  darkThemeFile: string = "aura-dark-blue.css";
+  lightThemeFile: string = "aura-light-blue.css";
   themeList = [
     {
       name: "Aura Light Blue",
@@ -48,6 +52,22 @@ export class ToggleThemeComponent {
   ) {
 
   }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['user'] && changes['user'].currentValue) {
+      if (this.user.setting.darkMode) {
+        this.changeTheme(this.darkThemeFile);
+      }
+      else {
+        this.changeTheme(this.lightThemeFile);
+      }
+    }
+  }
+
+  updateTheme() {
+
+  }
+
 
   ngOnInit() {
     this.blobityFormControl.valueChanges.subscribe(val => {

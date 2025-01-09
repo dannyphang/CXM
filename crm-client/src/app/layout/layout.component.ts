@@ -7,8 +7,9 @@ import { BaseCoreAbstract } from '../core/shared/base/base-core.abstract';
 import { Message, MessageService } from 'primeng/api';
 import { Subscription } from 'rxjs';
 import { ToastService } from '../core/services/toast.service';
-import { CoreHttpService, TenantDto, UserDto } from '../core/services/core-http.service';
+import { CoreHttpService, TenantDto, UserDto, UserPermissionDto } from '../core/services/core-http.service';
 import { CommonService } from '../core/services/common.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-layout',
@@ -19,6 +20,7 @@ export class LayoutComponent implements OnInit {
   user: UserDto;
   tenantList: TenantDto[] = [];
   tenantOptionsList: OptionsModel[] = [];
+  permission: UserPermissionDto[] = [];
 
   constructor(
     private authService: AuthService,
@@ -26,7 +28,8 @@ export class LayoutComponent implements OnInit {
     private commonService: CommonService,
     private cdRef: ChangeDetectorRef,
     private toastService: ToastService,
-    private coreService: CoreHttpService
+    private coreService: CoreHttpService,
+    private router: Router
   ) {
 
   }
@@ -59,6 +62,7 @@ export class LayoutComponent implements OnInit {
           this.toastService.clear('tenant');
         }
       });
+      this.permission = this.authService.returnPermission(this.user.permission);
     });
   }
 
