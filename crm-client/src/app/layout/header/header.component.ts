@@ -1,18 +1,19 @@
 import { DatePipe } from '@angular/common';
-import { Component, EventEmitter, HostListener, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
-import { Form, FormControl } from '@angular/forms';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { FormControl } from '@angular/forms';
 import { Router } from '@angular/router';
-import { MenuItem, MessageService, TreeNode } from 'primeng/api';
-import { debounceTime, distinctUntilChanged, map } from 'rxjs';
+import { MenuItem, MessageService } from 'primeng/api';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
 import { User } from 'firebase/auth';
-import { DEFAULT_PROFILE_PIC_URL } from '../../core/shared/constants/common.constants';
-import { OptionsModel } from '../../core/services/components.service';
-import { BaseCoreAbstract } from '../../core/shared/base/base-core.abstract';
-import { ToastService } from '../../core/services/toast.service';
-import { UserDto, TenantDto, CoreHttpService, UserPermissionDto } from '../../core/services/core-http.service';
-import { ThemeService } from '../../core/services/theme.service';
 import { TranslateService } from '@ngx-translate/core';
+import { CommonService } from '../../core/services/common.service';
+import { OptionsModel } from '../../core/services/components.service';
+import { UserDto, TenantDto, UserPermissionDto, CoreHttpService } from '../../core/services/core-http.service';
+import { ThemeService } from '../../core/services/theme.service';
+import { ToastService } from '../../core/services/toast.service';
+import { BaseCoreAbstract } from '../../core/shared/base/base-core.abstract';
+import { DEFAULT_PROFILE_PIC_URL } from '../../core/shared/constants/common.constants';
 
 @Component({
   selector: 'app-header',
@@ -32,6 +33,8 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
   menuItem: MenuItem[] = [];
   searchFormControl: FormControl = new FormControl("");
   userMenuItem: MenuItem[] | undefined;
+  languageMenuItem: MenuItem[] | undefined;
+  currentUser: UserDto;
   isAutoFocus: boolean = false;
   DEFAULT_PROFILE_PIC_URL = DEFAULT_PROFILE_PIC_URL;
   avatarImage: string | null = this.DEFAULT_PROFILE_PIC_URL;
@@ -44,21 +47,14 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
     private coreService: CoreHttpService,
     private themeService: ThemeService,
     protected override messageService: MessageService,
-    private translateService: TranslateService
+    private translateService: TranslateService,
+    private commonService: CommonService,
   ) {
     super(messageService);
     this.tenantFormControl.valueChanges.subscribe(val => {
       let selectedTenant = this.tenantList.find(t => t.uid === val)!;
       this.coreService.tenant = selectedTenant;
     })
-  }
-
-  ngOnInit() {
-    this.initAvatarMenu();
-
-    this.searchFormControl.valueChanges.pipe(debounceTime(2000),
-      distinctUntilChanged()).subscribe(value => {
-      });
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -156,10 +152,94 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
         }
       }]).subscribe(res => {
         if (res.isSuccess) {
-          console.log(res.data)
+
         }
       })
     }
+    this.coreService.getCurrentUser().then(res => {
+      this.currentUser = res;
+      this.userMenuItem = [
+        {
+          label: '',
+        },
+        {
+          label: this.translateService.instant('HEADER.SETTING'),
+          icon: 'pi pi-cog',
+          command: () => {
+            this.router.navigate(['/setting']);
+          }
+        },
+        {
+          label: this.translateService.instant('COMMON.LANGUAGE'),
+          icon: 'pi pi-language',
+          items: [
+            {
+              label: this.translateService.instant('HEADER.LANGUAGE.EN'),
+              command: () => {
+                this.translateService.use('en');
+                this.commonService.setLanguage('en');
+              }
+            },
+            {
+              label: this.translateService.instant('HEADER.LANGUAGE.CN'),
+              command: () => {
+                this.translateService.use('zh');
+                this.commonService.setLanguage('zh');
+              }
+            },
+          ]
+
+        },
+        {
+          separator: true
+        },
+        {
+          label: this.translateService.instant('BUTTON.LOGOUT'),
+          icon: 'pi pi-sign-out',
+          command: () => {
+            this.authService.signOut();
+            window.location.reload();
+          },
+          visible: this.currentUser ? true : false
+        },
+        {
+          label: this.translateService.instant('BUTTON.LOGIN'),
+          icon: "pi pi-sign-in",
+          command: () => {
+            this.redirectToSignIn();
+          },
+          visible: this.currentUser ? false : true
+        }
+      ];
+    });
+  }
+
+  ngOnInit() {
+    this.menuItem = [
+      {
+        label: 'Contact',
+        icon: '',
+        tooltip: "COMMON.CONTACT",
+        command: () => {
+          this.router.navigate(["/contact"]);
+        }
+      },
+      {
+        label: 'Company',
+        icon: '',
+        tooltip: "COMMON.COMPANY",
+        command: () => {
+          this.router.navigate(["/company"]);
+        }
+      },
+    ];
+
+    this.searchFormControl.valueChanges.pipe(debounceTime(2000),
+      distinctUntilChanged()).subscribe(value => {
+        console.log(value);
+      });
+
+
   }
 
   redirectToSignIn() {

@@ -12,12 +12,19 @@
     "RECORDS": "Records",
     "OTHERS": "Others",
     "SETTING": "Setting",
-    "ROLE": "Role"
+    "ROLE": "Role",
+    "LANGUAGE": "Language"
   },
   "HEADER": {
     "SETTING": "Setting",
+    "SEARCH": "Search",
     "TENANT": "Tenant",
-    "PROFILE": "Profile"
+    "PROFILE": "Profile",
+    "LANGUAGE": {
+      "CHANGE": "Change Language",
+      "EN": "English",
+      "CN": "Chinese"
+    }
   },
   "ERROR": {
     "YOU_CANNOT_LEAVE_IT_BLANK": "You cannot leave it blank.",

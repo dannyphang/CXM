@@ -4,17 +4,21 @@ import { CONTROL_TYPE_CODE } from "./components.service";
 import { TranslateService } from "@ngx-translate/core";
 import { BasedDto, CoreHttpService, ResponseModel } from "./core-http.service";
 import { ToastService } from "./toast.service";
+import { HttpClient } from "@angular/common/http";
+import { MessageService } from "primeng/api";
 
 @Injectable({ providedIn: 'root' })
 export class CommonService {
+    language: string = 'en';
     windowSize: WindowSizeDto = new WindowSizeDto();
 
     constructor(
-        private translateService: TranslateService,
+        private http: HttpClient,
+        private messageService: MessageService,
         private coreService: CoreHttpService,
         private toastService: ToastService,
+        private translateService: TranslateService,
     ) {
-
     }
 
     set setWindowSize(windowSize: WindowSizeDto) {
@@ -45,12 +49,20 @@ export class CommonService {
         }
     }
 
-    generateGUID(): string {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-            var r = Math.random() * 16 | 0,
-                v = c === 'x' ? r : (r & 0x3 | 0x8);
-            return v.toString(16);
-        });
+    getEnvToken(): Observable<any> {
+        return this.http.get<any>(apiConfig.baseUrl + '/token').pipe();
+    }
+
+    setLanguage(lang: string) {
+        this.language = lang;
+    }
+
+    getLanguage(): string {
+        return this.language;
+    }
+
+    popMessage(message: string, title: string, severity: string = 'success',) {
+        this.messageService.add({ severity: severity, summary: title, detail: message });
     }
 
     getAllContact(): Observable<ResponseModel<ContactDto[]>> {
