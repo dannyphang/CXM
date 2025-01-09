@@ -1,6 +1,10 @@
 <p-dialog
   [(visible)]="visible"
-  [style]="{ width: '70%' }"
+  [style]="{
+    width: windowSize.desktop ? '70%' : '100%',
+    maxHeight: windowSize.desktop ? '90%' : '100vh', 
+    height: windowSize.desktop ? 'auto' : '100vh',
+  }"
   [modal]="false"
   [closable]="false"
 >
@@ -16,7 +20,7 @@
   </ng-template>
   <app-base-form [formConfig]="activityFormConfig"></app-base-form>
 
-  <div class="text-editor">
+  <div class="text-editor tw-px-[var(--content-gap)]">
     <p-editor
       [formControl]="editorFormControl"
       [style]="{ height: '200px' }"
@@ -26,19 +30,28 @@
     />
   </div>
 
-  <div class="tw-flex tw-justify-between tw-items-center">
-    <div class="tw-grid tw-items-center">
+  <!-- below content -->
+  <div class="below-content-div">
+    <div class="tw-grid tw-items-center word-count-text">
       {{ contentWordLength }} / {{ editorContentLimit }}
       {{ "ACTIVITY.WORDS" | translate }}
     </div>
-    <p-button
-      [icon]="'pi pi-plus'"
-      [rounded]="true"
+    <a
+      (click)="assoPanel.toggle($event)"
+      class="asso-btn tw-flex tw-justify-end tw-self-center tw-text-[var(--primary-color)] tw-cursor-pointer"
+      >{{
+        "Associated with " +
+          (assoContactForm.value?.length + assoCompanyForm.value?.length) +
+          " records"
+      }}</a
+    >
+    <app-base-button
+      [iconName]="'pi pi-plus'"
+      [outlined]="true"
       (onClick)="uploader.click()"
-      class="tw-mt-[15px]"
+      class="add-attach-btn tw-flex tw-justify-end"
       [pTooltip]="'BUTTON.ATTACH_FILE' | translate"
-    ></p-button>
-    <p-button label="Associated with 1 records" [text]="true" />
+    ></app-base-button>
   </div>
 
   <input
@@ -51,10 +64,10 @@
   />
 
   <div
-    class="attachment-div tw-mt-[15px] tw-flex"
+    class="attachment-div tw-px-[var(--content-gap)] tw-flex"
     *ngIf="attachmentList.length > 0"
   >
-    <div class="tw-grid tw-items-center tw-mr-[15px]">
+    <div class="tw-grid tw-items-center tw-mr-[var(--content-gap)]">
       <div class="pi pi-paperclip"></div>
     </div>
     <div class="attachment-chip-div tw-flex tw-flex-wrap">
@@ -70,17 +83,50 @@
   </div>
 
   <ng-template pTemplate="footer">
-    <p-button
-      label="Cancel"
-      [text]="true"
-      severity="secondary"
-      (onClick)="closeDialog()"
-    />
-    <p-button
-      label="Save"
-      severity="primary"
-      (onClick)="save()"
-      [disabled]="!this.activityFormGroup.valid"
-    />
+    <div class="tw-flex tw-justify-between tw-p-[var(--content-gap)]">
+      <app-base-button
+        [label]="'BUTTON.CANCEL'"
+        [isTextStyle]="true"
+        [outlined]="true"
+        (onClick)="closeDialog()"
+      />
+      <app-base-button
+        [label]="'BUTTON.SAVE'"
+        (onClick)="save()"
+        [disabled]="!this.activityFormGroup.valid"
+      />
+    </div>
   </ng-template>
 </p-dialog>
+
+<p-overlayPanel #assoPanel>
+  <div class="asso-div tw-flex">
+    <p-tabView>
+      <!-- contact tab -->
+      <p-tabPanel>
+        <ng-template pTemplate="header">
+          <div styleClass="tw-flex tw-w-full tw-justify-between">
+            {{ "PROFILE.CONTACTS" | translate }}
+          </div>
+          <div>({{ assoContactForm.value?.length ?? 0 }})</div>
+        </ng-template>
+        <div>
+          <app-base-form [formConfig]="assoContactFormConfig"></app-base-form>
+        </div>
+      </p-tabPanel>
+
+      <!-- company tab -->
+      <p-tabPanel>
+        <ng-template pTemplate="header">
+          <div styleClass="tw-flex tw-w-full tw-justify-between">
+            {{ "PROFILE.COMPANYS" | translate }}
+          </div>
+          <div>({{ assoCompanyForm.value?.length ?? 0 }})</div>
+        </ng-template>
+        <div>
+          <app-base-form [formConfig]="assoCompanyFormConfig"></app-base-form>
+        </div>
+      </p-tabPanel>
+    </p-tabView>
+  </div>
+</p-overlayPanel>

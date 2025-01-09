@@ -1,0 +1,40 @@
+import { Injectable } from '@angular/core';
+import { CanActivate, Router } from '@angular/router';
+import { User } from 'firebase/auth';
+import { AuthService } from '../../services/auth.service';
+import { CoreHttpService, UserDto } from '../../services/core-http.service';
+// import { AuthService } from './auth.service'; // Import your authentication service
+
+@Injectable({
+    providedIn: 'root'
+})
+export class AuthGuard implements CanActivate {
+
+    constructor(
+        private authService: AuthService,
+        private coreService: CoreHttpService,
+        private router: Router
+    ) {
+
+    }
+
+    getUser(): Promise<UserDto | null> {
+        return new Promise((resolve, reject) => {
+            this.coreService.getCurrentUser().then(user => {
+                resolve(user)
+            });
+        })
+    }
+
+    async canActivate(): Promise<boolean> {
+        return new Promise(async (resolve, reject) => {
+            if (await this.getUser()) {
+                return resolve(true); // Allow access to the route
+            } else {
+                // Redirect to the login page
+                this.router.navigate(['/signin']);
+                return resolve(false);
+            }
+        });
+    }
+}

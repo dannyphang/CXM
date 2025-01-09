@@ -1,4 +1,5 @@
 <p-tieredMenu #activityActionMenu [model]="actionMenu" [popup]="true" />
+<!-- <app-toast></app-toast> -->
 <div class="activity-div">
   <app-accordion-panel
     class="activity-panel-div"
@@ -10,90 +11,112 @@
       (click)="panelOnClick()"
     >
       <app-base-label
-        [label]="activity.activityModuleCode"
+        [label]="
+          (activity.activityModuleCode === 'LOG'
+            ? 'ACTIVITY.MODULE.LOGGED_'
+            : 'ACTIVITY.MODULE.') + activity.activityModuleSubCode
+        "
         class="tw-ml-[6px] activity-title-label tw-grid tw-items-center"
         (mouseenter)="activityInfoPanel.toggle($event)"
+        (mouseleave)="activityInfoPanel.toggle($event)"
       ></app-base-label>
 
-      <div
+      <div class="empty-block"></div>
+
+      <!-- <div
         class="activity-panel-content tw-grid tw-items-center"
         [innerHTML]="activity.activityContent"
-      ></div>
+      ></div> -->
 
-      <p-button
-        icon="pi pi-sort-down-fill action-icon"
-        [iconPos]="'right'"
-        [text]="true"
+      <!-- action button -->
+      <app-base-button
+        [iconName]="'pi pi-sort-down-fill action-icon'"
+        [rightIcon]="true"
+        [isTextStyle]="true"
         [label]="'BUTTON.ACTION' | translate"
-        (click)="activityActionMenu.toggle($event)"
-        styleClass="activity-action-button"
+        (click)="activityActionMenu.toggle($event); $event.stopPropagation()"
+        [buttonStyleClass]="'activity-action-button'"
       />
 
+      <!-- activity date -->
       <div class="activity-date tw-grid tw-items-center">
         {{ activity.activityDatetime | date : "yyyy-MM-dd HH:mm" }}
       </div>
     </div>
+
+    <!-- panel body -->
     <div acc-panel-body class="activity-panel-content-div">
+      <!-- email form -->
+      <app-base-form
+        [formConfig]="emailFormConfig"
+        *ngIf="
+          activity.activityModuleCode === 'CREATE' &&
+          activity.activityModuleSubCode === 'EMAIL'
+        "
+      ></app-base-form>
+
       <div class="text-editor">
         <div
           [innerHTML]="activity.activityContent"
-          *ngIf="readonly"
+          *ngIf="contentReadonly"
           class="readonly-content-div"
-          (click)="readonly = false"
+          (click)="contentReadonly = false; readonly = false"
         ></div>
 
         <p-editor
-          *ngIf="!readonly"
+          *ngIf="!contentReadonly"
           [formControl]="editorFormControl"
           [style]="{ height: '200px' }"
           (onTextChange)="countTextLength($event)"
           [placeholder]="'ACTIVITY.EDITOR_PLACEHOLDER' | translate"
+          class="tw-px-[var(--content-gap)]"
         />
       </div>
 
       <div class="tw-flex tw-justify-between tw-items-center">
-        <div class="tw-grid tw-items-center">
-          {{ contentWordLength }} / {{ editorContentLimit }}
-          {{ "ACTIVITY.WORDS" | translate }}
+        <!-- word count -->
+        <div class="tw-grid tw-items-center tw-pl-[var(--content-gap)]">
+          <div *ngIf="!contentReadonly">
+            {{ contentWordLength }} / {{ editorContentLimit }}
+            {{ "ACTIVITY.WORDS" | translate }}
+          </div>
         </div>
-        <p-button
-          [icon]="'pi pi-plus'"
-          [rounded]="true"
-          (onClick)="uploader.click()"
-          class="tw-mt-[var(--content-gap)]"
-          [pTooltip]="'BUTTON.ATTACH_FILE' | translate"
-        ></p-button>
-        <div
-          class="content-btn-div tw-flex tw-mt-[var(--content-gap)]"
-          *ngIf="!readonly"
-        >
-          <app-base-button
-            [label]="'BUTTON.CANCEL' | translate"
-            [outlined]="true"
-            (onClick)="readonly = true"
-          ></app-base-button>
-          <app-base-button
-            [label]="'BUTTON.UPDATE' | translate"
-            class="tw-ml-[var(--content-gap)]"
-            (onClick)="updateContent()"
-          ></app-base-button>
-        </div>
-        <p-button label="Associated with 1 records" [text]="true" />
-      </div>
 
-      <input
-        type="file"
-        id="file-input"
-        #uploader
-        hidden
-        (change)="fileUpload($event)"
-        multiple
-      />
+        <div class="tw-flex">
+          <!-- add attachment -->
+          <app-base-button
+            [iconName]="'pi pi-file-plus'"
+            [outlined]="true"
+            (onClick)="uploader.click()"
+            [pTooltip]="'BUTTON.ATTACH_FILE' | translate"
+          ></app-base-button>
+
+          <!-- asso -->
+          <app-base-button
+            [label]="
+              'Associated with ' +
+              (assoContactForm.value?.length + assoCompanyForm.value?.length) +
+              ' records'
+            "
+            [isTextStyle]="true"
+            (onClick)="assoPanelBlock.toggle($event)"
+          ></app-base-button>
+
+          <input
+            type="file"
+            id="file-input"
+            #uploader
+            hidden
+            (change)="fileUpload($event)"
+            multiple
+          />
+        </div>
+      </div>
 
       <!-- attachment -->
       <div
         class="attachment-div tw-mt-[15px] tw-flex"
-        *ngIf="activity.attachmentList.length > 0"
+        *ngIf="activity.attachmentList && activity.attachmentList.length > 0"
       >
         <div class="tw-grid tw-items-center tw-mr-[15px]">
           <div class="pi pi-paperclip"></div>
@@ -105,12 +128,42 @@
             class="tw-mr-2 tw-mt-1"
             (remove)="removeFile($event)"
           ></app-chip>
+          <app-chip
+            *ngFor="let file of attachmentList"
+            label="{{ file.name }} ({{ returnFileSize(file.size) }})"
+            class="tw-mr-2 tw-mt-1"
+            (remove)="removeFile($event)"
+          ></app-chip>
         </div>
       </div>
 
-      <app-base-form [formConfig]="activityFormConfig"></app-base-form>
+      <!-- log activity form -->
+      <app-base-form
+        [formConfig]="activityFormConfig"
+        *ngIf="activity.activityModuleCode === 'LOG'"
+      ></app-base-form>
+
+      <!-- footer buttons -->
+      <div class="content-btn-div tw-flex tw-justify-between" *ngIf="!readonly">
+        <app-base-button
+          [label]="'BUTTON.CANCEL' | translate"
+          [outlined]="true"
+          (onClick)="readonly = true"
+        ></app-base-button>
+        <app-base-button
+          [label]="'BUTTON.UPDATE' | translate"
+          class="tw-ml-[var(--content-gap)]"
+          (onClick)="updateActivity()"
+        ></app-base-button>
+      </div>
     </div>
   </app-accordion-panel>
+  <div
+    *ngIf="activity.activityContent && !this.activity.isExpand"
+    class="activity-content"
+    [innerHTML]="activity.activityContent"
+    (click)="panelOnClick()"
+  ></div>
 </div>
 
 <p-overlayPanel #activityInfoPanel>
@@ -139,5 +192,37 @@
         }}
       </div>
     </div>
+  </div>
+</p-overlayPanel>
+
+<p-overlayPanel #assoPanelBlock>
+  <div class="asso-div tw-flex">
+    <p-tabView>
+      <!-- contact tab -->
+      <p-tabPanel>
+        <ng-template pTemplate="header">
+          <div styleClass="tw-flex tw-w-full tw-justify-between">
+            {{ "PROFILE.CONTACTS" | translate }}
+          </div>
+          <div>({{ assoContactForm.value?.length ?? 0 }})</div>
+        </ng-template>
+        <div>
+          <app-base-form [formConfig]="assoContactFormConfig"></app-base-form>
+        </div>
+      </p-tabPanel>
+
+      <!-- company tab -->
+      <p-tabPanel>
+        <ng-template pTemplate="header">
+          <div styleClass="tw-flex tw-w-full tw-justify-between">
+            {{ "PROFILE.COMPANYS" | translate }}
+          </div>
+          <div>({{ assoCompanyForm.value?.length ?? 0 }})</div>
+        </ng-template>
+        <div>
+          <app-base-form [formConfig]="assoCompanyFormConfig"></app-base-form>
+        </div>
+      </p-tabPanel>
+    </p-tabView>
   </div>
 </p-overlayPanel>

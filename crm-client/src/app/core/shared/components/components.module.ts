@@ -31,7 +31,6 @@ import { TagComponent } from './tag/tag.component';
 import { ContactCompanyPageComponent } from './contact-company-page/contact-company-page.component';
 import { BreadcrumbComponent } from './breadcrumb/breadcrumb.component';
 import { AllPropertiesPageComponent } from './all-properties-page/all-properties-page.component';
-import { PropertyComponent } from './property/property.component';
 import { ProfilePageComponent } from './profile-page/profile-page.component';
 import { LeftPanelComponent } from './profile-page/left-panel/left-panel.component';
 import { MiddlePanelComponent } from './profile-page/middle-panel/middle-panel.component';
@@ -43,6 +42,8 @@ import { EditorComponent } from './editor/editor.component';
 import { AssociationBlockComponent } from './association-block/association-block.component';
 import { OnlyNumberDirective } from '../directives/only-number.directive';
 import { PasswordValidator } from '../directives/password.directive';
+import { ActivityCreateDialogComponent } from './activity-create-dialog/activity-create-dialog.component';
+import { EmailComponent } from './activity-create-dialog/components/email/email.component';
 
 const components = [
   BaseInputComponent,
@@ -71,7 +72,6 @@ const components = [
   ContactCompanyPageComponent,
   BreadcrumbComponent,
   AllPropertiesPageComponent,
-  PropertyComponent,
   ProfilePageComponent,
   LeftPanelComponent,
   MiddlePanelComponent,
@@ -81,6 +81,8 @@ const components = [
   ActivityBlockComponent,
   EditorComponent,
   AssociationBlockComponent,
+  ActivityCreateDialogComponent,
+  EmailComponent,
 ];
 
 @NgModule({

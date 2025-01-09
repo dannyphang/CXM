@@ -18,6 +18,7 @@
   --content-gap: 15px;
   --content-gap-s: 8px;
   --content-gap-xs: 6px;
+  --content-gap-xxs: 2px;
 }
 
 html {
@@ -34,4 +35,25 @@ body {
   min-height: 100%;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* width */
+::-webkit-scrollbar {
+  // width: 2px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: var(--primary-color-text);
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: var(--surface-400);
+  border-radius: 5px;
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: var(--gray-300);
 }

@@ -39,8 +39,13 @@ import { FileUploadModule } from 'primeng/fileupload';
 import { ScrollPanelModule } from 'primeng/scrollpanel';
 import { MenubarModule } from 'primeng/menubar';
 import { MenuModule } from 'primeng/menu';
+import { DragDropModule } from 'primeng/dragdrop';
+import { PickListModule } from 'primeng/picklist';
+import { DividerModule } from 'primeng/divider';
+import { TreeSelectModule } from 'primeng/treeselect';
+import { ChipsModule } from 'primeng/chips';
 
-import { MessageService } from 'primeng/api';
+import { MessageService as PrimeNGMessage } from 'primeng/api';
 
 const PRIMENG_MODULES = [
     InputNumberModule,
@@ -84,6 +89,11 @@ const PRIMENG_MODULES = [
     ScrollPanelModule,
     MenubarModule,
     MenuModule,
+    DragDropModule,
+    PickListModule,
+    DividerModule,
+    TreeSelectModule,
+    ChipsModule
 ]
 
 @NgModule({
@@ -94,8 +104,8 @@ const PRIMENG_MODULES = [
         PRIMENG_MODULES
     ],
     providers: [
-        MessageService,
-        TerminalService
+        PrimeNGMessage,
+        TerminalService,
     ]
 })
 

@@ -13,10 +13,10 @@ export class SidePanelComponent implements OnInit, OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    console.log('changes', changes)
+    // console.log('changes', changes)
   }
 
   ngOnInit() {
-    console.log('visible', this.visible)
+    // console.log('visible', this.visible)
   }
 }

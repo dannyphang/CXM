@@ -87,6 +87,7 @@ export interface OptionsModel {
     value: any;
     preIcon?: string;
     disabled?: boolean;
+    required?: boolean;
 }
 
 export interface TreeOptionsModel {
@@ -104,7 +105,7 @@ export interface BaseInputTextConfig {
 
 export interface BaseInputFormConfig extends BaseFormConfig, BaseInputTextConfig {
     type: CONTROL_TYPE.Textbox;
-    mode?: 'text' | 'number' | 'password' | 'switch' | 'label-text' | 'email' | 'url' | 'phone';
+    mode?: 'text' | 'number' | 'password' | 'switch' | 'label-text' | 'email' | 'url' | 'phone' | 'chips';
     prefix?: string;
     suffix?: string;
     onlyNumber?: boolean;
@@ -117,6 +118,7 @@ export interface BaseInputFormConfig extends BaseFormConfig, BaseInputTextConfig
     content?: string;
     descriptionMessage?: string;
     labelTextStyle?: string;
+    seperator?: string;
 }
 
 export interface BaseDatepickerFormConfig extends BaseFormConfig {
@@ -156,6 +158,7 @@ export type BaseSelectFormConfig = Omit<BaseFormConfig, 'dependOnFields'> &
         direction?: 'row' | 'column';
         optionsContainerClass?: string;
         singleSelect?: boolean;
+        switchInput?: boolean;
         defaultValue?: any;
         containerClass?: string;
         inputContainerClass?: string;
@@ -257,6 +260,9 @@ export interface BaseButtonFormConfig extends BaseFormConfig {
     type: CONTROL_TYPE.Button;
     label?: string;
     outlined?: boolean;
+    isTextStyle?: boolean;
+    rounded?: boolean;
+    loading?: boolean;
     onClickFunc: (e?: any) => void;
     actionPermission?: {
         actionType: string | string[];

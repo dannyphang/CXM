@@ -1,23 +1,27 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder } from '@angular/forms';
 import { NavigationExtras, Router } from '@angular/router';
-import { MessageService } from 'primeng/api';
-import { CommonService, CompanyDto, ContactDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, PropertyLookupDto, UpdateCompanyDto, UpdateContactDto } from '../../../../services/common.service';
-import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../../../../services/components.service';
-import { debounceTime, distinctUntilChanged } from 'rxjs';
+import { CommonService, CompanyDto, ContactDto, PropertiesDto, PropertyGroupDto, UpdateCompanyDto, UpdateContactDto } from '../../../../services/common.service';
 import { StorageService } from '../../../../services/storage.service';
 import { DEFAULT_PROFILE_PIC_URL } from '../../../constants/common.constants';
+import { BasePropertyAbstract } from '../../../base/base-property.abstract';
+import { AuthService } from '../../../../services/auth.service';
+import { TranslateService } from '@ngx-translate/core';
+import { ToastService } from '../../../../services/toast.service';
+import { CoreHttpService, UserPermissionDto } from '../../../../services/core-http.service';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-left-panel',
   templateUrl: './left-panel.component.html',
   styleUrl: './left-panel.component.scss'
 })
-export class LeftPanelComponent implements OnChanges {
+export class LeftPanelComponent extends BasePropertyAbstract implements OnChanges {
   @Input() propertiesList: PropertyGroupDto[] = [];
   @Input() module: 'CONT' | 'COMP' = 'CONT';
   @Input() contactProfile: ContactDto = new ContactDto();
   @Input() companyProfile: CompanyDto = new CompanyDto();
+  @Input() permission: UserPermissionDto[] = [];
   @Output() profileUpdateEmit: EventEmitter<any> = new EventEmitter<any>();
 
   actionMenu: any[] = [
@@ -29,7 +33,8 @@ export class LeftPanelComponent implements OnChanges {
           state: {
             data: this.propertiesList,
             profile: this.module === 'CONT' ? this.contactProfile : this.companyProfile,
-            module: this.module
+            module: this.module,
+            permission: this.permission
           }
         };
 
@@ -43,24 +48,25 @@ export class LeftPanelComponent implements OnChanges {
       }
     }
   ];
-  profileFormGroup: FormGroup;
-  profileFormConfig: FormConfig[] = [];
-  showFormUpdateSidebar: boolean = false;
-  propUpdateList: profileUpdateDto[] = [];
   isAvatarEdit: boolean = false;
   isShowAvatarEditDialog: boolean = false;
   profilePhotoFile: File | null;
   profilePhotoFileBlob: Blob;
   profileImg: string = DEFAULT_PROFILE_PIC_URL;
+  roleId: number = 0;
 
   constructor(
-    private commonService: CommonService,
     private router: Router,
-    private formBuilder: FormBuilder,
-    private messageService: MessageService,
-    private storageService: StorageService
+    protected override formBuilder: FormBuilder,
+    protected override commonService: CommonService,
+    private storageService: StorageService,
+    protected override authService: AuthService,
+    protected override translateService: TranslateService,
+    protected override toastService: ToastService,
+    protected override coreService: CoreHttpService,
+    protected override messageService: MessageService
   ) {
-
+    super(formBuilder, commonService, toastService, authService, translateService, coreService, messageService);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -68,405 +74,62 @@ export class LeftPanelComponent implements OnChanges {
       this.propertiesList = changes['propertiesList'].currentValue;
 
       if (this.contactProfile || this.companyProfile) {
-        this.returnProfileFormConfig();
+        this.initProfileFormConfig(this.propertiesList, this.module, this.contactProfile, this.companyProfile, true, this.permission);
       }
 
-      // check fieldcontrol update value
-      this.profileFormGroup.valueChanges.pipe(
-        debounceTime(2000),
-        distinctUntilChanged()
-      ).subscribe(changedValue => {
-        this.propertiesList.forEach(item => {
-          if (item.moduleCode === "CONT_INFO" || item.moduleCode === "COMP_INFO") {
-            item.propertiesList.forEach(prop => {
-              this.profileFormGroup.controls[prop.propertyCode].valueChanges.pipe(
-                debounceTime(2000),
-                distinctUntilChanged()
-              ).forEach(value => {
-                console.log(value)
-                this.showFormUpdateSidebar = true;
-
-                let profileUpdateObj: profileUpdateDto = {
-                  property: prop,
-                  value: value
-                };
-
-                // add to the list if not exist else replace the value
-                if (!this.propUpdateList.find(item => item.property === prop)) {
-                  this.propUpdateList.push(profileUpdateObj);
-                }
-                else {
-                  this.propUpdateList.find(item => item.property === prop)!.value = value;
-                }
-              })
-            })
-          }
-        })
-      });
+      this.checkFormValueChange(this.propertiesList);
     }
 
     if (changes['contactProfile'] && changes['contactProfile'].currentValue) {
       if (this.propertiesList) {
-        this.returnProfileFormConfig();
+        this.initProfileFormConfig(this.propertiesList, this.module, this.contactProfile, this.companyProfile, true, this.permission);
       }
       if (this.contactProfile.contactProfilePhotoUrl) {
         this.profileImg = this.contactProfile.contactProfilePhotoUrl;
       }
+
+      this.checkFormValueChange(this.propertiesList);
     }
 
     if (changes['companyProfile'] && changes['companyProfile'].currentValue) {
       if (this.propertiesList) {
-        this.returnProfileFormConfig();
+        this.initProfileFormConfig(this.propertiesList, this.module, this.contactProfile, this.companyProfile, true, this.permission);
       }
       if (this.companyProfile.companyProfilePhotoUrl) {
         this.profileImg = this.companyProfile.companyProfilePhotoUrl;
       }
+
+      this.checkFormValueChange(this.propertiesList);
     }
-
-
   }
 
   ngOnInit() {
+    this.commonService.getAllCountry().subscribe(res => {
+      if (res.isSuccess) {
+        this.countryOptionList = res.data.map(c => {
+          return {
+            label: c.name,
+            value: c.uid
+          }
+        });
+      }
+      else {
+        this.toastService.addSingle({
+          message: res.responseMessage,
+          severity: 'error'
+        });
+      }
+    });
+    this.roleId = this.coreService.userC.roleId;
 
   }
 
   copyEmailToClipboard(copiedText: string) {
-    navigator.clipboard.writeText(copiedText);
-    this.messageService.add({ severity: 'success', summary: 'Copy text', detail: 'Successful copied text' });
-  }
-
-  /**  
-    initial property form
-  **/
-  returnProfileFormConfig() {
-    let propCount = 0;
-    let formsConfig: FormConfig[] = [];
-
-    this.profileFormGroup = this.formBuilder.group({});
-
-    this.propertiesList.forEach(item => {
-      if (item.moduleCode === "CONT_INFO" || item.moduleCode === "COMP_INFO") {
-        item.propertiesList.forEach(prop => {
-          let propProfileValue = this.returnProfileValue(prop);
-          let control = new FormControl(propProfileValue ? propProfileValue : this.commonService.returnControlTypeEmptyValue(prop));
-
-          this.profileFormGroup.addControl(prop.propertyCode, control);
-
-          let forms: FormConfig = {
-            id: prop.uid,
-            name: prop.propertyCode,
-            type: CONTROL_TYPE.Textbox,
-            label: prop.propertyName,
-            fieldControl: this.profileFormGroup.controls[prop.propertyCode],
-            layoutDefine: {
-              row: propCount,
-              column: 0,
-            },
-            required: prop.isMandatory
-          };
-
-          if (prop.isVisible) {
-            if (prop.propertyType === CONTROL_TYPE_CODE.Textbox || prop.propertyType === CONTROL_TYPE_CODE.Textarea) {
-              forms = {
-                id: prop.uid,
-                name: prop.propertyCode,
-                type: CONTROL_TYPE.Textbox,
-                label: prop.propertyName,
-                fieldControl: this.profileFormGroup.controls[prop.propertyCode],
-                layoutDefine: {
-                  row: propCount,
-                  column: 0,
-                },
-                required: prop.isMandatory
-              }
-            }
-            if (prop.propertyType === CONTROL_TYPE_CODE.Url) {
-              forms = {
-                id: prop.uid,
-                name: prop.propertyCode,
-                type: CONTROL_TYPE.Textbox,
-                label: prop.propertyName,
-                fieldControl: this.profileFormGroup.controls[prop.propertyCode],
-                layoutDefine: {
-                  row: propCount,
-                  column: 0,
-                },
-                required: prop.isMandatory,
-                mode: 'url'
-              }
-            }
-            if (prop.propertyType === CONTROL_TYPE_CODE.Phone) {
-              forms = {
-                id: prop.uid,
-                name: prop.propertyCode,
-                type: CONTROL_TYPE.Textbox,
-                label: prop.propertyName,
-                fieldControl: this.profileFormGroup.controls[prop.propertyCode],
-                layoutDefine: {
-                  row: propCount,
-                  column: 0,
-                },
-                required: prop.isMandatory,
-                mode: 'phone'
-              }
-            }
-            if (prop.propertyType === CONTROL_TYPE_CODE.Number || prop.propertyType === CONTROL_TYPE_CODE.Year) {
-              forms = {
-                id: prop.uid,
-                name: prop.propertyCode,
-                type: CONTROL_TYPE.Textbox,
-                label: prop.propertyName,
-                fieldControl: this.profileFormGroup.controls[prop.propertyCode],
-                layoutDefine: {
-                  row: propCount,
-                  column: 0,
-                },
-                required: prop.isMandatory,
-                mode: 'number',
-                max: prop.propertyType === CONTROL_TYPE_CODE.Year ? 4 : undefined,
-                min: prop.propertyType === CONTROL_TYPE_CODE.Year ? 4 : undefined,
-              }
-            }
-            if (prop.propertyType === CONTROL_TYPE_CODE.Email) {
-              forms = {
-                id: prop.uid,
-                name: prop.propertyCode,
-                type: CONTROL_TYPE.Textbox,
-                label: prop.propertyName,
-                fieldControl: this.profileFormGroup.controls[prop.propertyCode],
-                layoutDefine: {
-                  row: propCount,
-                  column: 0,
-                },
-                required: prop.isMandatory,
-                mode: 'email',
-              }
-            }
-            else if (prop.propertyType === CONTROL_TYPE_CODE.Checkbox || prop.propertyType === CONTROL_TYPE_CODE.MultiCheckbox || prop.propertyType === CONTROL_TYPE_CODE.Multiselect || prop.propertyType === CONTROL_TYPE_CODE.Dropdown || prop.propertyType === CONTROL_TYPE_CODE.Radio) {
-              let propertyLookupList: OptionsModel[] = [];
-              prop.propertyLookupList.forEach((item) => {
-                propertyLookupList.push({ label: (item as PropertyLookupDto).propertyLookupLabel, value: item.uid });
-              });
-
-              forms = {
-                id: prop.uid,
-                name: prop.propertyCode,
-                type: prop.propertyType === CONTROL_TYPE_CODE.Checkbox || prop.propertyType === CONTROL_TYPE_CODE.MultiCheckbox ? CONTROL_TYPE.Checkbox : prop.propertyType === CONTROL_TYPE_CODE.Multiselect ? CONTROL_TYPE.Multiselect : prop.propertyType === CONTROL_TYPE_CODE.Dropdown ? CONTROL_TYPE.Dropdown : CONTROL_TYPE.Radio,
-                label: prop.propertyName,
-                fieldControl: this.profileFormGroup.controls[prop.propertyCode],
-                layoutDefine: {
-                  row: propCount,
-                  column: 0,
-                },
-                options: propertyLookupList,
-                required: prop.isMandatory
-              }
-            }
-            else if (prop.propertyType === CONTROL_TYPE_CODE.DateTime || prop.propertyType === CONTROL_TYPE_CODE.Date || prop.propertyType === CONTROL_TYPE_CODE.Time) {
-              forms = {
-                id: prop.uid,
-                name: prop.propertyCode,
-                type: CONTROL_TYPE.Calendar,
-                label: prop.propertyName,
-                fieldControl: this.profileFormGroup.controls[prop.propertyCode],
-                layoutDefine: {
-                  row: propCount,
-                  column: 0,
-                },
-                required: prop.isMandatory,
-                timeOnly: prop.propertyType === CONTROL_TYPE_CODE.Time ? true : false,
-                showTime: prop.propertyType !== CONTROL_TYPE_CODE.Date ? true : false
-              }
-            }
-
-            // insert profile value into form
-            // this.bindProfileValue(prop);
-
-            formsConfig.push(forms);
-            propCount++;
-          }
-        });
-      }
+    this.toastService.addSingle({
+      // key: 'copy',
+      message: this.translateService.instant("MESSAGE.COPY_TEXT_DETAIL")
     });
-    this.profileFormConfig = formsConfig;
-  }
-
-  /**
-   * Bind profile value to form
-   * @param prop Property object
-   */
-  bindProfileValue(prop: PropertiesDto) {
-    if (this.module === 'CONT') {
-      switch (prop.propertyCode) {
-        case 'first_name':
-          this.profileFormGroup.controls[prop.propertyCode].setValue(this.contactProfile.contactFirstName);
-          break;
-        case 'last_name':
-          this.profileFormGroup.controls[prop.propertyCode].setValue(this.contactProfile.contactLastName);
-          break;
-        case 'email':
-          this.profileFormGroup.controls[prop.propertyCode].setValue(this.contactProfile.contactEmail);
-          break;
-        case 'phone_number':
-          this.profileFormGroup.controls[prop.propertyCode].setValue(this.contactProfile.contactPhone);
-          break;
-        case 'contact_owner':
-          this.profileFormGroup.controls[prop.propertyCode].setValue(this.contactProfile.contactOwnerUid);
-          break;
-      }
-    }
-    else {
-      switch (prop.propertyCode) {
-        case 'company_name':
-          this.profileFormGroup.controls[prop.propertyCode].setValue(this.companyProfile.companyName);
-          break;
-        case 'company_website_url':
-          this.profileFormGroup.controls[prop.propertyCode].setValue(this.companyProfile.companyWebsite);
-          break;
-        case 'company_email':
-          this.profileFormGroup.controls[prop.propertyCode].setValue(this.companyProfile.companyEmail);
-          break;
-        case 'company_owner':
-          this.profileFormGroup.controls[prop.propertyCode].setValue(this.companyProfile.companyOwnerUid);
-          break;
-      }
-    }
-  }
-
-  returnProfileValue(prop: PropertiesDto) {
-    if (this.module === 'CONT') {
-      switch (prop.propertyCode) {
-        case 'first_name':
-          return this.contactProfile.contactFirstName;
-        case 'last_name':
-          return this.contactProfile.contactLastName
-        case 'email':
-          return this.contactProfile.contactEmail;
-        case 'phone_number':
-          return this.contactProfile.contactPhone;
-        case 'contact_owner':
-          return this.contactProfile.contactOwnerUid
-        default:
-          let contactProp: PropertyDataDto[] = JSON.parse(this.contactProfile.contactProperties ?? "[]");
-          if (contactProp.find(item => item.uid === prop.uid) && (prop.propertyType === CONTROL_TYPE_CODE.Date || prop.propertyType === CONTROL_TYPE_CODE.DateTime || prop.propertyType === CONTROL_TYPE_CODE.Time)) {
-            return new Date(contactProp.find(item => item.uid === prop.uid)!.value);
-          }
-          return contactProp.find(item => item.uid === prop.uid)?.value;
-      }
-    }
-    else {
-      switch (prop.propertyCode) {
-        case 'company_name':
-          return this.companyProfile.companyName;
-        case 'company_website_url':
-          return this.companyProfile.companyWebsite
-        case 'company_email':
-          return this.companyProfile.companyEmail;
-        case 'company_owner':
-          return this.companyProfile.companyOwnerUid
-        default:
-          let companyProp: PropertyDataDto[] = JSON.parse(this.companyProfile.companyProperties ?? "[]");
-          if (companyProp.find(item => item.uid === prop.uid) && (prop.propertyType === CONTROL_TYPE_CODE.Date || prop.propertyType === CONTROL_TYPE_CODE.DateTime || prop.propertyType === CONTROL_TYPE_CODE.Time)) {
-            return new Date(companyProp.find(item => item.uid === prop.uid)!.value);
-          }
-          return companyProp.find(item => item.uid === prop.uid)?.value;
-      }
-    }
-  }
-
-  cancelButton() {
-    this.showFormUpdateSidebar = false;
-  }
-
-  saveButton() {
-    // cast property value into contact/company object
-    if (this.module === 'CONT') {
-      let updateContact: UpdateContactDto = new UpdateContactDto();
-      let profileProperty: PropertyDataDto[] = JSON.parse(this.contactProfile.contactProperties);
-      updateContact.uid = this.contactProfile.uid;
-      this.propUpdateList.forEach(prop => {
-        switch (prop.property.propertyCode) {
-          case 'first_name':
-            updateContact.contactFirstName = prop.value;
-            break;
-          case 'last_name':
-            updateContact.contactLastName = prop.value;
-            break;
-          case 'email':
-            updateContact.contactEmail = prop.value;
-            break;
-          case 'phone_number':
-            updateContact.contactPhone = prop.value;
-            break;
-          case 'contact_owner':
-            updateContact.contactOwnerUid = prop.value;
-            break;
-          case 'lead_status':
-            updateContact.contactLeadStatusId = prop.value;
-            break;
-          default:
-            if (!profileProperty.find(item => item.uid === prop.property.uid)) {
-              profileProperty.push({
-                uid: prop.property.uid,
-                propertyCode: prop.property.propertyCode,
-                value: this.commonService.setPropertyDataValue(prop.property, prop.value)
-              });
-            }
-            else {
-              profileProperty.find(item => item.uid === prop.property.uid)!.value = this.commonService.setPropertyDataValue(prop.property, prop.value);
-            }
-            updateContact.contactProperties = JSON.stringify(profileProperty);
-        }
-      });
-
-      this.commonService.updateContact([updateContact]).subscribe(res => {
-        this.propUpdateList = [];
-        this.showFormUpdateSidebar = false;
-        this.profileUpdateEmit.emit(updateContact);
-      });
-    }
-    else {
-      let updateCompany: UpdateCompanyDto = new UpdateCompanyDto();
-      let profileProperty: PropertyDataDto[] = JSON.parse(this.companyProfile.companyProperties);
-      updateCompany.uid = this.companyProfile.uid;
-      this.propUpdateList.forEach(prop => {
-        switch (prop.property.propertyCode) {
-          case 'company_name':
-            updateCompany.companyName = prop.value;
-            break;
-          case 'company_website_url':
-            updateCompany.companyWebsite = prop.value;
-            break;
-          case 'company_email':
-            updateCompany.companyEmail = prop.value;
-            break;
-          case 'company_owner':
-            updateCompany.companyOwnerUid = prop.value;
-            break;
-          case 'lead_status':
-            updateCompany.companyLeadStatusId = prop.value;
-            break;
-          default:
-            if (!profileProperty.find(item => item.uid === prop.property.uid)) {
-              profileProperty.push({
-                uid: prop.property.uid,
-                propertyCode: prop.property.propertyCode,
-                value: this.commonService.setPropertyDataValue(prop.property, prop.value)
-              });
-            }
-            else {
-              profileProperty.find(item => item.uid === prop.property.uid)!.value = this.commonService.setPropertyDataValue(prop.property, prop.value);
-            }
-            updateCompany.companyProperties = JSON.stringify(profileProperty);
-        }
-      });
-
-      this.commonService.updateCompany([updateCompany]).subscribe(res => {
-        this.propUpdateList = [];
-        this.showFormUpdateSidebar = false;
-        this.profileUpdateEmit.emit(updateCompany);
-      });
-    }
+    navigator.clipboard.writeText(copiedText);
   }
 
   editPic() {
@@ -497,23 +160,40 @@ export class LeftPanelComponent implements OnChanges {
         if (this.module === 'CONT') {
           let updateContact: UpdateContactDto = {
             uid: this.contactProfile.uid,
-            contactProfilePhotoUrl: this.profileImg
+            contactProfilePhotoUrl: this.profileImg,
+            modifiedBy: this.coreService.user!.uid
           }
           this.commonService.updateContact([updateContact]).subscribe(res => {
-            console.log(res);
-            this.isShowAvatarEditDialog = false;
-            this.profileUpdateEmit.emit(updateContact);
+            if (res.isSuccess) {
+              this.isShowAvatarEditDialog = false;
+              this.profileUpdateEmit.emit(updateContact);
+            }
+            else {
+              this.toastService.addSingle({
+                message: res.responseMessage,
+                severity: 'error'
+              });
+            }
           })
         }
         else {
           let updateCompany: UpdateCompanyDto = {
             uid: this.companyProfile.uid,
-            companyProfilePhotoUrl: this.profileImg
+            companyProfilePhotoUrl: this.profileImg,
+            modifiedBy: this.coreService.user!.uid
           }
           this.commonService.updateCompany([updateCompany]).subscribe(res => {
-            console.log(res);
-            this.isShowAvatarEditDialog = false;
-            this.profileUpdateEmit.emit(updateCompany);
+            if (res.isSuccess) {
+              this.isShowAvatarEditDialog = false;
+              this.profileUpdateEmit.emit(updateCompany);
+            }
+            else {
+              this.toastService.addSingle({
+                message: res.responseMessage,
+                severity: 'error'
+              });
+            }
+
           })
         }
       });

@@ -1,7 +1,9 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
-import { CommonService, CompanyDto, ContactDto, ModuleDto } from '../../../../services/common.service';
+import { CompanyDto, ContactDto, ModuleDto } from '../../../../services/common.service';
 import { FormControl } from '@angular/forms';
 import { ActivityDto, ActivityModuleDto, ActivityService } from '../../../../services/activity.service';
+import { ToastService } from '../../../../services/toast.service';
+import { UserPermissionDto } from '../../../../services/core-http.service';
 
 @Component({
   selector: 'app-middle-panel',
@@ -12,20 +14,23 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
   @Input() propertiesList: ModuleDto[] = [];
   @Input() module: 'CONT' | 'COMP' = 'CONT';
   @Input() contactProfile: ContactDto = new ContactDto();
-  @Input() companyProfile: CompanyDto = new CompanyDto(); // TODO: company profile
+  @Input() companyProfile: CompanyDto = new CompanyDto();
   @Input() activitiesList: ActivityDto[] = [];
+  @Input() permission: UserPermissionDto[] = [];
   @Output() activityListEmit: EventEmitter<any> = new EventEmitter<any>();
 
   isOpenDialog: boolean = false;
+  isOpenCreateDialog: boolean = false;
   activityModuleList: ModuleDto[] = [];
   activityControlList: ActivityModuleDto[] = [];
+  subActivityModuleList: ModuleDto[] = [];
   searchControl: FormControl = new FormControl();
   searchIcon: string = "pi pi-search";
 
   actionMenu: any[] = [
     {
       label: 'Collapse all',
-      icon: '',
+      icon: 'pi pi-arrow-down-left-and-arrow-up-right-to-center',
       command: () => {
         this.activitiesList.forEach(act => {
           act.isExpand = act.isExpand ? false : act.isExpand;
@@ -34,7 +39,7 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
     },
     {
       label: 'Expand all',
-      icon: '',
+      icon: 'pi pi-arrow-up-right-and-arrow-down-left-from-center',
       command: () => {
         this.activitiesList.forEach(act => {
           act.isExpand = true;
@@ -46,8 +51,8 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
   dialogActivityTab: ModuleDto = new ModuleDto();
 
   constructor(
-    private commonService: CommonService,
-    private activityService: ActivityService
+    private activityService: ActivityService,
+    private toastService: ToastService
   ) {
 
   }
@@ -58,8 +63,17 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
     });
 
     this.activityService.getAllActivityModule().subscribe((res) => {
-      this.activityModuleList = res.activityModuleList;
-      this.activityControlList = res.activityControlList;
+      if (res.isSuccess) {
+        this.activityModuleList = res.data.activityModuleList;
+        this.activityControlList = res.data.activityControlList;
+        this.subActivityModuleList = res.data.subActivityModuleList;
+      }
+      else {
+        this.toastService.addSingle({
+          message: res.responseMessage,
+          severity: 'error'
+        });
+      }
     });
 
 
@@ -69,19 +83,12 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
 
   }
 
-  returnActivityLable(moduleCode: string) {
-    switch (moduleCode) {
-      case 'NOTE':
-        return 'Log Note';
-      case 'EMAIL':
-        return 'Log Email';
-      case 'CALL':
-        return 'Log Call';
-      case 'MEET':
-        return 'Log Meeting';
-      default:
-        return '';
-    }
+  returnLogActivityLable(module: ModuleDto) {
+    return this.subActivityModuleList.find(sam => sam.moduleCode === 'LOG' && sam.moduleSubCode === module.moduleCode)?.moduleName;
+  }
+
+  returnCreateActivityLable(module: ModuleDto) {
+    return this.subActivityModuleList.find(sam => sam.moduleCode === 'CREATE' && sam.moduleSubCode === module.moduleCode)?.moduleName;
   }
 
   getActivityControlList(activity: ModuleDto): any {
@@ -90,7 +97,12 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
 
   activityButtonOnClick(activityTab: ModuleDto) {
     this.isOpenDialog = true;
-    this.dialogActivityTab = activityTab;
+    this.dialogActivityTab = this.subActivityModuleList.find(sam => sam.moduleSubCode === activityTab.moduleCode);
+  }
+
+  activityCreateButtonOnClick(activityTab: ModuleDto) {
+    this.isOpenCreateDialog = true;
+    this.dialogActivityTab = this.subActivityModuleList.find(sam => sam.moduleSubCode === activityTab.moduleCode && sam.moduleCode === 'CREATE');
   }
 
   activityDialogCloseEmit() {
@@ -98,17 +110,37 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
     this.activityListEmit.emit();
   }
 
+  activityCreateDialogCloseEmit() {
+    this.isOpenCreateDialog = false;
+    this.activityListEmit.emit();
+  }
+
   returnUpComingActivityList(code: string): ActivityDto[] {
     if (code === 'ALL') {
-      return this.activitiesList.filter(act => !act.isPinned);
+      return this.activitiesList.filter(act => !act.isPinned && new Date(act.activityDatetime) >= new Date());
     }
-    return this.activitiesList.filter(act => act.activityModuleCode === code && !act.isPinned);
+    return this.activitiesList.filter(act => act.activityModuleSubCode === code && !act.isPinned && new Date(act.activityDatetime) >= new Date());
+  }
+
+  returnPastActivityList(code: string): ActivityDto[] {
+    if (code === 'ALL') {
+      return this.activitiesList.filter(act => !act.isPinned && new Date(act.activityDatetime) < new Date());
+    }
+    return this.activitiesList.filter(act => act.activityModuleSubCode === code && !act.isPinned && new Date(act.activityDatetime) < new Date());
   }
 
   returnIsPinnedActivityList(code: string): ActivityDto[] {
     if (code === 'ALL') {
       return this.activitiesList.filter(act => act.isPinned);
     }
-    return this.activitiesList.filter(act => act.activityModuleCode === code && act.isPinned);
+    return this.activitiesList.filter(act => act.activityModuleSubCode === code && act.isPinned);
+  }
+
+  returnModule(activity: ActivityDto) {
+    return this.activityModuleList.find(a => a.moduleCode === activity.activityModuleSubCode);
+  }
+
+  returnSubModuleList(activityTab: ModuleDto): ModuleDto[] {
+    return this.subActivityModuleList.filter(a => a.moduleSubCode === activityTab.moduleCode);
   }
 }

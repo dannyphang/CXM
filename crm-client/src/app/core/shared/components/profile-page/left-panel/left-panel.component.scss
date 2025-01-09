@@ -7,6 +7,11 @@
 }
 
 :host ::ng-deep {
+  .button-container .button-item {
+    padding: 0px !important;
+    position: relative;
+  }
+
   .avatar-div {
     .p-avatar-icon {
       font-size: 30px;
@@ -38,15 +43,7 @@
       padding: 0px !important;
     }
   }
-}
 
-.panel-content-div {
-  padding: 15px;
-  overflow-y: auto;
-  height: calc(100vh - 350px);
-}
-
-:host ::ng-deep {
   .left-profile-form {
     .p-dropdown .p-dropdown-label {
       overflow: hidden;
@@ -54,4 +51,17 @@
       width: 100px;
     }
   }
+
+  .left-panel-action-button {
+    padding: 0 !important;
+  }
+}
+
+.panel-content-div {
+  overflow-y: auto;
+  height: calc(100vh - 350px);
+}
+
+.email-text:hover {
+  // background-color: var(--text-color-secondary);
 }

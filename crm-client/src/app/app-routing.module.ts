@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { LayoutComponent } from './layout/layout.component';
 import { Error404Component } from './layout/error-404/error-404.component';
-import { LoginComponent } from './module/login/login.component';
+import { PermissionGuard } from './core/shared/guard/permission.guard';
 
 const routes: Routes = [
   {
@@ -17,13 +17,21 @@ const routes: Routes = [
       {
         path: 'contact',
         loadChildren: () => import('./module/contact/contact.module').then(m => m.ContactModule),
+        canActivate: [PermissionGuard],
         data: { breadcrumb: 'Contact', title: 'Contact' },
       },
       {
         path: 'company',
         loadChildren: () => import('./module/company/company.module').then(m => m.CompanyModule),
+        canActivate: [PermissionGuard],
         data: { breadcrumb: 'Company', title: 'Company' }
       },
+      {
+        path: 'setting',
+        loadChildren: () => import('./module/setting/setting.module').then(m => m.SettingModule),
+        canActivate: [PermissionGuard],
+        data: { breadcrumb: 'Setting', title: 'Setting' }
+      }
     ]
   },
   {

@@ -9,19 +9,13 @@ import { PropertyGroupDto, CommonService } from '../../../core/services/common.s
 })
 export class CompanyProfileComponent {
   module: 'CONT' | 'COMP' = 'COMP';
-  profileId: any;
-  propertiesList: PropertyGroupDto[] = [];
-  isLoadingProperties: boolean = true;
-  isLoadingContact: boolean = true;
+  profileUid: any;
 
   constructor(
-    private router: Router,
-    private commonService: CommonService,
     private activatedRoute: ActivatedRoute
   ) {
-    console.log(this.module)
     if (this.activatedRoute.snapshot.queryParamMap) {
-      this.profileId = this.activatedRoute.snapshot.paramMap.get('id');
+      this.profileUid = this.activatedRoute.snapshot.paramMap.get('id');
     }
   }
 }

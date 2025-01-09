@@ -9,7 +9,7 @@ import { CommonService, PropertyGroupDto } from '../../../core/services/common.s
 })
 export class ContactProfileComponent implements OnInit {
   module: 'CONT' | 'COMP' = 'CONT';
-  profileId: any;
+  profileUid: any;
   propertiesList: PropertyGroupDto[] = [];
   isLoadingProperties: boolean = true;
   isLoadingContact: boolean = true;
@@ -20,7 +20,7 @@ export class ContactProfileComponent implements OnInit {
     private activatedRoute: ActivatedRoute
   ) {
     if (this.activatedRoute.snapshot.queryParamMap) {
-      this.profileId = this.activatedRoute.snapshot.paramMap.get('id');
+      this.profileUid = this.activatedRoute.snapshot.paramMap.get('id');
     }
   }
 

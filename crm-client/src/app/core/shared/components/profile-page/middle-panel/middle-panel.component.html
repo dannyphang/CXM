@@ -9,10 +9,12 @@
           [fieldControl]="searchControl"
           class="tw-w-[40%]"
         ></app-base-input>
+
+        <!-- middle panel action button -->
         <div>
-          <p-button
-            icon="pi pi-ellipsis-v"
-            [text]="true"
+          <app-base-button
+            [iconName]="'pi pi-ellipsis-v'"
+            [isTextStyle]="true"
             [rounded]="true"
             (click)="profileActionMenu.toggle($event)"
           />
@@ -40,11 +42,14 @@
               class="tw-pb-[15px]"
             >
               <app-activity-block
+                [activityModule]="returnModule(activity)"
                 [activityControlList]="activityControlList"
                 [activityModuleList]="activityModuleList"
                 [activity]="activity"
                 [moduleLable]="'ALL'"
                 (activityReload)="activityListEmit.emit()"
+                [contactProfile]="contactProfile"
+                [companyProfile]="companyProfile"
               ></app-activity-block>
             </div>
           </div>
@@ -64,11 +69,43 @@
               class="tw-pb-[15px]"
             >
               <app-activity-block
+                [activityModule]="returnModule(activity)"
                 [activityControlList]="activityControlList"
                 [activityModuleList]="activityModuleList"
                 [activity]="activity"
                 [moduleLable]="'ALL'"
                 (activityReload)="activityListEmit.emit()"
+                [module]="module"
+                [contactProfile]="contactProfile"
+                [companyProfile]="companyProfile"
+              ></app-activity-block>
+            </div>
+          </div>
+
+          <!-- Past -->
+          <div *ngIf="returnPastActivityList('ALL').length > 0">
+            <div
+              class="activity-label-div tw-flex tw-flex-wrap tw-items-center"
+            >
+              <i class="pi pi-calendar"></i>
+              <p class="upcoming-label">
+                {{ "ACTIVITY.PAST" | translate }}
+              </p>
+            </div>
+            <div
+              *ngFor="let activity of returnPastActivityList('ALL')"
+              class="tw-pb-[15px]"
+            >
+              <app-activity-block
+                [activityModule]="returnModule(activity)"
+                [activityControlList]="activityControlList"
+                [activityModuleList]="activityModuleList"
+                [activity]="activity"
+                [moduleLable]="'ALL'"
+                (activityReload)="activityListEmit.emit()"
+                [module]="module"
+                [contactProfile]="contactProfile"
+                [companyProfile]="companyProfile"
               ></app-activity-block>
             </div>
           </div>
@@ -81,11 +118,21 @@
           onclick=""
         >
           <div class="">
-            <app-base-button
-              [label]="returnActivityLable(activityTab.moduleCode)"
-              class="tw-flex tw-justify-end tw-mb-[15px]"
-              (onClick)="activityButtonOnClick(activityTab)"
-            ></app-base-button>
+            <div
+              class="tw-flex tw-justify-end tw-mb-[var(--content-gap)] tw-gap-[var(--content-gap)]"
+            >
+              <app-base-button
+                [outlined]="true"
+                [label]="returnLogActivityLable(activityTab)"
+                class=""
+                (onClick)="activityButtonOnClick(activityTab)"
+              ></app-base-button>
+
+              <app-base-button
+                [label]="returnCreateActivityLable(activityTab)"
+                (onClick)="activityCreateButtonOnClick(activityTab)"
+              ></app-base-button>
+            </div>
 
             <!-- Pinned -->
             <div
@@ -109,12 +156,15 @@
                 class="tw-pb-[15px]"
               >
                 <app-activity-block
-                  *ngIf="activity.activityModuleCode === activityTab.moduleCode"
+                  [subActivityModule]="returnSubModuleList(activityTab)"
                   [activityModule]="activityTab"
                   [activityControlList]="getActivityControlList(activityTab)"
                   [activityModuleList]="activityModuleList"
                   [activity]="activity"
                   (activityReload)="activityListEmit.emit()"
+                  [module]="module"
+                  [contactProfile]="contactProfile"
+                  [companyProfile]="companyProfile"
                 ></app-activity-block>
               </div>
             </div>
@@ -142,12 +192,48 @@
                 class="tw-pb-[15px]"
               >
                 <app-activity-block
-                  *ngIf="activity.activityModuleCode === activityTab.moduleCode"
+                  [subActivityModule]="returnSubModuleList(activityTab)"
                   [activityModule]="activityTab"
                   [activityControlList]="getActivityControlList(activityTab)"
                   [activityModuleList]="activityModuleList"
                   [activity]="activity"
                   (activityReload)="activityListEmit.emit()"
+                  [module]="module"
+                  [contactProfile]="contactProfile"
+                  [companyProfile]="companyProfile"
+                ></app-activity-block>
+              </div>
+            </div>
+
+            <!-- Past -->
+            <div
+              *ngIf="returnPastActivityList(activityTab.moduleCode).length > 0"
+            >
+              <div
+                class="activity-label-div tw-flex tw-flex-wrap tw-items-center"
+              >
+                <i class="pi pi-calendar"></i>
+                <p class="upcoming-label">
+                  {{ "ACTIVITY.PAST" | translate }}
+                </p>
+              </div>
+              <div
+                *ngFor="
+                  let activity of returnPastActivityList(activityTab.moduleCode)
+                "
+                class="tw-pb-[15px]"
+              >
+                <app-activity-block
+                  [subActivityModule]="returnSubModuleList(activityTab)"
+                  [activityModule]="activityTab"
+                  [activityControlList]="activityControlList"
+                  [activityModuleList]="activityModuleList"
+                  [activity]="activity"
+                  [moduleLable]="'ALL'"
+                  (activityReload)="activityListEmit.emit()"
+                  [module]="module"
+                  [contactProfile]="contactProfile"
+                  [companyProfile]="companyProfile"
                 ></app-activity-block>
               </div>
             </div>
@@ -160,11 +246,22 @@
 </div>
 
 <app-activity-dialog
+  [module]="module"
   [activityModule]="dialogActivityTab"
   [visible]="isOpenDialog"
   [contactProfile]="contactProfile"
+  [companyProfile]="companyProfile"
   [activityControlListInput]="getActivityControlList(dialogActivityTab)"
   [activityModuleList]="activityModuleList"
-  [header]="returnActivityLable(dialogActivityTab.moduleCode)"
+  [header]="returnLogActivityLable(dialogActivityTab)"
   (close)="activityDialogCloseEmit()"
 ></app-activity-dialog>
+
+<app-activity-create-dialog
+  [module]="module"
+  [activityModule]="dialogActivityTab"
+  [visible]="isOpenCreateDialog"
+  [contactProfile]="contactProfile"
+  [companyProfile]="companyProfile"
+  (close)="activityCreateDialogCloseEmit()"
+></app-activity-create-dialog>

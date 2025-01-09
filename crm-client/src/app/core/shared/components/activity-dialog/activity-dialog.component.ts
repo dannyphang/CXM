@@ -1,11 +1,16 @@
-import { Component, EventEmitter, Input, NgZone, OnChanges, OnDestroy, Output, SimpleChanges } from '@angular/core';
-import { AttachmentDto, CommonService, ContactDto, ModuleDto } from '../../../services/common.service';
+import { Component, EventEmitter, HostListener, Input, NgZone, OnChanges, OnDestroy, Output, SimpleChanges } from '@angular/core';
+import { AttachmentDto, CommonService, CompanyDto, ContactDto, ModuleDto, WindowSizeDto } from '../../../services/common.service';
 import { FormBuilder, FormControl, FormGroup, NgModel, Validators } from '@angular/forms';
 import { CONTROL_TYPE, FormConfig, OptionsModel } from '../../../services/components.service';
 import { ActivityDto, ActivityModuleDto, ActivityService, CreateActivityDto } from '../../../services/activity.service';
 import { EDITOR_CONTENT_LIMIT, ATTACHMENT_MAX_SIZE } from '../../constants/common.constants';
 import { FileSelectEvent, UploadEvent } from 'primeng/fileupload';
 import { MessageService } from 'primeng/api';
+import { BaseCoreAbstract } from '../../base/base-core.abstract';
+import { AuthService } from '../../../services/auth.service';
+import { TranslateService } from '@ngx-translate/core';
+import { ToastService } from '../../../services/toast.service';
+import { CoreHttpService } from '../../../services/core-http.service';
 
 @Component({
   selector: 'app-activity-dialog',
@@ -14,6 +19,7 @@ import { MessageService } from 'primeng/api';
 })
 export class ActivityDialogComponent implements OnChanges {
   @Input() contactProfile: ContactDto = new ContactDto();
+  @Input() companyProfile: CompanyDto = new CompanyDto();
   @Input() module: "CONT" | "COMP" = "CONT";
   @Input() activityModule: ModuleDto = new ModuleDto();
   @Input() visible: boolean = false;
@@ -22,10 +28,12 @@ export class ActivityDialogComponent implements OnChanges {
   @Input() header: string = 'Activity Dialog';
   @Output() close: EventEmitter<any> = new EventEmitter<any>();
 
+  windowSize: WindowSizeDto = new WindowSizeDto();
+
   activityControlList: ActivityModuleDto[] = [];
   activityFormConfig: FormConfig[] = [];
   activityFormGroup: FormGroup = new FormGroup({
-    CONT: new FormControl(this.module === "CONT" ? [this.contactProfile.contactId] : []),
+    CONT: new FormControl(this.module === "CONT" ? [this.contactProfile.uid] : []),
     DATE: new FormControl(new Date()),
     TIME: new FormControl(new Date()),
     OUTCOME_C: new FormControl(null),
@@ -41,15 +49,30 @@ export class ActivityDialogComponent implements OnChanges {
   editorContentLimit = EDITOR_CONTENT_LIMIT;
   attachmentList: File[] = [];
   fileMaxSize: number = ATTACHMENT_MAX_SIZE;
+  assoContactFormConfig: FormConfig[] = [];
+  assoCompanyFormConfig: FormConfig[] = [];
+  assoCompanyForm: FormControl = new FormControl([]);
+  assoContactForm: FormControl = new FormControl([]);
+  assoCompanyList: OptionsModel[] = [];
+  assoContactList: OptionsModel[] = [];
 
   constructor(
     private commonService: CommonService,
     private formBuilder: FormBuilder,
     private activityService: ActivityService,
     private ngZone: NgZone,
-    private messageService: MessageService
+    private authService: AuthService,
+    private translateService: TranslateService,
+    private toastService: ToastService,
+    private coreService: CoreHttpService
   ) {
+    this.windowSize = this.commonService.windowSize;
+  }
 
+  @HostListener('window:resize', ['$event'])
+  onResize() {
+    this.commonService.updateWindowSize();
+    this.windowSize = this.commonService.windowSize;
   }
 
   ngOnInit() {
@@ -58,7 +81,12 @@ export class ActivityDialogComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['contactProfile'] && changes['contactProfile'].currentValue) {
-      this.activityFormGroup.controls['CONT'].setValue([this.contactProfile.contactId])
+      this.activityFormGroup.controls['CONT'].setValue([this.contactProfile.uid]);
+      this.setAssociation();
+    }
+    if (changes['companyProfile'] && changes['companyProfile'].currentValue) {
+      this.activityFormGroup.controls['CONT'].setValue([]);
+      this.setAssociation();
     }
     if (changes['activityModule'] && changes['activityModule'].currentValue) {
       this.assignForm();
@@ -72,17 +100,18 @@ export class ActivityDialogComponent implements OnChanges {
   }
 
   clearForm() {
-    this.activityFormGroup.controls['CONT'].setValue(this.module === "CONT" ? [this.contactProfile.contactId] : []);
+    this.activityFormGroup.controls['CONT'].setValue(this.module === "CONT" ? [this.contactProfile.uid] : []);
     this.activityFormGroup.controls['DATE'].setValue(new Date());
     this.activityFormGroup.controls['TIME'].setValue(new Date());
     this.activityFormGroup.controls['OUTCOME_C'].setValue(null);
     this.activityFormGroup.controls['DIRECT'].setValue(null);
     this.activityFormGroup.controls['OUTCOME_M'].setValue(null);
     this.activityFormGroup.controls['DURAT'].setValue(null);
+    this.editorFormControl.setValue(null);
   }
 
   assignForm() {
-    switch (this.activityModule.moduleCode) {
+    switch (this.activityModule.moduleSubCode) {
       case 'NOTE':
         this.componentList = [];
         break;
@@ -146,6 +175,9 @@ export class ActivityDialogComponent implements OnChanges {
           showTime: module.moduleCode === 'TIME' ? true : false,
           timeOnly: module.moduleCode === 'TIME' ? true : false
         }
+        let nextDay = new Date();
+        nextDay.setDate(new Date().getDate() + 1)
+        this.activityFormGroup.controls[module.moduleCode].setValue(nextDay, { emitEvent: false });
       }
       else if (module.moduleCode === 'OUTCOME_C' || module.moduleCode === 'OUTCOME_M' || module.moduleCode === 'DIRECT') {
         let subList: OptionsModel[] = [];
@@ -184,26 +216,114 @@ export class ActivityDialogComponent implements OnChanges {
           options: this.generateTimeDurations()
         }
       }
-      cols++;
+
+      if (this.windowSize.desktop) {
+        cols++;
+      }
+      else {
+        rows++;
+      }
+
       formsConfig.push(forms);
     });
     this.activityFormConfig = formsConfig;
+
+    this.activityFormGroup.controls['CONT'].valueChanges.subscribe(val => {
+      this.assoContactForm.setValue(val, { emitEvent: false });
+    });
+
+    this.assoContactForm.valueChanges.subscribe(val => {
+      this.activityFormGroup.controls['CONT'].setValue(val, { emitEvent: false });
+    });
+  }
+
+  setAssociation() {
+    // assign association 
+    if (this.module === 'CONT' && this.contactProfile.association) {
+      this.contactProfile.association.companyList.forEach(profile => {
+        this.assoCompanyList.push({
+          label: `${profile.companyName} (${profile.companyEmail})`,
+          value: profile.uid
+        });
+      });
+
+      this.assoContactList.push({
+        label: `${this.contactProfile.contactFirstName} ${this.contactProfile.contactLastName} (${this.contactProfile.contactEmail})`,
+        value: this.contactProfile.uid
+      });
+    }
+    else if (this.module === 'COMP' && this.companyProfile.association) {
+      this.companyProfile.association.contactList.forEach(profile => {
+        this.assoContactList.push({
+          label: `${profile.contactFirstName} ${profile.contactLastName}  (${profile.contactEmail})`,
+          value: profile.uid
+        });
+      });
+
+      this.assoCompanyList.push({
+        label: `${this.companyProfile.companyName} (${this.companyProfile.companyEmail})`,
+        value: this.companyProfile.uid
+      });
+    }
+
+    this.assoContactFormConfig = [
+      {
+        id: '',
+        type: CONTROL_TYPE.Multiselect,
+        layoutDefine: {
+          row: 0,
+          column: 0
+        },
+        options: this.assoContactList,
+        fieldControl: this.assoContactForm
+      }
+    ];
+
+    this.assoCompanyFormConfig = [
+      {
+        id: '',
+        type: CONTROL_TYPE.Multiselect,
+        layoutDefine: {
+          row: 0,
+          column: 0
+        },
+        options: this.assoCompanyList,
+        fieldControl: this.assoCompanyForm
+      }
+    ];
+
+    if (this.module === 'CONT' && this.contactProfile.association) {
+      this.assoContactForm.setValue([this.contactProfile.uid]);
+      this.assoContactForm.disable();
+    }
+    else if (this.module === 'COMP' && this.companyProfile.association) {
+      this.assoCompanyForm.setValue([this.companyProfile.uid]);
+      this.assoCompanyForm.disable();
+    }
   }
 
   getContactedList(): OptionsModel[] {
-    return [{
-      label: `${this.contactProfile.contactFirstName} ${this.contactProfile.contactLastName} (${this.contactProfile.contactEmail})`,
-      value: this.contactProfile.contactId
-    },
-    {
-      label: `${this.contactProfile.contactFirstName} ${this.contactProfile.contactLastName} (${this.contactProfile.contactEmail})`,
-      value: 123
-    },
-    {
-      label: `${this.contactProfile.contactFirstName} ${this.contactProfile.contactLastName} (${this.contactProfile.contactEmail})`,
-      value: 321
+    if (this.module === 'COMP') {
+      let contactList: OptionsModel[] = [];
+      this.companyProfile.association?.contactList.forEach(profile => {
+        contactList.push({
+          label: `${profile.contactFirstName} ${profile.contactLastName}  (${profile.contactEmail})`,
+          value: profile.uid
+        });
+      });
+
+      return contactList;
     }
-    ];
+    else if (this.module === 'CONT') {
+      return [
+        {
+          label: `${this.contactProfile.contactFirstName} ${this.contactProfile.contactLastName} (${this.contactProfile.contactEmail})`,
+          value: this.contactProfile.uid
+        }
+      ];
+    }
+
+    return [];
   }
 
   generateTimeSlots(intervalMinutes: number = 30): any[] {
@@ -265,17 +385,21 @@ export class ActivityDialogComponent implements OnChanges {
     for (let i = 0; i < list.length; i++) {
       if (!this.attachmentList.find(item => item.name === list[i].name)) {
         if (list[i].size > this.fileMaxSize) {
-          this.popMessage(`File size is exceed. (${this.returnFileSize(list[i].size)})`, "File size error", "error");
+          this.toastService.addSingle({
+            message: `File size is exceed. (${this.returnFileSize(list[i].size)})`,
+            severity: 'error'
+          });
           break;
         }
         this.attachmentList.push(list[i]);
       }
       else {
-        this.popMessage(`(${list[i].name}) is duplicated.`, "File duplicated", "error");
+        this.toastService.addSingle({
+          message: `(${list[i].name}) is duplicated.`,
+          severity: 'error'
+        });
       }
     }
-
-    console.log(this.attachmentList)
   }
 
   returnFileSize(bytes: number = 0, decimals: number = 2) {
@@ -294,45 +418,128 @@ export class ActivityDialogComponent implements OnChanges {
     this.attachmentList = this.attachmentList.filter(item => item.name !== file.name)
   }
 
+  convertDateAndTime(date: Date, time: Date) {
+    let newDate = new Date(date);
+    let newTime = new Date(time);
+    newDate.setHours(newTime.getHours());
+    newDate.setMinutes(newTime.getMinutes());
+    newDate.setSeconds(newTime.getSeconds());
+    return newDate;
+  }
+
   save() {
     if (this.activityFormGroup.valid) {
-
       let createActivity: CreateActivityDto = {
         activityModuleCode: this.activityModule.moduleCode,
+        activityModuleSubCode: this.activityModule.moduleSubCode,
         activityModuleId: this.activityModule.uid,
         activityContent: this.editorFormControl.value,
         activityContactedIdList: this.activityFormGroup.controls['CONT'].value,
-        activityDatetime: this.activityFormGroup.controls['DATE'].value, // TODO
+        activityDatetime: this.convertDateAndTime(this.activityFormGroup.controls['DATE'].value, this.activityFormGroup.controls['TIME'].value),
         activityDirectionId: this.activityFormGroup.controls['DIRECT'].value,
         activityOutcomeId: this.activityFormGroup.controls['OUTCOME_C'].value || this.activityFormGroup.controls['OUTCOME_M'].value ? this.activityModule.moduleCode === 'CALL' ? this.activityFormGroup.controls['OUTCOME_C'].value : this.activityFormGroup.controls['OUTCOME_M'].value : null,
         activityDuration: this.activityFormGroup.controls['DURAT'].value,
-        associationId: '',
-        attachmentUid: '',
+        associationContactUidList: this.assoContactForm.value ?? [],
+        associationCompanyUidList: this.assoCompanyForm.value ?? [],
+        attachmentUid: [],
+        createdBy: this.coreService.userC.uid,
+        createdDate: new Date()
       }
 
-      this.activityService.createActivity([createActivity]).subscribe(res => {
-        this.attachmentList.forEach(file => {
-          this.commonService.uploadFile(file, "Activity").subscribe(res2 => {
-            let uploadAttach: AttachmentDto = {
-              activityUid: res[0].uid!,
-              folderName: "Activity",
-              fileName: res2.metadata.name,
-              fullPath: res2.metadata.fullPath,
-              fileSize: res2.metadata.size
-            }
-
-            this.activityService.uploadAttachment([uploadAttach]).subscribe(res3 => {
-
-              this.closeDialog();
-            });
-          });
-        });
+      this.toastService.addSingle({
+        key: 'activity',
+        message: this.translateService.instant('MESSAGE.CREATING_ACTIVITY'),
+        isLoading: true,
+        severity: 'info'
       });
+      this.activityService.createActivity([createActivity]).subscribe(res => {
+        if (res.isSuccess) {
+          if (this.attachmentList.length > 0) {
+            this.attachmentList.forEach(file => {
+              this.commonService.uploadFile(file, "Activity").subscribe(res2 => {
+                if (res2.isSuccess) {
+                  let uploadAttach: AttachmentDto = {
+                    activityUid: res.data[0].uid!,
+                    folderName: "Activity",
+                    fileName: res2.data.metadata.name,
+                    fullPath: res2.data.metadata.fullPath,
+                    fileSize: res2.data.metadata.size
+                  }
 
+                  this.activityService.uploadAttachment([uploadAttach]).subscribe(res3 => {
+                    if (res3.isSuccess) {
+                      this.activityService.updateActivity([{
+                        uid: res3.data[0].activityUid,
+                        attachmentUid: this.returnAttactmentList(res.data[0].attachmentUid, res3.data[0].uid),
+                      }]).subscribe(
+                        {
+                          next: res4 => {
+                            if (res4.isSuccess) {
+                              this.toastService.clear('activity');
+                              this.closeDialog();
+                            }
+                            else {
+                              this.toastService.addSingle({
+                                message: res4.responseMessage,
+                                severity: 'error'
+                              });
+                            }
+                          },
+                          error: err => {
+                            this.toastService.addSingle({
+                              message: err,
+                              severity: 'error'
+                            });
+                          }
+                        }
+                      )
+                    }
+                    else {
+                      this.toastService.addSingle({
+                        message: res.responseMessage,
+                        severity: 'error'
+                      });
+                    }
+                  });
+                }
+                else {
+                  this.toastService.addSingle({
+                    key: 'error',
+                    message: res.responseMessage,
+                    severity: 'error'
+                  });
+                }
+              });
+            });
+          }
+          else {
+            this.toastService.clear('activity');
+            this.closeDialog();
+          }
+        }
+        else {
+          this.toastService.addSingle({
+            message: res.responseMessage,
+            severity: 'error'
+          });
+        }
+      });
     }
   }
 
-  popMessage(message: string, title: string, severity: string = 'success',) {
-    this.messageService.add({ severity: severity, summary: title, detail: message });
+  returnAttactmentList(attactmentList: string[], attachmentUid: string | undefined): string[] {
+    if (!attachmentUid) {
+      this.toastService.addSingle({
+        message: this.translateService.instant('ERROR.ATTACHMENT_UPDATE_ERROR'),
+        severity: 'error'
+      });
+    }
+    else {
+      if (!attactmentList.find(s => s === attachmentUid)) {
+        attactmentList.push(attachmentUid);
+        return attactmentList;
+      }
+    }
+    return [];
   }
 }

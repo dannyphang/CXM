@@ -4,7 +4,12 @@ export const LoginMode = {
     ForgotPassword: 'FORGOTPASSWORD',
 }
 
-export const ROW_PER_PAGE_DEFAULT = 15;
+export const ROW_PER_PAGE_DEFAULT = 10;
+export const ROW_PER_PAGE_DEFAULT_LIST = [5, 10, 20, 50, 100];
+
+export const NUMBER_OF_EXCEL_INSERT_ROW = 100;
+
+export const EMPTY_VALUE_STRING = '--';
 
 export const DEFAULT_FORMAT_DATE = 'DD/MM/YYYY';
 export const DEFAULT_FORMAT_DATETIME = 'DD/MM/YYYY HH:mm:ss';
@@ -17,3 +22,5 @@ export const DEFAULT_PROFILE_PIC_URL = "https://firebasestorage.googleapis.com/v
 export const EMAIL_REGEX = new RegExp(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/);
 
 export const URL_REGEX = new RegExp(/^(https?:\/\/)?(www\.)?([a-zA-Z0-9]+(\.[a-zA-Z]{2,})+)(:[0-9]{1,5})?(\/[^\s]*)?$/);
+
+export const DOWNLOAD_IMPORT_PROFILE_TEMPLATE_FILE_NAME_XLSX = 'template_example.xlsx';

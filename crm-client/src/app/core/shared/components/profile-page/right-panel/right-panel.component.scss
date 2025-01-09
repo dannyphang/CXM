@@ -2,12 +2,17 @@
   .profile-right-panel-div {
     .p-accordion-header {
       border: 1px solid var(--primary-color);
-      border-top-width: 0px;
+      border-radius: 6px !important;
+
+      a {
+        border-radius: 6px !important;
+      }
     }
 
     .p-accordion-content {
       border: 1px solid var(--primary-color);
-      border-top-width: 0px;
+      border-radius: 6px !important;
+      border-top-width: 0;
       padding: 0px !important;
     }
 
@@ -15,4 +20,11 @@
       width: 100%;
     }
   }
+}
+
+.asso-panel-header-div {
+  display: grid;
+  grid-template-areas: "asso-header-div add-asso-btn";
+  grid-template-columns: 1fr auto;
+  align-items: center;
 }

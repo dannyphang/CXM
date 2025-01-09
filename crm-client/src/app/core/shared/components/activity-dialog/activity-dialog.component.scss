@@ -20,3 +20,12 @@
   border-radius: 20px;
   opacity: 0.5;
 }
+
+.below-content-div {
+  display: grid;
+  padding: var(--content-gap);
+  grid-template-areas: "word-count-text asso-btn add-attach-btn";
+  grid-template-columns: auto 1fr auto;
+  justify-content: space-between;
+  gap: var(--content-gap);
+}

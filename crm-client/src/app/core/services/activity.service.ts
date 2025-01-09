@@ -1,51 +1,50 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { Observable } from "rxjs";
+import { map, Observable } from "rxjs";
 import apiConfig from "../../../environments/apiConfig";
-import { AttachmentDto, BasedDto, ModuleDto } from "./common.service";
+import { AssociationDto, AttachmentDto, CompanyDto, ContactDto, ModuleDto } from "./common.service";
 import { DateFilterFn } from "@angular/material/datepicker";
 import { producerAccessed } from "@angular/core/primitives/signals";
+import { BasedDto, CoreHttpService, ResponseModel } from "./core-http.service";
 
 @Injectable({ providedIn: 'root' })
 export class ActivityService {
     constructor(
-        private http: HttpClient
+        private http: HttpClient,
+        private coreService: CoreHttpService
     ) {
     }
 
-    getAllActivityModule(): Observable<ActivitiesModuleListDto> {
-        return this.http.get<ActivitiesModuleListDto>(apiConfig.baseUrl + '/activity/activityModule').pipe();
+    getAllActivityModule(): Observable<ResponseModel<ActivitiesModuleListDto>> {
+        return this.coreService.get<ActivitiesModuleListDto>('activity/activityModule').pipe();
     }
 
-    getAllActivities(): Observable<ActivityDto[]> {
-        return this.http.get<ActivityDto[]>(apiConfig.baseUrl + '/activity').pipe();
+    getAllActivities(): Observable<ResponseModel<ActivityDto[]>> {
+        return this.coreService.get<ActivityDto[]>('activity').pipe();
     }
 
-    getAllActivitiesByProfileId(profile: {
-        contactId?: string,
-        companyId?: string
-    }): Observable<ActivityDto> {
-        return this.http.post<ActivityDto>(apiConfig.baseUrl + '/activity/getActivitiesByProfileId', { profile }).pipe();
+    getAllActivitiesByProfileId(profileUid: string): Observable<ResponseModel<ActivityDto[]>> {
+        return this.coreService.post<ActivityDto[]>('activity/getActivitiesByProfileId', { profileUid }).pipe();
     }
 
-    getActivityById(id: string): Observable<ActivityDto> {
-        return this.http.get<ActivityDto>(apiConfig.baseUrl + '/activity/' + id).pipe();
+    getActivityById(id: string): Observable<ResponseModel<ActivityDto>> {
+        return this.coreService.get<ActivityDto>('activity/' + id).pipe();
     }
 
-    createActivity(createdActivitiesList: CreateActivityDto[]): Observable<CreateActivityDto[]> {
-        return this.http.post<CreateActivityDto[]>(apiConfig.baseUrl + '/activity', { createdActivitiesList }).pipe();
+    createActivity(createdActivitiesList: CreateActivityDto[]): Observable<ResponseModel<ActivityDto[]>> {
+        return this.coreService.post<ActivityDto[]>('activity', { createdActivitiesList }).pipe();
     }
 
-    uploadAttachment(attachmentList: AttachmentDto[]): Observable<AttachmentDto> {
-        return this.http.post<AttachmentDto>(apiConfig.baseUrl + '/activity/upload', { attachmentList }).pipe();
+    uploadAttachment(attachmentList: AttachmentDto[]): Observable<ResponseModel<AttachmentDto[]>> {
+        return this.coreService.post<AttachmentDto[]>('attachment/upload', { attachmentList }).pipe();
     }
 
-    deleteActivity(activityUid: string): Observable<any> {
-        return this.http.delete<AttachmentDto>(apiConfig.baseUrl + '/activity/' + activityUid).pipe();
+    updateActivity(updateActivityList: UpdateActivityDto[]): Observable<ResponseModel<ActivityDto>> {
+        return this.coreService.put<ActivityDto>('activity/', { updateActivityList }).pipe();
     }
 
-    updateActivity(updateActivity: UpdateActivityDto): Observable<any> {
-        return this.http.put<AttachmentDto>(apiConfig.baseUrl + '/activity/' + updateActivity.uid, updateActivity).pipe();
+    sendEmail(data: EmailDto, createActivity: CreateActivityDto): Observable<ResponseModel<any>> {
+        return this.coreService.post<any>('activity/email', { data, createActivity }).pipe();
     }
 }
 
@@ -56,6 +55,7 @@ export class ActivityModuleDto extends ModuleDto {
 export class ActivitiesModuleListDto {
     activityControlList: ActivityModuleDto[];
     activityModuleList: ModuleDto[];
+    subActivityModuleList: ModuleDto[];
 }
 
 export class ActivityDto extends BasedDto {
@@ -68,11 +68,15 @@ export class ActivityDto extends BasedDto {
     activityContent: string;
     activityModuleId: string;
     activityModuleCode: string;
+    activityModuleSubCode: string;
     isPinned: boolean;
     isExpand: boolean;
-    associationId: string;
-    attachmentUid: string;
+    associationContactUidList: string[];
+    associationCompanyUidList: string[];
+    attachmentUid: string[];
     attachmentList: AttachmentDto[];
+    association: AssociationDto;
+    activityType: ActivityTypeDto;
 }
 
 export class UpdateActivityDto extends BasedDto {
@@ -86,14 +90,16 @@ export class UpdateActivityDto extends BasedDto {
     activityModuleId?: string;
     activityModuleCode?: string;
     isPinned?: boolean;
-    associationId?: string;
-    attachmentUid?: string;
+    associationContactUidList?: string[];
+    associationCompanyUidList?: string[];
+    attachmentUid?: string[];
     attachmentList?: AttachmentDto[];
 }
 
 export class CreateActivityDto extends BasedDto {
     uid?: string;
     activityModuleCode: string;
+    activityModuleSubCode: string;
     activityModuleId: string;
     activityContactedIdList?: string[];
     activityDatetime?: Date;
@@ -101,6 +107,27 @@ export class CreateActivityDto extends BasedDto {
     activityDirectionId?: string;
     activityDuration?: string;
     activityContent: string;
-    associationId?: string;
-    attachmentUid?: string;
+    associationContactUidList: string[];
+    associationCompanyUidList: string[];
+    attachmentUid?: string[];
+    isPinned?: boolean;
+    activityType?: ActivityTypeDto;
 }
+
+export class EmailDto extends BasedDto {
+    toEmailUid: string[];
+    toEmail: string[];
+    fromEmail: string;
+    toName?: string[];
+    fromName?: string;
+    subject: string;
+    content: string;
+    emailDateTime: Date;
+    contactAssoList?: string[];
+    companyAssoList?: string[];
+}
+
+export class ActivityTypeDto {
+    email?: EmailDto;
+}
+

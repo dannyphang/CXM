@@ -31,7 +31,7 @@ export abstract class BaseFieldDataSourceControl
   extends BaseFieldControlComponent
   implements OnInit, OnDestroy {
   @Input() dependOnFields: DependOnFieldsDataSourceConfig[] = [];
-  @Input() override placeholder: string = 'SELECT';
+  @Input() override placeholder: string = 'INPUT.SELECT';
   @Input() dataSourceDependOn: string[] = [];
   @Input() dataSourceAction:
     | ((event?: BaseDataSourceActionEvent) => Observable<any>)

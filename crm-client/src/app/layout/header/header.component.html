@@ -1,3 +1,5 @@
+<!-- <app-toast></app-toast> -->
+
 <div class="header-div flex justify-between">
   <div class="tw-w-full">
     <p-menubar [model]="menuItem" class="tw-w-full">
@@ -27,24 +29,41 @@
         <div class="tw-flex">
           <app-base-input
             [iconRightStyle]="'pi pi-search'"
-            [placeholder]="'HEADER.SEARCH' | translate"
-            [autoFocus]="true"
+            [placeholder]="'INPUT.SEARCH' | translate"
+            [autoFocus]="isAutoFocus"
             [fieldControl]="searchFormControl"
           ></app-base-input>
 
-          <!-- <div class="setting-div">
-            <p-button
-              [rounded]="true"
-              [text]="true"
-              [icon]="'pi pi-language'"
-              [pTooltip]="'HEADER.LANGUAGE' | translate"
-            ></p-button>
-          </div> -->
+          <!-- <p-treeSelect
+            class="md:w-20rem w-full"
+            containerStyleClass="w-full"
+            [(ngModel)]="selectedTenant"
+            [options]="tenantNodeList"
+            placeholder="Select Tenant"
+            [filter]="true"
+            [filterInputAutoFocus]="true"
+          /> -->
+
+          <app-base-button
+            [iconName]="isDarkMode ? 'pi pi-moon' : 'pi pi-sun'"
+            [outlined]="true"
+            class="tw-ml-[var(--content-gap)]"
+            (onClick)="updateThemeMode(!isDarkMode, false)"
+          ></app-base-button>
+
+          <app-base-dropdown
+            [fieldControl]="tenantFormControl"
+            [options]="tenantOptionsList"
+            [showClear]="false"
+            class="tw-ml-[var(--content-gap)]"
+            styleClass="tw-w-[auto]"
+            (onItemSelected)="onTenantChange()"
+          ></app-base-dropdown>
 
           <div class="user-div tw-ml-[var(--content-gap-s)]">
             <div class="avatar-div" (click)="userMenu.toggle($event)">
               <p-avatar
-                icon="pi pi-user"
+                [image]="avatarImage ? avatarImage : DEFAULT_PROFILE_PIC_URL"
                 styleClass="tw-w-[40px] tw-h-[40px]"
                 shape="circle"
                 data-blobity-magnetic="true"
@@ -78,13 +97,17 @@
     </ng-container>
     <ng-template #notProfileLabel>
       <div class="user-menu-div">
-        <p-avatar icon="pi pi-user" class="user-menu-avatar" shape="circle" />
+        <p-avatar
+          [image]="avatarImage ? avatarImage : DEFAULT_PROFILE_PIC_URL"
+          class="user-menu-avatar"
+          shape="circle"
+        />
         <div class="user-menu-info-div">
           <div class="user-menu-name">
-            {{ currentUser ? currentUser.displayName : "--" }}
+            {{ user ? user.displayName : "--" }}
           </div>
           <div class="user-menu-email">
-            {{ currentUser ? currentUser.email : "--" }}
+            {{ user ? user.email : "--" }}
           </div>
         </div>
       </div>
