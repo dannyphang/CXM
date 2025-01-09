@@ -418,6 +418,15 @@ export class ActivityDialogComponent implements OnChanges {
     this.attachmentList = this.attachmentList.filter(item => item.name !== file.name)
   }
 
+  convertDateAndTime(date: Date, time: Date) {
+    let newDate = new Date(date);
+    let newTime = new Date(time);
+    newDate.setHours(newTime.getHours());
+    newDate.setMinutes(newTime.getMinutes());
+    newDate.setSeconds(newTime.getSeconds());
+    return newDate;
+  }
+
   save() {
     if (this.activityFormGroup.valid) {
       let createActivity: CreateActivityDto = {
@@ -426,7 +435,7 @@ export class ActivityDialogComponent implements OnChanges {
         activityModuleId: this.activityModule.uid,
         activityContent: this.editorFormControl.value,
         activityContactedIdList: this.activityFormGroup.controls['CONT'].value,
-        activityDatetime: this.activityFormGroup.controls['DATE'].value, // TODO
+        activityDatetime: this.convertDateAndTime(this.activityFormGroup.controls['DATE'].value, this.activityFormGroup.controls['TIME'].value),
         activityDirectionId: this.activityFormGroup.controls['DIRECT'].value,
         activityOutcomeId: this.activityFormGroup.controls['OUTCOME_C'].value || this.activityFormGroup.controls['OUTCOME_M'].value ? this.activityModule.moduleCode === 'CALL' ? this.activityFormGroup.controls['OUTCOME_C'].value : this.activityFormGroup.controls['OUTCOME_M'].value : null,
         activityDuration: this.activityFormGroup.controls['DURAT'].value,

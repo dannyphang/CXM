@@ -81,7 +81,7 @@ export class ActivityBlockComponent implements OnChanges {
             break;
           case 'DATE':
           case 'TIME':
-            this.updateAct.activityDatetime = new Date(value);
+            this.updateAct.activityDatetime = this.convertDateTime(this.activityFormGroup.controls['DATE'].value, this.activityFormGroup.controls['TIME'].value);
             break;
           case 'OUTCOME_C':
           case 'OUTCOME_M':
@@ -332,6 +332,15 @@ export class ActivityBlockComponent implements OnChanges {
     }
   }
 
+  convertDateTime(date: Date, time: Date): Date {
+    let newDate = new Date(date);
+    let newTime = new Date(time);
+    newDate.setHours(newTime.getHours());
+    newDate.setMinutes(newTime.getMinutes());
+    newDate.setSeconds(newTime.getSeconds());
+    return newDate;
+  }
+
   getContactedList(): OptionsModel[] {
     let contactList: OptionsModel[] = [];
     this.activity.association.contactList.forEach((profile) => {
@@ -364,8 +373,8 @@ export class ActivityBlockComponent implements OnChanges {
 
   assignActivityValue() {
     this.activityFormGroup.controls['CONT'].setValue(this.activity.activityContactedIdList, { emitEvent: false })
-    this.activityFormGroup.controls['DATE'].setValue(this.activity.activityDatetime, { emitEvent: false })
-    this.activityFormGroup.controls['TIME'].setValue(this.activity.activityDatetime, { emitEvent: false })
+    this.activityFormGroup.controls['DATE'].setValue(new Date(this.activity.activityDatetime), { emitEvent: false })
+    this.activityFormGroup.controls['TIME'].setValue(new Date(this.activity.activityDatetime), { emitEvent: false })
     this.activityFormGroup.controls['OUTCOME_C'].setValue(this.activity.activityOutcomeId, { emitEvent: false })
     this.activityFormGroup.controls['DIRECT'].setValue(this.activity.activityDirectionId, { emitEvent: false })
     this.activityFormGroup.controls['OUTCOME_M'].setValue(this.activity.activityOutcomeId, { emitEvent: false })
