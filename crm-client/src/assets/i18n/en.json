@@ -12,7 +12,8 @@
     "RECORDS": "Records",
     "OTHERS": "Others",
     "SETTING": "Setting",
-    "ROLE": "Role"
+    "ROLE": "Role",
+    "LANGUAGE": "Language"
   },
   "HEADER": {
     "SETTING": "Setting",
@@ -23,8 +24,7 @@
       "CHANGE": "Change Language",
       "EN": "English",
       "CN": "Chinese"
-    },
-    "PROFILE": "Profile"
+    }
   },
   "ERROR": {
     "YOU_CANNOT_LEAVE_IT_BLANK": "You cannot leave it blank.",

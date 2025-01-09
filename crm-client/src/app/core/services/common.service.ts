@@ -4,6 +4,8 @@ import { CONTROL_TYPE_CODE } from "./components.service";
 import { TranslateService } from "@ngx-translate/core";
 import { BasedDto, CoreHttpService, ResponseModel } from "./core-http.service";
 import { ToastService } from "./toast.service";
+import { HttpClient } from "@angular/common/http";
+import { MessageService } from "primeng/api";
 
 @Injectable({ providedIn: 'root' })
 export class CommonService {
@@ -12,8 +14,39 @@ export class CommonService {
 
     constructor(
         private http: HttpClient,
-        private messageService: MessageService
+        private messageService: MessageService,
+        private coreService: CoreHttpService,
+        private toastService: ToastService,
+        private translateService: TranslateService,
     ) {
+    }
+
+    set setWindowSize(windowSize: WindowSizeDto) {
+        this.windowSize = windowSize;
+    }
+
+    updateWindowSize() {
+        if (window.innerWidth <= 640) {
+            this.setWindowSize = {
+                mobile: true,
+                tablet: false,
+                desktop: false
+            };
+        }
+        else if (window.innerWidth > 640 && window.innerWidth <= 768) {
+            this.setWindowSize = {
+                mobile: false,
+                tablet: true,
+                desktop: false
+            };
+        }
+        else {
+            this.setWindowSize = {
+                mobile: false,
+                tablet: false,
+                desktop: true
+            };
+        }
     }
 
     getEnvToken(): Observable<any> {

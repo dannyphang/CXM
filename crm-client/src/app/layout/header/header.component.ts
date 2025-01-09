@@ -34,7 +34,7 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
   searchFormControl: FormControl = new FormControl("");
   userMenuItem: MenuItem[] | undefined;
   languageMenuItem: MenuItem[] | undefined;
-  currentUser: User | null;
+  currentUser: UserDto;
   isAutoFocus: boolean = false;
   DEFAULT_PROFILE_PIC_URL = DEFAULT_PROFILE_PIC_URL;
   avatarImage: string | null = this.DEFAULT_PROFILE_PIC_URL;
@@ -47,21 +47,14 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
     private coreService: CoreHttpService,
     private themeService: ThemeService,
     protected override messageService: MessageService,
-    private translateService: TranslateService
+    private translateService: TranslateService,
+    private commonService: CommonService,
   ) {
     super(messageService);
     this.tenantFormControl.valueChanges.subscribe(val => {
       let selectedTenant = this.tenantList.find(t => t.uid === val)!;
       this.coreService.tenant = selectedTenant;
     })
-  }
-
-  ngOnInit() {
-    this.initAvatarMenu();
-
-    this.searchFormControl.valueChanges.pipe(debounceTime(2000),
-      distinctUntilChanged()).subscribe(value => {
-      });
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -159,196 +152,118 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
         }
       }]).subscribe(res => {
         if (res.isSuccess) {
-          console.log(res.data)
+
         }
       })
     }
-    private authService: AuthService,
-  private translateService: TranslateService,
-  private commonService: CommonService
-  ) {
+    this.coreService.getCurrentUser().then(res => {
+      this.currentUser = res;
+      this.userMenuItem = [
+        {
+          label: '',
+        },
+        {
+          label: this.translateService.instant('HEADER.SETTING'),
+          icon: 'pi pi-cog',
+          command: () => {
+            this.router.navigate(['/setting']);
+          }
+        },
+        {
+          label: this.translateService.instant('COMMON.LANGUAGE'),
+          icon: 'pi pi-language',
+          items: [
+            {
+              label: this.translateService.instant('HEADER.LANGUAGE.EN'),
+              command: () => {
+                this.translateService.use('en');
+                this.commonService.setLanguage('en');
+              }
+            },
+            {
+              label: this.translateService.instant('HEADER.LANGUAGE.CN'),
+              command: () => {
+                this.translateService.use('zh');
+                this.commonService.setLanguage('zh');
+              }
+            },
+          ]
 
-
-  this.authService.getCurrentUser().then(res => {
-    // if (!res) {
-    //   this.router.navigate(["/signin"]);
-    // }
-    // else {
-    //   this.currentUser = res;
-    // }
-
-    this.currentUser = res;
-    // this.userMenuItem = [
-    //   {
-    //     separator: true
-    //   },
-    //   {
-    //     label: this.translateService.instant('HEADER.PROFILE'),
-    //     items: [
-    //       {
-    //         label: this.translateService.instant('HEADER.SETTING'),
-    //         icon: 'pi pi-cog',
-    //       },
-    //       {
-    //         label: this.translateService.instant('HEADER.LANGUAGE.CHANGE'),
-    //         icon: 'pi pi-language',
-    //         items: [
-    //           {
-    //             label: this.translateService.instant('HEADER.LANGUAGE.EN'),
-    //           },
-    //           {
-    //             label: this.translateService.instant('HEADER.LANGUAGE.CN'),
-    //           },
-    //         ]
-
-    //       }
-    //     ]
-    //   },
-    //   {
-    //     separator: true
-    //   },
-    //   {
-    //     items: [
-    //       {
-    //         label: this.translateService.instant('BUTTON.LOGOUT'),
-    //         icon: 'pi pi-sign-out',
-    //         command: () => {
-    //           this.authService.signOut();
-    //           window.location.reload();
-    //         },
-    //         visible: this.currentUser ? true : false
-    //       },
-    //       {
-    //         label: this.translateService.instant('BUTTON.LOGIN'),
-    //         icon: "pi pi-sign-in",
-    //         command: () => {
-    //           this.redirectToSignIn();
-    //         },
-    //         visible: this.currentUser ? false : true
-    //       },
-    //       {
-    //         label: 'Check current user',
-    //         icon: 'pi pi-sign-out',
-    //         command: () => {
-    //           console.log(this.authService.getCurrentUser())
-    //         },
-    //         visible: false
-    //       }
-    //     ]
-    //   }
-    // ];
-
-    this.userMenuItem = [
-      {
-        label: '',
-      },
-      {
-        label: this.translateService.instant('HEADER.SETTING'),
-        icon: 'pi pi-cog',
-      },
-      {
-        label: this.translateService.instant('HEADER.LANGUAGE.CHANGE'),
-        icon: 'pi pi-language',
-        items: [
-          {
-            label: this.translateService.instant('HEADER.LANGUAGE.EN'),
-            command: () => {
-              this.translateService.use('en');
-              this.commonService.setLanguage('en');
-            }
+        },
+        {
+          separator: true
+        },
+        {
+          label: this.translateService.instant('BUTTON.LOGOUT'),
+          icon: 'pi pi-sign-out',
+          command: () => {
+            this.authService.signOut();
+            window.location.reload();
           },
-          {
-            label: this.translateService.instant('HEADER.LANGUAGE.CN'),
-            command: () => {
-              this.translateService.use('zh');
-              this.commonService.setLanguage('zh');
-            }
+          visible: this.currentUser ? true : false
+        },
+        {
+          label: this.translateService.instant('BUTTON.LOGIN'),
+          icon: "pi pi-sign-in",
+          command: () => {
+            this.redirectToSignIn();
           },
-        ]
-
-      },
-      {
-        separator: true
-      },
-      {
-        label: this.translateService.instant('BUTTON.LOGOUT'),
-        icon: 'pi pi-sign-out',
-        command: () => {
-          this.authService.signOut();
-          window.location.reload();
-        },
-        visible: this.currentUser ? true : false
-      },
-      {
-        label: this.translateService.instant('BUTTON.LOGIN'),
-        icon: "pi pi-sign-in",
-        command: () => {
-          this.redirectToSignIn();
-        },
-        visible: this.currentUser ? false : true
-      },
-      {
-        label: 'Check current user',
-        icon: 'pi pi-sign-out',
-        command: () => {
-          console.log(this.authService.getCurrentUser())
-        },
-        visible: false
-      }
-    ];
-  });
-}
-
-ngOnInit() {
-  this.menuItem = [
-    {
-      label: 'Contact',
-      icon: '',
-      tooltip: "COMMON.CONTACT",
-      command: () => {
-        this.router.navigate(["/contact"]);
-      }
-    },
-    {
-      label: 'Company',
-      icon: '',
-      tooltip: "COMMON.COMPANY",
-      command: () => {
-        this.router.navigate(["/company"]);
-      }
-    },
-  ];
-
-  this.searchFormControl.valueChanges.pipe(debounceTime(2000),
-    distinctUntilChanged()).subscribe(value => {
-      console.log(value);
+          visible: this.currentUser ? false : true
+        }
+      ];
     });
+  }
 
+  ngOnInit() {
+    this.menuItem = [
+      {
+        label: 'Contact',
+        icon: '',
+        tooltip: "COMMON.CONTACT",
+        command: () => {
+          this.router.navigate(["/contact"]);
+        }
+      },
+      {
+        label: 'Company',
+        icon: '',
+        tooltip: "COMMON.COMPANY",
+        command: () => {
+          this.router.navigate(["/company"]);
+        }
+      },
+    ];
 
-}
-
-redirectToSignIn() {
-  this.router.navigate(["/signin"]);
-}
-
-onTenantChange() {
-  this.authService.updateUserFirestore([{
-    uid: this.coreService.user!.uid,
-    setting: {
-      ...this.coreService.userC.setting,
-      defaultTenantId: this.tenantFormControl.value,
-    }
-  }]).subscribe(res => {
-    if (res.isSuccess) {
-      window.location.reload();
-    }
-    else {
-      this.toastService.addSingle({
-        message: res.responseMessage,
-        severity: 'error'
+    this.searchFormControl.valueChanges.pipe(debounceTime(2000),
+      distinctUntilChanged()).subscribe(value => {
+        console.log(value);
       });
-    }
-  })
 
-}
+
+  }
+
+  redirectToSignIn() {
+    this.router.navigate(["/signin"]);
+  }
+
+  onTenantChange() {
+    this.authService.updateUserFirestore([{
+      uid: this.coreService.user!.uid,
+      setting: {
+        ...this.coreService.userC.setting,
+        defaultTenantId: this.tenantFormControl.value,
+      }
+    }]).subscribe(res => {
+      if (res.isSuccess) {
+        window.location.reload();
+      }
+      else {
+        this.toastService.addSingle({
+          message: res.responseMessage,
+          severity: 'error'
+        });
+      }
+    })
+
+  }
 }

@@ -39,11 +39,6 @@ export class CoreHttpService {
 
     async getCurrentUser(): Promise<UserDto> {
         return new Promise((resolve, reject) => {
-            this.toastService.addSingle({
-                message: 'COMMON.LOADING',
-                severity: 'info',
-                isLoading: true
-            })
             this.getEnvToken().subscribe(res => {
                 this.app = initializeApp(res);
                 this.auth = getAuth(this.app);
@@ -53,6 +48,7 @@ export class CoreHttpService {
                         this.getUser(this.user.uid).subscribe(res => {
                             if (res.isSuccess) {
                                 this.userC = res.data;
+
                                 resolve(this.userC);
                             }
                         })
