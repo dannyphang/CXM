@@ -38,10 +38,11 @@ function getContactById({ tenantId, contactUid }) {
     try {
       const snapshot = await firebase.db.collection(contactCollectionName).doc(contactUid).get();
 
-      if (snapshot.data().statusId == 1 && snapshot.data().tenantId == tenantId) {
+      if (snapshot.data()?.statusId == 1 && snapshot.data()?.tenantId == tenantId) {
         resolve(snapshot.data());
       } else {
-        reject({});
+        console.log(`Contact (${contactUid}) not found`);
+        resolve({});
       }
     } catch (error) {
       console.log("error", error);

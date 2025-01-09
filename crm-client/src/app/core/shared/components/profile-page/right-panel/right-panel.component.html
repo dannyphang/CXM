@@ -113,7 +113,9 @@
     <app-base-form [formConfig]="assoFormConfig"></app-base-form>
   </ng-template>
   <ng-template pTemplate="footer">
-    <div class="tw-flex tw-justify-between tw-self-center">
+    <div
+      class="tw-flex tw-justify-between tw-self-center tw-p-[var(--content-gap)]"
+    >
       <app-base-button
         [label]="'BUTTON.CANCEL' | translate"
         [isTextStyle]="true"

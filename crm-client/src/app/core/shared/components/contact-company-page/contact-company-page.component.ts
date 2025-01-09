@@ -1047,7 +1047,10 @@ export class ContactCompanyPageComponent implements OnChanges {
       this.propertyValueUpdate(this.createFormConfig);
     }
     else {
-      // TODO: this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Profile is not created. Please check again.' });
+      this.toastService.addSingle({
+        message: 'MESSAGE.PROFILE_NOT_CREATED',
+        severity: 'error'
+      })
     }
   }
 
