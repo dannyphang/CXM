@@ -30,8 +30,8 @@ export class ContactCompanyPageComponent implements OnChanges {
   NUMBER_OF_EXCEL_INSERT_ROW = NUMBER_OF_EXCEL_INSERT_ROW;
   DOWNLOAD_IMPORT_PROFILE_TEMPLATE_FILE_NAME_XLSX = DOWNLOAD_IMPORT_PROFILE_TEMPLATE_FILE_NAME_XLSX;
   module: 'CONT' | 'COMP' = 'CONT';
-  contactList: ContactDto[] = [];
-  companyList: CompanyDto[] = [];
+  contactList: ContactDto[][] = [];
+  companyList: CompanyDto[][] = [];
   modulePropertyList: PropertyGroupDto[] = [];
 
   windowSize: WindowSizeDto = new WindowSizeDto();
@@ -198,7 +198,7 @@ export class ContactCompanyPageComponent implements OnChanges {
               this.headerKeyMapping[prop.propertyName] = prop.propertyCode;
 
               if (this.module === 'CONT') {
-                this.contactList.forEach(cont => {
+                this.contactList[this.activeTabPanel].forEach(cont => {
                   let contactProp: PropertyDataDto[] = JSON.parse(cont.contactProperties);
 
                   contactProp.forEach(p => {
@@ -207,7 +207,13 @@ export class ContactCompanyPageComponent implements OnChanges {
                 })
               }
               else {
+                this.companyList[this.activeTabPanel].forEach(comp => {
+                  let companyProp: PropertyDataDto[] = JSON.parse(comp.companyProperties);
 
+                  companyProp.forEach(p => {
+                    comp[p.propertyCode] = p.value;
+                  });
+                })
               }
 
               // only display property that is system property which is not storing inside the properties column
@@ -564,11 +570,6 @@ export class ContactCompanyPageComponent implements OnChanges {
                         }
                         break;
                       case 'more_than':
-                        if (propData.uid === item.property.uid) {
-                          console.log(propValue)
-                          console.log(itemValue)
-                          console.log(propValue > itemValue)
-                        }
                         if (propData.uid === item.property.uid && propValue > itemValue) {
                           tempProfileList.push(cont);
                         }
@@ -585,10 +586,10 @@ export class ContactCompanyPageComponent implements OnChanges {
 
               // tempProfileList
             });
-            this.contactList = [];
+            this.contactList[this.activeTabPanel] = [];
             tempProfileList.forEach(cont => {
-              if (!this.contactList.includes(cont)) {
-                this.contactList.push(cont);
+              if (!this.contactList[this.activeTabPanel].includes(cont)) {
+                this.contactList[this.activeTabPanel].push(cont);
               }
             });
             this.tableLoading[this.activeTabPanel] = false;
@@ -603,7 +604,7 @@ export class ContactCompanyPageComponent implements OnChanges {
       }
     }
     else {
-
+      // TODO: filter for company
     }
   }
 
@@ -619,7 +620,7 @@ export class ContactCompanyPageComponent implements OnChanges {
           });
         });
 
-        this.contactList = res.data;
+        this.contactList[this.activeTabPanel] = res.data;
         this.tableLoading[this.activeTabPanel] = false;
       }
       else {
@@ -635,7 +636,7 @@ export class ContactCompanyPageComponent implements OnChanges {
     this.tableLoading[this.activeTabPanel] = true;
     this.commonService.getAllCompany().subscribe((res) => {
       if (res.isSuccess) {
-        this.companyList = res.data;
+        this.companyList[this.activeTabPanel] = res.data;
         this.tableLoading[this.activeTabPanel] = false;
       }
       else {
@@ -1241,7 +1242,6 @@ export class ContactCompanyPageComponent implements OnChanges {
   }
 
   addTab() {
-    console.log(this.panelList)
     let isBlock = false;
     this.tableLoading.forEach(item => {
       if (item) {
@@ -1258,6 +1258,16 @@ export class ContactCompanyPageComponent implements OnChanges {
       });
 
       this.activeTabPanel = newPanelIndex;
+      this.tableConfig.push([]);
+
+      if (this.module === 'CONT') {
+        this.contactList.push([]);
+      }
+      else {
+        this.companyList.push([]);
+      }
+
+      this.initTableConfig();
       this.initCreateFormConfig();
       this.tabFilterList[newPanelIndex] = [];
     }
@@ -1475,8 +1485,6 @@ export class ContactCompanyPageComponent implements OnChanges {
         conditionFieldControl: <FormControl>this.conditionFormGroup.controls[prop.propertyCode],
         mode: mode,
       });
-
-      console.log(this.tempFilterList[this.activeTabPanel]);
     }
 
   }
@@ -1640,12 +1648,8 @@ export class ContactCompanyPageComponent implements OnChanges {
 
     Object.assign(this.tabFilterList[this.activeTabPanel], this.tempFilterList[this.activeTabPanel]);
 
-    if (this.module === 'CONT') {
-      this.returnFilteredProfileList();
-    }
-    else {
-      this.returnFilteredProfileList();
-    }
+    this.returnFilteredProfileList();
+
     this.initMenuItem();
     this.closeFilter();
   }
@@ -1655,7 +1659,12 @@ export class ContactCompanyPageComponent implements OnChanges {
   }
 
   tabViewOnClose(event: any) {
-    this.panelList = this.panelList.filter(item => item.index !== event.index)
+    // this.panelList = this.panelList.filter(item => item.index !== event.index)
+    this.panelList = this.panelList.filter(item => item.index !== event.index);
+    this.tableConfig = this.tableConfig.filter((item, i) => i !== event.index);
+    this.columnPropertiesList = this.columnPropertiesList.filter((item, i) => i !== event.index);
+    this.tabFilterList = this.tabFilterList.filter((item, i) => i !== event.index);
+    this.activeTabPanel = this.panelList[this.panelList.length - 1].index;
   }
 
   returnPropertyValue(prop: any, value: string) {
@@ -1680,7 +1689,6 @@ export class ContactCompanyPageComponent implements OnChanges {
   }
 
   onMoveToTarget(event: any) {
-    console.log(event)
     event.items.forEach((p: PropertiesDto) => {
       if (!this.tempColumnFilterList.find(i => i.propertyCode === p.propertyCode)) {
         this.tempColumnFilterList.push(p);
@@ -1736,7 +1744,6 @@ export class ContactCompanyPageComponent implements OnChanges {
 
     return this.commonService.getCityByStateId(this.createFormGroup.controls['state'].value).pipe(
       map(res => {
-        console.log(res)
         return res.data.map(val => ({
           value: val.uid,
           label: val.name
@@ -1748,6 +1755,10 @@ export class ContactCompanyPageComponent implements OnChanges {
   tableRowSelect(event: any[]) {
     this.selectedProfile = event;
     this.initMenuItem();
+  }
+
+  closeTab(index: number) {
+
   }
 }
 

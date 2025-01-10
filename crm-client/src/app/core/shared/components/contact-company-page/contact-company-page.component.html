@@ -3,6 +3,7 @@
     class="contact-company-tab-view"
     (onChange)="tabViewOnChange($event)"
     (onClose)="tabViewOnClose($event)"
+    [activeIndex]="activeTabPanel"
   >
     <p-tabPanel
       *ngFor="let panel of panelList"
@@ -17,7 +18,11 @@
         <p-table
           #dt
           [columns]="tableConfig[activeTabPanel]"
-          [value]="module === 'CONT' ? contactList : companyList"
+          [value]="
+            module === 'CONT'
+              ? contactList[activeTabPanel]
+              : companyList[activeTabPanel]
+          "
           [(selection)]="selectedProfile"
           [resizableColumns]="true"
           [reorderableColumns]="true"
@@ -42,7 +47,8 @@
                     'BUTTON.ADVANCE_FILTER'
                       | translate
                         : {
-                            numberOfFilter: tabFilterList[activeTabPanel].length
+                            numberOfFilter:
+                              tabFilterList[activeTabPanel]?.length
                           }
                   "
                   [isTextStyle]="true"
@@ -56,7 +62,7 @@
                     'BUTTON.EDIT_COLUMN'
                       | translate
                         : {
-                            numberOfColumn: tableConfig[activeTabPanel].length
+                            numberOfColumn: tableConfig[activeTabPanel]?.length
                           }
                   "
                   [isTextStyle]="true"
@@ -287,7 +293,7 @@
     <p-tabPanel>
       <ng-template pTemplate="header" class="tw-p-0">
         <app-base-button
-          icon="pi pi-plus"
+          [iconName]="'pi pi-plus'"
           (click)="addTab(); $event.stopPropagation()"
           styleClass="tw-w-[52px] tw-h-[52px] "
           [isTextStyle]="true"
