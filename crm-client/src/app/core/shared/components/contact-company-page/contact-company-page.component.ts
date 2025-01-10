@@ -609,7 +609,6 @@ export class ContactCompanyPageComponent implements OnChanges {
   }
 
   getContact() {
-    this.tableLoading[this.activeTabPanel] = true;
     this.commonService.getAllContact().subscribe((res) => {
       if (res.isSuccess) {
         res.data.forEach(cont => {
@@ -621,7 +620,6 @@ export class ContactCompanyPageComponent implements OnChanges {
         });
 
         this.contactList[this.activeTabPanel] = res.data;
-        this.tableLoading[this.activeTabPanel] = false;
       }
       else {
         this.toastService.addSingle({
@@ -1659,7 +1657,6 @@ export class ContactCompanyPageComponent implements OnChanges {
   }
 
   tabViewOnClose(event: any) {
-    // this.panelList = this.panelList.filter(item => item.index !== event.index)
     this.panelList = this.panelList.filter(item => item.index !== event.index);
     this.tableConfig = this.tableConfig.filter((item, i) => i !== event.index);
     this.columnPropertiesList = this.columnPropertiesList.filter((item, i) => i !== event.index);
@@ -1694,7 +1691,6 @@ export class ContactCompanyPageComponent implements OnChanges {
         this.tempColumnFilterList.push(p);
       }
     })
-
   }
 
   reorderTarget(event: any) {

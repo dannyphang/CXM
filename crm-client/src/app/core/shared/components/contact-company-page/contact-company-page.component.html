@@ -9,6 +9,7 @@
       *ngFor="let panel of panelList"
       [closable]="panel.closable"
       [selected]="panel.index === activeTabPanel"
+      [disabled]="tableLoading[activeTabPanel]"
     >
       <ng-template pTemplate="header" class="tab-view-header">
         {{ panel.headerLabel }}
@@ -290,7 +291,7 @@
       </ng-template>
     </p-tabPanel>
 
-    <p-tabPanel>
+    <p-tabPanel [disabled]="tableLoading[activeTabPanel]">
       <ng-template pTemplate="header" class="tw-p-0">
         <app-base-button
           [iconName]="'pi pi-plus'"
