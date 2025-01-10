@@ -61,6 +61,16 @@ export class CommonService {
         return this.language;
     }
 
+    generateGUID(stringLength: number) {
+        let result = '';
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        const charactersLength = characters.length;
+        for (let i = 0; i < stringLength; i++) {
+            result += characters.charAt(Math.floor(Math.random() * charactersLength));
+        }
+        return result;
+    }
+
     popMessage(message: string, title: string, severity: string = 'success',) {
         this.messageService.add({ severity: severity, summary: title, detail: message });
     }

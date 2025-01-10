@@ -42,9 +42,8 @@ export class CreateComponent extends BaseCoreAbstract {
     private authService: AuthService,
     private toastService: ToastService,
     private coreService: CoreHttpService,
-    protected override messageService: MessageService
   ) {
-    super(messageService)
+    super()
   }
 
   ngOnInit() {

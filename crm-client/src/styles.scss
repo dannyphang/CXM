@@ -37,6 +37,10 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+a {
+  cursor: pointer;
+}
+
 /* width */
 ::-webkit-scrollbar {
   // width: 2px;

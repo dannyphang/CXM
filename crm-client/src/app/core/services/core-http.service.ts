@@ -168,6 +168,16 @@ export class SettingDto {
     defaultTenantId?: string;
     contactTab?: any;
     companyTab?: any;
+    tableFilter?: {
+        contact: TableFilterDto[];
+        company: TableFilterDto[];
+    }
+}
+
+export class TableFilterDto {
+    propertyUid: string;
+    filterFieldControlCode: string;
+    conditionFieldControlCode: string;
 }
 
 export class PermissionObjDto {

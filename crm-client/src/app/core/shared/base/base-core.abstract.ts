@@ -1,9 +1,8 @@
-import { MessageService } from "primeng/api";
 import { UserPermissionDto, PermissionObjDto } from "../../services/core-http.service";
 
 export abstract class BaseCoreAbstract {
     constructor(
-        protected messageService: MessageService,
+
     ) {
 
     }

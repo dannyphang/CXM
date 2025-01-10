@@ -1,5 +1,5 @@
 import { Component, HostListener, OnChanges, SimpleChanges, ViewChild, ViewChildren } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { NavigationExtras, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import * as ExcelJS from 'exceljs';
@@ -13,7 +13,7 @@ import { ROW_PER_PAGE_DEFAULT, ROW_PER_PAGE_DEFAULT_LIST, EMPTY_VALUE_STRING, NU
 import * as XLSX from 'xlsx';
 import { BaseCoreAbstract } from '../../base/base-core.abstract';
 import { ToastService } from '../../../services/toast.service';
-import { CoreHttpService } from '../../../services/core-http.service';
+import { CoreHttpService, SettingDto, TableFilterDto } from '../../../services/core-http.service';
 import { Table } from 'primeng/table';
 
 @Component({
@@ -39,7 +39,7 @@ export class ContactCompanyPageComponent implements OnChanges {
   CONTROL_TYPE_CODE = CONTROL_TYPE_CODE;
   propertiesList: PropertiesDto[] = [];
   propertiesList2: PropertiesDto[] = [];
-  activeTabPanel: number = 0;
+  activeTabPanel: string = '';
   columnPropertiesList: any[][] = [];
   tableConfig: any[] = []; // from table config
   tableLoading: boolean[] = [];
@@ -49,12 +49,12 @@ export class ContactCompanyPageComponent implements OnChanges {
   createFormConfig: FormConfig[] = [];
   createFormGroup: FormGroup;
   profileProperty: PropertiesDto[] = [];
-  panelList: any[] = [];
+  panelList: Panel[] = [];
   isShowFilter: boolean = false;
   isShowTableColumnFilter: boolean = false;
   filterFormGroup: FormGroup;
   conditionFormGroup: FormGroup;
-  tabFilterList: any[] = [];
+  tabFilterList: Filter[][] = [];
   tempFilterList: any[] = [];
   tempColumnFilterList: PropertiesDto[] = [];
   filterPropList: any[] = [];
@@ -66,6 +66,7 @@ export class ContactCompanyPageComponent implements OnChanges {
   stateList: Observable<OptionsModel[]>;
   filterMenuModel: MenuItem[] = [];
   actionMenuModel: MenuItem[] = [];
+  tabLabelArr: FormArray = this.formBuilder.array([]);
 
   canDownload: boolean = false;
   canExport: boolean = false;
@@ -87,15 +88,17 @@ export class ContactCompanyPageComponent implements OnChanges {
     else {
       this.module = 'COMP';
     }
+    this.activeTabPanel = this.commonService.generateGUID(10);
 
     this.panelList = [
       {
         headerLabel: this.module === 'CONT' ? this.translateService.instant("COMMON.CONTACT") : this.translateService.instant("COMMON.COMPANY"),
         closable: false,
-        index: 0,
+        panelUid: this.activeTabPanel,
+        edit: false
       }
     ];
-
+    this.addTabLabelFormArray();
     this.tabFilterList[this.activeTabPanel] = [];
     this.tempFilterList[this.activeTabPanel] = [];
     this.columnPropertiesList[this.activeTabPanel] = [];
@@ -132,11 +135,22 @@ export class ContactCompanyPageComponent implements OnChanges {
       this.canExport = this.authService.returnPermission(this.coreService.userC.permission).find(p => p.module === this.module)?.permission.export ?? false;
       this.canDelete = this.authService.returnPermission(this.coreService.userC.permission).find(p => p.module === this.module)?.permission.remove ?? false;
       this.canCreate = this.authService.returnPermission(this.coreService.userC.permission).find(p => p.module === this.module)?.permission.create ?? false;
+
+      this.getTabLabelArr.valueChanges.subscribe((value: any) => {
+        this.getTabLabelArr.controls.find((item: any) => item.value.index === this.activeTabPanel).valueChanges.subscribe((value: any) => {
+          this.getTabLabelArr.controls.find((item: any) => item.value.index === this.activeTabPanel).setValue(value, { emitEvent: false });
+          this.panelList[this.activeTabPanel].headerLabel = value.tabLabel;
+        });
+      });
     });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
 
+  }
+
+  get getTabLabelArr(): FormArray {
+    return this.tabLabelArr as FormArray;
   }
 
   returnTranslate(text: string): string {
@@ -787,6 +801,7 @@ export class ContactCompanyPageComponent implements OnChanges {
   }
 
   exportFile(data: any[]) {
+    console.log(data)
     // Create a workbook and worksheet
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet(this.translateService.instant(this.module === 'CONT' ? 'COMMON.CONTACT' : 'COMMON.COMPANY'));
@@ -1248,14 +1263,15 @@ export class ContactCompanyPageComponent implements OnChanges {
     });
 
     if (!isBlock) {
-      let newPanelIndex: number = this.panelList[this.panelList.length - 1].index + 1;
+      let newPanelUid: string = this.commonService.generateGUID(10);
       this.panelList.push({
-        headerLabel: 'TEST__' + newPanelIndex,
+        headerLabel: 'TEST__' + newPanelUid,
         closable: true,
-        index: newPanelIndex
+        panelUid: newPanelUid,
+        edit: false
       });
 
-      this.activeTabPanel = newPanelIndex;
+      this.activeTabPanel = newPanelUid;
       this.tableConfig.push([]);
 
       if (this.module === 'CONT') {
@@ -1267,7 +1283,8 @@ export class ContactCompanyPageComponent implements OnChanges {
 
       this.initTableConfig();
       this.initCreateFormConfig();
-      this.tabFilterList[newPanelIndex] = [];
+      this.tabFilterList[newPanelUid] = [];
+      this.addTabLabelFormArray();
     }
     else {
       // TODO
@@ -1650,18 +1667,21 @@ export class ContactCompanyPageComponent implements OnChanges {
 
     this.initMenuItem();
     this.closeFilter();
+
+    console.log(this.tabFilterList);
+    this.updateUserfilterSetting();
   }
 
   tabViewOnChange(event: any) {
-    this.activeTabPanel = event.index;
+    this.activeTabPanel = this.panelList[event.index].panelUid;
   }
 
   tabViewOnClose(event: any) {
-    this.panelList = this.panelList.filter(item => item.index !== event.index);
+    this.panelList = this.panelList.filter(item => item.panelUid !== event.index);
     this.tableConfig = this.tableConfig.filter((item, i) => i !== event.index);
     this.columnPropertiesList = this.columnPropertiesList.filter((item, i) => i !== event.index);
     this.tabFilterList = this.tabFilterList.filter((item, i) => i !== event.index);
-    this.activeTabPanel = this.panelList[this.panelList.length - 1].index;
+    this.activeTabPanel = this.panelList[this.panelList.length - 1].panelUid;
   }
 
   returnPropertyValue(prop: any, value: string) {
@@ -1716,6 +1736,8 @@ export class ContactCompanyPageComponent implements OnChanges {
     });
     this.initMenuItem();
     this.closeTableColumnFilter();
+
+    this.updateUserfilterSetting();
   }
 
   getStateList(): Observable<any[]> {
@@ -1753,7 +1775,46 @@ export class ContactCompanyPageComponent implements OnChanges {
     this.initMenuItem();
   }
 
-  closeTab(index: number) {
+  editPanel(uid: string) {
+    if (uid === this.activeTabPanel) {
+      this.panelList[uid].edit = true;
+    }
+  }
+
+  returnTabLabelFormControl(panel: Panel): FormControl {
+    return this.getTabLabelArr.controls.find((item: any) => item.value.index === panel.panelUid)?.get('tabLabel') as FormControl;
+  }
+
+  addTabLabelFormArray() {
+    let newForm = this.formBuilder.group({
+      index: new FormControl(this.activeTabPanel),
+      tabLabel: new FormControl(this.panelList.find(p => p.panelUid === this.activeTabPanel)?.headerLabel)
+    });
+    this.getTabLabelArr.push(newForm);
+  }
+
+  updateUserfilterSetting() {
+    let setting: SettingDto = new SettingDto();
+    setting.tableFilter = {
+      contact: [],
+      company: []
+    };
+
+    // Loop through all the key-value pairs in tabFilterList
+    Object.entries(this.tabFilterList).forEach(([key, filterList]) => {
+      // Loop through each item in the filterList array
+      filterList.forEach((item) => {
+        let i: TableFilterDto = {
+          propertyUid: item.property.uid,
+          filterFieldControlCode: item.filterFieldControl.value,
+          conditionFieldControlCode: item.conditionFieldControl.value,
+        };
+
+        setting.tableFilter[this.module === "CONT" ? "contact" : "company"].push(i);
+      });
+    });
+
+    console.log(setting)
 
   }
 }
@@ -1765,4 +1826,11 @@ class Filter {
   filterFieldControl: FormControl;
   conditionFieldControl: FormControl;
   mode: any;
+}
+
+class Panel {
+  headerLabel: string;
+  closable: boolean;
+  panelUid: string;
+  edit: boolean;
 }

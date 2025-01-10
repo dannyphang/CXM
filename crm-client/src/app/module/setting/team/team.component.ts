@@ -90,9 +90,8 @@ export class TeamComponent extends BaseCoreAbstract {
     private formBuilder: FormBuilder,
     private authService: AuthService,
     private coreService: CoreHttpService,
-    protected override messageService: MessageService,
   ) {
-    super(messageService);
+    super();
   }
 
   ngOnInit() {

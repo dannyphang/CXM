@@ -3,16 +3,28 @@
     class="contact-company-tab-view"
     (onChange)="tabViewOnChange($event)"
     (onClose)="tabViewOnClose($event)"
-    [activeIndex]="activeTabPanel"
   >
     <p-tabPanel
       *ngFor="let panel of panelList"
       [closable]="panel.closable"
-      [selected]="panel.index === activeTabPanel"
+      [selected]="panel.panelUid === activeTabPanel"
       [disabled]="tableLoading[activeTabPanel]"
     >
       <ng-template pTemplate="header" class="tab-view-header">
-        {{ panel.headerLabel }}
+        <div class="tw-flex tw-gap-[var(--content-gap)]">
+          <div *ngIf="!panel.edit">{{ panel.headerLabel }}</div>
+          <div *ngIf="panel.edit">
+            <app-base-input
+              [fieldControl]="returnTabLabelFormControl(panel)"
+              (focusout)="panel.edit = false"
+            ></app-base-input>
+          </div>
+          <div class="tw-grid tw-items-center">
+            <a (click)="editPanel(panel.panelUid); $event.stopPropagation()"
+              ><span class="pi pi-pen-to-square"></span
+            ></a>
+          </div>
+        </div>
       </ng-template>
 
       <ng-template pTemplate="content">

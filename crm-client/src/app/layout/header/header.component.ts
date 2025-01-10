@@ -46,11 +46,10 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
     private toastService: ToastService,
     private coreService: CoreHttpService,
     private themeService: ThemeService,
-    protected override messageService: MessageService,
     private translateService: TranslateService,
     private commonService: CommonService,
   ) {
-    super(messageService);
+    super();
     this.tenantFormControl.valueChanges.subscribe(val => {
       let selectedTenant = this.tenantList.find(t => t.uid === val)!;
       this.coreService.tenant = selectedTenant;
@@ -81,7 +80,7 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
           command: () => {
             this.router.navigate(["/contact"]);
           },
-          visible: this.checkPermission('display', 'CONT', this.permission, this.coreService.userC.roleId)
+          visible: this.checkPermission('display', 'CONT', this.permission, this.coreService.userC?.roleId)
         },
         {
           label: this.translateService.instant('COMMON.COMPANY'),
@@ -90,7 +89,7 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
           command: () => {
             this.router.navigate(["/company"]);
           },
-          visible: this.checkPermission('display', 'COMP', this.permission, this.coreService.userC.roleId)
+          visible: this.checkPermission('display', 'COMP', this.permission, this.coreService.userC?.roleId)
         },
       ];
     }

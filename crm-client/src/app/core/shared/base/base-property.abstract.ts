@@ -30,9 +30,9 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
         protected authService: AuthService,
         protected translateService: TranslateService,
         protected coreService: CoreHttpService,
-        protected override messageService: MessageService,
+
     ) {
-        super(messageService)
+        super()
     }
 
     /**  
