@@ -166,8 +166,6 @@ export class TenantDto extends BasedDto {
 export class SettingDto {
     darkMode?: boolean;
     defaultTenantId?: string;
-    contactTab?: any;
-    companyTab?: any;
     tableFilter?: {
         contact: TableFilterDto[];
         company: TableFilterDto[];
@@ -178,6 +176,9 @@ export class TableFilterDto {
     propertyUid: string;
     filterFieldControlCode: string;
     conditionFieldControlCode: string;
+    mode: string;
+    tabUid: string;
+    tabLabel: string;
 }
 
 export class PermissionObjDto {

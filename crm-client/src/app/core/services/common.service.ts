@@ -329,7 +329,7 @@ export class PropertiesDto extends BasedDto {
     moduleCat: string;
     moduleCode: string;
     order: number;
-    propertyLookupList: PropertyLookupDto[] | UserDto[];
+    propertyLookupList: PropertyLookupDto[] | UserCommonDto[];
     minLength?: number;
     maxLength?: number;
     minValue?: number;
@@ -439,7 +439,7 @@ export class CreateAssociationDto {
     profileUid: string;
 }
 
-export class UserDto {
+export class UserCommonDto {
     uid: string;
     displayName: string;
     email: string;

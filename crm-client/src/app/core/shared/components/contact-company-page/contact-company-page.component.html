@@ -16,7 +16,7 @@
           <div *ngIf="panel.edit">
             <app-base-input
               [fieldControl]="returnTabLabelFormControl(panel)"
-              (focusout)="panel.edit = false"
+              (focusout)="updateUserfilterSetting()"
             ></app-base-input>
           </div>
           <div class="tw-grid tw-items-center">

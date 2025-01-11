@@ -6,14 +6,14 @@ import * as ExcelJS from 'exceljs';
 import saveAs from 'file-saver';
 import { MenuItem, MessageService } from 'primeng/api';
 import { debounceTime, distinctUntilChanged, map, Observable, of } from 'rxjs';
-import { AuthService } from '../../../services/auth.service';
-import { CommonService, CompanyDto, ContactDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, PropertyLookupDto, UserDto, WindowSizeDto } from '../../../services/common.service';
+import { AuthService, CreateUserDto } from '../../../services/auth.service';
+import { CommonService, CompanyDto, ContactDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, PropertyLookupDto, UserCommonDto, WindowSizeDto } from '../../../services/common.service';
 import { BaseDataSourceActionEvent, CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../../../services/components.service';
 import { ROW_PER_PAGE_DEFAULT, ROW_PER_PAGE_DEFAULT_LIST, EMPTY_VALUE_STRING, NUMBER_OF_EXCEL_INSERT_ROW, DOWNLOAD_IMPORT_PROFILE_TEMPLATE_FILE_NAME_XLSX } from '../../constants/common.constants';
 import * as XLSX from 'xlsx';
 import { BaseCoreAbstract } from '../../base/base-core.abstract';
 import { ToastService } from '../../../services/toast.service';
-import { CoreHttpService, SettingDto, TableFilterDto } from '../../../services/core-http.service';
+import { CoreHttpService, SettingDto, TableFilterDto, UserDto } from '../../../services/core-http.service';
 import { Table } from 'primeng/table';
 
 @Component({
@@ -22,6 +22,7 @@ import { Table } from 'primeng/table';
   styleUrl: './contact-company-page.component.scss'
 })
 export class ContactCompanyPageComponent implements OnChanges {
+  //#region variable
   @ViewChild('dt') pageTable?: Table;
   @ViewChild('uploader') uploader?: HTMLInputElement;
   ROW_PER_PAGE_DEFAULT = ROW_PER_PAGE_DEFAULT;
@@ -35,7 +36,6 @@ export class ContactCompanyPageComponent implements OnChanges {
   modulePropertyList: PropertyGroupDto[] = [];
 
   windowSize: WindowSizeDto = new WindowSizeDto();
-
   CONTROL_TYPE_CODE = CONTROL_TYPE_CODE;
   propertiesList: PropertiesDto[] = [];
   propertiesList2: PropertiesDto[] = [];
@@ -72,6 +72,7 @@ export class ContactCompanyPageComponent implements OnChanges {
   canExport: boolean = false;
   canDelete: boolean = false;
   canCreate: boolean = false;
+  //#endregion
 
   constructor(
     private commonService: CommonService,
@@ -88,16 +89,10 @@ export class ContactCompanyPageComponent implements OnChanges {
     else {
       this.module = 'COMP';
     }
-    this.activeTabPanel = this.commonService.generateGUID(10);
 
-    this.panelList = [
-      {
-        headerLabel: this.module === 'CONT' ? this.translateService.instant("COMMON.CONTACT") : this.translateService.instant("COMMON.COMPANY"),
-        closable: false,
-        panelUid: this.activeTabPanel,
-        edit: false
-      }
-    ];
+    // assign active tab panel from userC
+    this.getPanelListFromSetting();
+
     this.addTabLabelFormArray();
     this.tabFilterList[this.activeTabPanel] = [];
     this.tempFilterList[this.activeTabPanel] = [];
@@ -139,14 +134,35 @@ export class ContactCompanyPageComponent implements OnChanges {
       this.getTabLabelArr.valueChanges.subscribe((value: any) => {
         this.getTabLabelArr.controls.find((item: any) => item.value.index === this.activeTabPanel).valueChanges.subscribe((value: any) => {
           this.getTabLabelArr.controls.find((item: any) => item.value.index === this.activeTabPanel).setValue(value, { emitEvent: false });
-          this.panelList[this.activeTabPanel].headerLabel = value.tabLabel;
+          this.panelList.find(p => p.panelUid === this.activeTabPanel)!.headerLabel = value.tabLabel;
         });
       });
+
     });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
 
+  }
+
+  getPanelListFromSetting() {
+    this.coreService.userC.setting.tableFilter[this.module === 'CONT' ? 'contact' : 'company'].forEach((item: TableFilterDto) => {
+      if (this.panelList.find(p => p.panelUid === item.tabUid) === undefined) {
+        if (this.module === 'CONT') {
+          this.getContact(item.tabUid);
+        }
+        else {
+          this.getCompany(item.tabUid);
+        }
+        this.panelList.push({
+          headerLabel: item.tabLabel,
+          closable: true,
+          panelUid: item.tabUid,
+          edit: false
+        });
+      }
+    });
+    this.activeTabPanel = this.panelList[0].panelUid;
   }
 
   get getTabLabelArr(): FormArray {
@@ -158,37 +174,36 @@ export class ContactCompanyPageComponent implements OnChanges {
   }
 
   initTableConfig() {
-    this.tableConfig[this.activeTabPanel] = [];
     if (this.module === 'CONT') {
-      this.tableConfig[this.activeTabPanel].push({
-        header: "contactProfilePhotoUrl",
-        code: "contactProfilePhotoUrl",
-        order: 0
+      this.panelList.forEach(p => {
+        this.tableConfig[p.panelUid] = [];
+        this.tableConfig[p.panelUid].push({
+          header: "contactProfilePhotoUrl",
+          code: "contactProfilePhotoUrl",
+          order: 0
+        });
       });
     }
     else {
-      this.tableConfig[this.activeTabPanel].push({
-        header: "companyProfilePhotoUrl",
-        code: "companyProfilePhotoUrl",
-        order: 0
-      })
+      this.panelList.forEach(p => {
+        this.tableConfig[p.panelUid] = [];
+        this.tableConfig[p.panelUid].push({
+          header: "companyProfilePhotoUrl",
+          code: "companyProfilePhotoUrl",
+          order: 0
+        })
+      });
     }
   }
 
   initCreateFormConfig(): Promise<boolean> {
     return new Promise((resolve, reject) => {
-      this.tableLoading[this.activeTabPanel] = true;
+      // this.tableLoading[this.activeTabPanel] = true;
       let createPropCount = 0;
       let formsConfig: FormConfig[] = [];
 
       this.createFormGroup = this.formBuilder.group({});
 
-      if (this.module === 'CONT') {
-        this.getContact();
-      }
-      else {
-        this.getCompany();
-      }
       this.toastService.addSingle({
         message: this.translateService.instant(
           "COMMON.LOADING",
@@ -199,6 +214,7 @@ export class ContactCompanyPageComponent implements OnChanges {
         isLoading: true,
         severity: 'info'
       });
+
       this.commonService.getAllPropertiesByModule(this.module).subscribe((res) => {
         if (res.isSuccess) {
           this.toastService.clear();
@@ -240,7 +256,9 @@ export class ContactCompanyPageComponent implements OnChanges {
                     order: prop.order,
                     type: prop.propertyType
                   };
-                  this.tableConfig[this.activeTabPanel].push(config);
+                  this.panelList.forEach(p => {
+                    this.tableConfig[p.panelUid].push(config);
+                  });
                 }
               }
 
@@ -315,7 +333,7 @@ export class ContactCompanyPageComponent implements OnChanges {
                 else if (prop.propertyType === CONTROL_TYPE_CODE.User) {
                   let propertyLookupList: OptionsModel[] = [];
                   prop.propertyLookupList.forEach((item) => {
-                    propertyLookupList.push({ label: `${(item as UserDto).displayName}`, value: item.uid });
+                    propertyLookupList.push({ label: `${(item as UserCommonDto).displayName}`, value: item.uid });
                   });
 
                   forms = {
@@ -399,10 +417,14 @@ export class ContactCompanyPageComponent implements OnChanges {
 
           this.createFormConfig = formsConfig;
 
-          // sort table column
-          this.tableConfig[this.activeTabPanel] = this.tableConfig[this.activeTabPanel].sort((a: any, b: any) => a.order - b.order);
-          this.tableLoading[this.activeTabPanel] = false;
-          resolve(true);
+          this.assignTabFilterList().then(_ => {
+            // sort table column
+            this.tableConfig[this.activeTabPanel] = this.tableConfig[this.activeTabPanel].sort((a: any, b: any) => a.order - b.order);
+            this.tableLoading[this.activeTabPanel] = false;
+
+            this.returnFilteredProfileList();
+            resolve(true);
+          });
         }
         else {
           this.toastService.addSingle({
@@ -414,215 +436,280 @@ export class ContactCompanyPageComponent implements OnChanges {
     });
   }
 
-  // TODO
-  returnFilteredProfileList() {
-    if (this.module === 'CONT') {
-      let tempProfileList: ContactDto[] = [];
-      if (this.tabFilterList[this.activeTabPanel].length === 0) {
-        this.getContact();
+  groupByTabUid(setting: any, type: 'contact' | 'company') {
+    // Retrieve the table filter list for the given type
+    const tableFilterList = setting.tableFilter[type];
+
+    // Create a grouped object
+    const groupedByTabUid = tableFilterList.reduce((result, item) => {
+      const tabUid = item.tabUid;
+
+      // Initialize the group if it doesn't exist
+      if (!result[tabUid]) {
+        result[tabUid] = [];
       }
-      else {
-        this.commonService.getAllContact().subscribe(res => {
-          if (res.isSuccess) {
-            this.tableLoading[this.activeTabPanel] = true;
-            this.tabFilterList[this.activeTabPanel].forEach((item: Filter) => {
-              // get state and city uid from input name 
-              if (item.property.propertyCode === 'state') {
-                this.commonService.getStateByStateName(item.filterFieldControl.value).subscribe(res => {
-                  if (res.isSuccess) {
-                    if (res.data.length == 1) {
-                      item.filterFieldControl.setValue(res.data[0].uid);
+
+      // Push the item to the group
+      result[tabUid].push(item);
+
+      return result;
+    }, {} as Record<string, any[]>);
+
+    return groupedByTabUid;
+  }
+
+  assignTabFilterList(): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      this.advanceFilterBtn(false).then(_ => {
+        let groupedSetting = this.groupByTabUid(this.coreService.userC.setting, this.module === 'CONT' ? 'contact' : 'company');
+        Object.entries(groupedSetting).forEach(([key, filterList]) => {
+          let newFilter: Filter[] = [];
+          (filterList as TableFilterDto[]).forEach((item: TableFilterDto) => {
+            let property = this.propertiesList.find(p => p.uid === item.propertyUid);
+
+            this.filterFormGroup.controls[property.propertyCode].setValue(item.filterFieldControlCode, { emitEvent: false });
+            this.conditionFormGroup.controls[property.propertyCode].setValue(item.conditionFieldControlCode, { emitEvent: false });
+
+            newFilter.push({
+              property: property,
+              conditionFieldControl: <FormControl>this.conditionFormGroup.controls[property.propertyCode],
+              filterFieldControl: <FormControl>this.filterFormGroup.controls[property.propertyCode],
+              mode: item.mode,
+              options: () => this.getValueList(property),
+              condition: this.getConditionList(property),
+            });
+
+            console.log(newFilter)
+
+            // add new tab from the setting
+            if (this.panelList.find(p => p.panelUid === key) === undefined) {
+              this.panelList.push({
+                headerLabel: item.tabLabel,
+                closable: true,
+                panelUid: key,
+                edit: false
+              });
+            }
+          });
+          this.tabFilterList[key] = newFilter;
+        });
+
+        this.activeTabPanel = this.panelList[0].panelUid;
+        resolve(true);
+      });
+    });
+  }
+
+  returnFilteredProfileList() {
+    console.log(this.panelList)
+    console.log(this.tabFilterList)
+    this.panelList.forEach(p => {
+      if (this.module === 'CONT') {
+        let tempProfileList: ContactDto[] = [];
+        if (this.tabFilterList[p.panelUid].length === 0) {
+          this.getContact();
+        }
+        else {
+          this.commonService.getAllContact().subscribe(res => {
+            if (res.isSuccess) {
+              this.tableLoading[p.panelUid] = true;
+              this.tabFilterList[p.panelUid].forEach((item: Filter) => {
+                // get state and city uid from input name 
+                if (item.property.propertyCode === 'state') {
+                  this.commonService.getStateByStateName(item.filterFieldControl.value).subscribe(res => {
+                    if (res.isSuccess) {
+                      if (res.data.length == 1) {
+                        item.filterFieldControl.setValue(res.data[0].uid);
+                      }
+                      else {
+                        this.toastService.addSingle({
+                          message: 'Something wrong on searching of State',
+                          severity: 'error'
+                        });
+                      }
                     }
                     else {
                       this.toastService.addSingle({
-                        message: 'Something wrong on searching of State',
+                        message: res.responseMessage,
                         severity: 'error'
                       });
-                    }
-                  }
-                  else {
-                    this.toastService.addSingle({
-                      message: res.responseMessage,
-                      severity: 'error'
-                    });
-                  }
-                });
-              }
-              else if (item.property.propertyCode === 'city') {
-                this.commonService.getCityByCityName(item.filterFieldControl.value).subscribe(res => {
-                  if (res.isSuccess) {
-                    if (res.data.length == 1) {
-                      item.filterFieldControl.setValue(res.data[0].uid);
-                    }
-                    else {
-                      this.toastService.addSingle({
-                        message: 'Something wrong on searching of City',
-                        severity: 'error'
-                      });
-                    }
-                  }
-                  else {
-                    this.toastService.addSingle({
-                      message: res.responseMessage,
-                      severity: 'error'
-                    });
-                  }
-                });
-              }
-
-              res.data.forEach(cont => {
-                let proProp: PropertyDataDto[] = JSON.parse(cont.contactProperties);
-                proProp.forEach(p => {
-                  cont[p.propertyCode] = p.value;
-                });
-
-                proProp.push(
-                  {
-                    uid: this.propertiesList.find(i => i.propertyCode === 'first_name')!.uid,
-                    propertyCode: 'first_name',
-                    value: cont.contactFirstName,
-                  },
-                  {
-                    uid: this.propertiesList.find(i => i.propertyCode === 'last_name')!.uid,
-                    propertyCode: 'last_name',
-                    value: cont.contactLastName,
-                  },
-                  {
-                    uid: this.propertiesList.find(i => i.propertyCode === 'email')!.uid,
-                    propertyCode: 'email',
-                    value: cont.contactEmail ?? '',
-                  },
-                  {
-                    uid: this.propertiesList.find(i => i.propertyCode === 'phone_number')!.uid,
-                    propertyCode: 'phone_number',
-                    value: cont.contactPhone ?? '',
-                  },
-                  {
-                    uid: this.propertiesList.find(i => i.propertyCode === 'created_date')!.uid,
-                    propertyCode: 'created_date',
-                    value: cont.createdDate!.toString(),
-                  },
-                  {
-                    uid: this.propertiesList.find(i => i.propertyCode === 'last_modified_date')!.uid,
-                    propertyCode: 'last_modified_date',
-                    value: cont.modifiedDate!.toString(),
-                  },
-                  {
-                    uid: this.propertiesList.find(i => i.propertyCode === 'created_by')!.uid,
-                    propertyCode: 'created_by',
-                    value: cont.createdBy ?? "",
-                  },
-                  {
-                    uid: this.propertiesList.find(i => i.propertyCode === 'last_modified_by')!.uid,
-                    propertyCode: 'last_modified_by',
-                    value: cont.modifiedBy ?? "",
-                  },
-                  {
-                    uid: this.propertiesList.find(i => i.propertyCode === 'lead_status')!.uid,
-                    propertyCode: 'lead_status',
-                    value: this.returnLeadStatusLabelFromId(cont.contactLeadStatusUid ?? ''),
-                  },
-                  {
-                    uid: this.propertiesList.find(i => i.propertyCode === 'contact_owner')!.uid,
-                    propertyCode: 'contact_owner',
-                    value: cont.contactOwnerUid ?? "",
-                  },
-                );
-
-                if (item.conditionFieldControl.value === 'is_not_known') {
-                  // for properties
-                  if (!proProp.find(p => p.uid === item.property.uid)) {
-                    tempProfileList.push(cont);
-                  }
-                  // for default object like contact owner
-                  else if (!proProp.find(p => p.uid === item.property.uid)?.value) {
-                    tempProfileList.push(cont);
-                  }
-                }
-                else if (item.conditionFieldControl.value === 'not_equal_to') {
-                  if (!proProp.find(p => p.uid === item.property.uid) || !proProp.find(p => p.uid === item.property.uid)?.value.toLowerCase().includes(item.filterFieldControl.value.toString().toLowerCase())) {
-                    tempProfileList.push(cont);
-                  }
-                }
-                else {
-                  proProp.forEach(propData => {
-                    let propValue: any;
-                    let itemValue: any;
-
-                    switch (item.mode) {
-                      case 'date':
-                      case 'datetime':
-                      case 'time':
-                        itemValue = new Date(item.filterFieldControl.value);
-                        propValue = new Date(propData.value);
-                        break;
-                      default:
-                        itemValue = item.filterFieldControl.value;
-                        propValue = propData.value;
-                        break;
-                    }
-
-                    switch (item.conditionFieldControl.value) {
-                      case 'equal_to':
-                        if (propData.uid === item.property.uid && propData.value.toLowerCase().includes(item.filterFieldControl.value.toString().toLowerCase())) {
-                          tempProfileList.push(cont);
-                        }
-                        break;
-                      case 'is_known':
-                        if (propData.uid === item.property.uid && propData.value) {
-                          tempProfileList.push(cont);
-                        }
-                        break;
-                      case 'more_than_equal_to':
-                        if (propData.uid === item.property.uid && propValue >= itemValue) {
-                          tempProfileList.push(cont);
-                        }
-                        break;
-                      case 'less_than_equal_to':
-                        if (propData.uid === item.property.uid && propValue <= itemValue) {
-                          tempProfileList.push(cont);
-                        }
-                        break;
-                      case 'more_than':
-                        if (propData.uid === item.property.uid && propValue > itemValue) {
-                          tempProfileList.push(cont);
-                        }
-                        break;
-                      case 'less_than':
-                        if (propData.uid === item.property.uid && propValue < itemValue) {
-                          tempProfileList.push(cont);
-                        }
-                        break;
                     }
                   });
                 }
-              });
+                else if (item.property.propertyCode === 'city') {
+                  this.commonService.getCityByCityName(item.filterFieldControl.value).subscribe(res => {
+                    if (res.isSuccess) {
+                      if (res.data.length == 1) {
+                        item.filterFieldControl.setValue(res.data[0].uid);
+                      }
+                      else {
+                        this.toastService.addSingle({
+                          message: 'Something wrong on searching of City',
+                          severity: 'error'
+                        });
+                      }
+                    }
+                    else {
+                      this.toastService.addSingle({
+                        message: res.responseMessage,
+                        severity: 'error'
+                      });
+                    }
+                  });
+                }
 
-              // tempProfileList
-            });
-            this.contactList[this.activeTabPanel] = [];
-            tempProfileList.forEach(cont => {
-              if (!this.contactList[this.activeTabPanel].includes(cont)) {
-                this.contactList[this.activeTabPanel].push(cont);
-              }
-            });
-            this.tableLoading[this.activeTabPanel] = false;
-          }
-          else {
-            this.toastService.addSingle({
-              message: res.responseMessage,
-              severity: 'error'
-            });
-          }
-        });
+                res.data.forEach(cont => {
+                  let proProp: PropertyDataDto[] = JSON.parse(cont.contactProperties);
+                  proProp.forEach(p => {
+                    cont[p.propertyCode] = p.value;
+                  });
+
+                  proProp.push(
+                    {
+                      uid: this.propertiesList.find(i => i.propertyCode === 'first_name')!.uid,
+                      propertyCode: 'first_name',
+                      value: cont.contactFirstName,
+                    },
+                    {
+                      uid: this.propertiesList.find(i => i.propertyCode === 'last_name')!.uid,
+                      propertyCode: 'last_name',
+                      value: cont.contactLastName,
+                    },
+                    {
+                      uid: this.propertiesList.find(i => i.propertyCode === 'email')!.uid,
+                      propertyCode: 'email',
+                      value: cont.contactEmail ?? '',
+                    },
+                    {
+                      uid: this.propertiesList.find(i => i.propertyCode === 'phone_number')!.uid,
+                      propertyCode: 'phone_number',
+                      value: cont.contactPhone ?? '',
+                    },
+                    {
+                      uid: this.propertiesList.find(i => i.propertyCode === 'created_date')!.uid,
+                      propertyCode: 'created_date',
+                      value: cont.createdDate!.toString(),
+                    },
+                    {
+                      uid: this.propertiesList.find(i => i.propertyCode === 'last_modified_date')!.uid,
+                      propertyCode: 'last_modified_date',
+                      value: cont.modifiedDate!.toString(),
+                    },
+                    {
+                      uid: this.propertiesList.find(i => i.propertyCode === 'created_by')!.uid,
+                      propertyCode: 'created_by',
+                      value: cont.createdBy ?? "",
+                    },
+                    {
+                      uid: this.propertiesList.find(i => i.propertyCode === 'last_modified_by')!.uid,
+                      propertyCode: 'last_modified_by',
+                      value: cont.modifiedBy ?? "",
+                    },
+                    {
+                      uid: this.propertiesList.find(i => i.propertyCode === 'lead_status')!.uid,
+                      propertyCode: 'lead_status',
+                      value: this.returnLeadStatusLabelFromId(cont.contactLeadStatusUid ?? ''),
+                    },
+                    {
+                      uid: this.propertiesList.find(i => i.propertyCode === 'contact_owner')!.uid,
+                      propertyCode: 'contact_owner',
+                      value: cont.contactOwnerUid ?? "",
+                    },
+                  );
+
+                  if (item.conditionFieldControl.value === 'is_not_known') {
+                    // for properties
+                    if (!proProp.find(p => p.uid === item.property.uid)) {
+                      tempProfileList.push(cont);
+                    }
+                    // for default object like contact owner
+                    else if (!proProp.find(p => p.uid === item.property.uid)?.value) {
+                      tempProfileList.push(cont);
+                    }
+                  }
+                  else if (item.conditionFieldControl.value === 'not_equal_to') {
+                    if (!proProp.find(p => p.uid === item.property.uid) || !proProp.find(p => p.uid === item.property.uid)?.value.toLowerCase().includes(item.filterFieldControl.value.toString().toLowerCase())) {
+                      tempProfileList.push(cont);
+                    }
+                  }
+                  else {
+                    proProp.forEach(propData => {
+                      let propValue: any;
+                      let itemValue: any;
+
+                      switch (item.mode) {
+                        case 'date':
+                        case 'datetime':
+                        case 'time':
+                          itemValue = new Date(item.filterFieldControl.value);
+                          propValue = new Date(propData.value);
+                          break;
+                        default:
+                          itemValue = item.filterFieldControl.value;
+                          propValue = propData.value;
+                          break;
+                      }
+
+                      switch (item.conditionFieldControl.value) {
+                        case 'equal_to':
+                          if (propData.uid === item.property.uid && propData.value.toLowerCase().includes(item.filterFieldControl.value.toString().toLowerCase())) {
+                            tempProfileList.push(cont);
+                          }
+                          break;
+                        case 'is_known':
+                          if (propData.uid === item.property.uid && propData.value) {
+                            tempProfileList.push(cont);
+                          }
+                          break;
+                        case 'more_than_equal_to':
+                          if (propData.uid === item.property.uid && propValue >= itemValue) {
+                            tempProfileList.push(cont);
+                          }
+                          break;
+                        case 'less_than_equal_to':
+                          if (propData.uid === item.property.uid && propValue <= itemValue) {
+                            tempProfileList.push(cont);
+                          }
+                          break;
+                        case 'more_than':
+                          if (propData.uid === item.property.uid && propValue > itemValue) {
+                            tempProfileList.push(cont);
+                          }
+                          break;
+                        case 'less_than':
+                          if (propData.uid === item.property.uid && propValue < itemValue) {
+                            tempProfileList.push(cont);
+                          }
+                          break;
+                      }
+                    });
+                  }
+                });
+              });
+              this.contactList[p.panelUid] = [];
+              tempProfileList.forEach(cont => {
+                if (!this.contactList[p.panelUid].includes(cont)) {
+                  this.contactList[p.panelUid].push(cont);
+                }
+              });
+              this.tableLoading[p.panelUid] = false;
+            }
+            else {
+              this.toastService.addSingle({
+                message: res.responseMessage,
+                severity: 'error'
+              });
+            }
+          });
+        }
       }
-    }
-    else {
-      // TODO: filter for company
-    }
+      else {
+        // TODO: filter for company
+      }
+    });
   }
 
-  getContact() {
+  getContact(tabUid?: string) {
     this.commonService.getAllContact().subscribe((res) => {
       if (res.isSuccess) {
         res.data.forEach(cont => {
@@ -633,7 +720,7 @@ export class ContactCompanyPageComponent implements OnChanges {
           });
         });
 
-        this.contactList[this.activeTabPanel] = res.data;
+        this.contactList[tabUid ?? this.activeTabPanel] = res.data;
       }
       else {
         this.toastService.addSingle({
@@ -644,12 +731,12 @@ export class ContactCompanyPageComponent implements OnChanges {
     });
   }
 
-  getCompany() {
+  getCompany(tabUid?: string) {
     this.tableLoading[this.activeTabPanel] = true;
     this.commonService.getAllCompany().subscribe((res) => {
       if (res.isSuccess) {
-        this.companyList[this.activeTabPanel] = res.data;
-        this.tableLoading[this.activeTabPanel] = false;
+        this.companyList[tabUid ?? this.activeTabPanel] = res.data;
+        // this.tableLoading[this.activeTabPanel] = false;
       }
       else {
         this.toastService.addSingle({
@@ -1247,7 +1334,7 @@ export class ContactCompanyPageComponent implements OnChanges {
   }
 
   returnUserLabelFromUid(uid: string, showDefault = true): string {
-    return (this.propertiesList.find(item => item.propertyType === 'USR')!.propertyLookupList.find(item => item.uid === uid) as UserDto)?.displayName ?? (showDefault ? this.EMPTY_VALUE_STRING : uid);
+    return (this.propertiesList.find(item => item.propertyType === 'USR')!.propertyLookupList.find(item => item.uid === uid) as UserCommonDto)?.displayName ?? (showDefault ? this.EMPTY_VALUE_STRING : uid);
   }
 
   returnLeadStatusLabelFromId(id: string, showDefault = true): string {
@@ -1300,64 +1387,69 @@ export class ContactCompanyPageComponent implements OnChanges {
     return this.filterPropList.find(item => item.property === prop)!;
   }
 
-  advanceFilterBtn() {
-    this.tempFilterList[this.activeTabPanel] = [];
-    if (this.propertiesList.length > 0) {
-      this.isShowFilter = true;
-      this.isShowTableColumnFilter = false;
-      this.filterFormGroup = this.formBuilder.group({});
-      this.conditionFormGroup = this.formBuilder.group({});
-      this.propertiesList.forEach(prop => {
-        let control = new FormControl(null);
-        let control2 = new FormControl(null, Validators.required);
-        this.filterFormGroup.addControl(prop.propertyCode, control);
-        this.conditionFormGroup.addControl(prop.propertyCode, control2);
-        let icon = '';
-        switch (prop.propertyType) {
-          case CONTROL_TYPE_CODE.Dropdown:
-          case CONTROL_TYPE_CODE.Multiselect:
-          case CONTROL_TYPE_CODE.Checkbox:
-          case CONTROL_TYPE_CODE.MultiCheckbox:
-            icon = 'pi pi-clone';
-            break;
-          case CONTROL_TYPE_CODE.Time:
-          case CONTROL_TYPE_CODE.Date:
-          case CONTROL_TYPE_CODE.DateTime:
-            icon = 'pi pi-calendar';
-            break;
-          case CONTROL_TYPE_CODE.Country:
-          case CONTROL_TYPE_CODE.City:
-          case CONTROL_TYPE_CODE.State:
-          case CONTROL_TYPE_CODE.Postcode:
-            icon = 'pi pi-globe';
-            break;
-          case CONTROL_TYPE_CODE.Number:
-            icon = 'pi pi-hashtag';
-            break;
-          case CONTROL_TYPE_CODE.User:
-            icon = 'pi pi-user';
-            break;
-          case CONTROL_TYPE_CODE.Year:
-            icon = 'pi pi-hashtag';
-            break;
-          default:
-            icon = 'pi pi-language';
-            break;
-        }
-        this.filterPropList.push({
-          property: prop,
-          filterFieldControl: this.filterFormGroup.controls[prop.propertyCode],
-          conditionFieldControl: this.conditionFormGroup.controls[prop.propertyCode],
-          condition: [],
-          icon: icon,
+  advanceFilterBtn(isShow: boolean = true): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      this.tempFilterList[this.activeTabPanel] = [];
+      if (this.propertiesList.length > 0) {
+        this.isShowFilter = isShow;
+        this.isShowTableColumnFilter = false;
+        this.filterFormGroup = this.formBuilder.group({});
+        this.conditionFormGroup = this.formBuilder.group({});
+        this.propertiesList.forEach(prop => {
+          let control = new FormControl(null);
+          let control2 = new FormControl(null, Validators.required);
+          this.filterFormGroup.addControl(prop.propertyCode, control);
+          this.conditionFormGroup.addControl(prop.propertyCode, control2);
+          let icon = '';
+          switch (prop.propertyType) {
+            case CONTROL_TYPE_CODE.Dropdown:
+            case CONTROL_TYPE_CODE.Multiselect:
+            case CONTROL_TYPE_CODE.Checkbox:
+            case CONTROL_TYPE_CODE.MultiCheckbox:
+              icon = 'pi pi-clone';
+              break;
+            case CONTROL_TYPE_CODE.Time:
+            case CONTROL_TYPE_CODE.Date:
+            case CONTROL_TYPE_CODE.DateTime:
+              icon = 'pi pi-calendar';
+              break;
+            case CONTROL_TYPE_CODE.Country:
+            case CONTROL_TYPE_CODE.City:
+            case CONTROL_TYPE_CODE.State:
+            case CONTROL_TYPE_CODE.Postcode:
+              icon = 'pi pi-globe';
+              break;
+            case CONTROL_TYPE_CODE.Number:
+              icon = 'pi pi-hashtag';
+              break;
+            case CONTROL_TYPE_CODE.User:
+              icon = 'pi pi-user';
+              break;
+            case CONTROL_TYPE_CODE.Year:
+              icon = 'pi pi-hashtag';
+              break;
+            default:
+              icon = 'pi pi-language';
+              break;
+          }
+          this.filterPropList.push({
+            property: prop,
+            filterFieldControl: this.filterFormGroup.controls[prop.propertyCode],
+            conditionFieldControl: this.conditionFormGroup.controls[prop.propertyCode],
+            condition: [],
+            icon: icon,
+          });
+
+          Object.assign(this.tempFilterList[this.activeTabPanel], this.tabFilterList[this.activeTabPanel]);
         });
 
-        Object.assign(this.tempFilterList[this.activeTabPanel], this.tabFilterList[this.activeTabPanel]);
-      });
-    }
-    else {
-      // TODO: this.messageService.add({ severity: 'info', summary: 'Loading', detail: this.translateService.instant('COMMON.DATA_LOADING') });
-    }
+        resolve(true);
+      }
+      else {
+        // TODO: this.messageService.add({ severity: 'info', summary: 'Loading', detail: this.translateService.instant('COMMON.DATA_LOADING') });
+        resolve(false);
+      }
+    });
   }
 
   tableColumnFilterBtn() {
@@ -1668,7 +1760,6 @@ export class ContactCompanyPageComponent implements OnChanges {
     this.initMenuItem();
     this.closeFilter();
 
-    console.log(this.tabFilterList);
     this.updateUserfilterSetting();
   }
 
@@ -1677,11 +1768,16 @@ export class ContactCompanyPageComponent implements OnChanges {
   }
 
   tabViewOnClose(event: any) {
-    this.panelList = this.panelList.filter(item => item.panelUid !== event.index);
-    this.tableConfig = this.tableConfig.filter((item, i) => i !== event.index);
-    this.columnPropertiesList = this.columnPropertiesList.filter((item, i) => i !== event.index);
-    this.tabFilterList = this.tabFilterList.filter((item, i) => i !== event.index);
-    this.activeTabPanel = this.panelList[this.panelList.length - 1].panelUid;
+    const keys = Object.keys(this.tableConfig);
+    const keyToRemove = keys[event.index];
+
+    if (keyToRemove) {
+      delete this.panelList[keyToRemove];
+      delete this.tableConfig[keyToRemove];
+      delete this.columnPropertiesList[keyToRemove];
+      delete this.tabFilterList[keyToRemove];
+      delete this.activeTabPanel[keyToRemove];
+    }
   }
 
   returnPropertyValue(prop: any, value: string) {
@@ -1777,7 +1873,7 @@ export class ContactCompanyPageComponent implements OnChanges {
 
   editPanel(uid: string) {
     if (uid === this.activeTabPanel) {
-      this.panelList[uid].edit = true;
+      this.panelList.find(p => p.panelUid === uid)!.edit = true;
     }
   }
 
@@ -1794,7 +1890,8 @@ export class ContactCompanyPageComponent implements OnChanges {
   }
 
   updateUserfilterSetting() {
-    let setting: SettingDto = new SettingDto();
+    this.panelList.find(p => p.panelUid === this.activeTabPanel)!.edit = false;
+    let setting = this.coreService.userC.setting;
     setting.tableFilter = {
       contact: [],
       company: []
@@ -1808,14 +1905,34 @@ export class ContactCompanyPageComponent implements OnChanges {
           propertyUid: item.property.uid,
           filterFieldControlCode: item.filterFieldControl.value,
           conditionFieldControlCode: item.conditionFieldControl.value,
+          mode: item.mode,
+          tabUid: key,
+          tabLabel: this.panelList.find(p => p.panelUid === key)?.headerLabel
         };
 
         setting.tableFilter[this.module === "CONT" ? "contact" : "company"].push(i);
       });
     });
 
-    console.log(setting)
+    let updateUser: CreateUserDto = {
+      uid: this.coreService.userC.uid,
+      setting: setting
+    };
+    this.authService.updateUserFirestore([updateUser]).subscribe(res => {
+      if (res.isSuccess) {
+        console.log(res);
+        this.toastService.addSingle({
+          message: res.responseMessage
 
+        });
+      }
+      else {
+        this.toastService.addSingle({
+          message: res.responseMessage,
+          severity: 'error'
+        });
+      }
+    });
   }
 }
 
