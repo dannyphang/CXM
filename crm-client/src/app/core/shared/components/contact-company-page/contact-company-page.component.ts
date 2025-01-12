@@ -194,6 +194,8 @@ export class ContactCompanyPageComponent implements OnChanges {
         })
       });
     }
+
+    console.log(this.tableConfig)
   }
 
   initCreateFormConfig(): Promise<boolean> {
@@ -228,7 +230,8 @@ export class ContactCompanyPageComponent implements OnChanges {
               this.headerKeyMapping[prop.propertyName] = prop.propertyCode;
 
               if (this.module === 'CONT') {
-                this.contactList[this.activeTabPanel].forEach(cont => {
+                console.log(this.contactList);
+                (this.contactList[this.activeTabPanel] as ContactDto[]).forEach(cont => {
                   let contactProp: PropertyDataDto[] = JSON.parse(cont.contactProperties);
 
                   contactProp.forEach(p => {
@@ -501,8 +504,6 @@ export class ContactCompanyPageComponent implements OnChanges {
   }
 
   returnFilteredProfileList() {
-    console.log(this.panelList)
-    console.log(this.tabFilterList)
     this.panelList.forEach(p => {
       if (this.module === 'CONT') {
         let tempProfileList: ContactDto[] = [];
@@ -1778,6 +1779,8 @@ export class ContactCompanyPageComponent implements OnChanges {
       delete this.tabFilterList[keyToRemove];
       delete this.activeTabPanel[keyToRemove];
     }
+
+    this.updateUserfilterSetting();
   }
 
   returnPropertyValue(prop: any, value: string) {
