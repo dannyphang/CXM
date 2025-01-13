@@ -4,10 +4,11 @@
     (onChange)="tabViewOnChange($event)"
     (onClose)="tabViewOnClose($event)"
     [activeIndex]="returnActiveIndexPanel()"
+    *ngIf="panelList.length > 0"
   >
     <p-tabPanel
       *ngFor="let panel of panelList"
-      [closable]="panel.closable"
+      [closable]="panel.closable && panelList.length > 1"
       [selected]="panel.panelUid === activeTabPanel"
       [disabled]="tableLoading[activeTabPanel]"
     >
@@ -20,6 +21,7 @@
               (focusout)="updateUserfilterSetting()"
             ></app-base-input>
           </div> -->
+
           <div class="tw-grid tw-items-center">
             <a (click)="editPanel(panel.panelUid); $event.stopPropagation()"
               ><span class="pi pi-pen-to-square"></span
@@ -36,12 +38,15 @@
           [propertiesList2]="propertiesList2"
           [modulePropertyList]="modulePropertyList"
           (tabFilterEmit)="updateUserfilterSetting($event)"
+          (tabColumnFilterEmit)="updateUserColumnSetting($event)"
           [tableFilter]="returnTabPanelByTabUid(panel)"
+          [tableColumnFilter]="returnColumnFilterByTabUid(panel)"
           *ngIf="propertiesList.length > 0"
         ></app-tab-panel-page>
       </ng-template>
     </p-tabPanel>
 
+    <!-- add tab button -->
     <p-tabPanel [disabled]="tableLoading[activeTabPanel]">
       <ng-template pTemplate="header" class="tw-p-0">
         <app-base-button
@@ -49,6 +54,7 @@
           (click)="addTab(); $event.stopPropagation()"
           styleClass="tw-w-[52px] tw-h-[52px] "
           [isTextStyle]="true"
+          [disabled]="panelList.length >= 5"
         >
         </app-base-button>
       </ng-template>

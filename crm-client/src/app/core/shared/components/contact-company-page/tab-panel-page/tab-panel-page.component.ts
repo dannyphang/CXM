@@ -9,7 +9,7 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 import { NavigationExtras, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { AuthService, CreateUserDto } from '../../../../services/auth.service';
-import { CoreHttpService, TableFilterDto, UserDto } from '../../../../services/core-http.service';
+import { CoreHttpService, TableColumnFilterDto, TableDataFilterDto, UserDto } from '../../../../services/core-http.service';
 import { ToastService } from '../../../../services/toast.service';
 import { MenuItem } from 'primeng/api';
 import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../../../../services/components.service';
@@ -22,23 +22,26 @@ import { debounceTime, distinctUntilChanged, map, Observable, of } from 'rxjs';
   styleUrl: './tab-panel-page.component.scss'
 })
 export class TabPanelPageComponent implements OnChanges {
+  //#region constant
   ROW_PER_PAGE_DEFAULT = ROW_PER_PAGE_DEFAULT;
   ROW_PER_PAGE_DEFAULT_LIST = ROW_PER_PAGE_DEFAULT_LIST;
   EMPTY_VALUE_STRING = EMPTY_VALUE_STRING;
   NUMBER_OF_EXCEL_INSERT_ROW = NUMBER_OF_EXCEL_INSERT_ROW;
   DOWNLOAD_IMPORT_PROFILE_TEMPLATE_FILE_NAME_XLSX = DOWNLOAD_IMPORT_PROFILE_TEMPLATE_FILE_NAME_XLSX;
+  //#endregion
   @ViewChild('dt') pageTable?: Table;
   @ViewChild('uploader') uploader?: HTMLInputElement;
   @Input() panel: Panel = null;
-  @Input() tableFilter: TableFilterDto[] = [];
+  @Input() tableFilter: TableDataFilterDto[] = [];
+  @Input() tableColumnFilter: TableColumnFilterDto = new TableColumnFilterDto();
   @Input() module: 'CONT' | 'COMP' = 'CONT';
   @Input() propertiesList: PropertiesDto[] = null;
   @Input() propertiesList2: PropertiesDto[] = null;
   @Input() modulePropertyList: PropertyGroupDto[] = null;
-  @Output() tabFilterEmit: EventEmitter<TableFilterDto[]> = new EventEmitter<TableFilterDto[]>();
+  @Output() tabFilterEmit: EventEmitter<TableDataFilterDto[]> = new EventEmitter<TableDataFilterDto[]>();
+  @Output() tabColumnFilterEmit: EventEmitter<TableColumnFilterDto> = new EventEmitter<TableColumnFilterDto>();
 
   windowSize: WindowSizeDto = new WindowSizeDto();
-
   contactList: ContactDto[] = [];
   companyList: CompanyDto[] = [];
   selectedProfile: ContactDto[] | CompanyDto[] = [];
@@ -48,8 +51,8 @@ export class TabPanelPageComponent implements OnChanges {
   //#region table
   actionMenuModel: MenuItem[] = [];
   tabFilterList: Filter[] = [];
-  columnPropertiesList: any[] = [];
-  tableConfig: any[] = []; // from table config
+  columnPropertiesList: PropertiesDto[] = [];
+  tableConfig: TableConfigProperty[] = []; // storing the table column properties
   filterMenuModel: MenuItem[] = [];
   tableLoading: boolean;
   headerKeyMapping: { [header: string]: string } = {};
@@ -144,6 +147,8 @@ export class TabPanelPageComponent implements OnChanges {
 
       this.createFormGroup = this.formBuilder.group({});
 
+      this.initTableIcon();
+
       this.propertiesList.forEach((prop) => {
         this.headerKeyMapping[prop.propertyName] = prop.propertyCode;
 
@@ -151,7 +156,7 @@ export class TabPanelPageComponent implements OnChanges {
         if (!prop.isDefaultProperty) {
           this.profileProperty.push(prop);
           if (prop.isVisible) {
-            let config: any = {
+            let config: TableConfigProperty = {
               header: prop.propertyName,
               code: this.bindCode(prop.propertyCode),
               order: prop.order,
@@ -319,6 +324,7 @@ export class TabPanelPageComponent implements OnChanges {
         this.tableConfig = this.tableConfig.sort((a: any, b: any) => a.order - b.order);
         this.tableLoading = false;
 
+        this.loadTableColumnConfigFromSetting();
         this.returnFilteredProfileList();
 
         resolve(true);
@@ -329,43 +335,28 @@ export class TabPanelPageComponent implements OnChanges {
   assignTabFilterList(): Promise<boolean> {
     return new Promise((resolve, reject) => {
       this.advanceFilterBtn(false).then(_ => {
-        console.log(this.tableFilter)
         let newFilter: Filter[] = [];
         this.tableFilter.forEach((item) => {
           let property = this.propertiesList.find(p => p.uid === item.propertyUid);
+          if (property) {
+            this.filterFormGroup.controls[property.propertyCode].setValue(item.filterFieldControlCode, { emitEvent: false });
+            this.conditionFormGroup.controls[property.propertyCode].setValue(item.conditionFieldControlCode, { emitEvent: false });
 
-          this.filterFormGroup.controls[property.propertyCode].setValue(item.filterFieldControlCode, { emitEvent: false });
-          this.conditionFormGroup.controls[property.propertyCode].setValue(item.conditionFieldControlCode, { emitEvent: false });
-
-          newFilter.push({
-            property: property,
-            conditionFieldControl: <FormControl>this.conditionFormGroup.controls[property.propertyCode],
-            filterFieldControl: <FormControl>this.filterFormGroup.controls[property.propertyCode],
-            mode: item.mode,
-            options: () => this.getValueList(property),
-            condition: this.getConditionList(property),
-          });
+            newFilter.push({
+              property: property,
+              conditionFieldControl: <FormControl>this.conditionFormGroup.controls[property.propertyCode],
+              filterFieldControl: <FormControl>this.filterFormGroup.controls[property.propertyCode],
+              mode: item.mode,
+              options: () => this.getValueList(property),
+              condition: this.getConditionList(property),
+            });
+          }
         });
 
         this.tabFilterList = newFilter;
         resolve(true);
       });
     });
-  }
-
-  toProfile(profile: ContactDto | CompanyDto) {
-    const navigationExtras: NavigationExtras = {
-      state: {
-        module: this.module
-      }
-    };
-
-    if (this.module === 'CONT') {
-      this.router.navigate(['contact/profile/' + profile.uid], navigationExtras);
-    }
-    else {
-      this.router.navigate(['company/profile/' + profile.uid], navigationExtras);
-    }
   }
 
   returnFilteredProfileList() {
@@ -574,7 +565,7 @@ export class TabPanelPageComponent implements OnChanges {
   }
 
   //#region table
-  initTableConfig() {
+  initTableIcon() {
     if (this.module === 'CONT') {
       this.tableConfig = [];
       this.tableConfig.push({
@@ -653,6 +644,20 @@ export class TabPanelPageComponent implements OnChanges {
         visible: this.selectedProfile.length > 0,
       },
     ]
+  }
+
+  loadTableColumnConfigFromSetting() {
+    this.columnPropertiesList = [];
+    this.tableConfig = this.tableConfig.filter(tc => tc.code === (this.module === 'CONT' ? 'contactProfilePhotoUrl' : 'companyProfilePhotoUrl'));
+
+    this.tableColumnFilter.propertyUid.forEach(tc => {
+      this.tableConfig.push({
+        header: this.propertiesList.find(p => p.uid === tc).propertyName,
+        code: this.bindCode(this.propertiesList.find(p => p.uid === tc).propertyCode),
+        order: this.propertiesList.find(p => p.uid === tc).order,
+        type: this.propertiesList.find(p => p.uid === tc).propertyType
+      })
+    })
   }
 
   returnLeadStatusLabelFromId(id: string, showDefault = true): string {
@@ -786,7 +791,6 @@ export class TabPanelPageComponent implements OnChanges {
   }
 
   exportFile(data: any[]) {
-    console.log(data)
     // Create a workbook and worksheet
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet(this.translateService.instant(this.module === 'CONT' ? 'COMMON.CONTACT' : 'COMMON.COMPANY'));
@@ -1184,6 +1188,20 @@ export class TabPanelPageComponent implements OnChanges {
     }
   }
 
+  toProfile(profile: ContactDto | CompanyDto) {
+    const navigationExtras: NavigationExtras = {
+      state: {
+        module: this.module
+      }
+    };
+
+    if (this.module === 'CONT') {
+      this.router.navigate(['contact/profile/' + profile.uid], navigationExtras);
+    }
+    else {
+      this.router.navigate(['company/profile/' + profile.uid], navigationExtras);
+    }
+  }
   //#endregion
 
   //#region dialog
@@ -1588,8 +1606,7 @@ export class TabPanelPageComponent implements OnChanges {
     this.initMenuItem();
     this.closeFilter();
 
-    // this.updateUserfilterSetting();
-    this.updatePanel();
+    this.updateTabFilter();
   }
 
   closeTableColumnFilter() {
@@ -1598,10 +1615,13 @@ export class TabPanelPageComponent implements OnChanges {
 
   tableColumnFilterSubmit() {
     this.tempColumnFilterList.forEach(p => {
-      this.columnPropertiesList.push(p)
+      if (!this.columnPropertiesList.find(cp => cp.uid === p.uid)) {
+        this.columnPropertiesList.push(p)
+      }
     });
 
     this.tempColumnFilterList = [];
+    this.tableConfig = this.tableConfig.filter(tc => tc.code === (this.module === 'CONT' ? 'contactProfilePhotoUrl' : 'companyProfilePhotoUrl'));
 
     this.columnPropertiesList.forEach((p: PropertiesDto) => {
       if (p && !this.tableConfig.find((i: any) => i.code === this.bindCode(p.propertyCode))) {
@@ -1618,8 +1638,7 @@ export class TabPanelPageComponent implements OnChanges {
 
     this.returnFilteredProfileList();
 
-    // this.updateUserfilterSetting();
-    this.updatePanel();
+    this.updateTableColumnFilter();
   }
 
   getStateList(): Observable<any[]> {
@@ -1653,8 +1672,8 @@ export class TabPanelPageComponent implements OnChanges {
   }
   //#endregion
 
-  updatePanel() {
-    let filter: TableFilterDto[] = [];
+  updateTabFilter() {
+    let filter: TableDataFilterDto[] = [];
     this.tabFilterList.forEach((item) => {
       filter.push({
         propertyUid: item.property.uid,
@@ -1667,4 +1686,23 @@ export class TabPanelPageComponent implements OnChanges {
     });
     this.tabFilterEmit.emit(filter);
   }
+
+  updateTableColumnFilter() {
+    let list: string[] = [];
+    this.columnPropertiesList.forEach(p => {
+      list.push(p.uid);
+    });
+
+    this.tabColumnFilterEmit.emit({
+      tabUid: this.panel.panelUid,
+      propertyUid: list,
+    })
+  }
+}
+
+class TableConfigProperty {
+  header: string;
+  code: string;
+  order: number;
+  type?: string;
 }

@@ -179,12 +179,22 @@ export class SettingDto {
     darkMode?: boolean;
     defaultTenantId?: string;
     tableFilter?: {
-        contact: TableFilterDto[];
-        company: TableFilterDto[];
+        contact: TableFilterDto;
+        company: TableFilterDto;
     }
 }
 
 export class TableFilterDto {
+    propertyFilter: TableDataFilterDto[];
+    columnFilter: TableColumnFilterDto[];
+}
+
+export class TableColumnFilterDto {
+    tabUid: string;
+    propertyUid: string[];
+}
+
+export class TableDataFilterDto {
     propertyUid?: string;
     filterFieldControlCode?: string;
     conditionFieldControlCode?: string;

@@ -13,7 +13,7 @@ import { ROW_PER_PAGE_DEFAULT, ROW_PER_PAGE_DEFAULT_LIST, EMPTY_VALUE_STRING, NU
 import * as XLSX from 'xlsx';
 import { BaseCoreAbstract } from '../../base/base-core.abstract';
 import { ToastService } from '../../../services/toast.service';
-import { CoreHttpService, SettingDto, TableFilterDto, UserDto } from '../../../services/core-http.service';
+import { CoreHttpService, SettingDto, TableColumnFilterDto, TableDataFilterDto, TableFilterDto, UserDto } from '../../../services/core-http.service';
 import { Table } from 'primeng/table';
 
 @Component({
@@ -117,16 +117,18 @@ export class ContactCompanyPageComponent implements OnChanges {
   }
 
   getPanelListFromSetting() {
-    this.coreService.userC.setting.tableFilter[this.module === 'CONT' ? 'contact' : 'company'].forEach((item: TableFilterDto) => {
-      if (this.panelList.find(p => p.panelUid === item.tabUid) === undefined) {
-        this.panelList.push({
-          headerLabel: item.tabLabel,
-          closable: true,
-          panelUid: item.tabUid,
-          edit: false
-        });
-      }
-    });
+    if (this.coreService.userC.setting.tableFilter) {
+      this.coreService.userC.setting.tableFilter[this.module === 'CONT' ? 'contact' : 'company']?.propertyFilter.forEach((item: TableDataFilterDto) => {
+        if (this.panelList.find(p => p.panelUid === item.tabUid) === undefined) {
+          this.panelList.push({
+            headerLabel: item.tabLabel,
+            closable: true,
+            panelUid: item.tabUid,
+            edit: false
+          });
+        }
+      });
+    }
 
     if (this.panelList[0]) {
       this.activeTabPanel = this.panelList[0].panelUid;
@@ -136,10 +138,15 @@ export class ContactCompanyPageComponent implements OnChanges {
     }
 
     this.getProperties();
+    console.log(this.panelList)
   }
 
-  returnTabPanelByTabUid(panel: Panel): TableFilterDto[] {
-    return this.coreService.userC.setting.tableFilter[this.module === 'CONT' ? 'contact' : 'company'].filter(p => p.tabUid === panel.panelUid);
+  returnTabPanelByTabUid(panel: Panel): TableDataFilterDto[] {
+    return this.coreService.userC.setting.tableFilter[this.module === 'CONT' ? 'contact' : 'company'].propertyFilter.filter(p => p.tabUid === panel.panelUid);
+  }
+
+  returnColumnFilterByTabUid(panel: Panel): TableColumnFilterDto {
+    return this.coreService.userC.setting.tableFilter[this.module === 'CONT' ? 'contact' : 'company'].columnFilter.find(p => p.tabUid === panel.panelUid);
   }
 
   addTab(isNewTab: boolean = true) {
@@ -150,7 +157,7 @@ export class ContactCompanyPageComponent implements OnChanges {
       }
     });
 
-    if (!isBlock) {
+    if (!isBlock && this.panelList.length < 5) {
       let newPanelUid: string = this.commonService.generateGUID(10);
       this.panelList.push({
         headerLabel: 'TEST__' + newPanelUid,
@@ -160,13 +167,13 @@ export class ContactCompanyPageComponent implements OnChanges {
       });
 
       this.activeTabPanel = newPanelUid;
-      let newFilterList: TableFilterDto[] = [
+      let newFilterList: TableDataFilterDto[] = [
         {
           tabLabel: this.panelList.find(p => p.panelUid === newPanelUid)!.headerLabel,
           tabUid: newPanelUid,
         }
       ]
-
+      console.log(this.panelList)
       this.updateUserfilterSetting(newFilterList);
     }
     else {
@@ -222,45 +229,87 @@ export class ContactCompanyPageComponent implements OnChanges {
     this.activeTabPanel = this.panelList[0].panelUid;
   }
 
-  updateUserfilterSetting(filterList: TableFilterDto[], isRemove: boolean = false, removeTabUid: string = '') {
+  updateUserfilterSetting(filterList: TableDataFilterDto[], isRemove: boolean = false, removeTabUid: string = '') {
     // this.panel.edit = false;
     let setting = this.coreService.userC.setting;
-    if (this.coreService.userC.setting.tableFilter === undefined) {
+    if (!this.coreService.userC.setting.tableFilter || !this.coreService.userC.setting.tableFilter[this.module === "CONT" ? "contact" : "company"]?.propertyFilter) {
       setting.tableFilter = {
-        contact: [],
-        company: []
+        contact: new TableFilterDto(),
+        company: new TableFilterDto(),
       };
+      setting.tableFilter[this.module === "CONT" ? "contact" : "company"].propertyFilter = [];
+      setting.tableFilter[this.module === "CONT" ? "contact" : "company"].columnFilter = [];
     }
 
     // remove the current list in the setting then add the new list
     if (!isRemove) {
-      setting.tableFilter[this.module === "CONT" ? "contact" : "company"] = setting.tableFilter[this.module === "CONT" ? "contact" : "company"].filter((item) => item.tabUid !== filterList[0]?.tabUid);
+      setting.tableFilter[this.module === "CONT" ? "contact" : "company"].propertyFilter = setting.tableFilter[this.module === "CONT" ? "contact" : "company"].propertyFilter.filter((item) => item.tabUid !== filterList[0]?.tabUid);
       filterList.forEach((item) => {
-        setting.tableFilter[this.module === "CONT" ? "contact" : "company"].push(item);
+        setting.tableFilter[this.module === "CONT" ? "contact" : "company"].propertyFilter.push(item);
       });
     }
     else {
-      setting.tableFilter[this.module === "CONT" ? "contact" : "company"] = setting.tableFilter[this.module === "CONT" ? "contact" : "company"].filter((item) => item.tabUid !== removeTabUid)
+      setting.tableFilter[this.module === "CONT" ? "contact" : "company"].propertyFilter = setting.tableFilter[this.module === "CONT" ? "contact" : "company"].propertyFilter.filter((item) => item.tabUid !== removeTabUid)
     }
 
     let updateUser: CreateUserDto = {
       uid: this.coreService.userC.uid,
       setting: setting
     };
-    // this.authService.updateUserFirestore([updateUser]).subscribe(res => {
-    //   if (res.isSuccess) {
-    //     this.toastService.addSingle({
-    //       message: res.responseMessage
+    this.authService.updateUserFirestore([updateUser]).subscribe(res => {
+      if (res.isSuccess) {
+        this.toastService.addSingle({
+          message: res.responseMessage
+        });
+      }
+      else {
+        this.toastService.addSingle({
+          message: res.responseMessage,
+          severity: 'error'
+        });
+      }
+    });
+  }
 
-    //     });
-    //   }
-    //   else {
-    //     this.toastService.addSingle({
-    //       message: res.responseMessage,
-    //       severity: 'error'
-    //     });
-    //   }
-    // });
+  updateUserColumnSetting(filterList: TableColumnFilterDto, isRemove: boolean = false, removeTabUid: string = '') {
+    let setting = this.coreService.userC.setting;
+    if (!this.coreService.userC.setting.tableFilter || !this.coreService.userC.setting.tableFilter[this.module === "CONT" ? "contact" : "company"]?.propertyFilter) {
+      setting.tableFilter = {
+        contact: new TableFilterDto(),
+        company: new TableFilterDto(),
+      };
+      setting.tableFilter[this.module === "CONT" ? "contact" : "company"].propertyFilter = [];
+      setting.tableFilter[this.module === "CONT" ? "contact" : "company"].columnFilter = [];
+    }
+
+    // remove the current list in the setting then add the new list
+    if (!isRemove) {
+      setting.tableFilter[this.module === "CONT" ? "contact" : "company"].columnFilter = setting.tableFilter[this.module === "CONT" ? "contact" : "company"].columnFilter.filter((item) => item.tabUid !== filterList?.tabUid);
+
+      setting.tableFilter[this.module === "CONT" ? "contact" : "company"].columnFilter.push(filterList);
+    }
+    else {
+      setting.tableFilter[this.module === "CONT" ? "contact" : "company"].propertyFilter = setting.tableFilter[this.module === "CONT" ? "contact" : "company"].propertyFilter.filter((item) => item.tabUid !== removeTabUid)
+    }
+
+    let updateUser: CreateUserDto = {
+      uid: this.coreService.userC.uid,
+      setting: setting
+    };
+
+    this.authService.updateUserFirestore([updateUser]).subscribe(res => {
+      if (res.isSuccess) {
+        this.toastService.addSingle({
+          message: res.responseMessage
+        });
+      }
+      else {
+        this.toastService.addSingle({
+          message: res.responseMessage,
+          severity: 'error'
+        });
+      }
+    });
   }
 
   returnActiveIndexPanel(): number {

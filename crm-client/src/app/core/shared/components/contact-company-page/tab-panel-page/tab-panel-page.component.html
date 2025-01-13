@@ -35,12 +35,13 @@
           (onClick)="advanceFilterBtn()"
           [loading]="!propertiesList"
         ></app-base-button>
+
         <app-base-button
           [label]="
             'BUTTON.EDIT_COLUMN'
               | translate
                 : {
-                    numberOfColumn: tableConfig?.length
+                    numberOfColumn: tableConfig?.length - 1
                   }
           "
           [isTextStyle]="true"
