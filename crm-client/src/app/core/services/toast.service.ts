@@ -49,7 +49,7 @@ export class ToastService {
         });
     }
 
-    loadMessageData(data: any[]) {
+    private loadMessageData(data: any[]) {
         return data.map((i) => {
             return {
                 label: this.translateService.instant(i.key),

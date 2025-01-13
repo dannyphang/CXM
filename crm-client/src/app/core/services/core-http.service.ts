@@ -185,10 +185,10 @@ export class SettingDto {
 }
 
 export class TableFilterDto {
-    propertyUid: string;
-    filterFieldControlCode: string;
-    conditionFieldControlCode: string;
-    mode: string;
+    propertyUid?: string;
+    filterFieldControlCode?: string;
+    conditionFieldControlCode?: string;
+    mode?: string;
     tabUid: string;
     tabLabel: string;
 }
