@@ -3,6 +3,7 @@
     class="contact-company-tab-view"
     (onChange)="tabViewOnChange($event)"
     (onClose)="tabViewOnClose($event)"
+    [activeIndex]="returnActiveIndexPanel()"
   >
     <p-tabPanel
       *ngFor="let panel of panelList"

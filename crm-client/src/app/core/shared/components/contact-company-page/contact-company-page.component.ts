@@ -89,10 +89,6 @@ export class ContactCompanyPageComponent implements OnChanges {
     else {
       this.module = 'COMP';
     }
-
-    // assign active tab panel from userC
-    this.getPanelListFromSetting();
-
     this.addTabLabelFormArray();
     this.tabFilterList[this.activeTabPanel] = [];
     this.tempFilterList[this.activeTabPanel] = [];
@@ -123,9 +119,14 @@ export class ContactCompanyPageComponent implements OnChanges {
         });
       }
     });
+
+    // assign active tab panel from userC
+    this.getPanelListFromSetting();
+
     this.initTableConfig();
-    Promise.all([this.initCreateFormConfig()]).then(_ => {
-      this.initMenuItem();
+    this.initMenuItem();
+
+    Promise.all([]).then(_ => {
       this.canDownload = this.authService.returnPermission(this.coreService.userC.permission).find(p => p.module === this.module)?.permission.download ?? false;
       this.canExport = this.authService.returnPermission(this.coreService.userC.permission).find(p => p.module === this.module)?.permission.export ?? false;
       this.canDelete = this.authService.returnPermission(this.coreService.userC.permission).find(p => p.module === this.module)?.permission.remove ?? false;
@@ -148,12 +149,6 @@ export class ContactCompanyPageComponent implements OnChanges {
   getPanelListFromSetting() {
     this.coreService.userC.setting.tableFilter[this.module === 'CONT' ? 'contact' : 'company'].forEach((item: TableFilterDto) => {
       if (this.panelList.find(p => p.panelUid === item.tabUid) === undefined) {
-        if (this.module === 'CONT') {
-          this.getContact(item.tabUid);
-        }
-        else {
-          this.getCompany(item.tabUid);
-        }
         this.panelList.push({
           headerLabel: item.tabLabel,
           closable: true,
@@ -162,7 +157,13 @@ export class ContactCompanyPageComponent implements OnChanges {
         });
       }
     });
-    this.activeTabPanel = this.panelList[0].panelUid;
+
+    if (this.panelList[0]) {
+      this.activeTabPanel = this.panelList[0].panelUid;
+    }
+    else {
+      this.addTab(true);
+    }
   }
 
   get getTabLabelArr(): FormArray {
@@ -194,13 +195,10 @@ export class ContactCompanyPageComponent implements OnChanges {
         })
       });
     }
-
-    console.log(this.tableConfig)
   }
 
   initCreateFormConfig(): Promise<boolean> {
     return new Promise((resolve, reject) => {
-      // this.tableLoading[this.activeTabPanel] = true;
       let createPropCount = 0;
       let formsConfig: FormConfig[] = [];
 
@@ -229,25 +227,24 @@ export class ContactCompanyPageComponent implements OnChanges {
               this.propertiesList2.push(prop);
               this.headerKeyMapping[prop.propertyName] = prop.propertyCode;
 
-              if (this.module === 'CONT') {
-                console.log(this.contactList);
-                (this.contactList[this.activeTabPanel] as ContactDto[]).forEach(cont => {
-                  let contactProp: PropertyDataDto[] = JSON.parse(cont.contactProperties);
+              // if (this.module === 'CONT') {
+              //   (this.contactList[this.activeTabPanel] as ContactDto[]).forEach(cont => {
+              //     let contactProp: PropertyDataDto[] = JSON.parse(cont.contactProperties);
 
-                  contactProp.forEach(p => {
-                    cont[p.propertyCode] = p.value;
-                  });
-                })
-              }
-              else {
-                this.companyList[this.activeTabPanel].forEach(comp => {
-                  let companyProp: PropertyDataDto[] = JSON.parse(comp.companyProperties);
+              //     contactProp.forEach(p => {
+              //       cont[p.propertyCode] = p.value;
+              //     });
+              //   })
+              // }
+              // else {
+              //   this.companyList[this.activeTabPanel].forEach(comp => {
+              //     let companyProp: PropertyDataDto[] = JSON.parse(comp.companyProperties);
 
-                  companyProp.forEach(p => {
-                    comp[p.propertyCode] = p.value;
-                  });
-                })
-              }
+              //     companyProp.forEach(p => {
+              //       comp[p.propertyCode] = p.value;
+              //     });
+              //   })
+              // }
 
               // only display property that is system property which is not storing inside the properties column
               if (!prop.isDefaultProperty) {
@@ -426,6 +423,7 @@ export class ContactCompanyPageComponent implements OnChanges {
             this.tableLoading[this.activeTabPanel] = false;
 
             this.returnFilteredProfileList();
+            console.log(this.contactList)
             resolve(true);
           });
         }
@@ -1342,7 +1340,7 @@ export class ContactCompanyPageComponent implements OnChanges {
     return (this.propertiesList.find(f => f.propertyCode === 'lead_status')?.propertyLookupList.find(p => p.uid === id) as PropertyLookupDto)?.propertyLookupLabel ?? (showDefault ? this.EMPTY_VALUE_STRING : id);
   }
 
-  addTab() {
+  addTab(isNewTab: boolean = true) {
     let isBlock = false;
     this.tableLoading.forEach(item => {
       if (item) {
@@ -1351,27 +1349,30 @@ export class ContactCompanyPageComponent implements OnChanges {
     });
 
     if (!isBlock) {
-      let newPanelUid: string = this.commonService.generateGUID(10);
-      this.panelList.push({
-        headerLabel: 'TEST__' + newPanelUid,
-        closable: true,
-        panelUid: newPanelUid,
-        edit: false
-      });
+      if (isNewTab) {
+        let newPanelUid: string = this.commonService.generateGUID(10);
+        this.panelList.push({
+          headerLabel: 'TEST__' + newPanelUid,
+          closable: true,
+          panelUid: newPanelUid,
+          edit: false
+        });
 
-      this.activeTabPanel = newPanelUid;
-      this.tableConfig.push([]);
+        this.activeTabPanel = newPanelUid;
+        this.tableConfig.push([]);
 
-      if (this.module === 'CONT') {
-        this.contactList.push([]);
-      }
-      else {
-        this.companyList.push([]);
+        if (this.module === 'CONT') {
+          this.contactList.push([]);
+        }
+        else {
+          this.companyList.push([]);
+        }
+
+        this.tabFilterList[newPanelUid] = [];
       }
 
       this.initTableConfig();
       this.initCreateFormConfig();
-      this.tabFilterList[newPanelUid] = [];
       this.addTabLabelFormArray();
     }
     else {
@@ -1777,9 +1778,10 @@ export class ContactCompanyPageComponent implements OnChanges {
       delete this.tableConfig[keyToRemove];
       delete this.columnPropertiesList[keyToRemove];
       delete this.tabFilterList[keyToRemove];
-      delete this.activeTabPanel[keyToRemove];
-    }
 
+      this.panelList = this.panelList.filter(p => p !== undefined);
+      this.activeTabPanel = this.panelList[0].panelUid;
+    }
     this.updateUserfilterSetting();
   }
 
@@ -1835,6 +1837,8 @@ export class ContactCompanyPageComponent implements OnChanges {
     });
     this.initMenuItem();
     this.closeTableColumnFilter();
+
+    this.returnFilteredProfileList();
 
     this.updateUserfilterSetting();
   }
@@ -1936,6 +1940,10 @@ export class ContactCompanyPageComponent implements OnChanges {
         });
       }
     });
+  }
+
+  returnActiveIndexPanel(): number {
+    return this.panelList.findIndex(p => p.panelUid === this.activeTabPanel);
   }
 }
 

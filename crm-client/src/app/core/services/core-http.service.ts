@@ -45,10 +45,21 @@ export class CoreHttpService {
                 this.auth ? onAuthStateChanged(this.auth, (user) => {
                     if (user) {
                         this.user = user;
+                        this.toastService.addSingle({
+                            message: 'COMMON.LOADING',
+                            severity: 'info',
+                            messageData: [
+                                {
+                                    key: 'module',
+                                    value: 'COMMON.USER'
+                                }
+                            ]
+                        })
                         this.getUser(this.user.uid).subscribe(res => {
                             if (res.isSuccess) {
                                 this.userC = res.data;
 
+                                this.toastService.clear();
                                 resolve(this.userC);
                             }
                         })
@@ -133,6 +144,7 @@ export class MessageModel {
     key?: string;
     icon?: string;
     isLoading?: boolean;
+    messageData?: any[];
 }
 
 export class BasedDto {
