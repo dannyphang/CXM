@@ -30,3 +30,15 @@
     padding: 0 0 0 var(--content-gap);
   }
 }
+
+::ng-deep {
+  .filter-dialog {
+    .p-dialog-content {
+      overflow-y: hidden;
+    }
+
+    .filter-content-div {
+      height: 100%;
+    }
+  }
+}

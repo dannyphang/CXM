@@ -584,7 +584,198 @@ export class TabPanelPageComponent implements OnChanges {
       }
     }
     else {
-      // TODO: filter for company
+      let tempProfileList: CompanyDto[] = [];
+      if (this.tabFilterList.length === 0) {
+        this.getContact();
+      }
+      else {
+        this.updateLoading('companyWithFilter', true);
+        this.commonService.getAllCompany().subscribe(res => {
+          if (res.isSuccess) {
+            this.tabFilterList.forEach((item: Filter) => {
+              // get state and city uid from input name 
+              if (item.property.propertyCode === 'state') {
+                this.commonService.getStateByStateName(item.filterFieldControl.value).subscribe(res => {
+                  if (res.isSuccess) {
+                    if (res.data.length == 1) {
+                      item.filterFieldControl.setValue(res.data[0].uid);
+                    }
+                    else {
+                      this.toastService.addSingle({
+                        message: 'Something wrong on searching of State',
+                        severity: 'error'
+                      });
+                    }
+                  }
+                  else {
+                    this.toastService.addSingle({
+                      message: res.responseMessage,
+                      severity: 'error'
+                    });
+                  }
+                });
+              }
+              else if (item.property.propertyCode === 'city') {
+                this.commonService.getCityByCityName(item.filterFieldControl.value).subscribe(res => {
+                  if (res.isSuccess) {
+                    if (res.data.length == 1) {
+                      item.filterFieldControl.setValue(res.data[0].uid);
+                    }
+                    else {
+                      this.toastService.addSingle({
+                        message: 'Something wrong on searching of City',
+                        severity: 'error'
+                      });
+                    }
+                  }
+                  else {
+                    this.toastService.addSingle({
+                      message: res.responseMessage,
+                      severity: 'error'
+                    });
+                  }
+                });
+              }
+
+              res.data.forEach(comp => {
+                let proProp: PropertyDataDto[] = JSON.parse(comp.companyProperties);
+                proProp.forEach(p => {
+                  comp[p.propertyCode] = p.value;
+                });
+
+                proProp.push(
+                  {
+                    uid: this.propertiesList.find(i => i.propertyCode === 'company_name')!.uid,
+                    propertyCode: 'company_name',
+                    value: comp.companyName,
+                  },
+                  {
+                    uid: this.propertiesList.find(i => i.propertyCode === 'email')!.uid,
+                    propertyCode: 'email',
+                    value: comp.companyEmail ?? '',
+                  },
+                  {
+                    uid: this.propertiesList.find(i => i.propertyCode === 'website_urlcomp')!.uid,
+                    propertyCode: 'website_url',
+                    value: comp.companyWebsite ?? '',
+                  },
+                  {
+                    uid: this.propertiesList.find(i => i.propertyCode === 'created_date')!.uid,
+                    propertyCode: 'created_date',
+                    value: comp.createdDate!.toString(),
+                  },
+                  {
+                    uid: this.propertiesList.find(i => i.propertyCode === 'last_modified_date')!.uid,
+                    propertyCode: 'last_modified_date',
+                    value: comp.modifiedDate!.toString(),
+                  },
+                  {
+                    uid: this.propertiesList.find(i => i.propertyCode === 'created_by')!.uid,
+                    propertyCode: 'created_by',
+                    value: comp.createdBy ?? "",
+                  },
+                  {
+                    uid: this.propertiesList.find(i => i.propertyCode === 'last_modified_by')!.uid,
+                    propertyCode: 'last_modified_by',
+                    value: comp.modifiedBy ?? "",
+                  },
+                  {
+                    uid: this.propertiesList.find(i => i.propertyCode === 'lead_status')!.uid,
+                    propertyCode: 'lead_status',
+                    value: this.returnLeadStatusLabelFromId(comp.companyLeadStatusId ?? ''),
+                  },
+                  {
+                    uid: this.propertiesList.find(i => i.propertyCode === 'contact_owner')!.uid,
+                    propertyCode: 'contact_owner',
+                    value: comp.companyOwnerUid ?? "",
+                  },
+                );
+
+                if (item.conditionFieldControl.value === 'is_not_known') {
+                  // for properties
+                  if (!proProp.find(p => p.uid === item.property.uid)) {
+                    tempProfileList.push(comp);
+                  }
+                  // for default object like contact owner
+                  else if (!proProp.find(p => p.uid === item.property.uid)?.value) {
+                    tempProfileList.push(comp);
+                  }
+                }
+                else if (item.conditionFieldControl.value === 'not_equal_to') {
+                  if (!proProp.find(p => p.uid === item.property.uid) || !proProp.find(p => p.uid === item.property.uid)?.value.toLowerCase().includes(item.filterFieldControl.value.toString().toLowerCase())) {
+                    tempProfileList.push(comp);
+                  }
+                }
+                else {
+                  proProp.forEach(propData => {
+                    let propValue: any;
+                    let itemValue: any;
+
+                    switch (item.mode) {
+                      case 'date':
+                      case 'datetime':
+                      case 'time':
+                        itemValue = new Date(item.filterFieldControl.value);
+                        propValue = new Date(propData.value);
+                        break;
+                      default:
+                        itemValue = item.filterFieldControl.value;
+                        propValue = propData.value;
+                        break;
+                    }
+
+                    switch (item.conditionFieldControl.value) {
+                      case 'equal_to':
+                        if (propData.uid === item.property.uid && propData.value.toLowerCase().includes(item.filterFieldControl.value.toString().toLowerCase())) {
+                          tempProfileList.push(comp);
+                        }
+                        break;
+                      case 'is_known':
+                        if (propData.uid === item.property.uid && propData.value) {
+                          tempProfileList.push(comp);
+                        }
+                        break;
+                      case 'more_than_equal_to':
+                        if (propData.uid === item.property.uid && propValue >= itemValue) {
+                          tempProfileList.push(comp);
+                        }
+                        break;
+                      case 'less_than_equal_to':
+                        if (propData.uid === item.property.uid && propValue <= itemValue) {
+                          tempProfileList.push(comp);
+                        }
+                        break;
+                      case 'more_than':
+                        if (propData.uid === item.property.uid && propValue > itemValue) {
+                          tempProfileList.push(comp);
+                        }
+                        break;
+                      case 'less_than':
+                        if (propData.uid === item.property.uid && propValue < itemValue) {
+                          tempProfileList.push(comp);
+                        }
+                        break;
+                    }
+                  });
+                }
+              });
+            });
+            this.companyList = [];
+            tempProfileList.forEach(comp => {
+              if (!this.companyList.includes(comp)) {
+                this.companyList.push(comp);
+              }
+            });
+            this.updateLoading('companyWithFilter');
+          }
+          else {
+            this.toastService.addSingle({
+              message: res.responseMessage,
+              severity: 'error'
+            });
+          }
+        });
+      }
     }
   }
 
@@ -1118,7 +1309,10 @@ export class TabPanelPageComponent implements OnChanges {
         resolve(true);
       }
       else {
-        // TODO: this.messageService.add({ severity: 'info', summary: 'Loading', detail: this.translateService.instant('COMMON.DATA_LOADING') });
+        this.toastService.addSingle({
+          message: 'MESSAGE.SOMETHING_WRONG_PROPERTY',
+          severity: 'error'
+        })
         resolve(false);
       }
     });

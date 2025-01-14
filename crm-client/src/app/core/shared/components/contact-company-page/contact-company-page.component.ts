@@ -119,7 +119,7 @@ export class ContactCompanyPageComponent implements OnChanges {
 
   getPanelListFromSetting() {
     if (this.coreService.userC.setting.tableFilter) {
-      this.coreService.userC.setting.tableFilter[this.module === 'CONT' ? 'contact' : 'company']?.propertyFilter.forEach((item: TableDataFilterDto) => {
+      this.coreService.userC.setting.tableFilter[this.module === 'CONT' ? 'contact' : 'company']?.propertyFilter?.forEach((item: TableDataFilterDto) => {
         if (this.panelList.find(p => p.panelUid === item.tabUid) === undefined) {
           this.panelList.push({
             headerLabel: item.tabLabel,
@@ -281,10 +281,6 @@ export class ContactCompanyPageComponent implements OnChanges {
     // this.panel.edit = false;
     let setting = this.coreService.userC.setting;
     if (!this.coreService.userC.setting.tableFilter || !this.coreService.userC.setting.tableFilter[this.module === "CONT" ? "contact" : "company"]?.propertyFilter) {
-      setting.tableFilter = {
-        contact: new TableFilterDto(),
-        company: new TableFilterDto(),
-      };
       setting.tableFilter[this.module === "CONT" ? "contact" : "company"].propertyFilter = [];
       setting.tableFilter[this.module === "CONT" ? "contact" : "company"].columnFilter = [];
     }

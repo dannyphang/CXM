@@ -49,9 +49,7 @@
     </p-tabPanel>
 
     <!-- add tab button -->
-    <p-tabPanel
-      [disabled]="panelList.length >= MAX_PANEL_LIST || getIsPanelLoading()"
-    >
+    <p-tabPanel>
       <ng-template pTemplate="header" class="tw-p-0">
         <app-base-button
           [iconName]="'pi pi-plus'"
