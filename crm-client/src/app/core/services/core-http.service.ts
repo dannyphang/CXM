@@ -178,7 +178,7 @@ export class TenantDto extends BasedDto {
 export class SettingDto {
     darkMode?: boolean;
     defaultTenantId?: string;
-    tableFilter?: {
+    tableFilter: {
         contact: TableFilterDto;
         company: TableFilterDto;
     }
