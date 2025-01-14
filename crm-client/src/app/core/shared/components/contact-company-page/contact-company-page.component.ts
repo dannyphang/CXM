@@ -9,7 +9,7 @@ import { debounceTime, distinctUntilChanged, map, Observable, of } from 'rxjs';
 import { AuthService, CreateUserDto } from '../../../services/auth.service';
 import { CommonService, CompanyDto, ContactDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, PropertyLookupDto, UserCommonDto, WindowSizeDto } from '../../../services/common.service';
 import { BaseDataSourceActionEvent, CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../../../services/components.service';
-import { ROW_PER_PAGE_DEFAULT, ROW_PER_PAGE_DEFAULT_LIST, EMPTY_VALUE_STRING, NUMBER_OF_EXCEL_INSERT_ROW, DOWNLOAD_IMPORT_PROFILE_TEMPLATE_FILE_NAME_XLSX } from '../../constants/common.constants';
+import { ROW_PER_PAGE_DEFAULT, ROW_PER_PAGE_DEFAULT_LIST, EMPTY_VALUE_STRING, NUMBER_OF_EXCEL_INSERT_ROW, DOWNLOAD_IMPORT_PROFILE_TEMPLATE_FILE_NAME_XLSX, MAX_PANEL_LIST } from '../../constants/common.constants';
 import * as XLSX from 'xlsx';
 import { BaseCoreAbstract } from '../../base/base-core.abstract';
 import { ToastService } from '../../../services/toast.service';
@@ -30,6 +30,7 @@ export class ContactCompanyPageComponent implements OnChanges {
   EMPTY_VALUE_STRING = EMPTY_VALUE_STRING;
   NUMBER_OF_EXCEL_INSERT_ROW = NUMBER_OF_EXCEL_INSERT_ROW;
   DOWNLOAD_IMPORT_PROFILE_TEMPLATE_FILE_NAME_XLSX = DOWNLOAD_IMPORT_PROFILE_TEMPLATE_FILE_NAME_XLSX;
+  MAX_PANEL_LIST = MAX_PANEL_LIST;
   module: 'CONT' | 'COMP' = 'CONT';
   contactList: ContactDto[][] = [];
   companyList: CompanyDto[][] = [];
@@ -124,8 +125,10 @@ export class ContactCompanyPageComponent implements OnChanges {
             headerLabel: item.tabLabel,
             closable: true,
             panelUid: item.tabUid,
-            edit: false
+            edit: false,
+            loading: []
           });
+          this.addTabLabelFormArray(item.tabUid);
         }
       });
     }
@@ -134,11 +137,10 @@ export class ContactCompanyPageComponent implements OnChanges {
       this.activeTabPanel = this.panelList[0].panelUid;
     }
     else {
-      this.addTab(true);
+      this.addTab();
     }
 
     this.getProperties();
-    console.log(this.panelList)
   }
 
   returnTabPanelByTabUid(panel: Panel): TableDataFilterDto[] {
@@ -149,7 +151,7 @@ export class ContactCompanyPageComponent implements OnChanges {
     return this.coreService.userC.setting.tableFilter[this.module === 'CONT' ? 'contact' : 'company'].columnFilter.find(p => p.tabUid === panel.panelUid);
   }
 
-  addTab(isNewTab: boolean = true) {
+  addTab() {
     let isBlock = false;
     this.tableLoading.forEach(item => {
       if (item) {
@@ -159,11 +161,13 @@ export class ContactCompanyPageComponent implements OnChanges {
 
     if (!isBlock && this.panelList.length < 5) {
       let newPanelUid: string = this.commonService.generateGUID(10);
+      let date = `${String(new Date().getHours()).padStart(2, '0')}_${String(new Date().getMinutes()).padStart(2, '0')}_${String(new Date().getSeconds()).padStart(2, '0')}`;
       this.panelList.push({
-        headerLabel: 'TEST__' + newPanelUid,
+        headerLabel: "Tab_" + date,
         closable: true,
         panelUid: newPanelUid,
-        edit: false
+        edit: false,
+        loading: []
       });
 
       this.activeTabPanel = newPanelUid;
@@ -172,9 +176,10 @@ export class ContactCompanyPageComponent implements OnChanges {
           tabLabel: this.panelList.find(p => p.panelUid === newPanelUid)!.headerLabel,
           tabUid: newPanelUid,
         }
-      ]
-      console.log(this.panelList)
+      ];
+
       this.updateUserfilterSetting(newFilterList);
+      this.addTabLabelFormArray(newPanelUid);
     }
     else {
       // TODO
@@ -184,6 +189,22 @@ export class ContactCompanyPageComponent implements OnChanges {
       //   detail: this.translateService.instant('COMMON.DATA_LOADING')
       // });
     }
+  }
+
+  get getTabLabelArr(): FormArray {
+    return this.tabLabelArr as FormArray;
+  }
+
+  addTabLabelFormArray(newPanelUid: string) {
+    let newForm = this.formBuilder.group({
+      index: new FormControl(newPanelUid),
+      tabLabel: new FormControl(this.panelList.find(p => p.panelUid === newPanelUid)?.headerLabel)
+    });
+    this.getTabLabelArr.push(newForm);
+  }
+
+  returnTranslate(text: string): string {
+    return this.commonService.translate(text);
   }
 
   getProperties() {
@@ -198,6 +219,9 @@ export class ContactCompanyPageComponent implements OnChanges {
       ],
       isLoading: true
     });
+    this.panelList.forEach(p => {
+      p.loading.push("property");
+    })
     this.commonService.getAllPropertiesByModule(this.module).subscribe(res => {
       if (res.isSuccess) {
         this.modulePropertyList = res.data;
@@ -209,6 +233,9 @@ export class ContactCompanyPageComponent implements OnChanges {
         });
 
         this.toastService.clear();
+        this.panelList.forEach(p => {
+          p.loading = p.loading.filter(pl => pl !== "property");
+        })
       }
       else {
         this.toastService.addSingle({
@@ -225,8 +252,29 @@ export class ContactCompanyPageComponent implements OnChanges {
 
   tabViewOnClose(event: any) {
     this.updateUserfilterSetting([], true, this.panelList[event.index].panelUid);
+    this.updateUserColumnSetting(null, true, this.panelList[event.index].panelUid);
     this.panelList = this.panelList.filter((p, index) => index !== event.index);
     this.activeTabPanel = this.panelList[0].panelUid;
+  }
+
+  updateUserSetting(setting: SettingDto) {
+    let updateUser: CreateUserDto = {
+      uid: this.coreService.userC.uid,
+      setting: setting
+    };
+    this.authService.updateUserFirestore([updateUser]).subscribe(res => {
+      if (res.isSuccess) {
+        this.toastService.addSingle({
+          message: res.responseMessage
+        });
+      }
+      else {
+        this.toastService.addSingle({
+          message: res.responseMessage,
+          severity: 'error'
+        });
+      }
+    });
   }
 
   updateUserfilterSetting(filterList: TableDataFilterDto[], isRemove: boolean = false, removeTabUid: string = '') {
@@ -252,23 +300,18 @@ export class ContactCompanyPageComponent implements OnChanges {
       setting.tableFilter[this.module === "CONT" ? "contact" : "company"].propertyFilter = setting.tableFilter[this.module === "CONT" ? "contact" : "company"].propertyFilter.filter((item) => item.tabUid !== removeTabUid)
     }
 
-    let updateUser: CreateUserDto = {
-      uid: this.coreService.userC.uid,
-      setting: setting
-    };
-    this.authService.updateUserFirestore([updateUser]).subscribe(res => {
-      if (res.isSuccess) {
-        this.toastService.addSingle({
-          message: res.responseMessage
-        });
-      }
-      else {
-        this.toastService.addSingle({
-          message: res.responseMessage,
-          severity: 'error'
-        });
-      }
+    this.updateUserSetting(setting);
+  }
+
+  updateUserFilterRemoveSetting(panel: Panel) {
+    let setting = this.coreService.userC.setting;
+    setting.tableFilter[this.module === "CONT" ? "contact" : "company"].propertyFilter = setting.tableFilter[this.module === "CONT" ? "contact" : "company"].propertyFilter.filter((item) => item.tabUid !== panel.panelUid);
+    setting.tableFilter[this.module === "CONT" ? "contact" : "company"].propertyFilter.push({
+      tabUid: panel.panelUid,
+      tabLabel: panel.headerLabel
     });
+
+    this.updateUserSetting(setting);
   }
 
   updateUserColumnSetting(filterList: TableColumnFilterDto, isRemove: boolean = false, removeTabUid: string = '') {
@@ -312,6 +355,20 @@ export class ContactCompanyPageComponent implements OnChanges {
     });
   }
 
+  updateUserPanelSetting(panel: Panel) {
+    this.panelList.find(p => p.panelUid === panel.panelUid).edit = false;
+    this.panelList.find(p => p.panelUid === panel.panelUid).headerLabel = (this.getTabLabelArr.controls.find((item: any) => item.value.index === panel.panelUid)?.get('tabLabel') as FormControl).value;
+
+    let setting = this.coreService.userC.setting;
+    setting.tableFilter[this.module === "CONT" ? "contact" : "company"].propertyFilter.forEach(pf => {
+      if (pf.tabUid === panel.panelUid) {
+        pf.tabLabel = this.panelList.find(p => p.panelUid === panel.panelUid).headerLabel;
+      }
+    });
+
+    this.updateUserSetting(setting);
+  }
+
   returnActiveIndexPanel(): number {
     return this.panelList.findIndex(p => p.panelUid === this.activeTabPanel);
   }
@@ -320,6 +377,26 @@ export class ContactCompanyPageComponent implements OnChanges {
     if (uid === this.activeTabPanel) {
       this.panelList.find(p => p.panelUid === uid)!.edit = true;
     }
+  }
+
+  getIsPanelLoading(): boolean {
+    let isLoading = false;
+    this.panelList.forEach(p => {
+      p.loading.forEach(pl => {
+        if (pl.length > 0) {
+          isLoading = true;
+        }
+      })
+    })
+    return isLoading;
+  }
+
+  updatePanelLoading(panel: Panel) {
+    this.panelList.find(p => p.panelUid === panel.panelUid).loading = panel.loading;
+  }
+
+  returnTabLabelFormControl(panel: Panel): FormControl {
+    return this.getTabLabelArr.controls.find((item: any) => item.value.index === panel.panelUid)?.get('tabLabel') as FormControl;
   }
 }
 
@@ -337,4 +414,5 @@ export class Panel {
   closable: boolean;
   panelUid: string;
   edit: boolean;
+  loading: string[];
 }

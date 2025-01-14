@@ -40,12 +40,15 @@ export class TabPanelPageComponent implements OnChanges {
   @Input() modulePropertyList: PropertyGroupDto[] = null;
   @Output() tabFilterEmit: EventEmitter<TableDataFilterDto[]> = new EventEmitter<TableDataFilterDto[]>();
   @Output() tabColumnFilterEmit: EventEmitter<TableColumnFilterDto> = new EventEmitter<TableColumnFilterDto>();
+  @Output() tabFilterRemove: EventEmitter<Panel> = new EventEmitter<Panel>();
+  @Output() panelLoadingEmit: EventEmitter<Panel> = new EventEmitter<Panel>();
 
   windowSize: WindowSizeDto = new WindowSizeDto();
   contactList: ContactDto[] = [];
   companyList: CompanyDto[] = [];
   selectedProfile: ContactDto[] | CompanyDto[] = [];
-  tempFilterList: any[] = [];
+  tempFilterList: Filter[] = [];
+  tempColumnList: PropertiesDto[] = [];
   CONTROL_TYPE_CODE = CONTROL_TYPE_CODE;
 
   //#region table
@@ -54,7 +57,6 @@ export class TabPanelPageComponent implements OnChanges {
   columnPropertiesList: PropertiesDto[] = [];
   tableConfig: TableConfigProperty[] = []; // storing the table column properties
   filterMenuModel: MenuItem[] = [];
-  tableLoading: boolean;
   headerKeyMapping: { [header: string]: string } = {};
   isShowFilter: boolean = false;
   isShowTableColumnFilter: boolean = false;
@@ -101,7 +103,19 @@ export class TabPanelPageComponent implements OnChanges {
     }
   }
 
+  updateLoading(updateName: string, isLoading: boolean = false) {
+    if (isLoading) {
+      this.panel.loading.push(updateName);
+    }
+    else {
+      this.panel.loading = this.panel.loading.filter(p => p !== updateName);
+    }
+
+    this.panelLoadingEmit.emit(this.panel);
+  }
+
   getContact() {
+    this.updateLoading('contact', true);
     this.commonService.getAllContact().subscribe((res) => {
       if (res.isSuccess) {
         res.data.forEach(cont => {
@@ -113,6 +127,7 @@ export class TabPanelPageComponent implements OnChanges {
         });
 
         this.contactList = res.data;
+        this.updateLoading('contact');
       }
       else {
         this.toastService.addSingle({
@@ -124,11 +139,19 @@ export class TabPanelPageComponent implements OnChanges {
   }
 
   getCompany() {
-    this.tableLoading = true;
+    this.updateLoading('company', true);
     this.commonService.getAllCompany().subscribe((res) => {
       if (res.isSuccess) {
+        res.data.forEach(comp => {
+          let prop: PropertyDataDto[] = JSON.parse(comp.companyProperties);
+
+          prop.forEach(p => {
+            comp[p.propertyCode] = p.value;
+          });
+        });
+
         this.companyList = res.data;
-        // this.tableLoading = false;
+        this.updateLoading('company');
       }
       else {
         this.toastService.addSingle({
@@ -142,6 +165,7 @@ export class TabPanelPageComponent implements OnChanges {
 
   initCreateFormConfig(): Promise<boolean> {
     return new Promise((resolve, reject) => {
+      this.updateLoading('table', true);
       let createPropCount = 0;
       let formsConfig: FormConfig[] = [];
 
@@ -322,7 +346,7 @@ export class TabPanelPageComponent implements OnChanges {
       this.assignTabFilterList().then(_ => {
         // sort table column
         this.tableConfig = this.tableConfig.sort((a: any, b: any) => a.order - b.order);
-        this.tableLoading = false;
+        this.updateLoading('table');
 
         this.loadTableColumnConfigFromSetting();
         this.returnFilteredProfileList();
@@ -366,9 +390,9 @@ export class TabPanelPageComponent implements OnChanges {
         this.getContact();
       }
       else {
+        this.updateLoading('contactWithFilter', true);
         this.commonService.getAllContact().subscribe(res => {
           if (res.isSuccess) {
-            this.tableLoading = true;
             this.tabFilterList.forEach((item: Filter) => {
               // get state and city uid from input name 
               if (item.property.propertyCode === 'state') {
@@ -548,7 +572,7 @@ export class TabPanelPageComponent implements OnChanges {
                 this.contactList.push(cont);
               }
             });
-            this.tableLoading = false;
+            this.updateLoading('contactWithFilter');
           }
           else {
             this.toastService.addSingle({
@@ -647,17 +671,19 @@ export class TabPanelPageComponent implements OnChanges {
   }
 
   loadTableColumnConfigFromSetting() {
-    this.columnPropertiesList = [];
-    this.tableConfig = this.tableConfig.filter(tc => tc.code === (this.module === 'CONT' ? 'contactProfilePhotoUrl' : 'companyProfilePhotoUrl'));
+    if (this.tableColumnFilter?.propertyUid.length > 0) {
+      this.columnPropertiesList = [];
+      this.tableConfig = this.tableConfig.filter(tc => tc.code === (this.module === 'CONT' ? 'contactProfilePhotoUrl' : 'companyProfilePhotoUrl'));
 
-    this.tableColumnFilter.propertyUid.forEach(tc => {
-      this.tableConfig.push({
-        header: this.propertiesList.find(p => p.uid === tc).propertyName,
-        code: this.bindCode(this.propertiesList.find(p => p.uid === tc).propertyCode),
-        order: this.propertiesList.find(p => p.uid === tc).order,
-        type: this.propertiesList.find(p => p.uid === tc).propertyType
+      this.tableColumnFilter?.propertyUid.forEach(tc => {
+        this.tableConfig.push({
+          header: this.propertiesList.find(p => p.uid === tc).propertyName,
+          code: this.bindCode(this.propertiesList.find(p => p.uid === tc).propertyCode),
+          order: this.propertiesList.find(p => p.uid === tc).order,
+          type: this.propertiesList.find(p => p.uid === tc).propertyType
+        })
       })
-    })
+    }
   }
 
   returnLeadStatusLabelFromId(id: string, showDefault = true): string {
@@ -793,7 +819,7 @@ export class TabPanelPageComponent implements OnChanges {
   exportFile(data: any[]) {
     // Create a workbook and worksheet
     const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet(this.translateService.instant(this.module === 'CONT' ? 'COMMON.CONTACT' : 'COMMON.COMPANY'));
+    const worksheet = workbook.addWorksheet(this.panel.headerLabel);
 
     worksheet.columns = this.propertiesList.map(item => ({
       header: <string>item.propertyName,
@@ -908,7 +934,7 @@ export class TabPanelPageComponent implements OnChanges {
 
     workbook.xlsx.writeBuffer().then((buffer) => {
       const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-      saveAs(blob, 'dropdown-example.xlsx');
+      saveAs(blob, `${this.panel.headerLabel}.xlsx`);
     });
   }
 
@@ -987,7 +1013,7 @@ export class TabPanelPageComponent implements OnChanges {
   downloadTemplate() {
     // Create a workbook and worksheet
     const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet(this.translateService.instant(this.module === 'CONT' ? 'COMMON.CONTACT' : 'COMMON.COMPANY'));
+    const worksheet = workbook.addWorksheet(this.panel.headerLabel);
 
     worksheet.columns = this.createFormConfig.map(item => ({
       header: <string>item.label,
@@ -1086,7 +1112,7 @@ export class TabPanelPageComponent implements OnChanges {
             icon: icon,
           });
 
-          Object.assign(this.tempFilterList, this.tabFilterList);
+          this.tempFilterList = [...this.tabFilterList];
         });
 
         resolve(true);
@@ -1110,6 +1136,11 @@ export class TabPanelPageComponent implements OnChanges {
       }
     });
 
+    // remove the property inside th propertiesList2 when it contains properties that are already inside the columnPropertiesList
+    const uidsSet = new Set(this.columnPropertiesList.map(property => property.uid));
+    this.propertiesList2 = this.propertiesList2.filter(property2 => !uidsSet.has(property2.uid));
+
+    this.propertiesList2.sort((a, b) => a.order - b.order);
     this.tableConfig.sort((a: any, b: any) => a.order - b.order);
   }
 
@@ -1365,12 +1396,9 @@ export class TabPanelPageComponent implements OnChanges {
   }
 
   deleteFilter(prop: PropertiesDto) {
-    this.tabFilterList = this.tabFilterList.filter((item: any) => {
-      item.property === prop
-    });
-    this.tempFilterList = this.tempFilterList.filter((item: any) => {
-      item.property === prop
-    });
+    if (this.tempFilterList.find(tf => tf.property.uid === prop.uid)) {
+      this.tempFilterList = this.tempFilterList.filter((item: any) => item.property.uid !== prop.uid);
+    }
   }
 
   returnFilterProperty(prop: PropertiesDto) {
@@ -1599,7 +1627,7 @@ export class TabPanelPageComponent implements OnChanges {
     this.filterFormGroup.markAllAsTouched();
     this.conditionFormGroup.markAllAsTouched();
 
-    Object.assign(this.tabFilterList, this.tempFilterList);
+    this.tabFilterList = [... this.tempFilterList];
 
     this.returnFilteredProfileList();
 
@@ -1611,6 +1639,11 @@ export class TabPanelPageComponent implements OnChanges {
 
   closeTableColumnFilter() {
     this.isShowTableColumnFilter = false;
+    this.tempColumnFilterList.forEach(tc => {
+      this.propertiesList2.push(tc);
+    });
+
+    this.propertiesList2.sort((a, b) => a.order - b.order);
   }
 
   tableColumnFilterSubmit() {
@@ -1684,7 +1717,12 @@ export class TabPanelPageComponent implements OnChanges {
         tabLabel: this.panel.headerLabel
       })
     });
-    this.tabFilterEmit.emit(filter);
+    if (filter.length === 0) {
+      this.tabFilterRemove.emit(this.panel);
+    }
+    else {
+      this.tabFilterEmit.emit(filter);
+    }
   }
 
   updateTableColumnFilter() {

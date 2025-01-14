@@ -11,7 +11,7 @@
   [paginator]="true"
   [rows]="ROW_PER_PAGE_DEFAULT"
   [rowsPerPageOptions]="ROW_PER_PAGE_DEFAULT_LIST"
-  [loading]="tableLoading"
+  [loading]="panel.loading.length > 0"
   (selectionChange)="tableRowSelect($event)"
 >
   <ng-template pTemplate="caption">

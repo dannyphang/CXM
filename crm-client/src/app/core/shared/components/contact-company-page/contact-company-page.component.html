@@ -10,17 +10,17 @@
       *ngFor="let panel of panelList"
       [closable]="panel.closable && panelList.length > 1"
       [selected]="panel.panelUid === activeTabPanel"
-      [disabled]="tableLoading[activeTabPanel]"
+      [disabled]="getIsPanelLoading()"
     >
       <ng-template pTemplate="header" class="tab-view-header">
         <div class="tw-flex tw-gap-[var(--content-gap)]">
           <div *ngIf="!panel.edit">{{ panel.headerLabel }}</div>
-          <!-- <div *ngIf="panel.edit">
+          <div *ngIf="panel.edit">
             <app-base-input
               [fieldControl]="returnTabLabelFormControl(panel)"
-              (focusout)="updateUserfilterSetting()"
+              (focusout)="updateUserPanelSetting(panel)"
             ></app-base-input>
-          </div> -->
+          </div>
 
           <div class="tw-grid tw-items-center">
             <a (click)="editPanel(panel.panelUid); $event.stopPropagation()"
@@ -39,22 +39,27 @@
           [modulePropertyList]="modulePropertyList"
           (tabFilterEmit)="updateUserfilterSetting($event)"
           (tabColumnFilterEmit)="updateUserColumnSetting($event)"
+          (tabFilterRemove)="updateUserFilterRemoveSetting($event)"
           [tableFilter]="returnTabPanelByTabUid(panel)"
           [tableColumnFilter]="returnColumnFilterByTabUid(panel)"
+          (panelLoadingEmit)="updatePanelLoading($event)"
           *ngIf="propertiesList.length > 0"
         ></app-tab-panel-page>
       </ng-template>
     </p-tabPanel>
 
     <!-- add tab button -->
-    <p-tabPanel [disabled]="tableLoading[activeTabPanel]">
+    <p-tabPanel
+      [disabled]="panelList.length >= MAX_PANEL_LIST || getIsPanelLoading()"
+    >
       <ng-template pTemplate="header" class="tw-p-0">
         <app-base-button
           [iconName]="'pi pi-plus'"
           (click)="addTab(); $event.stopPropagation()"
           styleClass="tw-w-[52px] tw-h-[52px] "
           [isTextStyle]="true"
-          [disabled]="panelList.length >= 5"
+          [disabled]="panelList.length >= MAX_PANEL_LIST && getIsPanelLoading()"
+          [label]="panelList.length + '/' + MAX_PANEL_LIST"
         >
         </app-base-button>
       </ng-template>
