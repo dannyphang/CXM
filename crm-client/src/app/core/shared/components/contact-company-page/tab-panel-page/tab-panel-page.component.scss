@@ -1,0 +1,32 @@
+.filter-content-div {
+  display: grid;
+  grid-template-areas: "filter-right" "filter-left";
+  grid-template-columns: 100%;
+}
+
+.filter-left {
+  padding: 0px;
+}
+
+.filter-right {
+  padding: var(--content-gap) 0 0 0;
+  border: 0px solid var(--primary-color);
+  border-top-width: 1px;
+}
+
+@media (min-width: 640px) {
+  .filter-content-div {
+    grid-template-areas: "filter-left filter-right";
+    grid-template-columns: 50% 50%;
+  }
+
+  .filter-left {
+    padding-right: var(--content-gap);
+  }
+
+  .filter-right {
+    border-top-width: 0;
+    border-left-width: 1px;
+    padding: 0 0 0 var(--content-gap);
+  }
+}

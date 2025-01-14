@@ -13,11 +13,12 @@ export class ToastService {
     ) { }
 
     addSingle(toastConfig: MessageModel) {
+        // Set default values for severity and icon
         switch (toastConfig.severity) {
             case 'success':
             case undefined:
                 toastConfig.severity = 'success';
-                toastConfig.icon = 'pi pi-check'
+                toastConfig.icon = 'pi pi-check';
                 break;
             case 'error':
                 toastConfig.icon = 'pi pi-times-circle';
@@ -26,17 +27,34 @@ export class ToastService {
                 toastConfig.icon = 'pi pi-info-circle';
                 break;
         }
+
+        // Ensure toastConfig.messageData is always defined
+        const messageData = toastConfig.messageData || [];
+
         this.messageService.add({
             severity: toastConfig.severity,
             detail:
                 typeof toastConfig.message === 'string'
                     ? this.translateService.instant(
                         toastConfig.message,
+                        this.loadMessageData(messageData).reduce((acc, cur) => {
+                            acc[cur.label] = cur.value;
+                            return acc;
+                        }, {})
                     ) || toastConfig.message
                     : '',
             key: 'tr',
             sticky: toastConfig.isLoading,
-            icon: toastConfig.isLoading ? "pi pi-spin pi-spinner" : toastConfig.icon,
+            icon: toastConfig.isLoading ? 'pi pi-spin pi-spinner' : toastConfig.icon,
+        });
+    }
+
+    private loadMessageData(data: any[]) {
+        return data.map((i) => {
+            return {
+                label: this.translateService.instant(i.key),
+                value: i.value,
+            };
         });
     }
 

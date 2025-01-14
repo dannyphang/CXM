@@ -15,9 +15,9 @@ export class PermissionGuard extends BaseCoreAbstract implements CanActivate {
         private coreService: CoreHttpService,
         private router: Router,
         private _location: Location,
-        protected override messageService: MessageService
+
     ) {
-        super(messageService);
+        super();
     }
 
     async canActivate(route: ActivatedRouteSnapshot): Promise<boolean | UrlTree> {

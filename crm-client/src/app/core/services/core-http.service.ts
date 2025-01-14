@@ -45,10 +45,21 @@ export class CoreHttpService {
                 this.auth ? onAuthStateChanged(this.auth, (user) => {
                     if (user) {
                         this.user = user;
+                        this.toastService.addSingle({
+                            message: 'COMMON.LOADING',
+                            severity: 'info',
+                            messageData: [
+                                {
+                                    key: 'module',
+                                    value: 'COMMON.USER'
+                                }
+                            ]
+                        })
                         this.getUser(this.user.uid).subscribe(res => {
                             if (res.isSuccess) {
                                 this.userC = res.data;
 
+                                this.toastService.clear();
                                 resolve(this.userC);
                             }
                         })
@@ -133,6 +144,7 @@ export class MessageModel {
     key?: string;
     icon?: string;
     isLoading?: boolean;
+    messageData?: any[];
 }
 
 export class BasedDto {
@@ -166,8 +178,29 @@ export class TenantDto extends BasedDto {
 export class SettingDto {
     darkMode?: boolean;
     defaultTenantId?: string;
-    contactTab?: any;
-    companyTab?: any;
+    tableFilter?: {
+        contact: TableFilterDto;
+        company: TableFilterDto;
+    }
+}
+
+export class TableFilterDto {
+    propertyFilter: TableDataFilterDto[];
+    columnFilter: TableColumnFilterDto[];
+}
+
+export class TableColumnFilterDto {
+    tabUid: string;
+    propertyUid: string[];
+}
+
+export class TableDataFilterDto {
+    propertyUid?: string;
+    filterFieldControlCode?: string;
+    conditionFieldControlCode?: string;
+    mode?: string;
+    tabUid: string;
+    tabLabel: string;
 }
 
 export class PermissionObjDto {

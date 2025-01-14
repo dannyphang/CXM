@@ -25,10 +25,9 @@ export class SettingComponent extends BaseCoreAbstract {
     private authService: AuthService,
     private coreService: CoreHttpService,
     private commonService: CommonService,
-    protected override messageService: MessageService,
     private titleService: Title,
   ) {
-    super(messageService);
+    super();
     this.windowSize = this.commonService.windowSize;
   }
 

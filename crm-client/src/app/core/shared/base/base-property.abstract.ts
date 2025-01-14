@@ -1,10 +1,8 @@
 import { FormGroup, FormControl, FormBuilder } from "@angular/forms";
 import { debounceTime, distinctUntilChanged, map, Observable, of } from "rxjs";
-import { CommonService, CompanyDto, ContactDto, profileUpdateDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, PropertyLookupDto, UpdateCompanyDto, UpdateContactDto, UserDto } from "../../services/common.service";
+import { CommonService, CompanyDto, ContactDto, profileUpdateDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, PropertyLookupDto, UpdateCompanyDto, UpdateContactDto, UserCommonDto } from "../../services/common.service";
 import { FormConfig, CONTROL_TYPE, CONTROL_TYPE_CODE, OptionsModel } from "../../services/components.service";
-import { Input } from "@angular/core";
 import { BaseCoreAbstract } from "./base-core.abstract";
-import { MessageService } from "primeng/api";
 import { AuthService } from "../../services/auth.service";
 import { TranslateService } from "@ngx-translate/core";
 import { ToastService } from "../../services/toast.service";
@@ -30,9 +28,9 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
         protected authService: AuthService,
         protected translateService: TranslateService,
         protected coreService: CoreHttpService,
-        protected override messageService: MessageService,
+
     ) {
-        super(messageService)
+        super()
     }
 
     /**  
@@ -242,7 +240,7 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
                     else if (prop.propertyType === CONTROL_TYPE_CODE.User) {
                         let propertyLookupList: OptionsModel[] = [];
                         prop.propertyLookupList.forEach((item) => {
-                            propertyLookupList.push({ label: `${(item as UserDto).displayName}`, value: item.uid });
+                            propertyLookupList.push({ label: `${(item as UserCommonDto).displayName}`, value: item.uid });
                         });
 
                         forms = {

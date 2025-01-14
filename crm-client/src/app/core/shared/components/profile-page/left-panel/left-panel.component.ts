@@ -64,9 +64,9 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
     protected override translateService: TranslateService,
     protected override toastService: ToastService,
     protected override coreService: CoreHttpService,
-    protected override messageService: MessageService
+
   ) {
-    super(formBuilder, commonService, toastService, authService, translateService, coreService, messageService);
+    super(formBuilder, commonService, toastService, authService, translateService, coreService);
   }
 
   ngOnChanges(changes: SimpleChanges): void {

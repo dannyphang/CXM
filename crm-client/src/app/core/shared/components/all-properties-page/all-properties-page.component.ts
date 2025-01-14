@@ -1,10 +1,9 @@
 import { Component, HostListener, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonService, CompanyDto, ContactDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, PropertyLookupDto, StateDto, UpdateCompanyDto, UpdateContactDto, UserDto, WindowSizeDto } from '../../../services/common.service';
-import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../../../services/components.service';
-import { debounceTime, distinctUntilChanged, map, Observable, ObservableLike, of } from 'rxjs';
+import { CommonService, CompanyDto, ContactDto, PropertiesDto, PropertyGroupDto, WindowSizeDto } from '../../../services/common.service';
+import { FormBuilder, FormControl } from '@angular/forms';
+import { FormConfig } from '../../../services/components.service';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { BasePropertyAbstract } from '../../base/base-property.abstract';
-import { MessageService } from 'primeng/api';
 import { AuthService } from '../../../services/auth.service';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastService } from '../../../services/toast.service';
@@ -36,10 +35,10 @@ export class AllPropertiesPageComponent extends BasePropertyAbstract implements 
     protected override translateService: TranslateService,
     protected override toastService: ToastService,
     protected override coreService: CoreHttpService,
-    protected override messageService: MessageService,
+
 
   ) {
-    super(formBuilder, commonService, toastService, authService, translateService, coreService, messageService);
+    super(formBuilder, commonService, toastService, authService, translateService, coreService);
     this.windowSize = this.commonService.windowSize;
   }
 
