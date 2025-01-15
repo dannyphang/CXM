@@ -122,6 +122,7 @@
               class="tw-flex tw-justify-end tw-mb-[var(--content-gap)] tw-gap-[var(--content-gap)]"
             >
               <app-base-button
+                *ngIf="isIncludedActivity(activityTab, 'LOG')"
                 [outlined]="true"
                 [label]="returnLogActivityLable(activityTab)"
                 class=""
@@ -129,6 +130,7 @@
               ></app-base-button>
 
               <app-base-button
+                *ngIf="isIncludedActivity(activityTab, 'CREATE')"
                 [label]="returnCreateActivityLable(activityTab)"
                 (onClick)="activityCreateButtonOnClick(activityTab)"
               ></app-base-button>

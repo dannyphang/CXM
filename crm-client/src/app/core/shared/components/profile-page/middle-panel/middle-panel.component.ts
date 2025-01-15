@@ -143,4 +143,8 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
   returnSubModuleList(activityTab: ModuleDto): ModuleDto[] {
     return this.subActivityModuleList.filter(a => a.moduleSubCode === activityTab.moduleCode);
   }
+
+  isIncludedActivity(activityTab: ModuleDto, type: string): boolean {
+    return this.subActivityModuleList.some(sam => sam.moduleCode === type && sam.moduleSubCode === activityTab.moduleCode);
+  }
 }
