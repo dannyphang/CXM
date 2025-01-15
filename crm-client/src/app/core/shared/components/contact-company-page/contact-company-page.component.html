@@ -2,8 +2,9 @@
   <p-tabView
     class="contact-company-tab-view"
     (onChange)="tabViewOnChange($event)"
-    (onClose)="tabViewOnClose($event)"
+    (onClose)="showCloseConfirmDialog($event)"
     [activeIndex]="returnActiveIndexPanel()"
+    [controlClose]="true"
     *ngIf="panelList.length > 0"
   >
     <p-tabPanel
@@ -64,3 +65,27 @@
     </p-tabPanel>
   </p-tabView>
 </div>
+
+<p-dialog
+  [(visible)]="closeDialogVisible"
+  [header]="'INPUT.COMFIRMATION' | translate"
+  [modal]="true"
+  styleClass="tw-w-1/2"
+>
+  <ng-template pTemplate="content">
+    <div>{{ "INPUT.CONFIRM_CLOSE" | translate }}</div>
+  </ng-template>
+  <ng-template pTemplate="footer">
+    <div class="tw-flex tw-justify-between">
+      <app-base-button
+        [label]="'BUTTON.CANCEL'"
+        (onClick)="closeDialogVisible = false"
+        [outlined]="true"
+      ></app-base-button>
+      <app-base-button
+        [label]="'BUTTON.CONFIRM'"
+        (onClick)="tabViewOnClose()"
+      ></app-base-button>
+    </div>
+  </ng-template>
+</p-dialog>

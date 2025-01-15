@@ -71,6 +71,16 @@ export class LayoutComponent implements OnInit {
     this.commonService.updateWindowSize();
   }
 
+  @HostListener('window:beforeunload')
+  ngOnDestroy() {
+    this.coreService.getUser(this.user.uid).subscribe(res => {
+      if (res.isSuccess) {
+        this.user = res.data;
+        this.coreService.updateUserLastActiveTime(this.user).subscribe();
+      }
+    })
+  }
+
   initBlobity(isOn: boolean) {
     if (isOn) {
       const options = {

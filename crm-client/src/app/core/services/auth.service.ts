@@ -132,6 +132,10 @@ export class AuthService {
     getAllUserByTenant(tenantId: string): Observable<ResponseModel<UserDto[]>> {
         return this.coreService.get<UserDto[]>('auth/user/tenant/' + tenantId).pipe();
     }
+
+    updateUserLastActiveTime(user: UserDto): Observable<ResponseModel<UserDto>> {
+        return this.coreService.put<UserDto>('/auth/user/userLastActive', { user }).pipe();
+    }
 }
 
 export class CreateUserDto extends BasedDto {

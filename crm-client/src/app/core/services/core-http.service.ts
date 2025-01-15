@@ -55,6 +55,7 @@ export class CoreHttpService {
                                 }
                             ]
                         })
+
                         this.getUser(this.user.uid).subscribe(res => {
                             if (res.isSuccess) {
                                 this.userC = res.data;
@@ -62,13 +63,18 @@ export class CoreHttpService {
                                 this.toastService.clear();
                                 resolve(this.userC);
                             }
-                        })
+                        });
+
                     } else {
                         resolve(null);
                     }
                 }) : resolve(null);
             });
         });
+    }
+
+    updateUserLastActiveTime(user: UserDto): Observable<ResponseModel<UserDto>> {
+        return this.http.put<ResponseModel<UserDto>>(apiConfig.baseUrl + '/auth/user/userLastActive', { user }).pipe();
     }
 
     getUser(userUid: string): Observable<ResponseModel<UserDto>> {
@@ -168,6 +174,7 @@ export class UserDto extends BasedDto {
     roleId: number;
     permission: string;
     setting: SettingDto;
+    lastActiveDateTime: Date;
 }
 
 export class TenantDto extends BasedDto {

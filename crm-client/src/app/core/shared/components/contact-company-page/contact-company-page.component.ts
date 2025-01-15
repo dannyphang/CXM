@@ -45,6 +45,8 @@ export class ContactCompanyPageComponent implements OnChanges {
   panelList: Panel[] = [];
   countryOptionList: OptionsModel[] = [];
   tabLabelArr: FormArray = this.formBuilder.array([]);
+  closeDialogVisible: boolean = false;
+  selectedPanel: number = -1;
 
   canDownload: boolean = false;
   canExport: boolean = false;
@@ -250,11 +252,17 @@ export class ContactCompanyPageComponent implements OnChanges {
     this.activeTabPanel = this.panelList[event.index].panelUid;
   }
 
-  tabViewOnClose(event: any) {
-    this.updateUserfilterSetting([], true, this.panelList[event.index].panelUid);
-    this.updateUserColumnSetting(null, true, this.panelList[event.index].panelUid);
-    this.panelList = this.panelList.filter((p, index) => index !== event.index);
+  tabViewOnClose() {
+    this.updateUserfilterSetting([], true, this.panelList[this.selectedPanel].panelUid);
+    this.updateUserColumnSetting(null, true, this.panelList[this.selectedPanel].panelUid);
+    this.panelList = this.panelList.filter((p, index) => index !== this.selectedPanel);
     this.activeTabPanel = this.panelList[0].panelUid;
+    this.closeDialogVisible = false;
+  }
+
+  showCloseConfirmDialog(event: any) {
+    this.closeDialogVisible = true;
+    this.selectedPanel = event.index;
   }
 
   updateUserSetting(setting: SettingDto) {
