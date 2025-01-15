@@ -88,6 +88,7 @@
     "EXPORT": "Export",
     "ADD": "Add",
     "DELETE": "Delete",
+    "CONFIRM": "Confirm",
     "DOWNLOAD_TEMPLATE": "Download template",
     "ADVANCE_FILTER": "Advance filter ({{numberOfFilter}})",
     "EDIT_COLUMN": "Edit columns ({{numberOfColumn}})",
@@ -115,7 +116,9 @@
     "SELECT": "Select",
     "TO": "To",
     "FROM": "From",
-    "SUBJECT": "Subject"
+    "SUBJECT": "Subject",
+    "COMFIRMATION": "Confirmation",
+    "CONFIRM_CLOSE": "Confirm close?"
   },
   "ACTIVITY": {
     "MODULE": {

@@ -73,7 +73,12 @@ export class LayoutComponent implements OnInit {
 
   @HostListener('window:beforeunload')
   ngOnDestroy() {
-    this.coreService.updateUserLastActiveTime(this.user).subscribe();
+    this.coreService.getUser(this.user.uid).subscribe(res => {
+      if (res.isSuccess) {
+        this.user = res.data;
+        this.coreService.updateUserLastActiveTime(this.user).subscribe();
+      }
+    })
   }
 
   initBlobity(isOn: boolean) {
