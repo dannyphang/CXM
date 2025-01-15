@@ -60,6 +60,7 @@
         (onClick)="imageUploader.click()"
         class=""
         [pTooltip]="'BUTTON.ATTACH_FILE' | translate"
+        *ngIf="checkPermission('update', module, permission, roleId)"
       ></app-base-button>
 
       <app-chip
@@ -72,6 +73,7 @@
       <app-base-button
         [label]="'BUTTON.UPLOAD' | translate"
         (onClick)="imageFileUploadBtn()"
+        *ngIf="checkPermission('update', module, permission, roleId)"
       ></app-base-button>
     </div>
   </div>
@@ -86,7 +88,7 @@
   accept="image/*"
 />
 
-<div class="tw-px-[var(--content-gap)]">
+<div class="">
   <div class="tw-bg-[var(--primary-color-text)]">
     <!-- avatar, username -->
     <div
@@ -203,7 +205,7 @@
 
     <!-- action buttons -->
     <div
-      class="action-btn-div tw-flex tw-flex-wrap tw-w-full tw-justify-between tw-p-[var(--content-gap)] tw-border-solid tw-border-[var(--primary-color)] tw-border-x tw-border-t-0 tw-border-b tw-gap-[var(--content-gap)]"
+      class="action-btn-div tw-flex tw-flex-wrap tw-w-full tw-justify-between tw-p-[var(--content-gap)] tw-border-solid tw-border-[var(--primary-color)] tw-border-x tw-border-t-0 tw-border-b"
     >
       <app-base-button
         [iconName]="'pi pi-file-edit'"
@@ -277,7 +279,11 @@
       "
       class="panel-div"
     >
-      <app-accordion-panel class="profile-panel-div" [iconPos]="'start'">
+      <app-accordion-panel
+        class="profile-panel-div"
+        [iconPos]="'start'"
+        [isExpand]="true"
+      >
         <div acc-panel-header>
           {{ propertyGroup.moduleName }}
         </div>

@@ -1,5 +1,5 @@
-import { Component, EventEmitter, Input, NgZone, OnChanges, OnDestroy, Output, SimpleChanges } from '@angular/core';
-import { AttachmentDto, CommonService, CompanyDto, ContactDto, ModuleDto } from '../../../services/common.service';
+import { Component, EventEmitter, HostListener, Input, NgZone, OnChanges, OnDestroy, Output, SimpleChanges } from '@angular/core';
+import { AttachmentDto, CommonService, CompanyDto, ContactDto, ModuleDto, WindowSizeDto } from '../../../services/common.service';
 import { FormBuilder, FormControl, FormGroup, NgModel, Validators } from '@angular/forms';
 import { CONTROL_TYPE, FormConfig, OptionsModel } from '../../../services/components.service';
 import { ActivityDto, ActivityModuleDto, ActivityService, CreateActivityDto } from '../../../services/activity.service';
@@ -27,6 +27,8 @@ export class ActivityDialogComponent implements OnChanges {
   @Input() activityModuleList: ModuleDto[] = [];
   @Input() header: string = 'Activity Dialog';
   @Output() close: EventEmitter<any> = new EventEmitter<any>();
+
+  windowSize: WindowSizeDto = new WindowSizeDto();
 
   activityControlList: ActivityModuleDto[] = [];
   activityFormConfig: FormConfig[] = [];
@@ -64,7 +66,13 @@ export class ActivityDialogComponent implements OnChanges {
     private toastService: ToastService,
     private coreService: CoreHttpService
   ) {
+    this.windowSize = this.commonService.windowSize;
+  }
 
+  @HostListener('window:resize', ['$event'])
+  onResize() {
+    this.commonService.updateWindowSize();
+    this.windowSize = this.commonService.windowSize;
   }
 
   ngOnInit() {
@@ -208,7 +216,14 @@ export class ActivityDialogComponent implements OnChanges {
           options: this.generateTimeDurations()
         }
       }
-      cols++;
+
+      if (this.windowSize.desktop) {
+        cols++;
+      }
+      else {
+        rows++;
+      }
+
       formsConfig.push(forms);
     });
     this.activityFormConfig = formsConfig;
@@ -403,6 +418,15 @@ export class ActivityDialogComponent implements OnChanges {
     this.attachmentList = this.attachmentList.filter(item => item.name !== file.name)
   }
 
+  convertDateAndTime(date: Date, time: Date) {
+    let newDate = new Date(date);
+    let newTime = new Date(time);
+    newDate.setHours(newTime.getHours());
+    newDate.setMinutes(newTime.getMinutes());
+    newDate.setSeconds(newTime.getSeconds());
+    return newDate;
+  }
+
   save() {
     if (this.activityFormGroup.valid) {
       let createActivity: CreateActivityDto = {
@@ -411,7 +435,7 @@ export class ActivityDialogComponent implements OnChanges {
         activityModuleId: this.activityModule.uid,
         activityContent: this.editorFormControl.value,
         activityContactedIdList: this.activityFormGroup.controls['CONT'].value,
-        activityDatetime: this.activityFormGroup.controls['DATE'].value, // TODO
+        activityDatetime: this.convertDateAndTime(this.activityFormGroup.controls['DATE'].value, this.activityFormGroup.controls['TIME'].value),
         activityDirectionId: this.activityFormGroup.controls['DIRECT'].value,
         activityOutcomeId: this.activityFormGroup.controls['OUTCOME_C'].value || this.activityFormGroup.controls['OUTCOME_M'].value ? this.activityModule.moduleCode === 'CALL' ? this.activityFormGroup.controls['OUTCOME_C'].value : this.activityFormGroup.controls['OUTCOME_M'].value : null,
         activityDuration: this.activityFormGroup.controls['DURAT'].value,
@@ -444,10 +468,10 @@ export class ActivityDialogComponent implements OnChanges {
 
                   this.activityService.uploadAttachment([uploadAttach]).subscribe(res3 => {
                     if (res3.isSuccess) {
-                      this.activityService.updateActivity({
+                      this.activityService.updateActivity([{
                         uid: res3.data[0].activityUid,
                         attachmentUid: this.returnAttactmentList(res.data[0].attachmentUid, res3.data[0].uid),
-                      }).subscribe(
+                      }]).subscribe(
                         {
                           next: res4 => {
                             if (res4.isSuccess) {

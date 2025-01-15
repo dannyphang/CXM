@@ -1,14 +1,13 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
-import { CommonService, CompanyDto, ContactDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, PropertyLookupDto, StateDto, UpdateCompanyDto, UpdateContactDto, UserDto } from '../../../services/common.service';
-import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
-import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../../../services/components.service';
-import { debounceTime, distinctUntilChanged, map, Observable, ObservableLike, of } from 'rxjs';
+import { Component, HostListener, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { CommonService, CompanyDto, ContactDto, PropertiesDto, PropertyGroupDto, WindowSizeDto } from '../../../services/common.service';
+import { FormBuilder, FormControl } from '@angular/forms';
+import { FormConfig } from '../../../services/components.service';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { BasePropertyAbstract } from '../../base/base-property.abstract';
-import { MessageService } from 'primeng/api';
 import { AuthService } from '../../../services/auth.service';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastService } from '../../../services/toast.service';
-import { CoreHttpService } from '../../../services/core-http.service';
+import { CoreHttpService, UserPermissionDto } from '../../../services/core-http.service';
 
 @Component({
   selector: 'app-all-properties-page',
@@ -20,6 +19,9 @@ export class AllPropertiesPageComponent extends BasePropertyAbstract implements 
   @Input() propertyList: PropertyGroupDto[] = [];
   @Input() contactProfile: ContactDto = new ContactDto();
   @Input() companyProfile: CompanyDto = new CompanyDto();
+  @Input() permission: UserPermissionDto[] = [];
+
+  windowSize: WindowSizeDto = new WindowSizeDto();
 
   searchControl: FormControl = new FormControl('');
   hideEmptySearchCheckbox = [{ label: 'Hide blank properties', value: true }];
@@ -32,9 +34,18 @@ export class AllPropertiesPageComponent extends BasePropertyAbstract implements 
     protected override authService: AuthService,
     protected override translateService: TranslateService,
     protected override toastService: ToastService,
-    protected override coreService: CoreHttpService
+    protected override coreService: CoreHttpService,
+
+
   ) {
     super(formBuilder, commonService, toastService, authService, translateService, coreService);
+    this.windowSize = this.commonService.windowSize;
+  }
+
+  @HostListener('window:resize', ['$event'])
+  onResize() {
+    this.commonService.updateWindowSize();
+    this.windowSize = this.commonService.windowSize;
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -48,7 +59,7 @@ export class AllPropertiesPageComponent extends BasePropertyAbstract implements 
               value: c.uid
             }
           });
-          this.initProfileFormConfig(this.propertyList, this.module, this.contactProfile, this.companyProfile);
+          this.initProfileFormConfig(this.propertyList, this.module, this.contactProfile, this.companyProfile, false, this.permission);
           this.checkFormValueChange(this.propertyList);
         }
         else {

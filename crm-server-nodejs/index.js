@@ -1,17 +1,17 @@
 //import { createServer } from "http";
 import express from "express";
-import commonRouter from "./api/common.js";
-import contactRouter from "./api/contact.js";
-import companyRouter from "./api/company.js";
-import activityRouter from "./api/activity.js";
-import locationRouter from "./api/location.js";
-import storageRouter from "./api/storage.js";
-import tokenRouter from "./api/token.js";
-import authRouter from "./api/auth.js";
+import locationController from "./controller/location.controller.js";
+import tokenController from "./controller/token.controller.js";
+import contactController from "./controller/contact.controller.js";
+import companyController from "./controller/company.controller.js";
+import associationController from "./controller/association.controller.js";
+import propertyController from "./controller/property.controller.js";
+import activityController from "./controller/activity.controller.js";
+import attachmentController from "./controller/attachment.controller.js";
+import authController from "./controller/auth.controller.js";
 import cors from "cors";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
-import bodyParser from "body-parser";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -48,14 +48,15 @@ app.use(
   })
 );
 
-app.use("/common", commonRouter);
-app.use("/contact", contactRouter);
-app.use("/company", companyRouter);
-app.use("/activity", activityRouter);
-app.use("/storage", storageRouter);
-app.use("/token", tokenRouter);
-app.use("/auth", authRouter);
-app.use("/location", locationRouter);
+app.use("/contact", contactController);
+app.use("/company", companyController);
+app.use("/association", associationController);
+app.use("/property", propertyController);
+app.use("/activity", activityController);
+app.use("/attachment", attachmentController);
+app.use("/token", tokenController);
+app.use("/auth", authController);
+app.use("/location", locationController);
 
 app.listen(port, () => {
   console.log(`server is running at port: ${port}... (${new Date()})`);

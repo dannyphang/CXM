@@ -8,10 +8,23 @@
     "ACTIVITY": "Activity",
     "TENANT": "Tenant",
     "USER": "User",
-    "PROPERTY": "Property"
+    "PROPERTY": "Property",
+    "RECORDS": "Records",
+    "OTHERS": "Others",
+    "SETTING": "Setting",
+    "ROLE": "Role",
+    "LANGUAGE": "Language"
   },
   "HEADER": {
-    "SETTING": "Setting"
+    "SETTING": "Setting",
+    "SEARCH": "Search",
+    "TENANT": "Tenant",
+    "PROFILE": "Profile",
+    "LANGUAGE": {
+      "CHANGE": "Change Language",
+      "EN": "English",
+      "CN": "Chinese"
+    }
   },
   "ERROR": {
     "YOU_CANNOT_LEAVE_IT_BLANK": "You cannot leave it blank.",
@@ -28,7 +41,12 @@
     "INVALID_DATE_MSG": "Please enter a correct date format.",
     "INVALID_NUMBER_MSG": "Please enter a valid number.",
     "ATTACHMENT_UPDATE_ERROR": "Something wrong with the file.",
-    "NOT_UNIQUE": "{{property}} must be unique."
+    "NOT_UNIQUE": "{{property}} must be unique.",
+    "ERROR": "Error",
+    "NO_PERMISSION_UPDATE": "No permission to update",
+    "NO_PERMISSION_CREATE": "No permission to create",
+    "NO_PERMISSION_DELETE": "No permission to delete",
+    "NO_PERMISSION_VIEW": "No permission to view"
   },
   "MESSAGE": {
     "DELETED_SUCCESSFULLY": "The {{module}}(s) are deleted successfully.",
@@ -49,7 +67,9 @@
     "CREATED_SUCCESSFULLY": "Created successfully.",
     "REMOVING_ASSO": "Removing association...",
     "REMOVING_SUCCESSFUL": "Removed successfully.",
-    "SENDING_EMAIL": "Sending Email"
+    "SENDING_EMAIL": "Sending Email",
+    "PROFILE_NOT_CREATED": "Profile is not created. Please check again.",
+    "SOMETHING_WRONG_PROPERTY": "Something wrong with the property list."
   },
   "BUTTON": {
     "SAVE": "Save",
@@ -58,6 +78,7 @@
     "EDIT": "Edit",
     "UPDATE": "Update",
     "ACTION": "Action",
+    "ACTIONS": "Actions",
     "ATTACH_FILE": "Attach Files",
     "LOGIN": "Login",
     "LOGOUT": "Logout",
@@ -78,7 +99,8 @@
     "TO_Left": "Remove properties from column.",
     "SIGN_UP_LABEL": "Create a new account",
     "SIGN_IN_LABEL": "Go to sign in",
-    "CHECK_USER_EMAIL": "Check email existing"
+    "CHECK_USER_EMAIL": "Check email existing",
+    "FILTER": "Filter"
   },
   "INPUT": {
     "SEARCH": "Search",
@@ -169,6 +191,14 @@
     "OPTIONS_VISIBLE": "Visible",
     "OPTIONS_DEFAULT": "Default",
     "USER_EMAIL": "User email",
-    "ROLE": "Role"
+    "ROLE": "Role",
+    "PROPERTY_MANAGEMENT": "Property Management",
+    "GENERAL_PROFILE": "General Profile",
+    "CREATE_TENANT": "Create tenant",
+    "ASSIGN_ROLE": "Assign role",
+    "ADD_ROLE": "Add role",
+    "TENANT_NAME": "Tenant name",
+    "USER_LIST": "User list",
+    "PERMISSION_LIST": "Permission list"
   }
 }

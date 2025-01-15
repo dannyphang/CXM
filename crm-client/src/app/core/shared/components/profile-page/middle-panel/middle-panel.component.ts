@@ -1,10 +1,9 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
-import { CommonService, CompanyDto, ContactDto, ModuleDto } from '../../../../services/common.service';
+import { CompanyDto, ContactDto, ModuleDto } from '../../../../services/common.service';
 import { FormControl } from '@angular/forms';
 import { ActivityDto, ActivityModuleDto, ActivityService } from '../../../../services/activity.service';
-import { MessageService } from 'primeng/api';
-import { BaseCoreAbstract } from '../../../base/base-core.abstract';
 import { ToastService } from '../../../../services/toast.service';
+import { UserPermissionDto } from '../../../../services/core-http.service';
 
 @Component({
   selector: 'app-middle-panel',
@@ -17,6 +16,7 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
   @Input() contactProfile: ContactDto = new ContactDto();
   @Input() companyProfile: CompanyDto = new CompanyDto();
   @Input() activitiesList: ActivityDto[] = [];
+  @Input() permission: UserPermissionDto[] = [];
   @Output() activityListEmit: EventEmitter<any> = new EventEmitter<any>();
 
   isOpenDialog: boolean = false;

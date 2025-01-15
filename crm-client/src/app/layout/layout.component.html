@@ -3,13 +3,14 @@
     [user]="user"
     [tenantList]="tenantList"
     [tenantOptionsList]="tenantOptionsList"
+    [permission]="permission"
   ></app-header>
   <app-breadcrumb></app-breadcrumb>
   <div *ngIf="tenantOptionsList.length > 0">
     <router-outlet></router-outlet>
   </div>
-  <div class="tw-fixed tw-right-[10px] tw-bottom-[10px]">
+  <!-- <div class="tw-fixed tw-right-[10px] tw-bottom-[10px]">
     <app-toggle-theme (blobityClick)="blobityFunc($event)"></app-toggle-theme>
-  </div>
+  </div> -->
   <app-footer></app-footer>
 </div>

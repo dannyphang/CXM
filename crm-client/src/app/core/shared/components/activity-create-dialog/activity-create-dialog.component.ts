@@ -1,5 +1,5 @@
-import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
-import { ContactDto, CompanyDto, ModuleDto } from '../../../services/common.service';
+import { Component, EventEmitter, HostListener, Input, Output, SimpleChanges } from '@angular/core';
+import { ContactDto, CompanyDto, ModuleDto, WindowSizeDto, CommonService } from '../../../services/common.service';
 import { ActivityService, CreateActivityDto, EmailDto } from '../../../services/activity.service';
 import { ToastService } from '../../../services/toast.service';
 
@@ -15,6 +15,9 @@ export class ActivityCreateDialogComponent {
   @Input() activityModule: ModuleDto = new ModuleDto();
   @Input() visible: boolean = false;
   @Output() close: EventEmitter<any> = new EventEmitter();
+
+  windowSize: WindowSizeDto = new WindowSizeDto();
+
   header: string = '';
 
   // email
@@ -22,9 +25,16 @@ export class ActivityCreateDialogComponent {
 
   constructor(
     private activityService: ActivityService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private commonService: CommonService
   ) {
+    this.windowSize = this.commonService.windowSize;
+  }
 
+  @HostListener('window:resize', ['$event'])
+  onResize() {
+    this.commonService.updateWindowSize();
+    this.windowSize = this.commonService.windowSize;
   }
 
   ngOnInit() {

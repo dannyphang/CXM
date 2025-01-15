@@ -15,4 +15,12 @@ function body(data) {
     };
 }
 
-export { responseModel, body };
+function convertFirebaseDateFormat(date) {
+    try {
+        return date ? date.toDate() : date;
+    } catch {
+        return;
+    }
+}
+
+export { responseModel, body, convertFirebaseDateFormat };

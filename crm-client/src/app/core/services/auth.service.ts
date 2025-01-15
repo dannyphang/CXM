@@ -13,7 +13,7 @@ import {
 import { CommonService } from "./common.service";
 import apiConfig from "../../../environments/apiConfig";
 import { Observable } from "rxjs";
-import { BasedDto, CoreHttpService, ResponseModel, TenantDto, UserDto } from "./core-http.service";
+import { BasedDto, CoreHttpService, ResponseModel, RoleDto, SettingDto, TenantDto, UserDto, UserPermissionDto } from "./core-http.service";
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -27,12 +27,16 @@ export class AuthService {
 
     }
 
-    initAuth() {
-        this.coreService.getEnvToken().subscribe(res => {
-            this.app = initializeApp(res);
-            this.auth = getAuth(this.app);
-            this.coreService.getCurrentUser();
-        })
+    initAuth(): Promise<UserDto> {
+        return new Promise((resolve, reject) => {
+            this.coreService.getEnvToken().subscribe(res => {
+                this.app = initializeApp(res);
+                this.auth = getAuth(this.app);
+                this.coreService.getCurrentUser().then(user => {
+                    resolve(user);
+                });
+            })
+        });
     }
 
     signUp(email: string, password: string) {
@@ -120,6 +124,14 @@ export class AuthService {
     setUserRoleAndTenant(updateList: UpdateUserRoleDto[]): Observable<ResponseModel<any>> {
         return this.coreService.put<any>('auth/userRole/update', { updateList }).pipe();
     }
+
+    returnPermission(pString: string): UserPermissionDto[] {
+        return JSON.parse(pString ?? '[]');
+    }
+
+    getAllUserByTenant(tenantId: string): Observable<ResponseModel<UserDto[]>> {
+        return this.coreService.get<UserDto[]>('auth/user/tenant/' + tenantId).pipe();
+    }
 }
 
 export class CreateUserDto extends BasedDto {
@@ -131,16 +143,9 @@ export class CreateUserDto extends BasedDto {
     email?: string;
     phoneNumber?: string;
     uid: string;
-    defaultTenantId?: string;
     roleId?: number;
-}
-
-export class RoleDto extends BasedDto {
-    uid: string;
-    roleId: number;
-    roleName: string;
-    roleCode: string;
-    permission: string;
+    permission?: string;
+    setting?: SettingDto;
 }
 
 export class UpdateUserRoleDto {

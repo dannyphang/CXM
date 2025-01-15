@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, NgZone, Output, SimpleChanges } from '@angular/core';
-import { ContactDto, CompanyDto } from '../../../../../services/common.service';
+import { ContactDto, CompanyDto, CommonService, WindowSizeDto } from '../../../../../services/common.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { CONTROL_TYPE, FormConfig, OptionsModel } from '../../../../../services/components.service';
 import { EmailDto } from '../../../../../services/activity.service';
@@ -15,6 +15,8 @@ export class EmailComponent {
   @Input() companyProfile: CompanyDto = new CompanyDto();
   @Input() module: "CONT" | "COMP" = "CONT";
   @Output() emailValueEmit: EventEmitter<EmailDto> = new EventEmitter<EmailDto>();
+
+  windowSize: WindowSizeDto = new WindowSizeDto();
 
   createEmailFormGroup: FormGroup = new FormGroup({
     toEmail: new FormControl([], Validators.required),
@@ -40,9 +42,10 @@ export class EmailComponent {
 
   constructor(
     private ngZone: NgZone,
-    private coreHTTPService: CoreHttpService
-
+    private coreHTTPService: CoreHttpService,
+    private commonService: CommonService
   ) {
+    this.windowSize = this.commonService.windowSize;
 
   }
 
@@ -134,8 +137,8 @@ export class EmailComponent {
         fieldControl: this.createEmailFormGroup.controls['fromEmail'],
         type: CONTROL_TYPE.Textbox,
         layoutDefine: {
-          row: 0,
-          column: 1
+          row: this.windowSize.desktop ? 0 : 1,
+          column: this.windowSize.desktop ? 1 : 0
         },
         mode: 'email',
         disabled: true,
@@ -145,7 +148,7 @@ export class EmailComponent {
         fieldControl: this.createEmailFormGroup.controls['subject'],
         type: CONTROL_TYPE.Textbox,
         layoutDefine: {
-          row: 1,
+          row: this.windowSize.desktop ? 1 : 2,
           column: 0
         },
       },

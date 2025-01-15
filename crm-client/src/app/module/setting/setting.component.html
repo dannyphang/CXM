@@ -4,21 +4,25 @@
   <div
     class="tw-p-[var(--content-gap)] setting-left-container"
     id="setting_left"
+    *ngIf="windowSize.desktop"
   >
     <p-menu [model]="settingMenuItem" id="setting_menu_panel"> </p-menu>
   </div>
 
   <div class="setting-content">
     <div class="general-content" id="general">
-      <app-general></app-general>
+      <app-general [permission]="permission" [module]="module"></app-general>
+      <p-divider></p-divider>
     </div>
 
     <div class="team-content" id="team" *ngIf="userC?.roleId === 1">
-      <app-team></app-team>
+      <app-team [permission]="permission"></app-team>
+      <p-divider></p-divider>
     </div>
 
     <div class="prpperty-content" id="property">
-      <app-setting-property></app-setting-property>
+      <app-setting-property [permission]="permission"></app-setting-property>
+      <p-divider></p-divider>
     </div>
   </div>
 </div>

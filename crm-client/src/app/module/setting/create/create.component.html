@@ -47,42 +47,55 @@
   accept="image/*"
 />
 
-<div
-  class="avatar-div"
-  (mouseenter)="isAvatarEdit = true"
-  (mouseleave)="isAvatarEdit = false"
->
-  <app-base-button
-    [iconName]="'pi pi-file-edit'"
-    [buttonClass]="'avatar-edit'"
-    *ngIf="isAvatarEdit"
-    [rounded]="true"
-    [isTextStyle]="true"
-    (onClick)="editPic()"
-    [pTooltip]="'PROFILE.AVATAR_EDIT' | translate"
-  ></app-base-button>
-  <p-avatar
-    *ngIf="!profilePhotoUrl"
-    [icon]="'pi pi-user'"
-    styleClass="tw-w-[200px] tw-h-[200px]"
-    [ngClass]="isAvatarEdit ? 'tw-opacity-[0.5]' : 'tw-opacity-[1]'"
-    shape="circle"
-    data-blobity-magnetic="true"
-  />
-  <p-avatar
-    *ngIf="profilePhotoUrl"
-    [image]="profilePhotoUrl"
-    styleClass="tw-w-[200px] tw-h-[200px]"
-    [ngClass]="isAvatarEdit ? 'tw-opacity-[0.5]' : 'tw-opacity-[1]'"
-    shape="circle"
-    data-blobity-magnetic="true"
-  />
-</div>
-<app-base-form [formConfig]="createFormConfig"></app-base-form>
+<div>
+  <h2 class="tw-text-[var(--text-color)]">
+    {{ "SETTING.GENERAL_PROFILE" | translate }}
+  </h2>
 
-<div class="tw-m-[var(--content-gap)]">
-  <app-base-button
-    [label]="'BUTTON.UPDATE' | translate"
-    (onClick)="update()"
-  ></app-base-button>
+  <div
+    class="avatar-div"
+    (mouseenter)="isAvatarEdit = true"
+    (mouseleave)="isAvatarEdit = false"
+  >
+    <app-base-button
+      [iconName]="'pi pi-file-edit'"
+      [buttonClass]="'avatar-edit'"
+      *ngIf="isAvatarEdit"
+      [rounded]="true"
+      [isTextStyle]="true"
+      (onClick)="editPic()"
+      [pTooltip]="'PROFILE.AVATAR_EDIT' | translate"
+    ></app-base-button>
+    <p-avatar
+      *ngIf="!profilePhotoUrl"
+      [icon]="'pi pi-user'"
+      styleClass="tw-w-[200px] tw-h-[200px]"
+      [ngClass]="isAvatarEdit ? 'tw-opacity-[0.5]' : 'tw-opacity-[1]'"
+      shape="circle"
+      data-blobity-magnetic="true"
+    />
+    <p-avatar
+      *ngIf="profilePhotoUrl"
+      [image]="profilePhotoUrl"
+      styleClass="tw-w-[200px] tw-h-[200px]"
+      [ngClass]="isAvatarEdit ? 'tw-opacity-[0.5]' : 'tw-opacity-[1]'"
+      shape="circle"
+      data-blobity-magnetic="true"
+    />
+  </div>
+  <app-base-form [formConfig]="createFormConfig"></app-base-form>
+
+  <div
+    class="tw-m-[var(--content-gap)] tw-mt-0 tw-flex tw-gap-[var(--content-gap)] tw-justify-between"
+  >
+    <app-base-button
+      [label]="'BUTTON.CANCEL' | translate"
+      (onClick)="getCurrentUser()"
+    ></app-base-button>
+
+    <app-base-button
+      [label]="'BUTTON.UPDATE' | translate"
+      (onClick)="update()"
+    ></app-base-button>
+  </div>
 </div>

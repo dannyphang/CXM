@@ -24,3 +24,5 @@ export const EMAIL_REGEX = new RegExp(/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.
 export const URL_REGEX = new RegExp(/^(https?:\/\/)?(www\.)?([a-zA-Z0-9]+(\.[a-zA-Z]{2,})+)(:[0-9]{1,5})?(\/[^\s]*)?$/);
 
 export const DOWNLOAD_IMPORT_PROFILE_TEMPLATE_FILE_NAME_XLSX = 'template_example.xlsx';
+
+export const MAX_PANEL_LIST = 5;

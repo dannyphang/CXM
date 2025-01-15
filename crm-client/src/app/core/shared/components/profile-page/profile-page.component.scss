@@ -19,6 +19,24 @@
       border-width: 0;
     }
   }
+
+  .profile-tab-view
+    > .p-tabview
+    > .p-tabview-nav-container
+    > .p-tabview-nav-content
+    > ul
+    > li,
+  .profile-tab-view
+    > .p-tabview
+    > .p-tabview-nav-container
+    > .p-tabview-nav-content
+    > ul
+    > li
+    > a {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
 }
 
 .panel-right-pos-on {

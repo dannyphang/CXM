@@ -1,16 +1,14 @@
 import { FormGroup, FormControl, FormBuilder } from "@angular/forms";
 import { debounceTime, distinctUntilChanged, map, Observable, of } from "rxjs";
-import { CommonService, CompanyDto, ContactDto, profileUpdateDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, PropertyLookupDto, UpdateCompanyDto, UpdateContactDto, UserDto } from "../../services/common.service";
+import { CommonService, CompanyDto, ContactDto, profileUpdateDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, PropertyLookupDto, UpdateCompanyDto, UpdateContactDto, UserCommonDto } from "../../services/common.service";
 import { FormConfig, CONTROL_TYPE, CONTROL_TYPE_CODE, OptionsModel } from "../../services/components.service";
-import { Input } from "@angular/core";
 import { BaseCoreAbstract } from "./base-core.abstract";
-import { MessageService } from "primeng/api";
 import { AuthService } from "../../services/auth.service";
 import { TranslateService } from "@ngx-translate/core";
 import { ToastService } from "../../services/toast.service";
-import { CoreHttpService } from "../../services/core-http.service";
+import { CoreHttpService, UserPermissionDto } from "../../services/core-http.service";
 
-export abstract class BasePropertyAbstract {
+export abstract class BasePropertyAbstract extends BaseCoreAbstract {
     profileFormGroup: FormGroup = new FormGroup({});
     initProfileFormGroup: FormGroup = new FormGroup({});
     countryFormId: string = "";
@@ -29,15 +27,16 @@ export abstract class BasePropertyAbstract {
         protected toastService: ToastService,
         protected authService: AuthService,
         protected translateService: TranslateService,
-        protected coreService: CoreHttpService
-    ) {
+        protected coreService: CoreHttpService,
 
+    ) {
+        super()
     }
 
     /**  
       initial property form
     **/
-    initProfileFormConfig(propertyList: PropertyGroupDto[], module: 'CONT' | 'COMP', contactProfile: ContactDto, companyProfile: CompanyDto, isLeftPanel = false) {
+    initProfileFormConfig(propertyList: PropertyGroupDto[], module: 'CONT' | 'COMP', contactProfile: ContactDto, companyProfile: CompanyDto, isLeftPanel: boolean, permission: UserPermissionDto[]) {
         let propCount = 0;
 
         this.profileFormGroup = this.formBuilder.group({});
@@ -46,7 +45,7 @@ export abstract class BasePropertyAbstract {
             let formsConfig: FormConfig[] = [];
             item.propertiesList.forEach(prop => {
                 let propProfileValue = this.returnProfileValue(prop, module, contactProfile, companyProfile);
-                let control = new FormControl(propProfileValue ? propProfileValue : this.commonService.returnControlTypeEmptyValue(prop));
+                let control = new FormControl({ value: propProfileValue ? propProfileValue : this.commonService.returnControlTypeEmptyValue(prop), disabled: !this.checkPermission('update', module, permission, this.coreService.userC.roleId) || !prop.isEditable });
 
                 this.profileFormGroup.addControl(prop.propertyCode, control);
 
@@ -241,7 +240,7 @@ export abstract class BasePropertyAbstract {
                     else if (prop.propertyType === CONTROL_TYPE_CODE.User) {
                         let propertyLookupList: OptionsModel[] = [];
                         prop.propertyLookupList.forEach((item) => {
-                            propertyLookupList.push({ label: `${(item as UserDto).displayName}`, value: item.uid });
+                            propertyLookupList.push({ label: `${(item as UserCommonDto).displayName}`, value: item.uid });
                         });
 
                         forms = {

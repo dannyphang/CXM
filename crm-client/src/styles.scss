@@ -37,9 +37,13 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+a {
+  cursor: pointer;
+}
+
 /* width */
 ::-webkit-scrollbar {
-  width: 10px;
+  // width: 2px;
 }
 
 /* Track */

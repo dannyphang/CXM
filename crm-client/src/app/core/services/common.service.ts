@@ -4,23 +4,75 @@ import { CONTROL_TYPE_CODE } from "./components.service";
 import { TranslateService } from "@ngx-translate/core";
 import { BasedDto, CoreHttpService, ResponseModel } from "./core-http.service";
 import { ToastService } from "./toast.service";
+import { HttpClient } from "@angular/common/http";
+import { MessageService } from "primeng/api";
 
 @Injectable({ providedIn: 'root' })
 export class CommonService {
+    language: string = 'en';
+    windowSize: WindowSizeDto = new WindowSizeDto();
+
     constructor(
-        private translateService: TranslateService,
+        private http: HttpClient,
+        private messageService: MessageService,
         private coreService: CoreHttpService,
         private toastService: ToastService,
+        private translateService: TranslateService,
     ) {
-
     }
 
-    generateGUID(): string {
-        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-            var r = Math.random() * 16 | 0,
-                v = c === 'x' ? r : (r & 0x3 | 0x8);
-            return v.toString(16);
-        });
+    set setWindowSize(windowSize: WindowSizeDto) {
+        this.windowSize = windowSize;
+    }
+
+    updateWindowSize() {
+        if (window.innerWidth <= 640) {
+            this.setWindowSize = {
+                mobile: true,
+                tablet: false,
+                desktop: false
+            };
+        }
+        else if (window.innerWidth > 640 && window.innerWidth <= 768) {
+            this.setWindowSize = {
+                mobile: false,
+                tablet: true,
+                desktop: false
+            };
+        }
+        else {
+            this.setWindowSize = {
+                mobile: false,
+                tablet: false,
+                desktop: true
+            };
+        }
+    }
+
+    getEnvToken(): Observable<any> {
+        return this.http.get<any>(apiConfig.baseUrl + '/token').pipe();
+    }
+
+    setLanguage(lang: string) {
+        this.language = lang;
+    }
+
+    getLanguage(): string {
+        return this.language;
+    }
+
+    generateGUID(stringLength: number) {
+        let result = '';
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        const charactersLength = characters.length;
+        for (let i = 0; i < stringLength; i++) {
+            result += characters.charAt(Math.floor(Math.random() * charactersLength));
+        }
+        return result;
+    }
+
+    popMessage(message: string, title: string, severity: string = 'success',) {
+        this.messageService.add({ severity: severity, summary: title, detail: message });
     }
 
     getAllContact(): Observable<ResponseModel<ContactDto[]>> {
@@ -43,15 +95,11 @@ export class CommonService {
         return this.coreService.put<ContactDto>('contact/delete', { contactList }).pipe();
     }
 
-    getAllProperties(): Observable<ResponseModel<PropertiesDto[]>> {
-        return this.coreService.get<PropertiesDto[]>('common/properties').pipe();
-    }
-
     getAllModuleByModuleType(moduleType: string): Observable<ResponseModel<ModuleDto[]>> {
         let headers = {
             'moduleType': moduleType,
         }
-        return this.coreService.get<ModuleDto[]>('common/moduleCode/moduleType', {
+        return this.coreService.get<ModuleDto[]>('property/moduleCode/moduleType', {
             header: headers
         }).pipe();
     }
@@ -60,7 +108,7 @@ export class CommonService {
         let headers = {
             'submoduleCode': submoduleCode ?? '',
         }
-        return this.coreService.get<ModuleDto[]>('common/moduleCode/subModule/code', {
+        return this.coreService.get<ModuleDto[]>('property/moduleCode/subModule/code', {
             header: headers
         }).pipe();
     }
@@ -69,38 +117,29 @@ export class CommonService {
         let headers = {
             'moduleCode': module,
         }
-        return this.coreService.get<PropertyGroupDto[]>('common/properties/module', {
-            header: headers
-        }).pipe();
-    }
-
-    getAllCreateFormPropertiesByModule(module: string): Observable<ResponseModel<PropertyGroupDto[]>> {
-        let headers = {
-            'moduleCode': module
-        }
-        return this.coreService.get<PropertyGroupDto[]>('common/properties/module/create', {
+        return this.coreService.get<PropertyGroupDto[]>('property/properties/module', {
             header: headers
         }).pipe();
     }
 
     createProperties(properties: CreatePropertyDto[]): Observable<ResponseModel<PropertiesDto[]>> {
-        return this.coreService.post<PropertiesDto[]>('common/properties', properties).pipe();
+        return this.coreService.post<PropertiesDto[]>('property/properties', properties).pipe();
     }
 
     createPropertyLookup(lookup: CreatePropertyLookupDto[]): Observable<ResponseModel<PropertyLookupDto[]>> {
-        return this.coreService.post<PropertyLookupDto[]>('common/propertiesLookup', lookup).pipe();
+        return this.coreService.post<PropertyLookupDto[]>('property/propertiesLookup', lookup).pipe();
     }
 
     updateProperties(properties: UpdatePropertyDto[], userUid: string): Observable<ResponseModel<any[]>> {
-        return this.coreService.put<any[]>('common/properties/update', { properties, user: userUid }).pipe();
+        return this.coreService.put<any[]>('property/properties/update', { properties, user: userUid }).pipe();
     }
 
     updatePropertiesLookup(lookup: UpdatePropertyLookupDto[], userUid: string): Observable<ResponseModel<any[]>> {
-        return this.coreService.put<any[]>('common/propertiesLookup/update', { lookup, user: userUid }).pipe();
+        return this.coreService.put<any[]>('property/propertiesLookup/update', { lookup, user: userUid }).pipe();
     }
 
     deleteProperty(propertyList: PropertiesDto[], userUid: string): Observable<ResponseModel<any>> {
-        return this.coreService.put<any>('common/properties/delete', { propertyList, user: userUid }).pipe();
+        return this.coreService.put<any>('property/properties/delete', { propertyList, user: userUid }).pipe();
     }
 
     uploadFile(file: File, folderName: string): Observable<ResponseModel<any>> {
@@ -109,13 +148,12 @@ export class CommonService {
         formData.append('file', file);
         formData.append('folderName', folderName);
 
-        return this.coreService.post<any>('storage/file', formData, {
-            header: {
-                reportProgress: true,
-                responseType: 'json'
-            }
+        return this.coreService.post<any, FormData>('attachment/file', formData, {
+            reportProgress: true,
+            responseType: 'json',
         }).pipe();
     }
+
 
     /**
      * set form control init value
@@ -186,7 +224,7 @@ export class CommonService {
     }
 
     createAssociation(asso: CreateAssociationDto): Observable<ResponseModel<any>> {
-        return this.coreService.post<any>('common/asso', { asso }).pipe();
+        return this.coreService.post<any>('association/add', { asso }).pipe();
     }
 
     translate(text: string): string {
@@ -223,12 +261,7 @@ export class CommonService {
             uid: uid,
             assoUid: assoUid
         }
-        if (module === 'CONT') {
-            return this.coreService.put<any>('contact/removeAsso', { data }).pipe();
-        }
-        else {
-            return this.coreService.put<any>('company/removeAsso', { data }).pipe();
-        }
+        return this.coreService.put<any>('association/removeAsso', { data }).pipe();
     }
 
     checkPropertyUnique(module: 'CONT' | 'COMP', propertyList: PropertiesDto[], propertyDataList: PropertyDataDto[]): Promise<boolean> {
@@ -238,7 +271,7 @@ export class CommonService {
                 propertyList: propertyList,
                 propertyDataList: propertyDataList
             }
-            this.coreService.post<PropertyDataDto[]>('common/checkUnique', { data }).pipe().subscribe(res => {
+            this.coreService.post<PropertyDataDto[]>('property/checkUnique', { data }).pipe().subscribe(res => {
                 if (res.isSuccess) {
                     resolve(true);
                 }
@@ -257,6 +290,12 @@ export class CommonService {
             });
         });
     }
+}
+
+export class WindowSizeDto {
+    mobile: boolean;
+    tablet: boolean;
+    desktop: boolean;
 }
 
 export class ModuleDto extends BasedDto {
@@ -290,7 +329,7 @@ export class PropertiesDto extends BasedDto {
     moduleCat: string;
     moduleCode: string;
     order: number;
-    propertyLookupList: PropertyLookupDto[] | UserDto[];
+    propertyLookupList: PropertyLookupDto[] | UserCommonDto[];
     minLength?: number;
     maxLength?: number;
     minValue?: number;
@@ -400,7 +439,7 @@ export class CreateAssociationDto {
     profileUid: string;
 }
 
-export class UserDto {
+export class UserCommonDto {
     uid: string;
     displayName: string;
     email: string;

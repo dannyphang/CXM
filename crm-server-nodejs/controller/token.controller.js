@@ -1,7 +1,6 @@
 import { Router } from "express";
-import express from "express";
 const router = Router();
-import config from "../config.js";
+import config from "../configuration/config.js";
 
 // get token
 router.get("/", async (req, res) => {

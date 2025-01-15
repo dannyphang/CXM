@@ -1,17 +1,15 @@
 import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
-import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder } from '@angular/forms';
 import { NavigationExtras, Router } from '@angular/router';
-import { MessageService } from 'primeng/api';
-import { CommonService, CompanyDto, ContactDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, PropertyLookupDto, UpdateCompanyDto, UpdateContactDto } from '../../../../services/common.service';
-import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../../../../services/components.service';
-import { debounceTime, distinctUntilChanged, map, Observable, of } from 'rxjs';
+import { CommonService, CompanyDto, ContactDto, PropertiesDto, PropertyGroupDto, UpdateCompanyDto, UpdateContactDto } from '../../../../services/common.service';
 import { StorageService } from '../../../../services/storage.service';
 import { DEFAULT_PROFILE_PIC_URL } from '../../../constants/common.constants';
 import { BasePropertyAbstract } from '../../../base/base-property.abstract';
 import { AuthService } from '../../../../services/auth.service';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastService } from '../../../../services/toast.service';
-import { CoreHttpService } from '../../../../services/core-http.service';
+import { CoreHttpService, UserPermissionDto } from '../../../../services/core-http.service';
+import { MessageService } from 'primeng/api';
 
 @Component({
   selector: 'app-left-panel',
@@ -23,6 +21,7 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
   @Input() module: 'CONT' | 'COMP' = 'CONT';
   @Input() contactProfile: ContactDto = new ContactDto();
   @Input() companyProfile: CompanyDto = new CompanyDto();
+  @Input() permission: UserPermissionDto[] = [];
   @Output() profileUpdateEmit: EventEmitter<any> = new EventEmitter<any>();
 
   actionMenu: any[] = [
@@ -34,7 +33,8 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
           state: {
             data: this.propertiesList,
             profile: this.module === 'CONT' ? this.contactProfile : this.companyProfile,
-            module: this.module
+            module: this.module,
+            permission: this.permission
           }
         };
 
@@ -53,6 +53,7 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
   profilePhotoFile: File | null;
   profilePhotoFileBlob: Blob;
   profileImg: string = DEFAULT_PROFILE_PIC_URL;
+  roleId: number = 0;
 
   constructor(
     private router: Router,
@@ -62,7 +63,8 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
     protected override authService: AuthService,
     protected override translateService: TranslateService,
     protected override toastService: ToastService,
-    protected override coreService: CoreHttpService
+    protected override coreService: CoreHttpService,
+
   ) {
     super(formBuilder, commonService, toastService, authService, translateService, coreService);
   }
@@ -72,7 +74,7 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
       this.propertiesList = changes['propertiesList'].currentValue;
 
       if (this.contactProfile || this.companyProfile) {
-        this.initProfileFormConfig(this.propertiesList, this.module, this.contactProfile, this.companyProfile, true);
+        this.initProfileFormConfig(this.propertiesList, this.module, this.contactProfile, this.companyProfile, true, this.permission);
       }
 
       this.checkFormValueChange(this.propertiesList);
@@ -80,7 +82,7 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
 
     if (changes['contactProfile'] && changes['contactProfile'].currentValue) {
       if (this.propertiesList) {
-        this.initProfileFormConfig(this.propertiesList, this.module, this.contactProfile, this.companyProfile, true);
+        this.initProfileFormConfig(this.propertiesList, this.module, this.contactProfile, this.companyProfile, true, this.permission);
       }
       if (this.contactProfile.contactProfilePhotoUrl) {
         this.profileImg = this.contactProfile.contactProfilePhotoUrl;
@@ -91,7 +93,7 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
 
     if (changes['companyProfile'] && changes['companyProfile'].currentValue) {
       if (this.propertiesList) {
-        this.initProfileFormConfig(this.propertiesList, this.module, this.contactProfile, this.companyProfile, true);
+        this.initProfileFormConfig(this.propertiesList, this.module, this.contactProfile, this.companyProfile, true, this.permission);
       }
       if (this.companyProfile.companyProfilePhotoUrl) {
         this.profileImg = this.companyProfile.companyProfilePhotoUrl;
@@ -118,6 +120,7 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
         });
       }
     });
+    this.roleId = this.coreService.userC.roleId;
 
   }
 
