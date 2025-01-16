@@ -68,13 +68,14 @@ function getAttachmentByProfileId({ module, profileUid }) {
   });
 }
 
-function removeAttachment({ attachmentList }) {
+function removeAttachment({ attachmentList, userId }) {
   return new Promise(async (resolve, reject) => {
     try {
       let list = [];
       attachmentList.forEach((a, index) => {
         a.statusId = 2;
         a.modifiedDate = new Date();
+        a.modifiedBy = userId;
 
         attachmentRepo.updateAttachment({ attachment: a }).then((al) => {
           list.push(al);

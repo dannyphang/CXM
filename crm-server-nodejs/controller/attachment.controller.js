@@ -92,9 +92,13 @@ router.get("/", async (req, res) => {
 router.put("/remove", async (req, res) => {
   try {
     const attachmentList = func.body(req).data.attachmentList;
-    attachmentImp.removeAttachment({ attachmentList: attachmentList }).then((data) => {
-      res.status(200).json(func.responseModel({ data: data }));
-    });
+    const userId = func.body(req).userId;
+
+    attachmentImp
+      .removeAttachment({ attachmentList: attachmentList, userId: userId })
+      .then((data) => {
+        res.status(200).json(func.responseModel({ data: data }));
+      });
   } catch (error) {
     console.log(error);
     func.responseModel({
