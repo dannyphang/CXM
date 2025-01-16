@@ -8,65 +8,104 @@ import multer from "multer";
 router.use(express.json());
 
 const upload = multer({
-    storage: multer.memoryStorage(),
-    limits: { fieldSize: 25 * 1024 * 1024 },
+  storage: multer.memoryStorage(),
+  limits: { fieldSize: 25 * 1024 * 1024 },
 }).single("file");
 
 router.post("/file", upload, async (req, res) => {
-    try {
-        attachmentImp
-            .uploadFile({
-                folderName: func.body(req).data.folderName,
-                fileOriginalname: req.file.originalname,
-                file: req.file,
-            })
-            .then((data) => {
-                res.status(200).json(
-                    func.responseModel({
-                        data: data,
-                    })
-                );
-            })
-            .catch((error) => {
-                console.log("error", error);
-                res.status(400).json(
-                    func.responseModel({
-                        isSuccess: false,
-                        responseMessage: error,
-                    })
-                );
-            });
-    } catch (error) {
+  try {
+    attachmentImp
+      .uploadFile({
+        folderName: func.body(req).data.folderName,
+        fileOriginalname: req.file.originalname,
+        file: req.file,
+      })
+      .then((data) => {
+        res.status(200).json(
+          func.responseModel({
+            data: data,
+          })
+        );
+      })
+      .catch((error) => {
         console.log("error", error);
         res.status(400).json(
-            func.responseModel({
-                isSuccess: false,
-                responseMessage: error,
-            })
+          func.responseModel({
+            isSuccess: false,
+            responseMessage: error,
+          })
         );
-    }
+      });
+  } catch (error) {
+    console.log("error", error);
+    res.status(400).json(
+      func.responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
+  }
 });
 
 // upload attachment to activity
 router.post("/upload", async (req, res) => {
-    try {
-        const list = JSON.parse(JSON.stringify(func.body(req).data.attachmentList));
+  try {
+    const list = JSON.parse(JSON.stringify(func.body(req).data.attachmentList));
 
-        attachmentImp
-            .uploadAttachment({
-                userId: func.body(req).userId,
-                attachmentList: list,
-            })
-            .then((data) => {
-                res.status(200).json(func.responseModel({ data: data }));
-            });
-    } catch (error) {
-        console.log(error);
-        func.responseModel({
-            isSuccess: false,
-            responseMessage: error,
-        });
-    }
+    attachmentImp
+      .uploadAttachment({
+        userId: func.body(req).userId,
+        attachmentList: list,
+      })
+      .then((data) => {
+        res.status(200).json(func.responseModel({ data: data }));
+      });
+  } catch (error) {
+    console.log(error);
+    func.responseModel({
+      isSuccess: false,
+      responseMessage: error,
+    });
+  }
+});
+
+// get all attachment by profile uid
+router.get("/", async (req, res) => {
+  try {
+    const module = func.body(req).headers.module;
+    const profileUid = func.body(req).headers.profileuid;
+    attachmentImp
+      .getAttachmentByProfileId({ module: module, profileUid: profileUid })
+      .then((data) => {
+        res.status(200).json(func.responseModel({ data: data }));
+      });
+  } catch (error) {
+    console.log(error);
+    func.responseModel({
+      isSuccess: false,
+      responseMessage: error,
+    });
+  }
+});
+
+// delete attachment
+router.put("/remove", async (req, res) => {
+  try {
+    const attachmentList = func.body(req).data.attachmentList;
+    const userId = func.body(req).userId;
+
+    attachmentImp
+      .removeAttachment({ attachmentList: attachmentList, userId: userId })
+      .then((data) => {
+        res.status(200).json(func.responseModel({ data: data }));
+      });
+  } catch (error) {
+    console.log(error);
+    func.responseModel({
+      isSuccess: false,
+      responseMessage: error,
+    });
+  }
 });
 
 export default router;

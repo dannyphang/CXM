@@ -53,7 +53,9 @@ function getAllActivityByProfileId({ tenantId, profileUid }) {
                 return await attachmentRepo.getAttachmentByUid({ uid: uid });
               });
               if (attachmentPromises) {
-                act.attachmentList = await Promise.all(attachmentPromises);
+                const attachments = await Promise.all(attachmentPromises);
+
+                act.attachmentList = attachments.filter((attachment) => attachment !== null);
               }
             }
           })

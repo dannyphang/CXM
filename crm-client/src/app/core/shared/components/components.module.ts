@@ -45,6 +45,8 @@ import { PasswordValidator } from '../directives/password.directive';
 import { ActivityCreateDialogComponent } from './activity-create-dialog/activity-create-dialog.component';
 import { EmailComponent } from './activity-create-dialog/components/email/email.component';
 import { TabPanelPageComponent } from './contact-company-page/tab-panel-page/tab-panel-page.component';
+import { AssociationComponent } from './profile-page/right-panel/association/association.component';
+import { AttachmentComponent } from './profile-page/right-panel/attachment/attachment.component';
 
 const components = [
   BaseInputComponent,
@@ -84,7 +86,9 @@ const components = [
   AssociationBlockComponent,
   ActivityCreateDialogComponent,
   EmailComponent,
-  TabPanelPageComponent
+  TabPanelPageComponent,
+  AssociationComponent,
+  AttachmentComponent
 ];
 
 @NgModule({

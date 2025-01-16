@@ -8,135 +8,135 @@ router.use(express.json());
 
 // get all activities by profile id
 router.post("/getActivitiesByProfileId", async (req, res) => {
-    try {
-        activityImp
-            .getAllActivityByProfileId({
-                tenantId: func.body(req).tenantId,
-                profileUid: func.body(req).data.profileUid,
-            })
-            .then((list) => {
-                res.status(200).json(func.responseModel({ data: list }));
-            })
-            .catch((error) => {
-                console.log("error", error);
-                func.responseModel({
-                    isSuccess: false,
-                    responseMessage: error,
-                });
-            });
-    } catch (error) {
+  try {
+    activityImp
+      .getAllActivityByProfileId({
+        tenantId: func.body(req).tenantId,
+        profileUid: func.body(req).data.profileUid,
+      })
+      .then((list) => {
+        res.status(200).json(func.responseModel({ data: list }));
+      })
+      .catch((error) => {
         console.log("error", error);
         func.responseModel({
-            isSuccess: false,
-            responseMessage: error,
+          isSuccess: false,
+          responseMessage: error,
         });
-    }
+      });
+  } catch (error) {
+    console.log("error", error);
+    func.responseModel({
+      isSuccess: false,
+      responseMessage: error,
+    });
+  }
 });
 
 // get all activities code by module code
 router.get("/activityModule", async (req, res) => {
-    try {
-        activityImp
-            .getActivityCodeByModuleCode()
-            .then((list) => {
-                res.status(200).json(func.responseModel({ data: list }));
-            })
-            .catch((error) => {
-                console.log("error", error);
-                func.responseModel({
-                    isSuccess: false,
-                    responseMessage: error,
-                });
-            });
-    } catch (error) {
+  try {
+    activityImp
+      .getActivityCodeByModuleCode()
+      .then((list) => {
+        res.status(200).json(func.responseModel({ data: list }));
+      })
+      .catch((error) => {
         console.log("error", error);
         func.responseModel({
-            isSuccess: false,
-            responseMessage: error,
+          isSuccess: false,
+          responseMessage: error,
         });
-    }
+      });
+  } catch (error) {
+    console.log("error", error);
+    func.responseModel({
+      isSuccess: false,
+      responseMessage: error,
+    });
+  }
 });
 
 // create activity
 router.post("/", async (req, res) => {
-    try {
-        activityImp
-            .createActivity({
-                userId: func.body(req).userId,
-                tenantId: func.body(req).tenantId,
-                activitiesList: JSON.parse(JSON.stringify(func.body(req).data.createdActivitiesList)),
-            })
-            .then((list) => {
-                res.status(200).json(func.responseModel({ data: list }));
-            })
-            .catch((error) => {
-                console.log("error", error);
-                func.responseModel({
-                    isSuccess: false,
-                    responseMessage: error,
-                });
-            });
-    } catch (error) {
+  try {
+    activityImp
+      .createActivity({
+        userId: func.body(req).userId,
+        tenantId: func.body(req).tenantId,
+        activitiesList: JSON.parse(JSON.stringify(func.body(req).data.createdActivitiesList)),
+      })
+      .then((list) => {
+        res.status(200).json(func.responseModel({ data: list }));
+      })
+      .catch((error) => {
         console.log("error", error);
         func.responseModel({
-            isSuccess: false,
-            responseMessage: error,
+          isSuccess: false,
+          responseMessage: error,
         });
-    }
+      });
+  } catch (error) {
+    console.log("error", error);
+    func.responseModel({
+      isSuccess: false,
+      responseMessage: error,
+    });
+  }
 });
 
 // update activity
 router.put("/", async (req, res) => {
-    try {
-        activityImp
-            .updateActivity({
-                userId: func.body(req).userId,
-                activityList: func.body(req).data.updateActivityList,
-            })
-            .then((list) => {
-                res.status(200).json(func.responseModel({ data: list }));
-            })
-            .catch((error) => {
-                console.log("error", error);
-                func.responseModel({
-                    isSuccess: false,
-                    responseMessage: error,
-                });
-            });
-    } catch (error) {
+  try {
+    activityImp
+      .updateActivity({
+        userId: func.body(req).userId,
+        activityList: func.body(req).data.updateActivityList,
+      })
+      .then((list) => {
+        res.status(200).json(func.responseModel({ data: list }));
+      })
+      .catch((error) => {
         console.log("error", error);
         func.responseModel({
-            isSuccess: false,
-            responseMessage: error,
+          isSuccess: false,
+          responseMessage: error,
         });
-    }
+      });
+  } catch (error) {
+    console.log("error", error);
+    func.responseModel({
+      isSuccess: false,
+      responseMessage: error,
+    });
+  }
 });
 
 // send email
 router.post("/email", async (req, res) => {
-    try {
-        activityImp
-            .sendEmail({
-                tenantId: func.body(req).tenantId,
-                createActivity: func.body(req).data.createActivity,
-            })
-            .then((list) => {
-                res.status(200).json(func.responseModel({ data: list }));
-            })
-            .catch((error) => {
-                console.log("error", error);
-                func.responseModel({
-                    isSuccess: false,
-                    responseMessage: error,
-                });
-            });
-    } catch (error) {
+  try {
+    activityImp
+      .sendEmail({
+        tenantId: func.body(req).tenantId,
+        createActivity: func.body(req).data.createActivity,
+      })
+      .then((list) => {
+        res.status(200).json(func.responseModel({ data: list }));
+      })
+      .catch((error) => {
         console.log("error", error);
         func.responseModel({
-            isSuccess: false,
-            responseMessage: error,
+          isSuccess: false,
+          responseMessage: error,
         });
-    }
+      });
+  } catch (error) {
+    console.log("error", error);
+    func.responseModel({
+      isSuccess: false,
+      responseMessage: error,
+    });
+  }
 });
 
 export default router;

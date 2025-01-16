@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { AttachmentDto } from '../../../services/common.service';
 
 @Component({
   selector: 'app-chip',
@@ -9,6 +10,7 @@ export class ChipComponent {
   @Input() label: string = '';
   @Input() removable: boolean = true;
   @Input() file: File;
+  @Input() attachment: AttachmentDto;
   @Input() isFile: boolean = false;
   @Output() remove = new EventEmitter();
 
@@ -20,7 +22,7 @@ export class ChipComponent {
       this.remove.emit(this.file);
     }
     else {
-      this.remove.emit();
+      this.remove.emit(this.attachment);
     }
 
   }

@@ -124,13 +124,13 @@
         <div class="attachment-chip-div tw-flex tw-flex-wrap">
           <app-chip
             *ngFor="let file of activity.attachmentList"
-            label="{{ file.fileName }} ({{ returnFileSize(file.fileSize) }})"
+            label="{{ file?.fileName }} ({{ returnFileSize(file?.fileSize) }})"
             class="tw-mr-2 tw-mt-1"
             (remove)="removeFile($event)"
           ></app-chip>
           <app-chip
             *ngFor="let file of attachmentList"
-            label="{{ file.name }} ({{ returnFileSize(file.size) }})"
+            label="{{ file?.name }} ({{ returnFileSize(file?.size) }})"
             class="tw-mr-2 tw-mt-1"
             (remove)="removeFile($event)"
           ></app-chip>

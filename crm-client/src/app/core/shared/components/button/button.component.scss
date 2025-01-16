@@ -29,6 +29,10 @@
           opacity: 0.5;
         }
       }
+
+      .p-button {
+        padding: var(--content-gap-s);
+      }
     }
 
     .p-splitbutton .p-button {
