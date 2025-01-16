@@ -28,7 +28,7 @@ export class ActivityService {
     }
 
     getActivityById(id: string): Observable<ResponseModel<ActivityDto>> {
-        return this.coreService.get<ActivityDto>('activity/' + id).pipe();
+        return this.coreService.get<ActivityDto>('activity' + id).pipe();
     }
 
     createActivity(createdActivitiesList: CreateActivityDto[]): Observable<ResponseModel<ActivityDto[]>> {
@@ -40,11 +40,23 @@ export class ActivityService {
     }
 
     updateActivity(updateActivityList: UpdateActivityDto[]): Observable<ResponseModel<ActivityDto>> {
-        return this.coreService.put<ActivityDto>('activity/', { updateActivityList }).pipe();
+        return this.coreService.put<ActivityDto>('activity', { updateActivityList }).pipe();
     }
 
     sendEmail(data: EmailDto, createActivity: CreateActivityDto): Observable<ResponseModel<any>> {
         return this.coreService.post<any>('activity/email', { data, createActivity }).pipe();
+    }
+
+    getAttachments(module: 'CONT' | 'COMP', id: string): Observable<ResponseModel<AttachmentDto[]>> {
+        let headers = {
+            module: module,
+            profileUid: id
+        }
+        return this.coreService.get<AttachmentDto[]>('attachment', { headers: headers }).pipe();
+    }
+
+    removeAttachments(attachmentList: AttachmentDto[]): Observable<ResponseModel<AttachmentDto[]>> {
+        return this.coreService.put<AttachmentDto[]>('attachment/remove', { attachmentList: attachmentList }).pipe();
     }
 }
 

@@ -91,20 +91,20 @@ export class CoreHttpService {
 
         // Omit empty headers
         return Object.fromEntries(
-            Object.entries<string>({ ...option?.header, userId: userId, tenantId: tenantId }).filter(
+            Object.entries<string>({ ...option?.headers, userId: userId, tenantId: tenantId }).filter(
                 ([_, v]) => v,
             ),
         );
     }
 
     post<ResponseBody = any, Body = any>(url: string, body: Body, option?: CoreHttpOption) {
-        const { header, reportProgress, responseType } = option || {}; // Destructure the properties
+        const { headers, reportProgress, responseType } = option || {}; // Destructure the properties
 
         return this.http.post<ResponseModel<ResponseBody>>(
             `${this.BASE_URL}/${url}`,
             body,
             {
-                headers: this.buildHeader({ header }),
+                headers: this.buildHeader({ headers }),
                 reportProgress,
                 responseType
             }
@@ -131,7 +131,7 @@ export class CoreHttpService {
 }
 
 class CoreHttpOption {
-    header?: any;
+    headers?: any;
     tenantId?: string;
     userId?: string;
     reportProgress?: boolean;

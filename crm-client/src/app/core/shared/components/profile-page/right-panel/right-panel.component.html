@@ -1,4 +1,4 @@
-<div class="tw-pt-0">
+<div class="tw-pt-0 tw-gap-[var(--content-gap)] tw-grid">
   <app-association
     [module]="module"
     [propertiesList]="propertiesList"
@@ -6,4 +6,11 @@
     [companyProfile]="companyProfile"
     (getProfileEmit)="getProfileEmit.emit($event)"
   ></app-association>
+  <app-attachment
+    [module]="module"
+    [contactProfile]="contactProfile"
+    [companyProfile]="companyProfile"
+    [activitiesList]="activitiesList"
+    (updateAttachmentEmit)="getActivityEmit.emit()"
+  ></app-attachment>
 </div>

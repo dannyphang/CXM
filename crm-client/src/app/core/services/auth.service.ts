@@ -117,7 +117,7 @@ export class AuthService {
             'email': email
         }
         return this.coreService.get<UserDto>('auth/user/email', {
-            header: headers
+            headers: headers
         }).pipe();
     }
 

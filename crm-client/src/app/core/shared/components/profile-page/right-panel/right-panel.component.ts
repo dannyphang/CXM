@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
-import { ActivityService } from '../../../../services/activity.service';
+import { ActivityDto, ActivityService } from '../../../../services/activity.service';
 import { PropertyGroupDto, ContactDto, CompanyDto, CommonService } from '../../../../services/common.service';
 import { AuthService } from '../../../../services/auth.service';
 import { ToastService } from '../../../../services/toast.service';
@@ -12,9 +12,11 @@ import { ToastService } from '../../../../services/toast.service';
 export class RightPanelComponent {
   @Input() propertiesList: PropertyGroupDto[] = [];
   @Input() module: 'CONT' | 'COMP' = 'CONT';
-  @Input() contactProfile: ContactDto = new ContactDto();
-  @Input() companyProfile: CompanyDto = new CompanyDto();
+  @Input() contactProfile: ContactDto = null;
+  @Input() companyProfile: CompanyDto = null;
+  @Input() activitiesList: ActivityDto[] = [];
   @Output() getProfileEmit: EventEmitter<any> = new EventEmitter();
+  @Output() getActivityEmit: EventEmitter<any> = new EventEmitter();
 
   constructor(
     private commonService: CommonService,

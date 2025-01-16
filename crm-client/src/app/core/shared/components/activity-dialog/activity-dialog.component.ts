@@ -403,15 +403,7 @@ export class ActivityDialogComponent implements OnChanges {
   }
 
   returnFileSize(bytes: number = 0, decimals: number = 2) {
-    if (!+bytes) return '0 Bytes'
-
-    const k = 1024
-    const dm = decimals < 0 ? 0 : decimals
-    const sizes = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB']
-
-    const i = Math.floor(Math.log(bytes) / Math.log(k))
-
-    return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`
+    return this.commonService.returnFileSize(bytes, decimals);
   }
 
   removeFile(file: File) {
@@ -463,7 +455,9 @@ export class ActivityDialogComponent implements OnChanges {
                     folderName: "Activity",
                     fileName: res2.data.metadata.name,
                     fullPath: res2.data.metadata.fullPath,
-                    fileSize: res2.data.metadata.size
+                    fileSize: res2.data.metadata.size,
+                    contactUid: this.assoContactForm.value ?? [],
+                    companyUid: this.assoCompanyForm.value ?? [],
                   }
 
                   this.activityService.uploadAttachment([uploadAttach]).subscribe(res3 => {

@@ -110,8 +110,8 @@
         ></app-base-button>
         <p-avatar
           *ngIf="
-            !contactProfile.contactProfilePhotoUrl &&
-            !companyProfile.companyProfilePhotoUrl
+            !contactProfile?.contactProfilePhotoUrl &&
+            !companyProfile?.companyProfilePhotoUrl
           "
           [icon]="'pi pi-user'"
           styleClass="tw-w-[80px] tw-h-[80px]"
@@ -121,13 +121,13 @@
         />
         <p-avatar
           *ngIf="
-            contactProfile.contactProfilePhotoUrl ||
-            companyProfile.companyProfilePhotoUrl
+            contactProfile?.contactProfilePhotoUrl ||
+            companyProfile?.companyProfilePhotoUrl
           "
           [image]="
             module === 'CONT'
-              ? contactProfile.contactProfilePhotoUrl
-              : companyProfile.companyProfilePhotoUrl
+              ? contactProfile?.contactProfilePhotoUrl
+              : companyProfile?.companyProfilePhotoUrl
           "
           styleClass="tw-w-[80px] tw-h-[80px]"
           [ngClass]="isAvatarEdit ? 'tw-opacity-[0.5]' : 'tw-opacity-[1]'"
@@ -142,13 +142,13 @@
         <app-base-label
           [label]="
             module === 'CONT'
-              ? contactProfile.contactFirstName
-                ? contactProfile.contactFirstName +
+              ? contactProfile?.contactFirstName
+                ? contactProfile?.contactFirstName +
                   ' ' +
-                  contactProfile.contactLastName
+                  contactProfile?.contactLastName
                 : ''
-              : companyProfile.companyName
-              ? companyProfile.companyName
+              : companyProfile?.companyName
+              ? companyProfile?.companyName
               : ''
           "
           [labelStyle]="
@@ -163,30 +163,18 @@
             (click)="
               copyEmailToClipboard(
                 module === 'CONT'
-                  ? contactProfile.contactEmail
-                  : companyProfile.companyEmail
+                  ? contactProfile?.contactEmail
+                  : companyProfile?.companyEmail
               )
             "
             [pTooltip]="'MESSAGE.COPY_EMAIL' | translate"
           >
             {{
               module === "CONT"
-                ? contactProfile.contactEmail
-                : companyProfile.companyEmail
+                ? contactProfile?.contactEmail
+                : companyProfile?.companyEmail
             }}
           </a>
-          <!-- <app-base-button
-            [iconName]="'pi pi-copy'"
-            [isTextStyle]="true"
-            [rounded]="true"
-            (click)="
-              copyEmailToClipboard(
-                module === 'CONT'
-                  ? contactProfile.contactEmail
-                  : companyProfile.companyEmail
-              )
-            "
-          /> -->
         </div>
       </div>
 

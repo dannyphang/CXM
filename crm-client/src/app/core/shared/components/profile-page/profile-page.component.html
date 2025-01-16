@@ -1,6 +1,6 @@
 <!-- <app-toast></app-toast> -->
 
-<div class="tw-flex profile-box">
+<div class="tw-flex profile-box" *ngIf="contactProfile || companyProfile">
   <!-- desktop -->
   <p-splitter
     [panelSizes]="[30, 70]"
@@ -40,9 +40,11 @@
             [propertiesList]="propertiesList"
             [contactProfile]="contactProfile"
             [companyProfile]="companyProfile"
+            [activitiesList]="activitiesList"
             (getProfileEmit)="
               returnEvent($event) === 'CONT' ? getContact() : getCompany()
             "
+            (getActivityEmit)="getActivities()"
           ></app-right-panel>
         </ng-template>
       </p-splitter>
@@ -101,9 +103,11 @@
           [propertiesList]="propertiesList"
           [contactProfile]="contactProfile"
           [companyProfile]="companyProfile"
+          [activitiesList]="activitiesList"
           (getProfileEmit)="
             returnEvent($event) === 'CONT' ? getContact() : getCompany()
           "
+          (getActivityEmit)="getActivities()"
         ></app-right-panel>
       </p-tabPanel>
     </p-tabView>

@@ -158,7 +158,8 @@
     "PROFILE_EMAIL": "Email",
     "PROFILE_PHONE": "Phone number",
     "PROFILE_NICKNAME": "Nickname",
-    "PROFILE_DISPLAYNAME": "Display Name"
+    "PROFILE_DISPLAYNAME": "Display Name",
+    "ATTACHMENTS": "Attachments"
   },
   "SETTING": {
     "GENERAL": "General",

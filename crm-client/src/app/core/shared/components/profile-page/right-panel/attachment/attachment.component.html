@@ -1,0 +1,54 @@
+<!-- contact/company asso -->
+<app-accordion-panel
+  class="profile-right-panel-div"
+  [iconPos]="'start'"
+  [isExpand]="attachPanelExpand"
+>
+  <!-- panel header -->
+  <div
+    acc-panel-header
+    class="tw-w-full"
+    (click)="attachPanelExpand = !attachPanelExpand"
+  >
+    <div class="asso-panel-header-div">
+      <div
+        class="asso-header-div tw-text-ellipsis tw-overflow-hidden tw-whitespace-nowrap tw-self-center"
+      >
+        {{
+          ("PROFILE.ATTACHMENTS" | translate) +
+            " (" +
+            attachmentList.length +
+            ")"
+        }}
+      </div>
+
+      <!-- add asso -->
+      <app-base-button
+        [isTextStyle]="true"
+        [label]="'BUTTON.ADD' | translate"
+        [rightIcon]="false"
+        [iconName]="'pi pi-plus'"
+        (onClick)="openSidebar()"
+        class="add-asso-btn"
+      ></app-base-button>
+    </div>
+  </div>
+
+  <!-- panel body -->
+  <div
+    acc-panel-body
+    class="right-panel-content-div"
+    class="tw-p-[var(--content-gap)] tw-gap-[var(--content-gap)] tw-flex tw-flex-wrap"
+  >
+    <app-chip
+      *ngFor="let attachment of attachmentList"
+      label="{{ attachment.fileName }} ({{
+        returnFileSize(attachment.fileSize)
+      }})"
+      class=""
+      [isFile]="true"
+      [attachment]="attachment"
+      (remove)="removeFile(attachment)"
+    ></app-chip>
+  </div>
+</app-accordion-panel>

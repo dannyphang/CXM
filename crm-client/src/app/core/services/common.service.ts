@@ -49,6 +49,18 @@ export class CommonService {
         }
     }
 
+    returnFileSize(bytes: number = 0, decimals: number = 2) {
+        if (!+bytes) return '0 Bytes'
+
+        const k = 1024
+        const dm = decimals < 0 ? 0 : decimals
+        const sizes = ['Bytes', 'KiB', 'MiB', 'GiB', 'TiB', 'PiB', 'EiB', 'ZiB', 'YiB']
+
+        const i = Math.floor(Math.log(bytes) / Math.log(k))
+
+        return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`
+    }
+
     getEnvToken(): Observable<any> {
         return this.http.get<any>(apiConfig.baseUrl + '/token').pipe();
     }
@@ -100,7 +112,7 @@ export class CommonService {
             'moduleType': moduleType,
         }
         return this.coreService.get<ModuleDto[]>('property/moduleCode/moduleType', {
-            header: headers
+            headers: headers
         }).pipe();
     }
 
@@ -109,7 +121,7 @@ export class CommonService {
             'submoduleCode': submoduleCode ?? '',
         }
         return this.coreService.get<ModuleDto[]>('property/moduleCode/subModule/code', {
-            header: headers
+            headers: headers
         }).pipe();
     }
 
@@ -118,7 +130,7 @@ export class CommonService {
             'moduleCode': module,
         }
         return this.coreService.get<PropertyGroupDto[]>('property/properties/module', {
-            header: headers
+            headers: headers
         }).pipe();
     }
 
@@ -399,6 +411,8 @@ export class AttachmentDto extends BasedDto {
     fileName: string;
     activityUid: string;
     fileSize: number;
+    contactUid: string[];
+    companyUid: string[];
 }
 
 export class CompanyDto extends BasedDto {

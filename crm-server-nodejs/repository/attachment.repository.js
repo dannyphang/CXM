@@ -12,7 +12,7 @@ function getAttachmentByUid({ uid }) {
     if (snapshot.data()?.statusId == 1) {
       resolve(snapshot.data());
     } else {
-      resolve({});
+      resolve(null);
     }
   });
 }
@@ -43,4 +43,42 @@ function uploadFile({ filename, file }) {
   });
 }
 
-export { getAttachmentByUid, uploadAttachment, uploadFile };
+function getAttachmentByProfileId({ module, profileUid }) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      const snapshot = await firebase.db
+        .collection(attachmentCollection)
+        .where(module === "CONT" ? "contactUid" : "companyUid", "array-contains", profileUid)
+        .where("statusId", "==", 1)
+        .orderBy("modifiedDate", "desc")
+        .get();
+
+      const list = snapshot.docs.map((doc) => doc.data());
+      resolve(list);
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+
+function updateAttachment({ attachment }) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let actRef = firebase.db.collection(attachmentCollection).doc(attachment.uid);
+
+      await actRef.update(attachment);
+
+      resolve(attachment);
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
+
+export {
+  getAttachmentByUid,
+  uploadAttachment,
+  uploadFile,
+  getAttachmentByProfileId,
+  updateAttachment,
+};

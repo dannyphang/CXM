@@ -23,8 +23,8 @@ export class ProfilePageComponent implements OnChanges {
 
   windowSize: WindowSizeDto = new WindowSizeDto();
 
-  contactProfile: ContactDto = new ContactDto();
-  companyProfile: CompanyDto = new CompanyDto();
+  contactProfile: ContactDto = null;
+  companyProfile: CompanyDto = null;
   activitiesList: ActivityDto[] = [];
   isRightPanelShow: boolean = false;
 
