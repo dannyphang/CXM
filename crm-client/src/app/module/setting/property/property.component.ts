@@ -275,8 +275,6 @@ export class PropertyComponent extends BaseCoreAbstract {
           label: i.moduleName,
           value: i.moduleCode
         }))
-
-        console.log(this.moduleOptions)
       }
       else {
         this.toastService.addSingle({
@@ -620,8 +618,9 @@ export class PropertyComponent extends BaseCoreAbstract {
     this.propertiesLookup.push(lookupForm);
   }
 
-  deleteLookup(index: number) {
-    this.propertiesLookup.removeAt(index);
+  deleteLookup(index: any) {
+    // this.propertiesLookup.removeAt(index);
+    console.log(index)
   }
 
   editDeleteLookup(index: number) {
@@ -740,7 +739,7 @@ export class PropertyComponent extends BaseCoreAbstract {
         }
       })
       this.toastService.addSingle({
-        message: "MESSAGE.NO_PERMISSION_DELETE",
+        message: "ERROR.NO_PERMISSION_DELETE",
         severity: 'error'
       });
     }
@@ -830,7 +829,7 @@ export class PropertyComponent extends BaseCoreAbstract {
           }
           else {
             this.toastService.addSingle({
-              message: this.translateService.instant('MESSAGE.PROPERTY_NOT_EDITABLE')
+              message: this.translateService.instant('ERROR.PROPERTY_NOT_EDITABLE')
             });
 
             this.closeDialog();
@@ -842,6 +841,12 @@ export class PropertyComponent extends BaseCoreAbstract {
             severity: 'error'
           });
         }
+      });
+    }
+    else {
+      this.toastService.addSingle({
+        message: "ERROR.NO_PERMISSION_CREATE",
+        severity: 'error'
       });
     }
   }
@@ -922,14 +927,14 @@ export class PropertyComponent extends BaseCoreAbstract {
       }
       else {
         this.toastService.addSingle({
-          message: 'MESSAGE.PROPERTY_NOT_EDITABLE',
+          message: 'ERROR.PROPERTY_NOT_EDITABLE',
           severity: 'error'
         });
       }
     }
     else {
       this.toastService.addSingle({
-        message: "MESSAGE.NO_PERMISSION_UPDATE",
+        message: "ERROR.NO_PERMISSION_UPDATE",
         severity: 'error'
       });
     }

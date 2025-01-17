@@ -5,6 +5,8 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common'
 import { TranslateService } from '@ngx-translate/core';
+import { PERMISSION_LIST } from '../../core/shared/constants/common.constants';
+import { UserPermissionDto } from '../../core/services/core-http.service';
 
 @Component({
   selector: 'app-login',
@@ -12,6 +14,7 @@ import { TranslateService } from '@ngx-translate/core';
   styleUrl: './login.component.scss'
 })
 export class LoginComponent {
+  PERMISSION_LIST = PERMISSION_LIST;
   loginFormConfig: FormConfig[] = [];
   loginFormGroup: FormGroup = new FormGroup({
     email: new FormControl("", Validators.required),
@@ -147,12 +150,27 @@ export class LoginComponent {
       this.authService.signUp(this.signupFormGroup.controls['email'].value, this.signupFormGroup.controls['password'].value).then((userCredential) => {
         // Signed up 
         const user = userCredential.user;
+        let permissionList: UserPermissionDto[] = [];
+        this.PERMISSION_LIST.forEach(str => {
+          permissionList.push({
+            module: str,
+            permission: {
+              create: false,
+              remove: false,
+              update: false,
+              display: false,
+              download: false,
+              export: false
+            }
+          })
+        })
 
         let createUser: CreateUserDto = {
           uid: user.uid,
           displayName: this.signupFormGroup.controls['username'].value,
           email: user.email ?? '',
-          roleId: 3
+          roleId: 3,
+          permission: JSON.stringify(permissionList),
         }
 
         this.authService.createUser([createUser]).subscribe(res => {

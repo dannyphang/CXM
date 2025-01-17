@@ -47,6 +47,7 @@ import { EmailComponent } from './activity-create-dialog/components/email/email.
 import { TabPanelPageComponent } from './contact-company-page/tab-panel-page/tab-panel-page.component';
 import { AssociationComponent } from './profile-page/right-panel/association/association.component';
 import { AttachmentComponent } from './profile-page/right-panel/attachment/attachment.component';
+import { NoteComponent } from './activity-create-dialog/components/note/note.component';
 
 const components = [
   BaseInputComponent,
@@ -88,7 +89,8 @@ const components = [
   EmailComponent,
   TabPanelPageComponent,
   AssociationComponent,
-  AttachmentComponent
+  AttachmentComponent,
+  NoteComponent,
 ];
 
 @NgModule({

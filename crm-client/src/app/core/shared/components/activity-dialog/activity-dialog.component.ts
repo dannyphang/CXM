@@ -420,104 +420,109 @@ export class ActivityDialogComponent implements OnChanges {
   }
 
   save() {
-    if (this.activityFormGroup.valid) {
-      let createActivity: CreateActivityDto = {
-        activityModuleCode: this.activityModule.moduleCode,
-        activityModuleSubCode: this.activityModule.moduleSubCode,
-        activityModuleId: this.activityModule.uid,
-        activityContent: this.editorFormControl.value,
-        activityContactedIdList: this.activityFormGroup.controls['CONT'].value,
-        activityDatetime: this.convertDateAndTime(this.activityFormGroup.controls['DATE'].value, this.activityFormGroup.controls['TIME'].value),
-        activityDirectionId: this.activityFormGroup.controls['DIRECT'].value,
-        activityOutcomeId: this.activityFormGroup.controls['OUTCOME_C'].value || this.activityFormGroup.controls['OUTCOME_M'].value ? this.activityModule.moduleCode === 'CALL' ? this.activityFormGroup.controls['OUTCOME_C'].value : this.activityFormGroup.controls['OUTCOME_M'].value : null,
-        activityDuration: this.activityFormGroup.controls['DURAT'].value,
-        associationContactUidList: this.assoContactForm.value ?? [],
-        associationCompanyUidList: this.assoCompanyForm.value ?? [],
-        attachmentUid: [],
-        createdBy: this.coreService.userC.uid,
-        createdDate: new Date()
-      }
+    if (this.authService.returnPermissionObj(this.module, 'create')) {
+      if (this.activityFormGroup.valid) {
+        let createActivity: CreateActivityDto = {
+          activityModuleCode: this.activityModule.moduleCode,
+          activityModuleSubCode: this.activityModule.moduleSubCode,
+          activityModuleId: this.activityModule.uid,
+          activityContent: this.editorFormControl.value,
+          activityContactedIdList: this.activityFormGroup.controls['CONT'].value,
+          activityDatetime: this.convertDateAndTime(this.activityFormGroup.controls['DATE'].value, this.activityFormGroup.controls['TIME'].value),
+          activityDirectionId: this.activityFormGroup.controls['DIRECT'].value,
+          activityOutcomeId: this.activityFormGroup.controls['OUTCOME_C'].value || this.activityFormGroup.controls['OUTCOME_M'].value ? this.activityModule.moduleCode === 'CALL' ? this.activityFormGroup.controls['OUTCOME_C'].value : this.activityFormGroup.controls['OUTCOME_M'].value : null,
+          activityDuration: this.activityFormGroup.controls['DURAT'].value,
+          associationContactUidList: this.assoContactForm.value ?? [],
+          associationCompanyUidList: this.assoCompanyForm.value ?? [],
+          attachmentUid: [],
+          createdBy: this.coreService.userC.uid,
+          createdDate: new Date()
+        }
 
-      this.toastService.addSingle({
-        key: 'activity',
-        message: this.translateService.instant('MESSAGE.CREATING_ACTIVITY'),
-        isLoading: true,
-        severity: 'info'
-      });
-      this.activityService.createActivity([createActivity]).subscribe(res => {
-        if (res.isSuccess) {
-          if (this.attachmentList.length > 0) {
-            this.attachmentList.forEach(file => {
-              this.commonService.uploadFile(file, "Activity").subscribe(res2 => {
-                if (res2.isSuccess) {
-                  let uploadAttach: AttachmentDto = {
-                    activityUid: res.data[0].uid!,
-                    folderName: "Activity",
-                    fileName: res2.data.metadata.name,
-                    fullPath: res2.data.metadata.fullPath,
-                    fileSize: res2.data.metadata.size,
-                    contactUid: this.assoContactForm.value ?? [],
-                    companyUid: this.assoCompanyForm.value ?? [],
-                  }
+        this.toastService.addSingle({
+          key: 'activity',
+          message: 'MESSAGE.CREATING_ACTIVITY',
+          isLoading: true,
+          severity: 'info'
+        });
+        this.activityService.createActivity([createActivity]).subscribe(res => {
+          if (res.isSuccess) {
+            if (this.attachmentList.length > 0) {
+              this.attachmentList.forEach(file => {
+                this.commonService.uploadFile(file, "Activity").subscribe(res2 => {
+                  if (res2.isSuccess) {
+                    let uploadAttach: AttachmentDto = {
+                      activityUid: res.data[0].uid!,
+                      folderName: "Activity",
+                      fileName: res2.data.metadata.name,
+                      fullPath: res2.data.metadata.fullPath,
+                      fileSize: res2.data.metadata.size,
+                      contactUid: this.assoContactForm.value ?? [],
+                      companyUid: this.assoCompanyForm.value ?? [],
+                    }
 
-                  this.activityService.uploadAttachment([uploadAttach]).subscribe(res3 => {
-                    if (res3.isSuccess) {
-                      this.activityService.updateActivity([{
-                        uid: res3.data[0].activityUid,
-                        attachmentUid: this.returnAttactmentList(res.data[0].attachmentUid, res3.data[0].uid),
-                      }]).subscribe(
-                        {
-                          next: res4 => {
-                            if (res4.isSuccess) {
-                              this.toastService.clear('activity');
-                              this.closeDialog();
-                            }
-                            else {
+                    this.activityService.uploadAttachment([uploadAttach]).subscribe(res3 => {
+                      if (res3.isSuccess) {
+                        this.activityService.updateActivity([{
+                          uid: res3.data[0].activityUid,
+                          attachmentUid: this.returnAttactmentList(res.data[0].attachmentUid, res3.data[0].uid),
+                        }]).subscribe(
+                          {
+                            next: res4 => {
+                              if (res4.isSuccess) {
+                                this.toastService.clear('activity');
+                                this.closeDialog();
+                              }
+                              else {
+                                this.toastService.addSingle({
+                                  message: res4.responseMessage,
+                                  severity: 'error'
+                                });
+                              }
+                            },
+                            error: err => {
                               this.toastService.addSingle({
-                                message: res4.responseMessage,
+                                message: err,
                                 severity: 'error'
                               });
                             }
-                          },
-                          error: err => {
-                            this.toastService.addSingle({
-                              message: err,
-                              severity: 'error'
-                            });
                           }
-                        }
-                      )
-                    }
-                    else {
-                      this.toastService.addSingle({
-                        message: res.responseMessage,
-                        severity: 'error'
-                      });
-                    }
-                  });
-                }
-                else {
-                  this.toastService.addSingle({
-                    key: 'error',
-                    message: res.responseMessage,
-                    severity: 'error'
-                  });
-                }
+                        )
+                      }
+                      else {
+                        this.toastService.addSingle({
+                          message: res.responseMessage,
+                          severity: 'error'
+                        });
+                      }
+                    });
+                  }
+                  else {
+                    this.toastService.addSingle({
+                      key: 'error',
+                      message: res.responseMessage,
+                      severity: 'error'
+                    });
+                  }
+                });
               });
-            });
+            }
+            else {
+              this.toastService.clear('activity');
+              this.closeDialog();
+            }
           }
           else {
-            this.toastService.clear('activity');
-            this.closeDialog();
+            this.toastService.addSingle({
+              message: res.responseMessage,
+              severity: 'error'
+            });
           }
-        }
-        else {
-          this.toastService.addSingle({
-            message: res.responseMessage,
-            severity: 'error'
-          });
-        }
-      });
+        });
+      }
+    }
+    else {
+      // TODO
     }
   }
 

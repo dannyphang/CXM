@@ -1,9 +1,7 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, Router } from '@angular/router';
-import { User } from 'firebase/auth';
 import { AuthService } from '../../services/auth.service';
 import { CoreHttpService, UserDto } from '../../services/core-http.service';
-// import { AuthService } from './auth.service'; // Import your authentication service
 
 @Injectable({
     providedIn: 'root'

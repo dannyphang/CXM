@@ -117,24 +117,29 @@ export class AssociationComponent {
   }
 
   save() {
-    let createAsso: CreateAssociationDto = {
-      module: this.module,
-      profileUid: this.module === 'CONT' ? this.contactProfile.uid : this.companyProfile.uid,
-      contactAssoList: this.module === 'CONT' ? [] : this.assoFormControl.value,
-      companyAssoList: this.module === 'CONT' ? this.assoFormControl.value : [],
+    if (this.authService.returnPermissionObj(this.module, 'update')) {
+      let createAsso: CreateAssociationDto = {
+        module: this.module,
+        profileUid: this.module === 'CONT' ? this.contactProfile.uid : this.companyProfile.uid,
+        contactAssoList: this.module === 'CONT' ? [] : this.assoFormControl.value,
+        companyAssoList: this.module === 'CONT' ? this.assoFormControl.value : [],
+      }
+      this.commonService.createAssociation(createAsso).subscribe(res => {
+        if (!res.isSuccess) {
+          this.toastService.addSingle({
+            message: res.responseMessage,
+            severity: 'error'
+          });
+        }
+        else {
+          this.assoEmitToParent(this.module);
+          this.closeSidebar();
+        }
+      });
     }
-    this.commonService.createAssociation(createAsso).subscribe(res => {
-      if (!res.isSuccess) {
-        this.toastService.addSingle({
-          message: res.responseMessage,
-          severity: 'error'
-        });
-      }
-      else {
-        this.assoEmitToParent(this.module);
-        this.closeSidebar();
-      }
-    })
+    else {
+      // TODO
+    }
   }
 
   assoEmitToParent(module: 'CONT' | 'COMP') {

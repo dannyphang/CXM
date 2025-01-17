@@ -55,7 +55,7 @@ export class ToggleThemeComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['user'] && changes['user'].currentValue) {
-      if (this.user.setting.darkMode) {
+      if (this.user.setting?.darkMode) {
         this.changeTheme(this.darkThemeFile);
       }
       else {

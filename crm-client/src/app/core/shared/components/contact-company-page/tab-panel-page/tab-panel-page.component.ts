@@ -1008,246 +1008,261 @@ export class TabPanelPageComponent implements OnChanges {
   }
 
   exportFile(data: any[]) {
-    // Create a workbook and worksheet
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet(this.panel.headerLabel);
+    if (this.authService.returnPermissionObj(this.module, 'export')) {
+      // Create a workbook and worksheet
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet(this.panel.headerLabel);
 
-    worksheet.columns = this.propertiesList.map(item => ({
-      header: <string>item.propertyName,
-      key: item.propertyCode,
-      width: 15
-    }));
+      worksheet.columns = this.propertiesList.map(item => ({
+        header: <string>item.propertyName,
+        key: item.propertyCode,
+        width: 15
+      }));
 
-    let count = 0;
-    this.propertiesList.forEach(item => {
-      let cell = this.getColumnLetter(count);
-      count++;
+      let count = 0;
+      this.propertiesList.forEach(item => {
+        let cell = this.getColumnLetter(count);
+        count++;
 
-      let row: number = 2;
-      data.forEach(c => {
-        if (worksheet.getColumn(`${cell}`).key === item.propertyCode) {
-          let cellValue: any;
-          switch (item.propertyType) {
-            case CONTROL_TYPE_CODE.Date:
-            case CONTROL_TYPE_CODE.DateTime:
-            case CONTROL_TYPE_CODE.Time:
-              cellValue = this.convertDateFormat(c[this.bindCode(item.propertyCode)]);
-              break;
-            case CONTROL_TYPE_CODE.Dropdown:
-            case CONTROL_TYPE_CODE.Multiselect:
-            case CONTROL_TYPE_CODE.Checkbox:
-            case CONTROL_TYPE_CODE.MultiCheckbox:
-            case CONTROL_TYPE_CODE.Radio:
-              cellValue = (item.propertyLookupList as PropertyLookupDto[]).find(i => i.uid === c[this.bindCode(item.propertyCode)])?.propertyLookupLabel;
-              break;
-            case CONTROL_TYPE_CODE.User:
-              cellValue = this.returnUserLabelFromUid(c[this.bindCode(item.propertyCode)], false);
-              break;
-            default:
-              cellValue = c[this.bindCode(item.propertyCode)];
-              break;
+        let row: number = 2;
+        data.forEach(c => {
+          if (worksheet.getColumn(`${cell}`).key === item.propertyCode) {
+            let cellValue: any;
+            switch (item.propertyType) {
+              case CONTROL_TYPE_CODE.Date:
+              case CONTROL_TYPE_CODE.DateTime:
+              case CONTROL_TYPE_CODE.Time:
+                cellValue = this.convertDateFormat(c[this.bindCode(item.propertyCode)]);
+                break;
+              case CONTROL_TYPE_CODE.Dropdown:
+              case CONTROL_TYPE_CODE.Multiselect:
+              case CONTROL_TYPE_CODE.Checkbox:
+              case CONTROL_TYPE_CODE.MultiCheckbox:
+              case CONTROL_TYPE_CODE.Radio:
+                cellValue = (item.propertyLookupList as PropertyLookupDto[]).find(i => i.uid === c[this.bindCode(item.propertyCode)])?.propertyLookupLabel;
+                break;
+              case CONTROL_TYPE_CODE.User:
+                cellValue = this.returnUserLabelFromUid(c[this.bindCode(item.propertyCode)], false);
+                break;
+              default:
+                cellValue = c[this.bindCode(item.propertyCode)];
+                break;
+            }
+            worksheet.getCell(`${cell}${row}`).value = cellValue;
+            row++;
           }
-          worksheet.getCell(`${cell}${row}`).value = cellValue;
-          row++;
+        })
+
+        if (item.propertyType === CONTROL_TYPE_CODE.Radio || item.propertyType === CONTROL_TYPE_CODE.MultiCheckbox || item.propertyType === CONTROL_TYPE_CODE.Multiselect || item.propertyType === CONTROL_TYPE_CODE.Dropdown || item.propertyType === CONTROL_TYPE_CODE.Checkbox) {
+          let list = (item.propertyLookupList as PropertyLookupDto[])
+            .map(dp => dp.propertyLookupLabel)
+            .join(',');
+
+          let tempList = (item.propertyLookupList as PropertyLookupDto[]);
+          if (tempList.length > 20) {
+            // Helper sheet to hold validation items
+            const helperSheet = workbook.addWorksheet(`${item.propertyCode}Helper`);
+
+            tempList.forEach((item, index) => {
+              helperSheet.getCell(`A${index + 1}`).value = item.propertyLookupLabel;
+            });
+          }
+          list = `"${list}"`;
+          for (let i = 2; i < this.NUMBER_OF_EXCEL_INSERT_ROW; i++) {
+            try {
+              worksheet.getCell(`${cell}${i}`).dataValidation = {
+                type: 'list',
+                allowBlank: !item.isMandatory,
+                formulae: tempList.length > 20 ? [`${item.propertyCode}Helper!$A$1:$A$${tempList.length}`] : [list],
+                showErrorMessage: true,
+                errorTitle: this.translateService.instant('ERROR.INVALID_SELECTION'),
+                error: `(${cell}${i}) ${this.translateService.instant('ERROR.INVALID_SELECTION_MSG')}`,
+              };
+            } catch (e) {
+              console.error(e);
+            }
+          }
         }
-      })
-
-      if (item.propertyType === CONTROL_TYPE_CODE.Radio || item.propertyType === CONTROL_TYPE_CODE.MultiCheckbox || item.propertyType === CONTROL_TYPE_CODE.Multiselect || item.propertyType === CONTROL_TYPE_CODE.Dropdown || item.propertyType === CONTROL_TYPE_CODE.Checkbox) {
-        let list = (item.propertyLookupList as PropertyLookupDto[])
-          .map(dp => dp.propertyLookupLabel)
-          .join(',');
-
-        let tempList = (item.propertyLookupList as PropertyLookupDto[]);
-        if (tempList.length > 20) {
-          // Helper sheet to hold validation items
-          const helperSheet = workbook.addWorksheet(`${item.propertyCode}Helper`);
-
-          tempList.forEach((item, index) => {
-            helperSheet.getCell(`A${index + 1}`).value = item.propertyLookupLabel;
-          });
-        }
-        list = `"${list}"`;
-        for (let i = 2; i < this.NUMBER_OF_EXCEL_INSERT_ROW; i++) {
-          try {
+        else if (item.propertyType === CONTROL_TYPE_CODE.Number) {
+          for (let i = 2; i < this.NUMBER_OF_EXCEL_INSERT_ROW; i++) {
             worksheet.getCell(`${cell}${i}`).dataValidation = {
-              type: 'list',
+              type: 'decimal',
               allowBlank: !item.isMandatory,
-              formulae: tempList.length > 20 ? [`${item.propertyCode}Helper!$A$1:$A$${tempList.length}`] : [list],
+              formulae: [],
               showErrorMessage: true,
-              errorTitle: this.translateService.instant('ERROR.INVALID_SELECTION'),
-              error: `(${cell}${i}) ${this.translateService.instant('ERROR.INVALID_SELECTION_MSG')}`,
+              errorTitle: this.translateService.instant('ERROR.INVALID_NUMBER'),
+              error: `(${cell}${i}) ${this.translateService.instant('ERROR.INVALID_NUMBER_MSG')}`,
             };
-          } catch (e) {
-            console.error(e);
           }
         }
-      }
-      else if (item.propertyType === CONTROL_TYPE_CODE.Number) {
-        for (let i = 2; i < this.NUMBER_OF_EXCEL_INSERT_ROW; i++) {
-          worksheet.getCell(`${cell}${i}`).dataValidation = {
-            type: 'decimal',
-            allowBlank: !item.isMandatory,
-            formulae: [],
-            showErrorMessage: true,
-            errorTitle: this.translateService.instant('ERROR.INVALID_NUMBER'),
-            error: `(${cell}${i}) ${this.translateService.instant('ERROR.INVALID_NUMBER_MSG')}`,
-          };
+        else if (item.propertyType === CONTROL_TYPE_CODE.Year) {
+          for (let i = 2; i < this.NUMBER_OF_EXCEL_INSERT_ROW; i++) {
+            worksheet.getCell(`${cell}${i}`).dataValidation = {
+              type: 'decimal',
+              allowBlank: !item.isMandatory,
+              operator: 'between',
+              formulae: ['0', '9999'],
+              showErrorMessage: true,
+              errorTitle: this.translateService.instant('ERROR.INVALID_NUMBER'),
+              error: `(${cell}${i})${this.translateService.instant('ERROR.INVALID_NUMBER_MSG')} `,
+            };
+          }
         }
-      }
-      else if (item.propertyType === CONTROL_TYPE_CODE.Year) {
-        for (let i = 2; i < this.NUMBER_OF_EXCEL_INSERT_ROW; i++) {
-          worksheet.getCell(`${cell}${i}`).dataValidation = {
-            type: 'decimal',
-            allowBlank: !item.isMandatory,
-            operator: 'between',
-            formulae: ['0', '9999'],
-            showErrorMessage: true,
-            errorTitle: this.translateService.instant('ERROR.INVALID_NUMBER'),
-            error: `(${cell}${i})${this.translateService.instant('ERROR.INVALID_NUMBER_MSG')} `,
-          };
+        else if (item.propertyType === CONTROL_TYPE_CODE.Date || item.propertyType === CONTROL_TYPE_CODE.DateTime || item.propertyType === CONTROL_TYPE_CODE.Time) {
+          worksheet.getColumn(`${cell}`).numFmt = 'dd/mm/yyyy';
+          for (let i = 2; i < this.NUMBER_OF_EXCEL_INSERT_ROW; i++) {
+            worksheet.getCell(`${cell}${i}`).dataValidation = {
+              type: 'date',                // Validation type set to date
+              operator: 'between',         // Use 'between' to satisfy the need for formulae
+              formulae: ['DATE(1900,1,1)', 'DATE(9999,12,31)'],  // Very wide date range
+              allowBlank: !item.isMandatory,          // Disallow blank entries
+              showErrorMessage: true,      // Show error message if invalid date
+              errorTitle: this.translateService.instant('ERROR.INVALID_DATE'), // Error title
+              error: `(${cell}${i}) ${this.translateService.instant('ERROR.INVALID_DATE_MSG')}`, // Error message
+            };
+          }
         }
-      }
-      else if (item.propertyType === CONTROL_TYPE_CODE.Date || item.propertyType === CONTROL_TYPE_CODE.DateTime || item.propertyType === CONTROL_TYPE_CODE.Time) {
-        worksheet.getColumn(`${cell}`).numFmt = 'dd/mm/yyyy';
-        for (let i = 2; i < this.NUMBER_OF_EXCEL_INSERT_ROW; i++) {
-          worksheet.getCell(`${cell}${i}`).dataValidation = {
-            type: 'date',                // Validation type set to date
-            operator: 'between',         // Use 'between' to satisfy the need for formulae
-            formulae: ['DATE(1900,1,1)', 'DATE(9999,12,31)'],  // Very wide date range
-            allowBlank: !item.isMandatory,          // Disallow blank entries
-            showErrorMessage: true,      // Show error message if invalid date
-            errorTitle: this.translateService.instant('ERROR.INVALID_DATE'), // Error title
-            error: `(${cell}${i}) ${this.translateService.instant('ERROR.INVALID_DATE_MSG')}`, // Error message
-          };
-        }
-      }
-    });
+      });
 
-    workbook.xlsx.writeBuffer().then((buffer) => {
-      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-      saveAs(blob, `${this.panel.headerLabel}.xlsx`);
-    });
+      workbook.xlsx.writeBuffer().then((buffer) => {
+        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        saveAs(blob, `${this.panel.headerLabel}.xlsx`);
+      });
+
+    }
+    else {
+      // TODO
+    }
   }
 
   importFile(event: any) {
-    if (event.target.files.length === 0) {
-      return;
+    if (this.authService.returnPermissionObj(this.module, 'create')) {
+      if (event.target.files.length === 0) {
+        return;
+      }
+      else {
+        const reader: FileReader = new FileReader();
+        reader.onload = (e: any) => {
+          // Read the Excel data as binary string
+          const binaryString: string = e.target.result;
+
+          // Parse the binary string using XLSX
+          const workbook: XLSX.WorkBook = XLSX.read(binaryString, { type: 'binary' });
+
+          // Get the first sheet name from the workbook
+          const sheetName: string = workbook.SheetNames[0];
+
+          // Get the sheet data from the workbook
+          const worksheet: XLSX.WorkSheet = workbook.Sheets[sheetName];
+
+          // Convert the worksheet data into a JSON array
+          const row: any = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+
+          const headers = row[0] as string[];
+
+          const mappedData = row.slice(1).map((row: any) => {
+            const rowObject: any = {};
+            headers.forEach((header: string, index: number) => {
+              // Use the mapping to get the key corresponding to the header
+              const key = this.headerKeyMapping[header];
+              if (key) {
+                rowObject[key] = row[index]; // Assign the value using the key
+              }
+            });
+            return rowObject;
+          });
+
+          if (this.module === 'CONT') {
+            let contactList: ContactDto[] = [];
+            contactList = this.mapToContactDto(mappedData);
+            this.commonService.createContact(contactList).subscribe(res => {
+              if (res.isSuccess) {
+                this.getContact();
+              }
+              else {
+                this.toastService.addSingle({
+                  message: res.responseMessage,
+                  severity: 'error'
+                });
+              }
+            });
+          }
+          else {
+            let companyList: CompanyDto[] = [];
+            companyList = this.mapToCompanyDto(mappedData);
+            this.commonService.createCompany(companyList).subscribe(res => {
+              if (res.isSuccess) {
+                this.getCompany();
+              }
+              else {
+                this.toastService.addSingle({
+                  message: res.responseMessage,
+                  severity: 'error'
+                });
+              }
+            });
+          }
+        }
+        reader.readAsBinaryString(event.target.files[0]);
+      }
     }
     else {
-      const reader: FileReader = new FileReader();
-      reader.onload = (e: any) => {
-        // Read the Excel data as binary string
-        const binaryString: string = e.target.result;
-
-        // Parse the binary string using XLSX
-        const workbook: XLSX.WorkBook = XLSX.read(binaryString, { type: 'binary' });
-
-        // Get the first sheet name from the workbook
-        const sheetName: string = workbook.SheetNames[0];
-
-        // Get the sheet data from the workbook
-        const worksheet: XLSX.WorkSheet = workbook.Sheets[sheetName];
-
-        // Convert the worksheet data into a JSON array
-        const row: any = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-
-        const headers = row[0] as string[];
-
-        const mappedData = row.slice(1).map((row: any) => {
-          const rowObject: any = {};
-          headers.forEach((header: string, index: number) => {
-            // Use the mapping to get the key corresponding to the header
-            const key = this.headerKeyMapping[header];
-            if (key) {
-              rowObject[key] = row[index]; // Assign the value using the key
-            }
-          });
-          return rowObject;
-        });
-
-        if (this.module === 'CONT') {
-          let contactList: ContactDto[] = [];
-          contactList = this.mapToContactDto(mappedData);
-          this.commonService.createContact(contactList).subscribe(res => {
-            if (res.isSuccess) {
-              this.getContact();
-            }
-            else {
-              this.toastService.addSingle({
-                message: res.responseMessage,
-                severity: 'error'
-              });
-            }
-          });
-        }
-        else {
-          let companyList: CompanyDto[] = [];
-          companyList = this.mapToCompanyDto(mappedData);
-          this.commonService.createCompany(companyList).subscribe(res => {
-            if (res.isSuccess) {
-              this.getCompany();
-            }
-            else {
-              this.toastService.addSingle({
-                message: res.responseMessage,
-                severity: 'error'
-              });
-            }
-          });
-        }
-      }
-      reader.readAsBinaryString(event.target.files[0]);
+      // TODO
     }
-
   }
 
   downloadTemplate() {
-    // Create a workbook and worksheet
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet(this.panel.headerLabel);
+    if (this.authService.returnPermissionObj(this.module, 'download')) {
+      // Create a workbook and worksheet
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet(this.panel.headerLabel);
 
-    worksheet.columns = this.createFormConfig.map(item => ({
-      header: <string>item.label,
-      key: item.name!,
-    }));
+      worksheet.columns = this.createFormConfig.map(item => ({
+        header: <string>item.label,
+        key: item.name!,
+      }));
 
-    let count = 0;
-    this.createFormConfig.forEach(item => {
-      let cell = this.getColumnLetter(count);
-      count++;
+      let count = 0;
+      this.createFormConfig.forEach(item => {
+        let cell = this.getColumnLetter(count);
+        count++;
 
-      if (item.type === CONTROL_TYPE.Dropdown || item.type === CONTROL_TYPE.Multiselect || item.type === CONTROL_TYPE.Checkbox || item.type === CONTROL_TYPE.Radio) {
-        let list = item.options!.map(dp => dp.label!).join(',');
-        list = `"${list}"`;
-        for (let i = 2; i < this.NUMBER_OF_EXCEL_INSERT_ROW; i++) {
-          worksheet.getCell(`${cell}${i}`).dataValidation = {
-            type: 'list',
-            allowBlank: !item.required,
-            formulae: [list],  // Set the dropdown options
-            showErrorMessage: true,
-            errorTitle: 'Invalid Selection',
-            error: 'Please select a value from the list.',
-          };
+        if (item.type === CONTROL_TYPE.Dropdown || item.type === CONTROL_TYPE.Multiselect || item.type === CONTROL_TYPE.Checkbox || item.type === CONTROL_TYPE.Radio) {
+          let list = item.options!.map(dp => dp.label!).join(',');
+          list = `"${list}"`;
+          for (let i = 2; i < this.NUMBER_OF_EXCEL_INSERT_ROW; i++) {
+            worksheet.getCell(`${cell}${i}`).dataValidation = {
+              type: 'list',
+              allowBlank: !item.required,
+              formulae: [list],  // Set the dropdown options
+              showErrorMessage: true,
+              errorTitle: 'Invalid Selection',
+              error: 'Please select a value from the list.',
+            };
+          }
         }
-      }
-      else if (item.type === CONTROL_TYPE.Textbox && item.mode === 'number') {
-        for (let i = 2; i < this.NUMBER_OF_EXCEL_INSERT_ROW; i++) {
-          worksheet.getCell(`${cell}${i}`).dataValidation = {
-            type: 'decimal',
-            allowBlank: !item.required,
-            formulae: [],
-            showErrorMessage: true,
-            errorTitle: 'Invalid Selection',
-            error: 'Please select a value from the list.',
-          };
+        else if (item.type === CONTROL_TYPE.Textbox && item.mode === 'number') {
+          for (let i = 2; i < this.NUMBER_OF_EXCEL_INSERT_ROW; i++) {
+            worksheet.getCell(`${cell}${i}`).dataValidation = {
+              type: 'decimal',
+              allowBlank: !item.required,
+              formulae: [],
+              showErrorMessage: true,
+              errorTitle: 'Invalid Selection',
+              error: 'Please select a value from the list.',
+            };
+          }
         }
-      }
-    });
+      });
 
-    workbook.xlsx.writeBuffer().then((buffer) => {
-      const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
-      saveAs(blob, DOWNLOAD_IMPORT_PROFILE_TEMPLATE_FILE_NAME_XLSX);
-    });
+      workbook.xlsx.writeBuffer().then((buffer) => {
+        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        saveAs(blob, DOWNLOAD_IMPORT_PROFILE_TEMPLATE_FILE_NAME_XLSX);
+      });
+    }
+    else {
+      // TODO
+    }
   }
 
   advanceFilterBtn(isShow: boolean = true): Promise<boolean> {
@@ -1371,45 +1386,51 @@ export class TabPanelPageComponent implements OnChanges {
   }
 
   delete() {
-    this.toastService.addSingle({
-      message: this.translateService.instant("MESSAGE.DELETING"),
-      isLoading: true,
-      severity: 'info'
-    });
-    if (this.module === 'CONT') {
-      this.commonService.deleteContact(this.selectedProfile as ContactDto[]).subscribe(res => {
-        if (res.isSuccess) {
-          this.toastService.clear();
-          this.toastService.addSingle({
-            message: this.translateService.instant("MESSAGE.DELETED_SUCCESSFULLY", { module: this.translateService.instant("COMMON.CONTACT") })
-          });
-          this.getContact();
-        }
-        else {
-          this.toastService.addSingle({
-            message: res.responseMessage,
-            severity: 'error'
-          });
-        }
+    if (this.authService.returnPermissionObj(this.module, 'remove')) {
+      this.toastService.addSingle({
+        message: this.translateService.instant("MESSAGE.DELETING"),
+        isLoading: true,
+        severity: 'info'
       });
+      if (this.module === 'CONT') {
+        this.commonService.deleteContact(this.selectedProfile as ContactDto[]).subscribe(res => {
+          if (res.isSuccess) {
+            this.toastService.clear();
+            this.toastService.addSingle({
+              message: this.translateService.instant("MESSAGE.DELETED_SUCCESSFULLY", { module: this.translateService.instant("COMMON.CONTACT") })
+            });
+            this.getContact();
+          }
+          else {
+            this.toastService.addSingle({
+              message: res.responseMessage,
+              severity: 'error'
+            });
+          }
+        });
+      }
+      else {
+        this.commonService.deleteCompany(this.selectedProfile as CompanyDto[]).subscribe(res => {
+          if (res.isSuccess) {
+            this.toastService.clear();
+            this.toastService.addSingle({
+              message: this.translateService.instant("MESSAGE.DELETED_SUCCESSFULLY", { module: this.translateService.instant("COMMON.CONTACT") })
+            });
+
+            this.getCompany();
+          }
+          else {
+            this.toastService.addSingle({
+              message: res.responseMessage,
+              severity: 'error'
+            });
+          }
+        });
+      }
+
     }
     else {
-      this.commonService.deleteCompany(this.selectedProfile as CompanyDto[]).subscribe(res => {
-        if (res.isSuccess) {
-          this.toastService.clear();
-          this.toastService.addSingle({
-            message: this.translateService.instant("MESSAGE.DELETED_SUCCESSFULLY", { module: this.translateService.instant("COMMON.CONTACT") })
-          });
-
-          this.getCompany();
-        }
-        else {
-          this.toastService.addSingle({
-            message: res.responseMessage,
-            severity: 'error'
-          });
-        }
-      });
+      // TODO
     }
   }
 
@@ -1452,14 +1473,19 @@ export class TabPanelPageComponent implements OnChanges {
   }
 
   create() {
-    if (this.createFormGroup.valid) {
-      this.propertyValueUpdate(this.createFormConfig);
+    if (this.authService.returnPermissionObj(this.module, 'create')) {
+      if (this.createFormGroup.valid) {
+        this.propertyValueUpdate(this.createFormConfig);
+      }
+      else {
+        this.toastService.addSingle({
+          message: 'MESSAGE.PROFILE_NOT_CREATED',
+          severity: 'error'
+        })
+      }
     }
     else {
-      this.toastService.addSingle({
-        message: 'MESSAGE.PROFILE_NOT_CREATED',
-        severity: 'error'
-      })
+      // TODO
     }
   }
 

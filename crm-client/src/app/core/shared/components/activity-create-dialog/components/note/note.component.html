@@ -1,0 +1,97 @@
+<div class="email-template-container">
+  <div class="text-editor tw-px-[var(--content-gap)]">
+    <p-editor
+      [formControl]="editorFormControl"
+      [style]="{ height: '200px' }"
+      [readonly]="false"
+      (onTextChange)="countTextLength($event)"
+      [placeholder]="'ACTIVITY.EDITOR_PLACEHOLDER' | translate"
+    />
+  </div>
+
+  <!-- below content -->
+  <div class="below-content-div">
+    <div class="tw-grid tw-items-center word-count-text">
+      {{ contentWordLength }} / {{ editorContentLimit }}
+      {{ "ACTIVITY.WORDS" | translate }}
+    </div>
+
+    <a
+      (click)="assoPanel.toggle($event)"
+      class="asso-btn tw-flex tw-justify-end tw-self-center tw-text-[var(--primary-color)] tw-cursor-pointer"
+      >{{
+        "Associated with " +
+          (assoContactForm.value?.length + assoCompanyForm.value?.length) +
+          " records"
+      }}</a
+    >
+    <app-base-button
+      [iconName]="'pi pi-plus'"
+      [outlined]="true"
+      (onClick)="uploader.click()"
+      class="add-attach-btn tw-flex tw-justify-end"
+      [pTooltip]="'BUTTON.ATTACH_FILE' | translate"
+    ></app-base-button>
+  </div>
+
+  <!-- attachment list -->
+  <div
+    class="attachment-div tw-px-[var(--content-gap)] tw-flex"
+    *ngIf="attachmentList.length > 0"
+  >
+    <div class="tw-grid tw-items-center tw-mr-[var(--content-gap)]">
+      <div class="pi pi-paperclip"></div>
+    </div>
+    <div class="attachment-chip-div tw-flex tw-flex-wrap">
+      <app-chip
+        *ngFor="let file of attachmentList"
+        label="{{ file.name }} ({{ returnFileSize(file.size) }})"
+        class="tw-mr-2 tw-mt-1"
+        [isFile]="true"
+        [file]="file"
+        (remove)="removeFile($event)"
+      ></app-chip>
+    </div>
+  </div>
+</div>
+
+<input
+  type="file"
+  id="file-input"
+  #uploader
+  hidden
+  (change)="fileUpload($event)"
+  multiple
+/>
+
+<p-overlayPanel #assoPanel>
+  <div class="asso-div tw-flex">
+    <p-tabView>
+      <!-- contact tab -->
+      <p-tabPanel>
+        <ng-template pTemplate="header">
+          <div styleClass="tw-flex tw-w-full tw-justify-between">
+            {{ "PROFILE.CONTACTS" | translate }}
+          </div>
+          <div>({{ assoContactForm.value?.length ?? 0 }})</div>
+        </ng-template>
+        <div>
+          <app-base-form [formConfig]="assoContactFormConfig"></app-base-form>
+        </div>
+      </p-tabPanel>
+
+      <!-- company tab -->
+      <p-tabPanel>
+        <ng-template pTemplate="header">
+          <div styleClass="tw-flex tw-w-full tw-justify-between">
+            {{ "PROFILE.COMPANYS" | translate }}
+          </div>
+          <div>({{ assoCompanyForm.value?.length ?? 0 }})</div>
+        </ng-template>
+        <div>
+          <app-base-form [formConfig]="assoCompanyFormConfig"></app-base-form>
+        </div>
+      </p-tabPanel>
+    </p-tabView>
+  </div>
+</p-overlayPanel>

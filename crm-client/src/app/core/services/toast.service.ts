@@ -38,7 +38,7 @@ export class ToastService {
                     ? this.translateService.instant(
                         toastConfig.message,
                         this.loadMessageData(messageData).reduce((acc, cur) => {
-                            acc[cur.label] = cur.value;
+                            acc[cur.label] = this.translateService.instant(cur.value);
                             return acc;
                         }, {})
                     ) || toastConfig.message

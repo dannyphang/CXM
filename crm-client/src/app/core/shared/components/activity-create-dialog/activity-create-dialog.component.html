@@ -27,6 +27,16 @@
       [companyProfile]="companyProfile"
       (emailValueEmit)="emailValueEmit($event)"
     ></app-email>
+    <!-- note -->
+    <app-note
+      *ngIf="activityModule.moduleSubCode === 'NOTE'"
+      [module]="module"
+      [contactProfile]="contactProfile"
+      [companyProfile]="companyProfile"
+      [activityModule]="activityModule"
+      (noteValueEmit)="noteValueEmit($event)"
+      (attachmentEmit)="attachmentEmit($event)"
+    ></app-note>
   </ng-template>
 
   <ng-template pTemplate="footer">

@@ -39,30 +39,35 @@ export class LayoutComponent implements OnInit {
 
     // this.initBlobity(true);
     this.authService.initAuth().then(userC => {
-      this.user = userC;
-      this.toastService.addSingle({
-        key: 'tenant',
-        message: this.translateService.instant('COMMON.LOADING',
-          {
-            module: this.translateService.instant('COMMON.TENANT')
-          }
-        ),
-        severity: 'info',
-        isLoading: true
-      });
-      this.coreService.getTenantsByUserId(this.user.uid).subscribe(res3 => {
-        if (res3.isSuccess) {
-          this.tenantList = res3.data;
-          this.tenantOptionsList = this.tenantList.map(t => {
-            return {
-              label: t.tenantName,
-              value: t.uid
+      if (userC) {
+        this.user = userC;
+        this.toastService.addSingle({
+          key: 'tenant',
+          message: this.translateService.instant('COMMON.LOADING',
+            {
+              module: this.translateService.instant('COMMON.TENANT')
             }
-          });
-          this.toastService.clear('tenant');
-        }
-      });
-      this.permission = this.authService.returnPermission(this.user.permission);
+          ),
+          severity: 'info',
+          isLoading: true
+        });
+        this.coreService.getTenantsByUserId(this.user.uid).subscribe(res3 => {
+          if (res3.isSuccess) {
+            this.tenantList = res3.data;
+            this.tenantOptionsList = this.tenantList.map(t => {
+              return {
+                label: t.tenantName,
+                value: t.uid
+              }
+            });
+            this.toastService.clear('tenant');
+          }
+        });
+        this.permission = this.authService.returnPermission(this.user.permission);
+      }
+      else {
+        this.router.navigate(["/signin"]);
+      }
     });
   }
 
@@ -73,12 +78,14 @@ export class LayoutComponent implements OnInit {
 
   @HostListener('window:beforeunload')
   ngOnDestroy() {
-    this.coreService.getUser(this.user.uid).subscribe(res => {
-      if (res.isSuccess) {
-        this.user = res.data;
-        this.coreService.updateUserLastActiveTime(this.user).subscribe();
-      }
-    })
+    if (this.user) {
+      this.coreService.getUser(this.user.uid).subscribe(res => {
+        if (res.isSuccess) {
+          this.user = res.data;
+          this.coreService.updateUserLastActiveTime(this.user).subscribe();
+        }
+      });
+    }
   }
 
   initBlobity(isOn: boolean) {

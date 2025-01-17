@@ -86,12 +86,12 @@ export class CoreHttpService {
         if (!this.userC?.uid) {
             this.getCurrentUser();
         }
-        const userId = this.userC.uid;
-        const tenantId = this.userC.setting.defaultTenantId;
+        const userId = this.userC?.uid;
+        const tenantId = this.userC?.setting.defaultTenantId;
 
         // Omit empty headers
         return Object.fromEntries(
-            Object.entries<string>({ ...option?.headers, userId: userId, tenantId: tenantId }).filter(
+            Object.entries<string>({ ...option?.headers, userId: userId ?? null, tenantId: tenantId ?? null }).filter(
                 ([_, v]) => v,
             ),
         );
