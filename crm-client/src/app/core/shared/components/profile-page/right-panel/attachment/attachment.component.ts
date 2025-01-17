@@ -51,7 +51,7 @@ export class AttachmentComponent {
         if (res.isSuccess) {
           this.attachmentList = res.data;
 
-          if (res.data.length > 0) {
+          if (res.data?.length > 0) {
             this.attachPanelExpand = true;
           }
         }
@@ -64,10 +64,15 @@ export class AttachmentComponent {
   }
 
   removeFile(file: AttachmentDto) {
-    this.activityService.removeAttachments([file]).subscribe(res => {
-      if (res.isSuccess) {
-        this.updateAttachmentEmit.emit();
-      }
-    })
+    if (this.authService.returnPermissionObj(this.module, 'remove')) {
+      this.activityService.removeAttachments([file]).subscribe(res => {
+        if (res.isSuccess) {
+          this.updateAttachmentEmit.emit();
+        }
+      })
+    }
+    else {
+      // TODO
+    }
   }
 }

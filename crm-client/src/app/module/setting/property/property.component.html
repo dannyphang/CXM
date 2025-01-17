@@ -1,6 +1,10 @@
 <!-- <app-toast></app-toast> -->
 
 <div class="tw-w-full">
+  <h2 class="tw-text-[var(--text-color)] tw-ml-[var(--content-gap)]">
+    {{ "SETTING.PROPERTY_MANAGEMENT" | translate }}
+  </h2>
+
   <div class="module-dp-div tw-m-[var(--content-gap)]">
     <app-base-label
       [label]="'SETTING.SELECT_MODULE' | translate"
@@ -166,14 +170,19 @@
               [fieldControl]="returnFormControlLookupObj('default', form)"
               [switchInput]="true"
             ></app-base-checkbox>
-            <div *ngIf="propertiesLookup.controls.length > 1" class="tw-flex">
+            <div
+              *ngIf="propertiesLookup.controls.length > 1 && editable"
+              class="tw-flex"
+            >
               <p-divider [layout]="'vertical'"></p-divider>
               <app-base-button
                 [isTextStyle]="true"
                 [iconName]="'pi pi-trash'"
                 class="tw-flex tw-items-center"
                 (onClick)="
-                  editable && editMode ? editDeleteLookup(i) : deleteLookup(i)
+                  editable && editMode
+                    ? editDeleteLookup(i)
+                    : deleteLookup(form)
                 "
               ></app-base-button>
             </div>
@@ -206,7 +215,7 @@
             : ('BUTTON.CREATE' | translate)
         "
         [outlined]="true"
-        (click)="create()"
+        (click)="editMode ? edit() : create()"
       />
     </div>
   </ng-template>

@@ -12,17 +12,24 @@
   <div class="setting-content">
     <div class="general-content" id="general">
       <app-general [permission]="permission" [module]="module"></app-general>
-      <p-divider></p-divider>
     </div>
 
-    <div class="team-content" id="team" *ngIf="userC?.roleId === 1">
+    <div
+      class="team-content"
+      id="team"
+      *ngIf="returnPermissionObj('TEAM', 'display')"
+    >
+      <p-divider></p-divider>
       <app-team [permission]="permission"></app-team>
-      <p-divider></p-divider>
     </div>
 
-    <div class="prpperty-content" id="property">
-      <app-setting-property [permission]="permission"></app-setting-property>
+    <div
+      class="property-content"
+      id="property"
+      *ngIf="returnPermissionObj('PROPERTY', 'display')"
+    >
       <p-divider></p-divider>
+      <app-setting-property [permission]="permission"></app-setting-property>
     </div>
   </div>
 </div>

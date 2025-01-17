@@ -19,7 +19,7 @@ function getAllModuleCodeByModuleType({ tenantId, moduleType }) {
 function getAllModuleBySubModule({ tenantId, subModuleCode }) {
     return new Promise((resolve, reject) => {
         try {
-            propertyRepo.getAllModuleBySubModule({ tenantId: tenantId, moduleType: moduleType }).then((list) => {
+            propertyRepo.getAllModuleBySubModule({ tenantId: tenantId, subModuleCode: subModuleCode }).then((list) => {
                 resolve(list);
             });
         } catch (error) {

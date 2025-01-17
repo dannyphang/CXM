@@ -8,6 +8,7 @@ import { EDITOR_CONTENT_LIMIT, ATTACHMENT_MAX_SIZE } from '../../constants/commo
 import { BaseCoreAbstract } from '../../base/base-core.abstract';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastService } from '../../../services/toast.service';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-activity-block',
@@ -66,7 +67,8 @@ export class ActivityBlockComponent implements OnChanges {
     private ngZone: NgZone,
     private translateService: TranslateService,
     private commonService: CommonService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private authService: AuthService
   ) {
     this.windowSize = this.commonService.windowSize;
   }
@@ -120,45 +122,55 @@ export class ActivityBlockComponent implements OnChanges {
           icon: this.activity.isPinned ? 'pi pi-star-fill' : 'pi pi-star',
           command: () => {
             this.activity.isPinned = !this.activity.isPinned;
-            this.activityService.updateActivity([{
-              uid: this.activity.uid,
-              isPinned: this.activity.isPinned
-            }]).subscribe(res => {
-              if (res.isSuccess) {
-                this.activityReload.emit();
-              }
-              else {
-                this.toastService.addSingle({
-                  message: res.responseMessage,
-                  severity: 'error'
-                });
-              }
-            })
+            if (this.authService.returnPermissionObj(this.module, 'update')) {
+              this.activityService.updateActivity([{
+                uid: this.activity.uid,
+                isPinned: this.activity.isPinned
+              }]).subscribe(res => {
+                if (res.isSuccess) {
+                  this.activityReload.emit();
+                }
+                else {
+                  this.toastService.addSingle({
+                    message: res.responseMessage,
+                    severity: 'error'
+                  });
+                }
+              });
+            }
+            else {
+              // TODO
+            }
           }
         },
         {
           label: 'Delete',
           icon: 'pi pi-trash',
           command: () => {
-            this.activityService.updateActivity([{
-              uid: this.activity.uid,
-              statusId: 2
-            }]).subscribe(res => {
-              if (res.isSuccess) {
-                this.toastService.addSingle({
-                  message: this.translateService.instant("MESSAGE.DELETED_SUCCESSFULLY", {
-                    module: this.translateService.instant(`ACTIVITY.MODULE.${this.activity.activityModuleCode}`)
+            if (this.authService.returnPermissionObj(this.module, 'remove')) {
+              this.activityService.updateActivity([{
+                uid: this.activity.uid,
+                statusId: 2
+              }]).subscribe(res => {
+                if (res.isSuccess) {
+                  this.toastService.addSingle({
+                    message: this.translateService.instant("MESSAGE.DELETED_SUCCESSFULLY", {
+                      module: this.translateService.instant(`ACTIVITY.MODULE.${this.activity.activityModuleCode}`)
+                    })
                   })
-                })
-                this.activityReload.emit();
-              }
-              else {
-                this.toastService.addSingle({
-                  message: res.responseMessage,
-                  severity: 'error'
-                });
-              }
-            })
+                  this.activityReload.emit();
+                }
+                else {
+                  this.toastService.addSingle({
+                    message: res.responseMessage,
+                    severity: 'error'
+                  });
+                }
+              });
+            }
+            else {
+              // TODO
+            }
           }
         }
       ];
@@ -513,94 +525,99 @@ export class ActivityBlockComponent implements OnChanges {
   }
 
   updateActivity() {
-    this.toastService.addSingle({
-      key: 'update_activity',
-      message: this.translateService.instant('MESSAGE.UPDATING_ACTIVITY'),
-      isLoading: true,
-      severity: 'info'
-    });
-    this.activityService.updateActivity([{
-      activityContent: this.editorFormControl.value,
-      ...this.updateAct
-    }]).subscribe(res => {
-      if (res.isSuccess) {
-        if (this.attachmentList && this.attachmentList.length > 0) {
-          this.attachmentList.forEach(file => {
-            this.commonService.uploadFile(file, "Activity").subscribe(res2 => {
-              if (res2.isSuccess) {
-                let uploadAttach: AttachmentDto = {
-                  activityUid: this.activity.uid,
-                  folderName: "Activity",
-                  fileName: res2.data.metadata.name,
-                  fullPath: res2.data.metadata.fullPath,
-                  fileSize: res2.data.metadata.size,
-                  contactUid: this.assoContactForm.value ?? [],
-                  companyUid: this.assoCompanyForm.value ?? [],
-                }
+    if (this.authService.returnPermissionObj(this.module, 'update')) {
+      this.toastService.addSingle({
+        key: 'update_activity',
+        message: this.translateService.instant('MESSAGE.UPDATING_ACTIVITY'),
+        isLoading: true,
+        severity: 'info'
+      });
+      this.activityService.updateActivity([{
+        activityContent: this.editorFormControl.value,
+        ...this.updateAct
+      }]).subscribe(res => {
+        if (res.isSuccess) {
+          if (this.attachmentList && this.attachmentList.length > 0) {
+            this.attachmentList.forEach(file => {
+              this.commonService.uploadFile(file, "Activity").subscribe(res2 => {
+                if (res2.isSuccess) {
+                  let uploadAttach: AttachmentDto = {
+                    activityUid: this.activity.uid,
+                    folderName: "Activity",
+                    fileName: res2.data.metadata.name,
+                    fullPath: res2.data.metadata.fullPath,
+                    fileSize: res2.data.metadata.size,
+                    contactUid: this.assoContactForm.value ?? [],
+                    companyUid: this.assoCompanyForm.value ?? [],
+                  }
 
-                this.activityService.uploadAttachment([uploadAttach]).subscribe(res3 => {
-                  if (res3.isSuccess) {
-                    this.activityService.updateActivity([{
-                      uid: res3.data[0].activityUid,
-                      attachmentUid: this.returnAttactmentList(this.activity.attachmentUid, res3.data[0].uid),
-                    }]).subscribe(
-                      {
-                        next: res4 => {
-                          if (res4.isSuccess) {
-                            this.editorFormControl = new FormControl(this.editorFormControl.value);
-                            this.activity.activityContent = this.editorFormControl.value;
-                            this.readonly = true;
-                            this.toastService.clear('update_activity');
-                          }
-                          else {
+                  this.activityService.uploadAttachment([uploadAttach]).subscribe(res3 => {
+                    if (res3.isSuccess) {
+                      this.activityService.updateActivity([{
+                        uid: res3.data[0].activityUid,
+                        attachmentUid: this.returnAttactmentList(this.activity.attachmentUid, res3.data[0].uid),
+                      }]).subscribe(
+                        {
+                          next: res4 => {
+                            if (res4.isSuccess) {
+                              this.editorFormControl = new FormControl(this.editorFormControl.value);
+                              this.activity.activityContent = this.editorFormControl.value;
+                              this.readonly = true;
+                              this.toastService.clear('update_activity');
+                            }
+                            else {
+                              this.toastService.addSingle({
+                                message: res4.responseMessage,
+                                severity: 'error'
+                              });
+                            }
+                          },
+                          error: err => {
                             this.toastService.addSingle({
-                              message: res4.responseMessage,
+                              message: err,
                               severity: 'error'
                             });
                           }
-                        },
-                        error: err => {
-                          this.toastService.addSingle({
-                            message: err,
-                            severity: 'error'
-                          });
                         }
-                      }
-                    )
-                  }
-                  else {
-                    this.toastService.addSingle({
-                      message: res.responseMessage,
-                      severity: 'error'
-                    });
-                  }
-                });
-              }
-              else {
-                this.toastService.addSingle({
-                  message: res.responseMessage,
-                  severity: 'error'
-                });
-              }
+                      )
+                    }
+                    else {
+                      this.toastService.addSingle({
+                        message: res.responseMessage,
+                        severity: 'error'
+                      });
+                    }
+                  });
+                }
+                else {
+                  this.toastService.addSingle({
+                    message: res.responseMessage,
+                    severity: 'error'
+                  });
+                }
+              });
             });
-          });
+          }
+          else {
+            this.editorFormControl = new FormControl(this.editorFormControl.value);
+            this.activity.activityContent = this.editorFormControl.value;
+            this.readonly = true;
+            this.toastService.clear('update_activity');
+          }
         }
         else {
-          this.editorFormControl = new FormControl(this.editorFormControl.value);
-          this.activity.activityContent = this.editorFormControl.value;
-          this.readonly = true;
           this.toastService.clear('update_activity');
+          this.toastService.addSingle({
+            message: res.responseMessage,
+            severity: 'error'
+          });
         }
-      }
-      else {
-        this.toastService.clear('update_activity');
-        this.toastService.addSingle({
-          message: res.responseMessage,
-          severity: 'error'
-        });
-      }
 
-    });
+      });
+    }
+    else {
+      // TODO: add message 
+    }
   }
 
   panelOnClick() {

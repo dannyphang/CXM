@@ -165,12 +165,15 @@ function updateUserRoleAndTenant({ userId, updateList }) {
         try {
             let updatedUserList = [];
             updateList.forEach(async (user, index) => {
-                authRepo.getUserByEmail(user.email).then((u) => {
+                authRepo.getUserByEmail({ email: user.email }).then((u) => {
                     let userData = u;
                     userData.modifiedDate = new Date();
                     userData.modifiedBy = userId;
                     userData.roleId = user.roleId;
-                    userData.defaultTenantId = user.tenantId;
+                    if (!userData.setting) {
+                        userData.setting = {};
+                    }
+                    userData.setting.defaultTenantId = user.tenantId;
 
                     authRepo.updateUser({ user: userData }).then((uu) => {
                         updatedUserList.push(uu);

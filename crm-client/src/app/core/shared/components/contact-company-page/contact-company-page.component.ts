@@ -253,11 +253,16 @@ export class ContactCompanyPageComponent implements OnChanges {
   }
 
   tabViewOnClose() {
-    this.updateUserfilterSetting([], true, this.panelList[this.selectedPanel].panelUid);
-    this.updateUserColumnSetting(null, true, this.panelList[this.selectedPanel].panelUid);
-    this.panelList = this.panelList.filter((p, index) => index !== this.selectedPanel);
-    this.activeTabPanel = this.panelList[0].panelUid;
-    this.closeDialogVisible = false;
+    if (this.authService.returnPermissionObj(this.module, 'update')) {
+      this.updateUserfilterSetting([], true, this.panelList[this.selectedPanel].panelUid);
+      this.updateUserColumnSetting(null, true, this.panelList[this.selectedPanel].panelUid);
+      this.panelList = this.panelList.filter((p, index) => index !== this.selectedPanel);
+      this.activeTabPanel = this.panelList[0].panelUid;
+      this.closeDialogVisible = false;
+    }
+    else {
+      // TODO
+    }
   }
 
   showCloseConfirmDialog(event: any) {
@@ -266,29 +271,40 @@ export class ContactCompanyPageComponent implements OnChanges {
   }
 
   updateUserSetting(setting: SettingDto) {
-    let updateUser: CreateUserDto = {
-      uid: this.coreService.userC.uid,
-      setting: setting
-    };
-    this.authService.updateUserFirestore([updateUser]).subscribe(res => {
-      if (res.isSuccess) {
-        this.toastService.addSingle({
-          message: res.responseMessage
-        });
-      }
-      else {
-        this.toastService.addSingle({
-          message: res.responseMessage,
-          severity: 'error'
-        });
-      }
-    });
+    if (this.authService.returnPermissionObj(this.module, 'update')) {
+      let updateUser: CreateUserDto = {
+        uid: this.coreService.userC.uid,
+        setting: setting
+      };
+      this.authService.updateUserFirestore([updateUser]).subscribe(res => {
+        if (res.isSuccess) {
+          this.toastService.addSingle({
+            message: res.responseMessage
+          });
+        }
+        else {
+          this.toastService.addSingle({
+            message: res.responseMessage,
+            severity: 'error'
+          });
+        }
+      });
+    }
+    else {
+      // TODO
+    }
   }
 
   updateUserfilterSetting(filterList: TableDataFilterDto[], isRemove: boolean = false, removeTabUid: string = '') {
     // this.panel.edit = false;
     let setting = this.coreService.userC.setting;
-    if (!this.coreService.userC.setting.tableFilter || !this.coreService.userC.setting.tableFilter[this.module === "CONT" ? "contact" : "company"]?.propertyFilter) {
+    if (!this.coreService.userC.setting.tableFilter) {
+      setting.tableFilter = {
+        contact: new TableFilterDto(),
+        company: new TableFilterDto(),
+      }
+    }
+    if (!this.coreService.userC.setting.tableFilter[this.module === "CONT" ? "contact" : "company"]?.propertyFilter) {
       setting.tableFilter[this.module === "CONT" ? "contact" : "company"].propertyFilter = [];
       setting.tableFilter[this.module === "CONT" ? "contact" : "company"].columnFilter = [];
     }
@@ -344,19 +360,24 @@ export class ContactCompanyPageComponent implements OnChanges {
       setting: setting
     };
 
-    this.authService.updateUserFirestore([updateUser]).subscribe(res => {
-      if (res.isSuccess) {
-        this.toastService.addSingle({
-          message: res.responseMessage
-        });
-      }
-      else {
-        this.toastService.addSingle({
-          message: res.responseMessage,
-          severity: 'error'
-        });
-      }
-    });
+    if (this.authService.returnPermissionObj(this.module, 'create')) {
+      this.authService.updateUserFirestore([updateUser]).subscribe(res => {
+        if (res.isSuccess) {
+          this.toastService.addSingle({
+            message: res.responseMessage
+          });
+        }
+        else {
+          this.toastService.addSingle({
+            message: res.responseMessage,
+            severity: 'error'
+          });
+        }
+      });
+    }
+    else {
+      // TODO
+    }
   }
 
   updateUserPanelSetting(panel: Panel) {
@@ -378,8 +399,11 @@ export class ContactCompanyPageComponent implements OnChanges {
   }
 
   editPanel(uid: string) {
-    if (uid === this.activeTabPanel) {
+    if (uid === this.activeTabPanel && this.authService.returnPermissionObj(this.module, 'update')) {
       this.panelList.find(p => p.panelUid === uid)!.edit = true;
+    }
+    else {
+      // TODO
     }
   }
 

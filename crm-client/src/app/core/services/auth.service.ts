@@ -13,7 +13,7 @@ import {
 import { CommonService } from "./common.service";
 import apiConfig from "../../../environments/apiConfig";
 import { Observable } from "rxjs";
-import { BasedDto, CoreHttpService, ResponseModel, RoleDto, SettingDto, TenantDto, UserDto, UserPermissionDto } from "./core-http.service";
+import { BasedDto, CoreHttpService, PermissionObjDto, ResponseModel, RoleDto, SettingDto, TenantDto, UserDto, UserPermissionDto } from "./core-http.service";
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -127,6 +127,17 @@ export class AuthService {
 
     returnPermission(pString: string): UserPermissionDto[] {
         return JSON.parse(pString ?? '[]');
+    }
+
+    returnPermissionObj(module: string, action: string): boolean {
+        if (!this.coreService.userC) {
+            return false;
+        }
+        if (this.coreService.userC.roleId === 1) {
+            return true
+        }
+        let permission: UserPermissionDto[] = JSON.parse(this.coreService.userC.permission);
+        return permission.find(p => p.module === module)?.permission[action];
     }
 
     getAllUserByTenant(tenantId: string): Observable<ResponseModel<UserDto[]>> {

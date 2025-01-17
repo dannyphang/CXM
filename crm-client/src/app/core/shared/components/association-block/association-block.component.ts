@@ -3,6 +3,7 @@ import { CommonService, CompanyDto, ContactDto } from '../../../services/common.
 import { NavigationExtras, Router } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { ToastService } from '../../../services/toast.service';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-asso-block',
@@ -23,20 +24,25 @@ export class AssociationBlockComponent {
       label: 'Delete',
       icon: 'pi pi-trash',
       command: () => {
-        this.toastService.addSingle({
-          message: 'MESSAGE.REMOVING_ASSO',
-          severity: 'info',
-          isLoading: true
-        })
-        this.commonService.removeAsso(this.module, this.profileUid, this.module === 'COMP' ? this.contactProfile.uid : this.companyProfile.uid).subscribe(res => {
-          if (res.isSuccess) {
-            this.toastService.clear();
-            this.toastService.addSingle({
-              message: 'MESSAGE.REMOVING_SUCCESSFUL',
-            })
-            this.removeAssoEmit.emit();
-          }
-        });
+        if (this.authService.returnPermissionObj(this.module, 'remove')) {
+          this.toastService.addSingle({
+            message: 'MESSAGE.REMOVING_ASSO',
+            severity: 'info',
+            isLoading: true
+          })
+          this.commonService.removeAsso(this.module, this.profileUid, this.module === 'COMP' ? this.contactProfile.uid : this.companyProfile.uid).subscribe(res => {
+            if (res.isSuccess) {
+              this.toastService.clear();
+              this.toastService.addSingle({
+                message: 'MESSAGE.REMOVING_SUCCESSFUL',
+              })
+              this.removeAssoEmit.emit();
+            }
+          });
+        }
+        else {
+          // TODO
+        }
       }
     }
   ]
@@ -44,7 +50,8 @@ export class AssociationBlockComponent {
   constructor(
     private router: Router,
     private commonService: CommonService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private authService: AuthService
   ) {
 
   }

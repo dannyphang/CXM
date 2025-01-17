@@ -22,19 +22,26 @@ export class PermissionGuard extends BaseCoreAbstract implements CanActivate {
 
     async canActivate(route: ActivatedRouteSnapshot): Promise<boolean | UrlTree> {
         return new Promise(async (resolve, reject) => {
-            if (this.coreService.user) {
-                let permit: boolean = true;
-                if (this.coreService.userC.roleId !== 1) {
-                    permit = this.checkPermission(route.data['action'], route.data['module'], this.authService.returnPermission(this.coreService.userC.permission), this.coreService.userC.roleId);
-
-                    console.log(permit ? '' : "no permission")
+            try {
+                let user = this.coreService.userC;
+                if (!user) {
+                    user = await this.coreService.getCurrentUser();
                 }
 
+                let permit: boolean = true;
+                if (user?.roleId !== 1) {
+                    permit = this.checkPermission(route.data['action'], route.data['module'], this.authService.returnPermission(this.coreService.userC.permission), this.coreService.userC.roleId);
+                    console.log("permit: " + permit)
+                }
+                if (!permit) {
+                    this.router.navigate([]);
+                }
                 return resolve(permit); // Allow access to the route
-            } else {
-                // back to previsous page
+            }
+            catch (error) {
+                console.log(error);
                 this._location.back();
-                return reject(false);
+                return resolve(false);
             }
         });
     }

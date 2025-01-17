@@ -3,6 +3,7 @@ import { RouterModule, Routes } from '@angular/router';
 import { LayoutComponent } from './layout/layout.component';
 import { Error404Component } from './layout/error-404/error-404.component';
 import { PermissionGuard } from './core/shared/guard/permission.guard';
+import { AuthGuard } from './core/shared/guard/auth.guard';
 
 const routes: Routes = [
   {
@@ -17,20 +18,34 @@ const routes: Routes = [
       {
         path: 'contact',
         loadChildren: () => import('./module/contact/contact.module').then(m => m.ContactModule),
-        // canActivate: [PermissionGuard],
-        data: { breadcrumb: 'Contact', title: 'Contact' },
+        canActivate: [AuthGuard, PermissionGuard],
+        data: {
+          breadcrumb: 'Contact',
+          title: 'Contact',
+          action: 'display',
+          module: 'CONT'
+        },
       },
       {
         path: 'company',
         loadChildren: () => import('./module/company/company.module').then(m => m.CompanyModule),
-        // canActivate: [PermissionGuard],
-        data: { breadcrumb: 'Company', title: 'Company' }
+        canActivate: [AuthGuard, PermissionGuard],
+        data: {
+          breadcrumb: 'Company',
+          title: 'Company',
+          action: 'display',
+          module: 'COMP'
+        }
       },
       {
         path: 'setting',
         loadChildren: () => import('./module/setting/setting.module').then(m => m.SettingModule),
-        // canActivate: [PermissionGuard],
-        data: { breadcrumb: 'Setting', title: 'Setting' }
+        canActivate: [AuthGuard, PermissionGuard],
+        data: {
+          breadcrumb: 'Setting', title: 'Setting',
+          action: 'display',
+          module: 'SETTING'
+        }
       }
     ]
   },

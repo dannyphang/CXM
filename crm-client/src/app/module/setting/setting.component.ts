@@ -3,9 +3,10 @@ import { MenuItem, MessageService } from 'primeng/api';
 import { BaseCoreAbstract } from '../../core/shared/base/base-core.abstract';
 import { TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../core/services/auth.service';
-import { CoreHttpService, UserDto, UserPermissionDto } from '../../core/services/core-http.service';
+import { CoreHttpService, PermissionObjDto, UserDto, UserPermissionDto } from '../../core/services/core-http.service';
 import { CommonService, WindowSizeDto } from '../../core/services/common.service';
 import { Title } from '@angular/platform-browser';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-setting',
@@ -17,8 +18,14 @@ export class SettingComponent extends BaseCoreAbstract {
   module = 'SETTING';
   settingMenuItem: MenuItem[] = [];
   userC: UserDto;
+  fragment: string;
 
   windowSize: WindowSizeDto = new WindowSizeDto();
+
+  //#region permission
+  settingPermit: PermissionObjDto = new PermissionObjDto();
+
+  //#region 
 
   constructor(
     private translateService: TranslateService,
@@ -26,6 +33,7 @@ export class SettingComponent extends BaseCoreAbstract {
     private coreService: CoreHttpService,
     private commonService: CommonService,
     private titleService: Title,
+    private route: ActivatedRoute
   ) {
     super();
     this.windowSize = this.commonService.windowSize;
@@ -33,7 +41,6 @@ export class SettingComponent extends BaseCoreAbstract {
 
   ngOnInit() {
     this.userC = this.coreService.userC;
-    console.log(this.userC)
     this.settingMenuItem = [
       {
         label: this.translateService.instant('SETTING.GENERAL'),
@@ -69,6 +76,16 @@ export class SettingComponent extends BaseCoreAbstract {
     ];
     this.permission = JSON.parse(this.userC.permission);
     this.titleService.setTitle(this.translateService.instant('COMMON.SETTING'));
+
+    this.route.fragment.subscribe((fragment: string | null) => {
+      setTimeout(() => {
+        this.fragment = fragment;
+        const element = document.getElementById(this.fragment);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 2000);
+    });
   }
 
   @HostListener('window:scroll', ['$event']) // for window scroll events
@@ -91,5 +108,9 @@ export class SettingComponent extends BaseCoreAbstract {
   onResize() {
     this.commonService.updateWindowSize();
     this.windowSize = this.commonService.windowSize;
+  }
+
+  returnPermissionObj(module: string, action: string): boolean {
+    return this.permission.find(p => p.module === module)?.permission[action];
   }
 }
