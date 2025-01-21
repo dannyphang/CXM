@@ -8,7 +8,8 @@ import { DEFAULT_PROFILE_PIC_URL } from '../../../core/shared/constants/common.c
 import { StorageService } from '../../../core/services/storage.service';
 import { AuthService, CreateUserDto } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
-import { CoreHttpService, UserDto, UserPermissionDto } from '../../../core/services/core-http.service';
+import { CoreHttpService, UserPermissionDto } from '../../../core/services/core-http.service';
+import { CoreAuthService, UserDto } from '../../../core/services/core-auth.service';
 
 @Component({
   selector: 'app-create',
@@ -42,6 +43,7 @@ export class CreateComponent extends BaseCoreAbstract {
     private authService: AuthService,
     private toastService: ToastService,
     private coreService: CoreHttpService,
+    private coreAuthService: CoreAuthService
   ) {
     super()
   }
@@ -52,7 +54,7 @@ export class CreateComponent extends BaseCoreAbstract {
   }
 
   getCurrentUser() {
-    this.userProfile = this.coreService.userC;
+    this.userProfile = this.coreAuthService.userC;
     this.createFormGroup.controls['displayName'].setValue(this.userProfile.displayName, { emitEvent: false });
     this.createFormGroup.controls['first_name'].setValue(this.userProfile.firstName, { emitEvent: false });
     this.createFormGroup.controls['last_name'].setValue(this.userProfile.lastName, { emitEvent: false });
@@ -125,7 +127,7 @@ export class CreateComponent extends BaseCoreAbstract {
   }
 
   imageFileUploadBtn() {
-    if (this.checkPermission('update', this.module, this.permission, this.coreService.userC.roleId)) {
+    if (this.checkPermission('update', this.module, this.permission, this.coreAuthService.userC.roleId)) {
       if (this.profileImg !== DEFAULT_PROFILE_PIC_URL && this.profilePhotoFile) {
         this.storageService.uploadImage(this.profilePhotoFile, "Image/User/").then(url => {
           this.profileImg = url;
@@ -183,7 +185,7 @@ export class CreateComponent extends BaseCoreAbstract {
   }
 
   update() {
-    if (this.checkPermission('update', this.module, this.permission, this.coreService.userC.roleId)) {
+    if (this.checkPermission('update', this.module, this.permission, this.coreAuthService.userC.roleId)) {
       let updateUser: CreateUserDto = {
         uid: this.userProfile.uid,
         firstName: this.createFormGroup.controls['first_name'].value,

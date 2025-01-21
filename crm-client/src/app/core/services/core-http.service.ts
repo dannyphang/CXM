@@ -6,19 +6,19 @@ import { map, Observable } from "rxjs";
 import { FirebaseApp, initializeApp } from "firebase/app";
 import { Auth, getAuth, onAuthStateChanged, User } from "firebase/auth";
 import { ToastService } from "./toast.service";
+import { UserDto, BasedDto, CoreAuthService } from "./core-auth.service";
 
 @Injectable()
 export class CoreHttpService {
     private BASE_URL = apiConfig.baseUrl;
     app: FirebaseApp;
     auth: Auth;
-    user: User | null;
-    userC: UserDto;
     tenant: TenantDto;
 
     constructor(
         private http: HttpClient,
-        private toastService: ToastService
+        private toastService: ToastService,
+        private coreAuthService: CoreAuthService,
     ) { }
 
     getTenantsByUserId(userId: string): Observable<ResponseModel<TenantDto[]>> {
@@ -33,46 +33,6 @@ export class CoreHttpService {
         this.tenant = tenant;
     }
 
-    currentUser(): User | null {
-        return this.user;
-    }
-
-    async getCurrentUser(): Promise<UserDto> {
-        return new Promise((resolve, reject) => {
-            this.getEnvToken().subscribe(res => {
-                this.app = initializeApp(res);
-                this.auth = getAuth(this.app);
-                this.auth ? onAuthStateChanged(this.auth, (user) => {
-                    if (user) {
-                        this.user = user;
-                        this.toastService.addSingle({
-                            message: 'COMMON.LOADING',
-                            severity: 'info',
-                            messageData: [
-                                {
-                                    key: 'module',
-                                    value: 'COMMON.USER'
-                                }
-                            ]
-                        })
-
-                        this.getUser(this.user.uid).subscribe(res => {
-                            if (res.isSuccess) {
-                                this.userC = res.data;
-
-                                this.toastService.clear();
-                                resolve(this.userC);
-                            }
-                        });
-
-                    } else {
-                        resolve(null);
-                    }
-                }) : resolve(null);
-            });
-        });
-    }
-
     updateUserLastActiveTime(user: UserDto): Observable<ResponseModel<UserDto>> {
         return this.http.put<ResponseModel<UserDto>>(apiConfig.baseUrl + '/auth/user/userLastActive', { user }).pipe();
     }
@@ -83,11 +43,11 @@ export class CoreHttpService {
 
     buildHeader(option?: CoreHttpOption) {
 
-        if (!this.userC?.uid) {
-            this.getCurrentUser();
+        if (!this.coreAuthService.userC?.uid) {
+            this.coreAuthService.getCurrentAuthUser();
         }
-        const userId = this.userC?.uid;
-        const tenantId = this.userC?.setting.defaultTenantId;
+        const userId = this.coreAuthService.userC?.uid;
+        const tenantId = this.coreAuthService.userC?.setting.defaultTenantId;
 
         // Omit empty headers
         return Object.fromEntries(
@@ -110,7 +70,6 @@ export class CoreHttpService {
             }
         );
     }
-
 
     put<ResponseBody = any, Body = any>(url: string, body: Body, option?: CoreHttpOption) {
         return this.http.put<ResponseModel<ResponseBody>>(
@@ -153,61 +112,9 @@ export class MessageModel {
     messageData?: any[];
 }
 
-export class BasedDto {
-    tenantId?: string;
-    createdDate?: Date;
-    createdBy?: string;
-    modifiedDate?: Date;
-    modifiedBy?: string;
-    statusId?: number;
-}
-
-export class UserDto extends BasedDto {
-    uid: string;
-    firstName: string;
-    lastName: string;
-    nickname: string;
-    displayName: string;
-    phoneNumber: string;
-    profilePhotoUrl: string;
-    email: string;
-    roleId: number;
-    permission: string;
-    setting: SettingDto;
-    lastActiveDateTime: Date;
-}
-
 export class TenantDto extends BasedDto {
     uid: string;
     tenantName: string;
-}
-
-export class SettingDto {
-    darkMode?: boolean;
-    defaultTenantId?: string;
-    tableFilter: {
-        contact: TableFilterDto;
-        company: TableFilterDto;
-    }
-}
-
-export class TableFilterDto {
-    propertyFilter: TableDataFilterDto[];
-    columnFilter: TableColumnFilterDto[];
-}
-
-export class TableColumnFilterDto {
-    tabUid: string;
-    propertyUid: string[];
-}
-
-export class TableDataFilterDto {
-    propertyUid?: string;
-    filterFieldControlCode?: string;
-    conditionFieldControlCode?: string;
-    mode?: string;
-    tabUid: string;
-    tabLabel: string;
 }
 
 export class PermissionObjDto {

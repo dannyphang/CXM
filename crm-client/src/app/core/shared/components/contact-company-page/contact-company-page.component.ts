@@ -13,8 +13,9 @@ import { ROW_PER_PAGE_DEFAULT, ROW_PER_PAGE_DEFAULT_LIST, EMPTY_VALUE_STRING, NU
 import * as XLSX from 'xlsx';
 import { BaseCoreAbstract } from '../../base/base-core.abstract';
 import { ToastService } from '../../../services/toast.service';
-import { CoreHttpService, SettingDto, TableColumnFilterDto, TableDataFilterDto, TableFilterDto, UserDto } from '../../../services/core-http.service';
+import { CoreHttpService } from '../../../services/core-http.service';
 import { Table } from 'primeng/table';
+import { TableDataFilterDto, TableColumnFilterDto, SettingDto, TableFilterDto, CoreAuthService } from '../../../services/core-auth.service';
 
 @Component({
   selector: 'app-contact-company-page',
@@ -61,7 +62,8 @@ export class ContactCompanyPageComponent implements OnChanges {
     private translateService: TranslateService,
     private authService: AuthService,
     private toastService: ToastService,
-    private coreService: CoreHttpService
+    private coreService: CoreHttpService,
+    private coreAuthService: CoreAuthService,
   ) {
     if (this.router.url === '/contact') {
       this.module = 'CONT';
@@ -100,10 +102,10 @@ export class ContactCompanyPageComponent implements OnChanges {
     this.getPanelListFromSetting();
 
     Promise.all([]).then(_ => {
-      this.canDownload = this.authService.returnPermission(this.coreService.userC.permission).find(p => p.module === this.module)?.permission.download ?? false;
-      this.canExport = this.authService.returnPermission(this.coreService.userC.permission).find(p => p.module === this.module)?.permission.export ?? false;
-      this.canDelete = this.authService.returnPermission(this.coreService.userC.permission).find(p => p.module === this.module)?.permission.remove ?? false;
-      this.canCreate = this.authService.returnPermission(this.coreService.userC.permission).find(p => p.module === this.module)?.permission.create ?? false;
+      this.canDownload = this.authService.returnPermission(this.coreAuthService.userC.permission).find(p => p.module === this.module)?.permission.download ?? false;
+      this.canExport = this.authService.returnPermission(this.coreAuthService.userC.permission).find(p => p.module === this.module)?.permission.export ?? false;
+      this.canDelete = this.authService.returnPermission(this.coreAuthService.userC.permission).find(p => p.module === this.module)?.permission.remove ?? false;
+      this.canCreate = this.authService.returnPermission(this.coreAuthService.userC.permission).find(p => p.module === this.module)?.permission.create ?? false;
 
       // this.getTabLabelArr.valueChanges.subscribe((value: any) => {
       //   this.getTabLabelArr.controls.find((item: any) => item.value.index === this.activeTabPanel).valueChanges.subscribe((value: any) => {
@@ -120,8 +122,8 @@ export class ContactCompanyPageComponent implements OnChanges {
   }
 
   getPanelListFromSetting() {
-    if (this.coreService.userC.setting.tableFilter) {
-      this.coreService.userC.setting.tableFilter[this.module === 'CONT' ? 'contact' : 'company']?.propertyFilter?.forEach((item: TableDataFilterDto) => {
+    if (this.coreAuthService.userC.setting.tableFilter) {
+      this.coreAuthService.userC.setting.tableFilter[this.module === 'CONT' ? 'contact' : 'company']?.propertyFilter?.forEach((item: TableDataFilterDto) => {
         if (this.panelList.find(p => p.panelUid === item.tabUid) === undefined) {
           this.panelList.push({
             headerLabel: item.tabLabel,
@@ -146,11 +148,11 @@ export class ContactCompanyPageComponent implements OnChanges {
   }
 
   returnTabPanelByTabUid(panel: Panel): TableDataFilterDto[] {
-    return this.coreService.userC.setting.tableFilter[this.module === 'CONT' ? 'contact' : 'company'].propertyFilter.filter(p => p.tabUid === panel.panelUid);
+    return this.coreAuthService.userC.setting.tableFilter[this.module === 'CONT' ? 'contact' : 'company'].propertyFilter.filter(p => p.tabUid === panel.panelUid);
   }
 
   returnColumnFilterByTabUid(panel: Panel): TableColumnFilterDto {
-    return this.coreService.userC.setting.tableFilter[this.module === 'CONT' ? 'contact' : 'company'].columnFilter.find(p => p.tabUid === panel.panelUid);
+    return this.coreAuthService.userC.setting.tableFilter[this.module === 'CONT' ? 'contact' : 'company'].columnFilter.find(p => p.tabUid === panel.panelUid);
   }
 
   addTab() {
@@ -273,7 +275,7 @@ export class ContactCompanyPageComponent implements OnChanges {
   updateUserSetting(setting: SettingDto) {
     if (this.authService.returnPermissionObj(this.module, 'update')) {
       let updateUser: CreateUserDto = {
-        uid: this.coreService.userC.uid,
+        uid: this.coreAuthService.userC.uid,
         setting: setting
       };
       this.authService.updateUserFirestore([updateUser]).subscribe(res => {
@@ -297,14 +299,14 @@ export class ContactCompanyPageComponent implements OnChanges {
 
   updateUserfilterSetting(filterList: TableDataFilterDto[], isRemove: boolean = false, removeTabUid: string = '') {
     // this.panel.edit = false;
-    let setting = this.coreService.userC.setting;
-    if (!this.coreService.userC.setting.tableFilter) {
+    let setting = this.coreAuthService.userC.setting;
+    if (!this.coreAuthService.userC.setting.tableFilter) {
       setting.tableFilter = {
         contact: new TableFilterDto(),
         company: new TableFilterDto(),
       }
     }
-    if (!this.coreService.userC.setting.tableFilter[this.module === "CONT" ? "contact" : "company"]?.propertyFilter) {
+    if (!this.coreAuthService.userC.setting.tableFilter[this.module === "CONT" ? "contact" : "company"]?.propertyFilter) {
       setting.tableFilter[this.module === "CONT" ? "contact" : "company"].propertyFilter = [];
       setting.tableFilter[this.module === "CONT" ? "contact" : "company"].columnFilter = [];
     }
@@ -324,7 +326,7 @@ export class ContactCompanyPageComponent implements OnChanges {
   }
 
   updateUserFilterRemoveSetting(panel: Panel) {
-    let setting = this.coreService.userC.setting;
+    let setting = this.coreAuthService.userC.setting;
     setting.tableFilter[this.module === "CONT" ? "contact" : "company"].propertyFilter = setting.tableFilter[this.module === "CONT" ? "contact" : "company"].propertyFilter.filter((item) => item.tabUid !== panel.panelUid);
     setting.tableFilter[this.module === "CONT" ? "contact" : "company"].propertyFilter.push({
       tabUid: panel.panelUid,
@@ -335,8 +337,8 @@ export class ContactCompanyPageComponent implements OnChanges {
   }
 
   updateUserColumnSetting(filterList: TableColumnFilterDto, isRemove: boolean = false, removeTabUid: string = '') {
-    let setting = this.coreService.userC.setting;
-    if (!this.coreService.userC.setting.tableFilter || !this.coreService.userC.setting.tableFilter[this.module === "CONT" ? "contact" : "company"]?.propertyFilter) {
+    let setting = this.coreAuthService.userC.setting;
+    if (!this.coreAuthService.userC.setting.tableFilter || !this.coreAuthService.userC.setting.tableFilter[this.module === "CONT" ? "contact" : "company"]?.propertyFilter) {
       setting.tableFilter = {
         contact: new TableFilterDto(),
         company: new TableFilterDto(),
@@ -356,7 +358,7 @@ export class ContactCompanyPageComponent implements OnChanges {
     }
 
     let updateUser: CreateUserDto = {
-      uid: this.coreService.userC.uid,
+      uid: this.coreAuthService.userC.uid,
       setting: setting
     };
 
@@ -384,7 +386,7 @@ export class ContactCompanyPageComponent implements OnChanges {
     this.panelList.find(p => p.panelUid === panel.panelUid).edit = false;
     this.panelList.find(p => p.panelUid === panel.panelUid).headerLabel = (this.getTabLabelArr.controls.find((item: any) => item.value.index === panel.panelUid)?.get('tabLabel') as FormControl).value;
 
-    let setting = this.coreService.userC.setting;
+    let setting = this.coreAuthService.userC.setting;
     setting.tableFilter[this.module === "CONT" ? "contact" : "company"].propertyFilter.forEach(pf => {
       if (pf.tabUid === panel.panelUid) {
         pf.tabLabel = this.panelList.find(p => p.panelUid === panel.panelUid).headerLabel;

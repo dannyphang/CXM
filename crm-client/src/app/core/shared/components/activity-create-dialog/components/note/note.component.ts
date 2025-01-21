@@ -6,6 +6,7 @@ import { FormControl, Validators } from '@angular/forms';
 import { CoreHttpService } from '../../../../../services/core-http.service';
 import { ATTACHMENT_MAX_SIZE, EDITOR_CONTENT_LIMIT } from '../../../../constants/common.constants';
 import { ToastService } from '../../../../../services/toast.service';
+import { CoreAuthService } from '../../../../../services/core-auth.service';
 
 @Component({
   selector: 'app-note',
@@ -37,7 +38,7 @@ export class NoteComponent {
 
   constructor(
     private ngZone: NgZone,
-    private coreService: CoreHttpService,
+    private coreAuthService: CoreAuthService,
     private commonService: CommonService,
     private toastService: ToastService,
   ) {
@@ -178,7 +179,7 @@ export class NoteComponent {
       associationContactUidList: this.assoContactForm.value ?? [],
       associationCompanyUidList: this.assoCompanyForm.value ?? [],
       attachmentUid: [],
-      createdBy: this.coreService.userC.uid,
+      createdBy: this.coreAuthService.userC.uid,
       createdDate: new Date()
     }
     this.noteValueEmit.emit(createActivity);

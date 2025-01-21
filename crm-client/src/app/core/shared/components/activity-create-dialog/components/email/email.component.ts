@@ -4,6 +4,7 @@ import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { CONTROL_TYPE, FormConfig, OptionsModel } from '../../../../../services/components.service';
 import { EmailDto } from '../../../../../services/activity.service';
 import { CoreHttpService } from '../../../../../services/core-http.service';
+import { CoreAuthService } from '../../../../../services/core-auth.service';
 
 @Component({
   selector: 'app-email',
@@ -42,7 +43,7 @@ export class EmailComponent {
 
   constructor(
     private ngZone: NgZone,
-    private coreHTTPService: CoreHttpService,
+    private coreAuthService: CoreAuthService,
     private commonService: CommonService
   ) {
     this.windowSize = this.commonService.windowSize;
@@ -154,7 +155,7 @@ export class EmailComponent {
       },
     ];
 
-    this.createEmailFormGroup.controls['fromEmail'].setValue(this.coreHTTPService.userC.email)
+    this.createEmailFormGroup.controls['fromEmail'].setValue(this.coreAuthService.userC.email)
   }
 
   setAssociation() {

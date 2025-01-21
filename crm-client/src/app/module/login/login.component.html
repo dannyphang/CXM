@@ -1,33 +1,20 @@
-<!-- <app-toast></app-toast> -->
-
 <div
   class="login-container tw-w-screen tw-h-screen tw-grid tw-justify-center tw-items-center"
 >
   <div class="tw-grid tw-justify-center tw-items-center">
-    <div class="login-form-div" *ngIf="isLoginMode">
-      <app-base-form [formConfig]="loginFormConfig" class=""> </app-base-form>
-    </div>
+    <app-base-form [formConfig]="loginFormConfig" class="login-form">
+    </app-base-form>
 
-    <div class="login-form-div" *ngIf="!isLoginMode">
-      <app-base-form [formConfig]="signupFormConfig" class=""> </app-base-form>
-    </div>
-
-    <a class="signup-label-button" (click)="toSignUp()" *ngIf="isLoginMode">{{
-      "BUTTON.SIGN_UP_LABEL" | translate
-    }}</a>
-
-    <a class="signin-label-button" (click)="toSignIn()" *ngIf="!isLoginMode">{{
-      "BUTTON.SIGN_IN_LABEL" | translate
-    }}</a>
-
-    <div class="action-div tw-flex tw-justify-center tw-p-[var(--content-gap)]">
+    <div
+      class="action-div tw-flex tw-justify-between tw-p-[var(--content-gap)]"
+    >
       <app-base-button
         [label]="'BUTTON.CANCEL' | translate"
         [outlined]="true"
         (onClick)="cancel()"
       ></app-base-button>
       <app-base-button
-        [label]="isLoginMode ? 'Login' : 'Sign Up'"
+        [label]="'BUTTON.LOGIN'"
         [color]="'normal'"
         class="tw-ml-[var(--content-gap)]"
         (onClick)="submit()"

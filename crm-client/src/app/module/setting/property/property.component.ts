@@ -11,6 +11,7 @@ import { list } from 'firebase/storage';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { CoreHttpService, UserPermissionDto } from '../../../core/services/core-http.service';
+import { CoreAuthService } from '../../../core/services/core-auth.service';
 
 interface Column {
   field: string;
@@ -96,13 +97,14 @@ export class PropertyComponent extends BaseCoreAbstract {
     private authService: AuthService,
     private toastService: ToastService,
     private coreService: CoreHttpService,
+    private coreAuthService: CoreAuthService,
   ) {
     super();
   }
 
   ngOnInit() {
     this.getAllProperties('CONT');
-    this.roleId = this.coreService.userC.roleId;
+    this.roleId = this.coreAuthService.userC.roleId;
     this.initPropertyForm();
   }
 
@@ -699,7 +701,7 @@ export class PropertyComponent extends BaseCoreAbstract {
   }
 
   delete() {
-    if (this.checkPermission('remove', this.moduleFormControl.value, this.permission, this.coreService.userC.roleId)) {
+    if (this.checkPermission('remove', this.moduleFormControl.value, this.permission, this.coreAuthService.userC.roleId)) {
       if (this.selectedProperty.find(p => p.isSystem)) {
         this.toastService.addSingle({
           message: "MESSAGE.CANNOT_DELETE_SYSTEM_PROPERTY",
@@ -707,7 +709,7 @@ export class PropertyComponent extends BaseCoreAbstract {
         });
       }
       else {
-        this.commonService.deleteProperty(this.selectedProperty, this.coreService.user?.uid ?? 'SYSTEM').subscribe(res => {
+        this.commonService.deleteProperty(this.selectedProperty, this.coreAuthService.userC?.uid ?? 'SYSTEM').subscribe(res => {
           if (res.isSuccess) {
             this.toastService.addSingle({
               message: "MESSAGE.SUCCESS"
@@ -724,7 +726,7 @@ export class PropertyComponent extends BaseCoreAbstract {
       }
     }
     else {
-      this.commonService.deleteProperty(this.selectedProperty, this.coreService.user?.uid ?? 'SYSTEM').subscribe(res => {
+      this.commonService.deleteProperty(this.selectedProperty, this.coreAuthService.userC?.uid ?? 'SYSTEM').subscribe(res => {
         if (res.isSuccess) {
           this.toastService.addSingle({
             message: "MESSAGE.SUCCESS"
@@ -782,10 +784,10 @@ export class PropertyComponent extends BaseCoreAbstract {
         dateRangeStart: this.propertyDetailFormGroup.controls['dateRangeStart'].value,
         dateRangeEnd: this.propertyDetailFormGroup.controls['dateRangeEnd'].value,
         regaxFormat: this.propertyDetailFormGroup.controls['regaxFormat'].value,
-        createdBy: this.coreService.user?.uid,
-        modifiedBy: this.coreService.user?.uid,
+        createdBy: this.coreAuthService.userC?.uid,
+        modifiedBy: this.coreAuthService.userC?.uid,
         statusId: 1,
-        dealOwner: this.coreService.user?.uid ?? 'SYSTEM',
+        dealOwner: this.coreAuthService.userC?.uid ?? 'SYSTEM',
         tenantId: this.coreService.tenant?.uid
       }
 
@@ -807,8 +809,8 @@ export class PropertyComponent extends BaseCoreAbstract {
               isVisible: item.isVisible,
               isDefault: item.isDefault,
               isSystem: false,
-              createdBy: this.coreService.user?.uid,
-              modifiedBy: this.coreService.user?.uid,
+              createdBy: this.coreAuthService.userC?.uid,
+              modifiedBy: this.coreAuthService.userC?.uid,
               statusId: 1,
               tenantId: this.coreService.tenant?.uid
             }) as CreatePropertyLookupDto);
@@ -852,7 +854,7 @@ export class PropertyComponent extends BaseCoreAbstract {
   }
 
   edit() {
-    if (this.checkPermission('update', this.moduleFormControl.value, this.permission, this.coreService.userC.roleId)) {
+    if (this.checkPermission('update', this.moduleFormControl.value, this.permission, this.coreAuthService.userC.roleId)) {
       if (this.editable) {
         this.propertyDetailFormGroup.markAllAsTouched();
         if (this.propertyDetailFormGroup.valid) {
@@ -882,7 +884,7 @@ export class PropertyComponent extends BaseCoreAbstract {
             regaxFormat: this.propertyDetailFormGroup.controls['regaxFormat'].value
           }
 
-          this.commonService.updateProperties([update], this.coreService.user?.uid ?? 'SYSTEM').subscribe(res => {
+          this.commonService.updateProperties([update], this.coreAuthService.userC?.uid ?? 'SYSTEM').subscribe(res => {
             if (res.isSuccess) {
               if (this.propertyDetailFormGroup.controls['propertiesLookup'].value?.length > 0) {
                 let updateLookupList: UpdatePropertyLookupDto[] = [];
@@ -903,7 +905,7 @@ export class PropertyComponent extends BaseCoreAbstract {
                   });
                 });
 
-                this.commonService.updatePropertiesLookup(updateLookupList, this.coreService.user?.uid ?? 'SYSTEM').subscribe(res => {
+                this.commonService.updatePropertiesLookup(updateLookupList, this.coreAuthService.userC?.uid ?? 'SYSTEM').subscribe(res => {
                   if (res.isSuccess) {
 
                   }

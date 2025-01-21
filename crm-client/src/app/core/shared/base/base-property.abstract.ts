@@ -7,6 +7,7 @@ import { AuthService } from "../../services/auth.service";
 import { TranslateService } from "@ngx-translate/core";
 import { ToastService } from "../../services/toast.service";
 import { CoreHttpService, UserPermissionDto } from "../../services/core-http.service";
+import { CoreAuthService } from "../../services/core-auth.service";
 
 export abstract class BasePropertyAbstract extends BaseCoreAbstract {
     profileFormGroup: FormGroup = new FormGroup({});
@@ -27,7 +28,7 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
         protected toastService: ToastService,
         protected authService: AuthService,
         protected translateService: TranslateService,
-        protected coreService: CoreHttpService,
+        protected coreAuthService: CoreAuthService,
 
     ) {
         super()
@@ -45,7 +46,7 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
             let formsConfig: FormConfig[] = [];
             item.propertiesList.forEach(prop => {
                 let propProfileValue = this.returnProfileValue(prop, module, contactProfile, companyProfile);
-                let control = new FormControl({ value: propProfileValue ? propProfileValue : this.commonService.returnControlTypeEmptyValue(prop), disabled: !this.checkPermission('update', module, permission, this.coreService.userC.roleId) || !prop.isEditable });
+                let control = new FormControl({ value: propProfileValue ? propProfileValue : this.commonService.returnControlTypeEmptyValue(prop), disabled: !this.checkPermission('update', module, permission, this.coreAuthService.userC.roleId) || !prop.isEditable });
 
                 this.profileFormGroup.addControl(prop.propertyCode, control);
 
@@ -421,7 +422,6 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
                 let updatePropertyList: PropertiesDto[] = [];
 
                 updateContact.uid = contactProfile.uid;
-                updateContact.modifiedBy = this.coreService.user!.uid;
 
                 this.propUpdateList.forEach(prop => {
                     switch (prop.property.propertyCode) {
@@ -491,7 +491,6 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
                 let updatePropertyList: PropertiesDto[] = [];
 
                 updateCompany.uid = companyProfile.uid;
-                updateCompany.modifiedBy = this.coreService.user!.uid;
 
                 this.propUpdateList.forEach(prop => {
                     switch (prop.property.propertyCode) {

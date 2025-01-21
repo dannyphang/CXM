@@ -10,6 +10,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { ToastService } from '../../../../services/toast.service';
 import { CoreHttpService, UserPermissionDto } from '../../../../services/core-http.service';
 import { MessageService } from 'primeng/api';
+import { CoreAuthService } from '../../../../services/core-auth.service';
 
 @Component({
   selector: 'app-left-panel',
@@ -63,10 +64,10 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
     protected override authService: AuthService,
     protected override translateService: TranslateService,
     protected override toastService: ToastService,
-    protected override coreService: CoreHttpService,
+    protected override coreAuthService: CoreAuthService,
 
   ) {
-    super(formBuilder, commonService, toastService, authService, translateService, coreService);
+    super(formBuilder, commonService, toastService, authService, translateService, coreAuthService);
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -120,7 +121,7 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
         });
       }
     });
-    this.roleId = this.coreService.userC.roleId;
+    this.roleId = this.coreAuthService.userC.roleId;
 
   }
 
@@ -161,7 +162,7 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
           let updateContact: UpdateContactDto = {
             uid: this.contactProfile.uid,
             contactProfilePhotoUrl: this.profileImg,
-            modifiedBy: this.coreService.user!.uid
+            modifiedBy: this.coreAuthService.userC!.uid
           }
           this.commonService.updateContact([updateContact]).subscribe(res => {
             if (res.isSuccess) {
@@ -180,7 +181,7 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
           let updateCompany: UpdateCompanyDto = {
             uid: this.companyProfile.uid,
             companyProfilePhotoUrl: this.profileImg,
-            modifiedBy: this.coreService.user!.uid
+            modifiedBy: this.coreAuthService.userC!.uid
           }
           this.commonService.updateCompany([updateCompany]).subscribe(res => {
             if (res.isSuccess) {

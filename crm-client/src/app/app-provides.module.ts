@@ -17,6 +17,7 @@ import { MATERIAL_SANITY_CHECKS } from '@angular/material/core';
 import { MessageService } from 'primeng/api';
 import { CoreHttpService } from './core/services/core-http.service';
 import { AuthService } from './core/services/auth.service';
+import { CoreAuthService } from './core/services/core-auth.service';
 
 export const allBaseUIForm = {
     [CONTROL_TYPE.Textbox]: BaseInputComponent,
@@ -48,5 +49,6 @@ export const providers = [
     { provide: MATERIAL_SANITY_CHECKS, useValue: false }, // disable material theme checking
     MessageService,
     CoreHttpService,
-    AuthService
+    CoreAuthService,
+    AuthService,
 ];

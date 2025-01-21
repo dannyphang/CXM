@@ -13,75 +13,94 @@ import {
 import { CommonService } from "./common.service";
 import apiConfig from "../../../environments/apiConfig";
 import { Observable } from "rxjs";
-import { BasedDto, CoreHttpService, PermissionObjDto, ResponseModel, RoleDto, SettingDto, TenantDto, UserDto, UserPermissionDto } from "./core-http.service";
+import { CoreHttpService, PermissionObjDto, ResponseModel, RoleDto, TenantDto, UserPermissionDto } from "./core-http.service";
+import { BasedDto, CoreAuthService, SettingDto, UserDto } from "./core-auth.service";
+import { PERMISSION_LIST } from "../shared/constants/common.constants";
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+    PERMISSION_LIST = PERMISSION_LIST;
     SERVICE_PATH = 'auth';
     app: FirebaseApp;
     auth: Auth;
 
     constructor(
-        private coreService: CoreHttpService
+        private coreService: CoreHttpService,
+        private coreAuthService: CoreAuthService
     ) {
 
     }
 
-    initAuth(): Promise<UserDto> {
+    initAuth(): Promise<any> {
         return new Promise((resolve, reject) => {
             this.coreService.getEnvToken().subscribe(res => {
                 this.app = initializeApp(res);
-                this.auth = getAuth(this.app);
-                this.coreService.getCurrentUser().then(user => {
-                    resolve(user);
+                resolve(null);
+            })
+        });
+    }
+
+    signInUserAuth(email: string, password: string): Promise<UserDto> {
+        return new Promise(async (resolve, reject) => {
+            try {
+                this.coreAuthService.post<any>('auth/login', { email, password }).pipe().subscribe(res => {
+                    if (res.isSuccess) {
+                        this.coreAuthService.getUserByAuthUid(res.data.uid).subscribe(res2 => {
+                            resolve(res2.data);
+                        })
+                    }
+                    else {
+                        resolve(null);
+                    }
                 });
+            }
+            catch (error) {
+                reject(error);
+            }
+        })
+    }
+
+    signOutUserAuth() {
+        return this.coreAuthService.post<any>("auth/logout").pipe();
+    }
+
+    signUpUserAuth(email: string, username: string, password: string): Promise<UserDto> {
+        return new Promise(async (resolve, reject) => {
+            this.coreAuthService.post<any>("auth/register", { email, password }).subscribe(res => {
+                if (res) {
+                    let permissionList: UserPermissionDto[] = [];
+                    this.PERMISSION_LIST.forEach(str => {
+                        permissionList.push({
+                            module: str,
+                            permission: {
+                                create: false,
+                                remove: false,
+                                update: false,
+                                display: false,
+                                download: false,
+                                export: false
+                            }
+                        })
+                    })
+
+                    let newUser: CreateUserDto = {
+                        authUid: res.data.uid,
+                        email: email,
+                        displayName: username,
+                        roleId: 3,
+                        permission: JSON.stringify(permissionList),
+                    }
+
+                    this.createUser([newUser]).subscribe(res => {
+                        if (res.isSuccess) {
+                            resolve(null)
+                        }
+                        else {
+                            reject()
+                        }
+                    })
+                }
             })
-        });
-    }
-
-    signUp(email: string, password: string) {
-        return createUserWithEmailAndPassword(this.auth, email, password);
-    }
-
-    async signIn(email: string = "danny64phang@gmail.com", password: string = "123456"): Promise<any> {
-        return await signInWithEmailAndPassword(this.auth, email, password)
-            .then((userCredential) => {
-                console.log(userCredential)
-                this.coreService.user = this.auth.currentUser;
-                return {
-                    status: true,
-                    user: this.coreService.user
-                };
-            })
-            .catch((error) => {
-                const errorCode = error.code;
-                const errorMessage = error.message;
-                console.log(`${errorCode}: ${errorMessage}`)
-                return {
-                    status: false
-                };
-            });
-    }
-
-    signOut() {
-        signOut(this.auth).then(() => {
-
-        }).catch((error) => {
-            const errorCode = error.code;
-            const errorMessage = error.message;
-            console.log(`${errorCode}: ${errorMessage}`)
-        });
-    }
-
-    updateCurrentUserInfo() {
-        updateProfile(this.auth.currentUser!, {
-            displayName: "Danny Phang 2"
-        }).then(() => {
-            // Profile updated!
-            // ...
-        }).catch((error) => {
-            // An error occurred
-            // ...
         });
     }
 
@@ -130,13 +149,13 @@ export class AuthService {
     }
 
     returnPermissionObj(module: string, action: string): boolean {
-        if (!this.coreService.userC) {
+        if (!this.coreAuthService.userC) {
             return false;
         }
-        if (this.coreService.userC.roleId === 1) {
+        if (this.coreAuthService.userC.roleId === 1) {
             return true
         }
-        let permission: UserPermissionDto[] = JSON.parse(this.coreService.userC.permission);
+        let permission: UserPermissionDto[] = JSON.parse(this.coreAuthService.userC.permission);
         return permission.find(p => p.module === module)?.permission[action];
     }
 
@@ -150,6 +169,7 @@ export class AuthService {
 }
 
 export class CreateUserDto extends BasedDto {
+    uid?: string;
     firstName?: string;
     lastName?: string;
     nickname?: string;
@@ -157,7 +177,7 @@ export class CreateUserDto extends BasedDto {
     profilePhotoUrl?: string;
     email?: string;
     phoneNumber?: string;
-    uid: string;
+    authUid?: string;
     roleId?: number;
     permission?: string;
     setting?: SettingDto;

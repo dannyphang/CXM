@@ -9,6 +9,7 @@ import { AuthService } from '../../../services/auth.service';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastService } from '../../../services/toast.service';
 import { CoreHttpService, UserPermissionDto } from '../../../services/core-http.service';
+import { CoreAuthService } from '../../../services/core-auth.service';
 
 @Component({
   selector: 'app-profile-page',
@@ -36,7 +37,8 @@ export class ProfilePageComponent implements OnChanges {
     private authService: AuthService,
     private translateService: TranslateService,
     private toastService: ToastService,
-    private coreService: CoreHttpService
+    private coreService: CoreHttpService,
+    private coreAuthService: CoreAuthService
   ) {
     this.route.params.subscribe((params) => {
       this.profileUid = params['id'];
@@ -67,7 +69,7 @@ export class ProfilePageComponent implements OnChanges {
   }
 
   getPermission() {
-    this.permission = this.authService.returnPermission(this.coreService.userC.permission);
+    this.permission = this.authService.returnPermission(this.coreAuthService.userC.permission);
   }
 
   getProperties() {

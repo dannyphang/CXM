@@ -9,11 +9,12 @@ import { User } from 'firebase/auth';
 import { TranslateService } from '@ngx-translate/core';
 import { CommonService } from '../../core/services/common.service';
 import { OptionsModel } from '../../core/services/components.service';
-import { UserDto, TenantDto, UserPermissionDto, CoreHttpService } from '../../core/services/core-http.service';
+import { TenantDto, UserPermissionDto, CoreHttpService } from '../../core/services/core-http.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { ToastService } from '../../core/services/toast.service';
 import { BaseCoreAbstract } from '../../core/shared/base/base-core.abstract';
 import { DEFAULT_PROFILE_PIC_URL } from '../../core/shared/constants/common.constants';
+import { CoreAuthService, UserDto } from '../../core/services/core-auth.service';
 
 @Component({
   selector: 'app-header',
@@ -48,6 +49,7 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
     private themeService: ThemeService,
     private translateService: TranslateService,
     private commonService: CommonService,
+    private coreAuthService: CoreAuthService
   ) {
     super();
     this.tenantFormControl.valueChanges.subscribe(val => {
@@ -80,7 +82,7 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
           command: () => {
             this.router.navigate(["/contact"]);
           },
-          visible: this.checkPermission('display', 'CONT', this.permission, this.coreService.userC?.roleId)
+          visible: this.checkPermission('display', 'CONT', this.permission, this.coreAuthService.userC?.roleId)
         },
         {
           label: this.translateService.instant('COMMON.COMPANY'),
@@ -89,7 +91,7 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
           command: () => {
             this.router.navigate(["/company"]);
           },
-          visible: this.checkPermission('display', 'COMP', this.permission, this.coreService.userC?.roleId)
+          visible: this.checkPermission('display', 'COMP', this.permission, this.coreAuthService.userC?.roleId)
         },
       ];
     }
@@ -121,8 +123,9 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
             label: this.translateService.instant('BUTTON.LOGOUT'),
             icon: 'pi pi-sign-out',
             command: () => {
-              this.authService.signOut();
-              window.location.reload();
+              this.authService.signOutUserAuth().subscribe();
+              this.router.navigate(["/signin"]);
+              // window.location.reload();
             },
             visible: this.user ? true : false
           },
@@ -144,9 +147,9 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
     this.themeService.switchTheme(isDark ? this.darkThemeFile : this.lightThemeFile);
     if (!isInit) {
       this.authService.updateUserFirestore([{
-        uid: this.coreService.userC.uid,
+        uid: this.coreAuthService.userC.uid,
         setting: {
-          ...this.coreService.userC.setting,
+          ...this.coreAuthService.userC.setting,
           darkMode: isDark
         }
       }]).subscribe(res => {
@@ -155,7 +158,7 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
         }
       })
     }
-    this.coreService.getCurrentUser().then(res => {
+    this.coreAuthService.getCurrentAuthUser().then(res => {
       this.currentUser = res;
       this.userMenuItem = [
         {
@@ -196,8 +199,9 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
           label: this.translateService.instant('BUTTON.LOGOUT'),
           icon: 'pi pi-sign-out',
           command: () => {
-            this.authService.signOut();
-            window.location.reload();
+            this.authService.signOutUserAuth().subscribe();
+            this.router.navigate(["/signin"]);
+            // window.location.reload();
           },
           visible: this.currentUser ? true : false
         },
@@ -247,9 +251,9 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
 
   onTenantChange() {
     this.authService.updateUserFirestore([{
-      uid: this.coreService.user!.uid,
+      uid: this.coreAuthService.userC!.uid,
       setting: {
-        ...this.coreService.userC.setting,
+        ...this.coreAuthService.userC.setting,
         defaultTenantId: this.tenantFormControl.value,
       }
     }]).subscribe(res => {

@@ -5,7 +5,8 @@ import apiConfig from "../../../environments/apiConfig";
 import { AssociationDto, AttachmentDto, CompanyDto, ContactDto, ModuleDto } from "./common.service";
 import { DateFilterFn } from "@angular/material/datepicker";
 import { producerAccessed } from "@angular/core/primitives/signals";
-import { BasedDto, CoreHttpService, ResponseModel } from "./core-http.service";
+import { CoreHttpService, ResponseModel } from "./core-http.service";
+import { BasedDto } from "./core-auth.service";
 
 @Injectable({ providedIn: 'root' })
 export class ActivityService {
