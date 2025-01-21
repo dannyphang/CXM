@@ -3,10 +3,11 @@ import { MenuItem, MessageService } from 'primeng/api';
 import { BaseCoreAbstract } from '../../core/shared/base/base-core.abstract';
 import { TranslateService } from '@ngx-translate/core';
 import { AuthService } from '../../core/services/auth.service';
-import { CoreHttpService, PermissionObjDto, UserDto, UserPermissionDto } from '../../core/services/core-http.service';
+import { CoreHttpService, PermissionObjDto, UserPermissionDto } from '../../core/services/core-http.service';
 import { CommonService, WindowSizeDto } from '../../core/services/common.service';
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
+import { CoreAuthService, UserDto } from '../../core/services/core-auth.service';
 
 @Component({
   selector: 'app-setting',
@@ -33,14 +34,15 @@ export class SettingComponent extends BaseCoreAbstract {
     private coreService: CoreHttpService,
     private commonService: CommonService,
     private titleService: Title,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private coreAuthService: CoreAuthService,
   ) {
     super();
     this.windowSize = this.commonService.windowSize;
   }
 
   ngOnInit() {
-    this.userC = this.coreService.userC;
+    this.userC = this.coreAuthService.userC;
     this.settingMenuItem = [
       {
         label: this.translateService.instant('SETTING.GENERAL'),

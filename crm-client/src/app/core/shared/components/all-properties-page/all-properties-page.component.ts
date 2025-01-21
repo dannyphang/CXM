@@ -8,6 +8,7 @@ import { AuthService } from '../../../services/auth.service';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastService } from '../../../services/toast.service';
 import { CoreHttpService, UserPermissionDto } from '../../../services/core-http.service';
+import { CoreAuthService } from '../../../services/core-auth.service';
 
 @Component({
   selector: 'app-all-properties-page',
@@ -34,11 +35,11 @@ export class AllPropertiesPageComponent extends BasePropertyAbstract implements 
     protected override authService: AuthService,
     protected override translateService: TranslateService,
     protected override toastService: ToastService,
-    protected override coreService: CoreHttpService,
+    protected override coreAuthService: CoreAuthService,
 
 
   ) {
-    super(formBuilder, commonService, toastService, authService, translateService, coreService);
+    super(formBuilder, commonService, toastService, authService, translateService, coreAuthService);
     this.windowSize = this.commonService.windowSize;
   }
 

@@ -5,6 +5,7 @@ import { BaseCoreAbstract } from '../base/base-core.abstract';
 import { MessageService } from 'primeng/api';
 import { AuthService } from '../../services/auth.service';
 import { CoreHttpService } from '../../services/core-http.service';
+import { CoreAuthService } from '../../services/core-auth.service';
 
 @Injectable({
     providedIn: 'root'
@@ -15,6 +16,7 @@ export class PermissionGuard extends BaseCoreAbstract implements CanActivate {
         private coreService: CoreHttpService,
         private router: Router,
         private _location: Location,
+        private coreAuthService: CoreAuthService
 
     ) {
         super();
@@ -23,14 +25,14 @@ export class PermissionGuard extends BaseCoreAbstract implements CanActivate {
     async canActivate(route: ActivatedRouteSnapshot): Promise<boolean | UrlTree> {
         return new Promise(async (resolve, reject) => {
             try {
-                let user = this.coreService.userC;
+                let user = this.coreAuthService.userC;
                 if (!user) {
-                    user = await this.coreService.getCurrentUser();
+                    user = await this.coreAuthService.getCurrentAuthUser();
                 }
 
                 let permit: boolean = true;
                 if (user?.roleId !== 1) {
-                    permit = this.checkPermission(route.data['action'], route.data['module'], this.authService.returnPermission(this.coreService.userC.permission), this.coreService.userC.roleId);
+                    permit = this.checkPermission(route.data['action'], route.data['module'], this.authService.returnPermission(this.coreAuthService.userC.permission), this.coreAuthService.userC.roleId);
                     console.log("permit: " + permit)
                 }
                 if (!permit) {
@@ -40,7 +42,7 @@ export class PermissionGuard extends BaseCoreAbstract implements CanActivate {
             }
             catch (error) {
                 console.log(error);
-                this._location.back();
+                // this._location.back();
                 return resolve(false);
             }
         });

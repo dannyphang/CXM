@@ -54,10 +54,6 @@ const routes: Routes = [
     loadChildren: () => import('./module/login/login.module').then(m => m.LoginModule),
   },
   {
-    path: 'signup',
-    loadChildren: () => import('./module/login/login.module').then(m => m.LoginModule),
-  },
-  {
     path: 'pagenotfound',
     component: Error404Component
   },

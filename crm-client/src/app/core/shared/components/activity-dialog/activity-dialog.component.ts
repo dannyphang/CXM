@@ -11,6 +11,7 @@ import { AuthService } from '../../../services/auth.service';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastService } from '../../../services/toast.service';
 import { CoreHttpService } from '../../../services/core-http.service';
+import { CoreAuthService } from '../../../services/core-auth.service';
 
 @Component({
   selector: 'app-activity-dialog',
@@ -64,7 +65,7 @@ export class ActivityDialogComponent implements OnChanges {
     private authService: AuthService,
     private translateService: TranslateService,
     private toastService: ToastService,
-    private coreService: CoreHttpService
+    private coreAuthService: CoreAuthService
   ) {
     this.windowSize = this.commonService.windowSize;
   }
@@ -435,7 +436,7 @@ export class ActivityDialogComponent implements OnChanges {
           associationContactUidList: this.assoContactForm.value ?? [],
           associationCompanyUidList: this.assoCompanyForm.value ?? [],
           attachmentUid: [],
-          createdBy: this.coreService.userC.uid,
+          createdBy: this.coreAuthService.userC.uid,
           createdDate: new Date()
         }
 

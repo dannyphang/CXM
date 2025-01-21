@@ -2,10 +2,11 @@ import { Component, Input } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { AuthService, UpdateUserRoleDto } from '../../../core/services/auth.service';
 import { CONTROL_TYPE, FormConfig, OptionsModel } from '../../../core/services/components.service';
-import { CoreHttpService, PermissionObjDto, UserDto, UserPermissionDto } from '../../../core/services/core-http.service';
+import { CoreHttpService, PermissionObjDto, UserPermissionDto } from '../../../core/services/core-http.service';
 import { BaseCoreAbstract } from '../../../core/shared/base/base-core.abstract';
 import { ROW_PER_PAGE_DEFAULT, ROW_PER_PAGE_DEFAULT_LIST } from '../../../core/shared/constants/common.constants';
 import { MessageService } from 'primeng/api';
+import { CoreAuthService, UserDto } from '../../../core/services/core-auth.service';
 
 interface Column {
   field: string;
@@ -90,12 +91,13 @@ export class TeamComponent extends BaseCoreAbstract {
     private formBuilder: FormBuilder,
     private authService: AuthService,
     private coreService: CoreHttpService,
+    private coreAuthService: CoreAuthService,
   ) {
     super();
   }
 
   ngOnInit() {
-    this.currentUser = this.coreService.userC;
+    this.currentUser = this.coreAuthService.userC;
 
     this.selectedUserFormGroup.controls['user'].valueChanges.subscribe(val => {
       this.initPermissionTable(val);
@@ -110,8 +112,8 @@ export class TeamComponent extends BaseCoreAbstract {
           }
         })
 
-        this.selectedUserFormGroup.controls['user'].setValue(this.coreService.userC.uid);
-        this.initPermissionTable(this.coreService.userC.uid);
+        this.selectedUserFormGroup.controls['user'].setValue(this.coreAuthService.userC.uid);
+        this.initPermissionTable(this.coreAuthService.userC.uid);
       }
     })
 
@@ -261,7 +263,7 @@ export class TeamComponent extends BaseCoreAbstract {
       return {
         email: i.email,
         roleId: i.role,
-        modifiedBy: this.coreService.userC.uid,
+        modifiedBy: this.coreAuthService.userC.uid,
         tenantId: this.coreService.tenant.uid
       }
     });

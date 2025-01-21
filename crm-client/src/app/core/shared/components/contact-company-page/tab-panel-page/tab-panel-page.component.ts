@@ -9,12 +9,13 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 import { NavigationExtras, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { AuthService, CreateUserDto } from '../../../../services/auth.service';
-import { CoreHttpService, TableColumnFilterDto, TableDataFilterDto, UserDto } from '../../../../services/core-http.service';
+import { CoreHttpService } from '../../../../services/core-http.service';
 import { ToastService } from '../../../../services/toast.service';
 import { MenuItem } from 'primeng/api';
 import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../../../../services/components.service';
 import { Table } from 'primeng/table';
 import { debounceTime, distinctUntilChanged, map, Observable, of } from 'rxjs';
+import { TableDataFilterDto, TableColumnFilterDto, UserDto, CoreAuthService } from '../../../../services/core-auth.service';
 
 @Component({
   selector: 'app-tab-panel-page',
@@ -86,7 +87,8 @@ export class TabPanelPageComponent implements OnChanges {
     private translateService: TranslateService,
     private authService: AuthService,
     private toastService: ToastService,
-    private coreService: CoreHttpService
+    private coreService: CoreHttpService,
+    private coreAuthService: CoreAuthService
   ) {
     this.windowSize = this.commonService.windowSize;
   }
@@ -1467,7 +1469,7 @@ export class TabPanelPageComponent implements OnChanges {
   }
 
   toCreate() {
-    if (this.coreService.currentUser()) {
+    if (this.coreAuthService.userC) {
       this.displayCreateDialog = true;
     }
   }
@@ -1521,7 +1523,7 @@ export class TabPanelPageComponent implements OnChanges {
             }
         };
 
-        newContact.contactOwnerUid = this.coreService.currentUser()!.uid;
+        newContact.contactOwnerUid = this.coreAuthService.userC.uid;
       }
       else {
         switch (prop.propertyCode) {
@@ -1545,7 +1547,7 @@ export class TabPanelPageComponent implements OnChanges {
             }
         };
 
-        newCompany.companyOwnerUid = this.coreService.currentUser()!.uid;
+        newCompany.companyOwnerUid = this.coreAuthService.userC.uid;
       }
 
       let inputValue = form.find(item => item.name === prop.propertyCode)?.fieldControl.value;

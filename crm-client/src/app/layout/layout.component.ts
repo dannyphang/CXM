@@ -7,16 +7,17 @@ import { BaseCoreAbstract } from '../core/shared/base/base-core.abstract';
 import { Message, MessageService } from 'primeng/api';
 import { Subscription } from 'rxjs';
 import { ToastService } from '../core/services/toast.service';
-import { CoreHttpService, TenantDto, UserDto, UserPermissionDto } from '../core/services/core-http.service';
+import { CoreHttpService, TenantDto, UserPermissionDto } from '../core/services/core-http.service';
 import { CommonService } from '../core/services/common.service';
 import { Router } from '@angular/router';
+import { CoreAuthService, UserDto } from '../core/services/core-auth.service';
 
 @Component({
   selector: 'app-layout',
   templateUrl: './layout.component.html',
   styleUrl: './layout.component.scss'
 })
-export class LayoutComponent implements OnInit {
+export class LayoutComponent {
   user: UserDto;
   tenantList: TenantDto[] = [];
   tenantOptionsList: OptionsModel[] = [];
@@ -29,16 +30,19 @@ export class LayoutComponent implements OnInit {
     private cdRef: ChangeDetectorRef,
     private toastService: ToastService,
     private coreService: CoreHttpService,
-    private router: Router
+    private router: Router,
+    private coreAuthService: CoreAuthService
   ) {
 
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     this.onResize();
 
     // this.initBlobity(true);
-    this.authService.initAuth().then(userC => {
+    await this.authService.initAuth();
+
+    this.coreAuthService.getCurrentAuthUser().then(userC => {
       if (userC) {
         this.user = userC;
         this.toastService.addSingle({
@@ -68,6 +72,8 @@ export class LayoutComponent implements OnInit {
       else {
         this.router.navigate(["/signin"]);
       }
+    }).catch(error => {
+      this.router.navigate(["/signin"]);
     });
   }
 

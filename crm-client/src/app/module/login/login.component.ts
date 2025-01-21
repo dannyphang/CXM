@@ -6,7 +6,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Location } from '@angular/common'
 import { TranslateService } from '@ngx-translate/core';
 import { PERMISSION_LIST } from '../../core/shared/constants/common.constants';
-import { UserPermissionDto } from '../../core/services/core-http.service';
+import { CoreHttpService, UserPermissionDto } from '../../core/services/core-http.service';
+import { CoreAuthService } from '../../core/services/core-auth.service';
 
 @Component({
   selector: 'app-login',
@@ -20,34 +21,21 @@ export class LoginComponent {
     email: new FormControl("", Validators.required),
     password: new FormControl("", Validators.required),
   });
-  signupFormConfig: FormConfig[] = [];
-  signupFormGroup: FormGroup = new FormGroup({
-    username: new FormControl("", Validators.required),
-    email: new FormControl("", Validators.required),
-    password: new FormControl("", Validators.required),
-    confirmPassword: new FormControl("", Validators.required),
-  });
-  isLoginMode: boolean = true;
 
   constructor(
     private authService: AuthService,
     private activatedRoute: ActivatedRoute,
     private router: Router,
     private _location: Location,
-    private translateService: TranslateService
+    private translateService: TranslateService,
+    private coreService: CoreHttpService,
+    private coreAuthService: CoreAuthService,
   ) {
-    if (this.router.url === '/signin') {
-      this.isLoginMode = true;
-    }
-    else if (this.router.url === '/signup') {
-      this.isLoginMode = false;
-    }
   }
 
   ngOnInit() {
     this.authService.initAuth();
     this.initLoginForm();
-    this.initSignupForm();
   }
 
   initLoginForm() {
@@ -78,124 +66,15 @@ export class LoginComponent {
     ];
   }
 
-  initSignupForm() {
-    this.signupFormConfig = [
-      {
-        label: 'Username',
-        type: CONTROL_TYPE.Textbox,
-        layoutDefine: {
-          row: 0,
-          column: 0
-        },
-        fieldControl: this.signupFormGroup.controls['username'],
-        required: true,
-        autoFocus: true,
-      },
-      {
-        label: 'Email',
-        type: CONTROL_TYPE.Textbox,
-        layoutDefine: {
-          row: 1,
-          column: 0
-        },
-        fieldControl: this.signupFormGroup.controls['email'],
-        required: true,
-        mode: 'email'
-      },
-      {
-        label: 'Password',
-        type: CONTROL_TYPE.Textbox,
-        layoutDefine: {
-          row: 2,
-          column: 0
-        },
-        fieldControl: this.signupFormGroup.controls['password'],
-        required: true,
-        mode: 'password'
-      },
-      {
-        label: 'Confirm Password',
-        type: CONTROL_TYPE.Textbox,
-        layoutDefine: {
-          row: 2,
-          column: 1
-        },
-        fieldControl: this.signupFormGroup.controls['confirmPassword'],
-        required: true,
-        mode: 'password'
-      },
-    ]
-  }
-
   cancel() {
     this._location.back();
   }
 
-  submit() {
-    if (this.isLoginMode) {
-      this.authService.signIn(this.loginFormGroup.controls['email'].value, this.loginFormGroup.controls['password'].value).then(res => {
-        console.log(res)
-        if (res.status) {
-          this.authService.updateCurrentUserInfo();
-          this.router.navigate(["/"])
-          // console.log(res.user);
-        }
-        else {
-          console.log('wrong username/password')
-        }
-      });
-
-    }
-    else {
-      this.authService.signUp(this.signupFormGroup.controls['email'].value, this.signupFormGroup.controls['password'].value).then((userCredential) => {
-        // Signed up 
-        const user = userCredential.user;
-        let permissionList: UserPermissionDto[] = [];
-        this.PERMISSION_LIST.forEach(str => {
-          permissionList.push({
-            module: str,
-            permission: {
-              create: false,
-              remove: false,
-              update: false,
-              display: false,
-              download: false,
-              export: false
-            }
-          })
-        })
-
-        let createUser: CreateUserDto = {
-          uid: user.uid,
-          displayName: this.signupFormGroup.controls['username'].value,
-          email: user.email ?? '',
-          roleId: 3,
-          permission: JSON.stringify(permissionList),
-        }
-
-        this.authService.createUser([createUser]).subscribe(res => {
-          if (res.isSuccess) {
-            this.router.navigate(["/signin"])
-          }
-        });
-      })
-      // .catch((error) => {
-      //   const errorCode = error.code;
-      //   const errorMessage = error.message;
-      //   console.log(`${errorCode}: ${errorMessage}`)
-      // });
-    }
-  }
-
-  toSignUp() {
-    this.router.navigate(["/signup"]);
-  }
-
-  toSignIn() {
-    this.router.navigate(["/signin"]);
-  }
-
-  toCreate() {
-    this.router.navigate(["/setting/create"]);
+  async submit() {
+    this.coreAuthService.userC = await this.authService.signInUserAuth(this.loginFormGroup.controls['email'].value, this.loginFormGroup.controls['password'].value);
+    this.coreAuthService.getCurrentAuthUser().then(res => {
+      this.coreAuthService.userC = res;
+      this.router.navigate(["/"]);
+    })
   }
 }

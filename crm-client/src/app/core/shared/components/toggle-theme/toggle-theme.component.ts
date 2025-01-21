@@ -4,7 +4,7 @@ import { ThemeService } from '../../../services/theme.service';
 import { OverlayPanelComponent } from '../panel/overlay-panel/overlay-panel.component';
 import Blobity from 'blobity';
 import { FormControl } from '@angular/forms';
-import { UserDto } from '../../../services/core-http.service';
+import { UserDto } from '../../../services/core-auth.service';
 
 @Component({
   selector: 'app-toggle-theme',

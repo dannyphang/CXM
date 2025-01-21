@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { CanActivate, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { CoreHttpService, UserDto } from '../../services/core-http.service';
+import { CoreHttpService } from '../../services/core-http.service';
+import { CoreAuthService, UserDto } from '../../services/core-auth.service';
 
 @Injectable({
     providedIn: 'root'
@@ -11,16 +12,17 @@ export class AuthGuard implements CanActivate {
     constructor(
         private authService: AuthService,
         private coreService: CoreHttpService,
-        private router: Router
+        private router: Router,
+        private coreAuthService: CoreAuthService
     ) {
 
     }
 
     getUser(): Promise<UserDto | null> {
         return new Promise((resolve, reject) => {
-            this.coreService.getCurrentUser().then(user => {
-                resolve(user)
-            });
+            this.coreAuthService.getCurrentAuthUser().then(res => {
+                resolve(res)
+            })
         })
     }
 
