@@ -66,7 +66,27 @@
         [formControl]="fieldControl"
         (blur)="onBlur()"
         [maxLength]="maxLength"
+        *ngIf="isValidPassword"
         validatePassword
+      />
+
+      <input
+        pInputText
+        pAutoFocus
+        [autofocus]="autoFocus"
+        [type]="mode"
+        placeholder="{{ placeholder | translate }}"
+        [ngClass]="{
+          invalid: checkInvalidField(),
+          'pr-30': !!iconUrl,
+          'pl-30': !!leftIconUrl,
+          disabled: disabled
+        }"
+        [readonly]="disabled"
+        [formControl]="fieldControl"
+        (blur)="onBlur()"
+        [maxLength]="maxLength"
+        *ngIf="!isValidPassword"
       />
 
       <img *ngIf="!!iconUrl" [src]="iconUrl" />

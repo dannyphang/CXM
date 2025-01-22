@@ -119,6 +119,7 @@ export interface BaseInputFormConfig extends BaseFormConfig, BaseInputTextConfig
     descriptionMessage?: string;
     labelTextStyle?: string;
     seperator?: string;
+    isValidPassword?: boolean;
 }
 
 export interface BaseDatepickerFormConfig extends BaseFormConfig {

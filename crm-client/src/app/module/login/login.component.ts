@@ -8,6 +8,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { PERMISSION_LIST } from '../../core/shared/constants/common.constants';
 import { CoreHttpService, UserPermissionDto } from '../../core/services/core-http.service';
 import { CoreAuthService } from '../../core/services/core-auth.service';
+import { ToastService } from '../../core/services/toast.service';
 
 @Component({
   selector: 'app-login',
@@ -21,15 +22,15 @@ export class LoginComponent {
     email: new FormControl("", Validators.required),
     password: new FormControl("", Validators.required),
   });
+  errorMessage: string | null = null;
+  isSpin: boolean = false;
 
   constructor(
     private authService: AuthService,
-    private activatedRoute: ActivatedRoute,
     private router: Router,
     private _location: Location,
-    private translateService: TranslateService,
-    private coreService: CoreHttpService,
     private coreAuthService: CoreAuthService,
+    private toastService: ToastService
   ) {
   }
 
@@ -48,7 +49,6 @@ export class LoginComponent {
           column: 0
         },
         fieldControl: this.loginFormGroup.controls['email'],
-        required: true,
         autoFocus: true,
         mode: 'email'
       },
@@ -60,8 +60,8 @@ export class LoginComponent {
           column: 0
         },
         fieldControl: this.loginFormGroup.controls['password'],
-        required: true,
-        mode: 'password'
+        mode: 'password',
+        isValidPassword: false,
       }
     ];
   }
@@ -71,10 +71,19 @@ export class LoginComponent {
   }
 
   async submit() {
-    this.coreAuthService.userC = await this.authService.signInUserAuth(this.loginFormGroup.controls['email'].value, this.loginFormGroup.controls['password'].value);
-    this.coreAuthService.getCurrentAuthUser().then(res => {
-      this.coreAuthService.userC = res;
-      this.router.navigate(["/"]);
-    })
+    this.isSpin = true;
+    await this.authService.signInUserAuth(this.loginFormGroup.controls['email'].value, this.loginFormGroup.controls['password'].value).then(user => {
+      this.coreAuthService.userC = user;
+      this.coreAuthService.getCurrentAuthUser().then(res => {
+        this.coreAuthService.userC = res;
+        this.router.navigate(["/"]);
+      }).catch((error) => {
+        this.errorMessage = error.error.message;
+      })
+    }).catch(error => {
+      this.isSpin = false;
+      this.errorMessage = error.error.message;
+    });
+
   }
 }

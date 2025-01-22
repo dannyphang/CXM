@@ -33,6 +33,7 @@ export class BaseButtonComponent
   @Input() buttonStyleClass: string;
   @Input() loading: boolean = false;
   @Input() raised: boolean = false;
+  @Input() isSpinning: boolean = false;
 
   constructor() {
     super();

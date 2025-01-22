@@ -16,6 +16,7 @@ import { Observable } from "rxjs";
 import { CoreHttpService, PermissionObjDto, ResponseModel, RoleDto, TenantDto, UserPermissionDto } from "./core-http.service";
 import { BasedDto, CoreAuthService, SettingDto, UserDto } from "./core-auth.service";
 import { PERMISSION_LIST } from "../shared/constants/common.constants";
+import { ToastService } from "./toast.service";
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
@@ -26,7 +27,8 @@ export class AuthService {
 
     constructor(
         private coreService: CoreHttpService,
-        private coreAuthService: CoreAuthService
+        private coreAuthService: CoreAuthService,
+        private toastService: ToastService
     ) {
 
     }
@@ -43,14 +45,19 @@ export class AuthService {
     signInUserAuth(email: string, password: string): Promise<UserDto> {
         return new Promise(async (resolve, reject) => {
             try {
-                this.coreAuthService.post<any>('auth/login', { email, password }).pipe().subscribe(res => {
-                    if (res.isSuccess) {
-                        this.coreAuthService.getUserByAuthUid(res.data.uid).subscribe(res2 => {
-                            resolve(res2.data);
-                        })
-                    }
-                    else {
-                        resolve(null);
+                this.coreAuthService.post<any>('auth/login', { email, password, project: 'CRM' }).pipe().subscribe({
+                    next: res => {
+                        if (res.isSuccess) {
+                            this.coreAuthService.getUserByAuthUid(res.data.uid).subscribe(res2 => {
+                                resolve(res2.data);
+                            })
+                        }
+                        else {
+                            resolve(null);
+                        }
+                    },
+                    error: error => {
+                        reject(error)
                     }
                 });
             }

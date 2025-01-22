@@ -83,6 +83,7 @@
     "ATTACH_FILE": "Attach Files",
     "LOGIN": "Login",
     "LOGOUT": "Logout",
+    "FORGOT_PASSWORD": "Forgot password",
     "UPLOAD": "Upload",
     "CREATE": "Create",
     "IMPORT": "Import",
