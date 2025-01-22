@@ -39,6 +39,20 @@ export class CoreAuthService {
         );
     }
 
+    put<ResponseBody = any, Body = any>(url: string, body?: Body, option?: AuthHttpOption) {
+        const { headers, reportProgress, responseType } = option || {}; // Destructure the properties
+
+        return this.http.put<ResponseModel<ResponseBody>>(
+            `${this.AUTH_URL}/${url}`,
+            body,
+            {
+                headers: this.buildHeader({ headers }),
+                reportProgress,
+                responseType,
+                withCredentials: true
+            }
+        );
+    }
 
     get<ResponseBody = any>(url: string, option?: AuthHttpOption) {
         return this.http.get<ResponseModel<ResponseBody>>(

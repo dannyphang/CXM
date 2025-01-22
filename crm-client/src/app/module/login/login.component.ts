@@ -42,7 +42,7 @@ export class LoginComponent {
   initLoginForm() {
     this.loginFormConfig = [
       {
-        label: 'Email',
+        label: 'INPUT.EMAIL',
         type: CONTROL_TYPE.Textbox,
         layoutDefine: {
           row: 0,
@@ -53,7 +53,7 @@ export class LoginComponent {
         mode: 'email'
       },
       {
-        label: 'Password',
+        label: 'INPUT.PASSWORD',
         type: CONTROL_TYPE.Textbox,
         layoutDefine: {
           row: 1,

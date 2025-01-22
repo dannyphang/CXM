@@ -7,6 +7,8 @@ import { BaseCoreAbstract } from '../../../core/shared/base/base-core.abstract';
 import { ROW_PER_PAGE_DEFAULT, ROW_PER_PAGE_DEFAULT_LIST } from '../../../core/shared/constants/common.constants';
 import { MessageService } from 'primeng/api';
 import { CoreAuthService, UserDto } from '../../../core/services/core-auth.service';
+import { CommonService, WindowSizeDto } from '../../../core/services/common.service';
+import { ToastService } from '../../../core/services/toast.service';
 
 interface Column {
   field: string;
@@ -20,6 +22,9 @@ interface Column {
 })
 export class TeamComponent extends BaseCoreAbstract {
   @Input() permission: UserPermissionDto[] = [];
+
+  windowSize: WindowSizeDto = new WindowSizeDto();
+
   ROW_PER_PAGE_DEFAULT = ROW_PER_PAGE_DEFAULT;
   ROW_PER_PAGE_DEFAULT_LIST = ROW_PER_PAGE_DEFAULT_LIST;
   teamFormArr: FormArray = this.formBuilder.array([]);
@@ -86,14 +91,24 @@ export class TeamComponent extends BaseCoreAbstract {
   roleSearchFormControl: FormControl = new FormControl("");
   currentUser: UserDto;
   isAddTenantDialogVisible = false;
+  isCreateUserDialogVisible = false;
+  createUserFormConfig: FormConfig[] = [];
+  createUserFormGroup: FormGroup = new FormGroup({
+    username: new FormControl("", Validators.required),
+    email: new FormControl("", Validators.required),
+    password: new FormControl("", Validators.required),
+  });
 
   constructor(
     private formBuilder: FormBuilder,
     private authService: AuthService,
     private coreService: CoreHttpService,
-    private coreAuthService: CoreAuthService,
+    protected coreAuthService: CoreAuthService,
+    private commonService: CommonService,
+    private toastService: ToastService
   ) {
     super();
+    this.windowSize = this.commonService.windowSize;
   }
 
   ngOnInit() {
@@ -127,12 +142,14 @@ export class TeamComponent extends BaseCoreAbstract {
               value: d.uid
             }
           });
+          this.selectedUserFormGroup.controls['user'].setValue(this.coreAuthService.userC.uid)
         }
       });
     }
 
     this.initTeamRole();
     this.initCreateTenantForm();
+    this.initCreateUserForm();
   }
 
   get permissionArr(): FormArray {
@@ -329,6 +346,40 @@ export class TeamComponent extends BaseCoreAbstract {
     ]
   }
 
+  initCreateUserForm() {
+    this.createUserFormConfig = [
+      {
+        label: 'INPUT.USERNAME',
+        fieldControl: this.createUserFormGroup.controls['username'],
+        type: CONTROL_TYPE.Textbox,
+        layoutDefine: {
+          row: 0,
+          column: 0
+        },
+      },
+      {
+        label: 'INPUT.EMAIL',
+        fieldControl: this.createUserFormGroup.controls['email'],
+        type: CONTROL_TYPE.Textbox,
+        layoutDefine: {
+          row: 1,
+          column: 0
+        },
+        mode: 'email'
+      },
+      {
+        label: 'INPUT.PASSWORD',
+        fieldControl: this.createUserFormGroup.controls['password'],
+        type: CONTROL_TYPE.Textbox,
+        layoutDefine: {
+          row: 2,
+          column: 0
+        },
+        mode: 'password'
+      },
+    ]
+  }
+
   returnRoleById(id: number): string {
     return this.roleOptions.find(r => r.value === id)?.label ?? '';
   }
@@ -337,11 +388,32 @@ export class TeamComponent extends BaseCoreAbstract {
     this.isAddTenantDialogVisible = false;
   }
 
-  resetTenantForm() {
-
+  closeCreateUserDialog() {
+    this.isCreateUserDialogVisible = false;
+    this.resetCreateUserForm();
   }
 
-  createTenant() {
+  resetCreateUserForm() {
+    this.createUserFormGroup.reset({ emitEvent: false });
+  }
 
+  createUser() {
+    if (this.coreAuthService.userC.roleId === 1) {
+      this.createUserFormGroup.markAllAsTouched();
+      if (this.createUserFormGroup.valid) {
+        this.authService.signUpUserAuth(this.createUserFormGroup.controls['email'].value, this.createUserFormGroup.controls['username'].value, this.createUserFormGroup.controls['password'].value).then(user => {
+          console.log(user)
+          this.closeCreateUserDialog();
+        }).catch(error => {
+          this.toastService.addSingle({
+            message: error.error.message,
+            severity: 'error'
+          });
+        });
+      }
+    }
+    else {
+      // TODO
+    }
   }
 }
