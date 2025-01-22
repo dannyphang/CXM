@@ -71,41 +71,64 @@ export class AuthService {
         return this.coreAuthService.post<any>("auth/logout").pipe();
     }
 
-    signUpUserAuth(email: string, username: string, password: string): Promise<UserDto> {
+    signUpUserAuth(email: string, name: string, password: string): Promise<UserDto> {
         return new Promise(async (resolve, reject) => {
-            this.coreAuthService.post<any>("auth/register", { email, password }).subscribe(res => {
-                if (res) {
-                    let permissionList: UserPermissionDto[] = [];
-                    this.PERMISSION_LIST.forEach(str => {
-                        permissionList.push({
-                            module: str,
-                            permission: {
-                                create: false,
-                                remove: false,
-                                update: false,
-                                display: false,
-                                download: false,
-                                export: false
+            this.coreAuthService.post<any>("auth/register", { name, email, password, project: 'CRM' }).subscribe({
+                next: res => {
+                    if (res.isSuccess) {
+                        let permissionList: UserPermissionDto[] = [];
+                        this.PERMISSION_LIST.forEach(str => {
+                            permissionList.push({
+                                module: str,
+                                permission: {
+                                    create: false,
+                                    remove: false,
+                                    update: false,
+                                    display: false,
+                                    download: false,
+                                    export: false
+                                }
+                            })
+                        })
+
+                        let newUser: CreateUserDto = {
+                            authUid: res.data.uid,
+                            email: email,
+                            displayName: name,
+                            roleId: 3,
+                            permission: JSON.stringify(permissionList),
+                            setting: {
+                                defaultTenantId: this.coreService.tenant.uid,
+                                tableFilter: {
+                                    contact: {
+                                        propertyFilter: [],
+                                        columnFilter: []
+                                    },
+                                    company: {
+                                        propertyFilter: [],
+                                        columnFilter: []
+                                    }
+                                }
+                            }
+                        }
+
+                        this.createUser([newUser]).subscribe({
+                            next: res => {
+                                if (res.isSuccess) {
+                                    resolve(res.data)
+                                }
+                                else {
+                                    reject()
+                                }
+                            },
+                            error: error => {
+                                reject(error)
                             }
                         })
-                    })
-
-                    let newUser: CreateUserDto = {
-                        authUid: res.data.uid,
-                        email: email,
-                        displayName: username,
-                        roleId: 3,
-                        permission: JSON.stringify(permissionList),
                     }
-
-                    this.createUser([newUser]).subscribe(res => {
-                        if (res.isSuccess) {
-                            resolve(null)
-                        }
-                        else {
-                            reject()
-                        }
-                    })
+                },
+                error: error => {
+                    reject(error);
                 }
             })
         });
@@ -126,8 +149,8 @@ export class AuthService {
 
     }
 
-    createUser(user: CreateUserDto[]): Observable<ResponseModel<any>> {
-        return this.coreService.post<any>('auth/user', { user }).pipe();
+    createUser(user: CreateUserDto[]): Observable<ResponseModel<UserDto>> {
+        return this.coreService.post<UserDto>('auth/user', { user }).pipe();
     }
 
     updateUserFirestore(user: CreateUserDto[]): Observable<ResponseModel<any>> {

@@ -103,7 +103,9 @@
     "SIGN_UP_LABEL": "Create a new account",
     "SIGN_IN_LABEL": "Go to sign in",
     "CHECK_USER_EMAIL": "Check email existing",
-    "FILTER": "Filter"
+    "FILTER": "Filter",
+    "ADD_USER": "Add user",
+    "CREATE_USER": "Create user"
   },
   "INPUT": {
     "SEARCH": "Search",
@@ -120,7 +122,10 @@
     "FROM": "From",
     "SUBJECT": "Subject",
     "COMFIRMATION": "Confirmation",
-    "CONFIRM_CLOSE": "Confirm close?"
+    "CONFIRM_CLOSE": "Confirm close?",
+    "EMAIL": "Email",
+    "PASSWORD": "Password",
+    "USERNAME": "Username"
   },
   "ACTIVITY": {
     "MODULE": {
@@ -205,6 +210,7 @@
     "ADD_ROLE": "Add role",
     "TENANT_NAME": "Tenant name",
     "USER_LIST": "User list",
-    "PERMISSION_LIST": "Permission list"
+    "PERMISSION_LIST": "Permission list",
+    "CREATE_USER": "Create user"
   }
 }
