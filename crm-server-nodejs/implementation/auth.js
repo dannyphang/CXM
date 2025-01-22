@@ -222,25 +222,26 @@ function updateUserRoleAndTenant({ userId, updateList }) {
 }
 
 function getUserByTenantId({ tenantId }) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
         try {
-            authRepo.getUserTenantAssoByTenantId({ tenantId }).then((userTenantAssoList) => {
-                let list = [];
-                if (userTenantAssoList.length === 0) {
-                    reject("No user found for this tenant.");
-                } else {
-                    userTenantAssoList.forEach((u, index) => {
-                        authRepo.getUserById({ uid: u.userId }).then((user) => {
-                            user.createdDate = func.convertFirebaseDateFormat(user.createdDate);
-                            user.modifiedDate = func.convertFirebaseDateFormat(user.modifiedDate);
-                            list.push(user);
-                            if (userTenantAssoList.length - 1 === index) {
-                                resolve(list);
-                            }
-                        });
-                    });
-                }
+            const userTenantAssoList = await authRepo.getUserTenantAssoByTenantId({ tenantId });
+
+            if (userTenantAssoList.length === 0) {
+                return reject("No user found for this tenant.");
+            }
+
+            // Use `map` to create an array of Promises
+            const userPromises = userTenantAssoList.map(async (u) => {
+                const user = await authRepo.getUserById({ uid: u.userId });
+                user.createdDate = func.convertFirebaseDateFormat(user.createdDate);
+                user.modifiedDate = func.convertFirebaseDateFormat(user.modifiedDate);
+                return user;
             });
+
+            // Wait for all Promises to resolve
+            const userList = await Promise.all(userPromises);
+
+            resolve(userList);
         } catch (error) {
             reject(error);
         }

@@ -23,7 +23,6 @@ export class AuthService {
     PERMISSION_LIST = PERMISSION_LIST;
     SERVICE_PATH = 'auth';
     app: FirebaseApp;
-    auth: Auth;
 
     constructor(
         private coreService: CoreHttpService,
@@ -134,19 +133,12 @@ export class AuthService {
         });
     }
 
-    getAllUser() {
-        return this.coreService.get<any>('auth/allUser').pipe();
+    updateUserAuthPassword(password: string, uid: string) {
+        return this.coreAuthService.put<any>("auth/updatePassword", { password, uid }).pipe();
     }
 
-    updateUser(updateData: any) {
-        if (this.auth.currentUser) {
-            updateProfile(this.auth.currentUser, updateData).then(res => {
-                console.log(res);
-            }).catch(error => {
-                console.log(error)
-            })
-        }
-
+    getAllUser() {
+        return this.coreService.get<any>('auth/allUser').pipe();
     }
 
     createUser(user: CreateUserDto[]): Observable<ResponseModel<UserDto>> {

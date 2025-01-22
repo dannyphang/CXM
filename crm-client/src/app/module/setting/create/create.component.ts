@@ -28,6 +28,8 @@ export class CreateComponent extends BaseCoreAbstract {
     displayName: new FormControl("", Validators.required),
     email: new FormControl({ value: "", disabled: true }),
     phone: new FormControl(""),
+    password: new FormControl(""),
+    confirm_password: new FormControl(""),
   });
   // profile pic
   isShowAvatarEditDialog: boolean = false;
@@ -123,6 +125,26 @@ export class CreateComponent extends BaseCoreAbstract {
         },
         mode: 'phone'
       },
+      {
+        label: 'INPUT.PASSWORD',
+        type: CONTROL_TYPE.Textbox,
+        fieldControl: this.createFormGroup.controls['password'],
+        layoutDefine: {
+          row: 3,
+          column: 0
+        },
+        mode: 'password'
+      },
+      {
+        label: 'INPUT.CONFIRM_PASSWORD',
+        type: CONTROL_TYPE.Textbox,
+        fieldControl: this.createFormGroup.controls['confirm_password'],
+        layoutDefine: {
+          row: 3,
+          column: 1
+        },
+        mode: 'password'
+      },
     ]
   }
 
@@ -186,30 +208,45 @@ export class CreateComponent extends BaseCoreAbstract {
 
   update() {
     if (this.checkPermission('update', this.module, this.permission, this.coreAuthService.userC.roleId)) {
-      let updateUser: CreateUserDto = {
-        uid: this.userProfile.uid,
-        firstName: this.createFormGroup.controls['first_name'].value,
-        lastName: this.createFormGroup.controls['last_name'].value,
-        nickname: this.createFormGroup.controls['nickname'].value,
-        displayName: this.createFormGroup.controls['displayName'].value,
-        email: this.createFormGroup.controls['email'].value,
-        phoneNumber: this.createFormGroup.controls['phone'].value,
-        profilePhotoUrl: this.profilePhotoUrl ?? ''
-      }
-
-      this.authService.updateUserFirestore([updateUser]).subscribe(res => {
-        if (res.isSuccess) {
-          this.toastService.addSingle({
-            message: res.responseMessage,
-          });
+      if (this.createFormGroup.controls['password'].value && this.createFormGroup.controls['confirm_password'].value) {
+        if (this.createFormGroup.controls['password'].value === this.createFormGroup.controls['confirm_password'].value) {
+          this.authService.updateUserAuthPassword(this.createFormGroup.controls['password'].value, this.userProfile.authUid).subscribe(res => {
+            console.log(res.data);
+          })
         }
         else {
           this.toastService.addSingle({
-            message: res.responseMessage,
+            message: 'ERROR.PASSWORD_NOT_MATCH',
             severity: 'error'
           });
         }
-      })
+      }
+      else {
+        let updateUser: CreateUserDto = {
+          uid: this.userProfile.uid,
+          firstName: this.createFormGroup.controls['first_name'].value,
+          lastName: this.createFormGroup.controls['last_name'].value,
+          nickname: this.createFormGroup.controls['nickname'].value,
+          displayName: this.createFormGroup.controls['displayName'].value,
+          email: this.createFormGroup.controls['email'].value,
+          phoneNumber: this.createFormGroup.controls['phone'].value,
+          profilePhotoUrl: this.profilePhotoUrl ?? ''
+        }
+
+        this.authService.updateUserFirestore([updateUser]).subscribe(res => {
+          if (res.isSuccess) {
+            this.toastService.addSingle({
+              message: res.responseMessage,
+            });
+          }
+          else {
+            this.toastService.addSingle({
+              message: res.responseMessage,
+              severity: 'error'
+            });
+          }
+        })
+      }
     }
     else {
       this.toastService.addSingle({

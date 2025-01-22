@@ -142,6 +142,7 @@ export class TeamComponent extends BaseCoreAbstract {
               value: d.uid
             }
           });
+          this.selectedUserFormGroup.controls['user'].setValue(this.coreAuthService.userC.uid)
         }
       });
     }
