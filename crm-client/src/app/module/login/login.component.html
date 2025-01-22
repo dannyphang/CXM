@@ -1,23 +1,30 @@
-<div
-  class="login-container tw-w-screen tw-h-screen tw-grid tw-justify-center tw-items-center"
->
-  <div class="tw-grid tw-justify-center tw-items-center">
+<div class="login-container tw-w-screen tw-h-screen tw-grid tw-items-center">
+  <div class="tw-grid tw-items-center tw-m-auto tw-w-1/3">
     <app-base-form [formConfig]="loginFormConfig" class="login-form">
     </app-base-form>
+
+    <app-base-label
+      *ngIf="errorMessage"
+      [label]="errorMessage"
+      mode="error"
+      class="tw-ml-[var(--content-gap)] tw-mb-[var(--content-gap)]"
+    ></app-base-label>
+
+    <a
+      class="tw-ml-[var(--content-gap)] tw-underline tw-text-[var(--primary-color)]"
+      >{{ "BUTTON.FORGOT_PASSWORD" | translate }}</a
+    >
 
     <div
       class="action-div tw-flex tw-justify-between tw-p-[var(--content-gap)]"
     >
       <app-base-button
-        [label]="'BUTTON.CANCEL' | translate"
-        [outlined]="true"
-        (onClick)="cancel()"
-      ></app-base-button>
-      <app-base-button
         [label]="'BUTTON.LOGIN'"
         [color]="'normal'"
-        class="tw-ml-[var(--content-gap)]"
+        class="tw-w-full"
+        [buttonStyleClass]="'tw-w-full'"
         (onClick)="submit()"
+        [isSpinning]="isSpin"
       ></app-base-button>
     </div>
   </div>

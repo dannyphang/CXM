@@ -31,6 +31,7 @@ export class BaseInputComponent
   @Input() iconLeftStyle: string = '';
   @Input() iconRightStyle: string = '';
   @Input() seperator: string = ' ';
+  @Input() isValidPassword: boolean = true;
   @ViewChild('prefix_content', { static: true })
   prefix_content!: ElementRef<HTMLDivElement>;
 

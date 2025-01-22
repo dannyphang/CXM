@@ -4,8 +4,11 @@
       <p-button
         [outlined]="outlined"
         [type]="buttonType"
-        label="{{ label | translate }}"
-        [icon]="!!iconName ? iconName : ''"
+        [label]="isSpinning ? undefined : (label | translate)"
+        [icon]="
+          (!!iconName ? iconName : '') +
+          (isSpinning ? ' pi pi-spin pi-spinner ' : '')
+        "
         [iconPos]="rightIcon ? 'right' : 'left'"
         [class]="'button-item ' + buttonClass"
         [text]="isTextStyle"
