@@ -3,8 +3,11 @@ import express from "express";
 const router = Router();
 import * as func from "../shared/function.js";
 import * as assoImp from "../implementation/association.js";
+import * as API from "../shared/service.js";
 
 router.use(express.json());
+
+const logModule = "association";
 
 // add association
 router.post("/add", async (req, res) => {
@@ -20,7 +23,8 @@ router.post("/add", async (req, res) => {
             })
             .catch((error) => {
                 console.log(error);
-                res.status(400).json(
+                API.createLog(error, req, res, 500, logModule);
+                res.status(500).json(
                     func.responseModel({
                         isSuccess: false,
                         responseMessage: error,
@@ -29,7 +33,8 @@ router.post("/add", async (req, res) => {
             });
     } catch (error) {
         console.log(error);
-        res.status(400).json(
+        API.createLog(error, req, res, 500, logModule);
+        res.status(500).json(
             func.responseModel({
                 isSuccess: false,
                 responseMessage: error,
@@ -52,15 +57,19 @@ router.put("/removeAsso", async (req, res) => {
             .then((_) => {
                 res.status(200).json(func.responseModel({ data: null }));
             })
-            .catch((errorNotFound) => {
-                func.responseModel({
-                    isSuccess: false,
-                    responseMessage: errorNotFound,
-                });
+            .catch((error) => {
+                API.createLog(error, req, res, 500, logModule);
+                res.status(500).json(
+                    func.responseModel({
+                        isSuccess: false,
+                        responseMessage: error,
+                    })
+                );
             });
     } catch (error) {
         console.log("error", error);
-        res.status(400).json(
+        API.createLog(error, req, res, 500, logModule);
+        res.status(500).json(
             func.responseModel({
                 isSuccess: false,
                 responseMessage: error,

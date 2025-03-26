@@ -3,8 +3,11 @@ import express from "express";
 const router = Router();
 import * as func from "../shared/function.js";
 import * as propertyImp from "../implementation/property.js";
+import * as API from "../shared/service.js";
 
 router.use(express.json());
+
+const logModule = "property";
 
 const propertiesCollection = "properties";
 const propertiesLookupCollection = "propertiesLookup";
@@ -22,10 +25,20 @@ router.get("/" + propertiesCollection + "/module", async (req, res) => {
             })
             .then((list) => {
                 res.status(200).json(func.responseModel({ data: list }));
+            })
+            .catch((error) => {
+                API.createLog(error, req, res, 500, logModule);
+                res.status(500).json(
+                    func.responseModel({
+                        isSuccess: false,
+                        responseMessage: error,
+                    })
+                );
             });
     } catch (error) {
         console.log("error", error);
-        res.status(400).json(
+        API.createLog(error, req, res, 500, logModule);
+        res.status(500).json(
             func.responseModel({
                 isSuccess: false,
                 responseMessage: error,
@@ -53,10 +66,20 @@ router.post("/" + propertiesCollection, async (req, res) => {
                     data: createDoc,
                     responseMessage: `Created ${l.length} record(s) successfully.`,
                 });
+            })
+            .catch((error) => {
+                API.createLog(error, req, res, 500, logModule);
+                res.status(500).json(
+                    func.responseModel({
+                        isSuccess: false,
+                        responseMessage: error,
+                    })
+                );
             });
     } catch (error) {
         console.log("error", error);
-        res.status(400).json(
+        API.createLog(error, req, res, 500, logModule);
+        res.status(500).json(
             func.responseModel({
                 isSuccess: false,
                 responseMessage: error,
@@ -78,10 +101,20 @@ router.put("/" + propertiesCollection + "/update", async (req, res) => {
             })
             .then((l) => {
                 res.status(200).json(func.responseModel({ responseMessage: "Updated successfully" }));
+            })
+            .catch((error) => {
+                API.createLog(error, req, res, 500, logModule);
+                res.status(500).json(
+                    func.responseModel({
+                        isSuccess: false,
+                        responseMessage: error,
+                    })
+                );
             });
     } catch (error) {
         console.log("error", error);
-        res.status(400).json(
+        API.createLog(error, req, res, 500, logModule);
+        res.status(500).json(
             func.responseModel({
                 isSuccess: false,
                 responseMessage: error,
@@ -103,10 +136,20 @@ router.put("/" + propertiesCollection + "/delete", async (req, res) => {
             })
             .then((l) => {
                 res.status(200).json(func.responseModel({ responseMessage: "Deleted successfully" }));
+            })
+            .catch((error) => {
+                API.createLog(error, req, res, 500, logModule);
+                res.status(500).json(
+                    func.responseModel({
+                        isSuccess: false,
+                        responseMessage: error,
+                    })
+                );
             });
     } catch (error) {
         console.log("error", error);
-        res.status(400).json(
+        API.createLog(error, req, res, 500, logModule);
+        res.status(500).json(
             func.responseModel({
                 isSuccess: false,
                 responseMessage: error,
@@ -135,10 +178,20 @@ router.post("/" + propertiesLookupCollection, async (req, res) => {
                         responseMessage: `Created ${l.length} record(s) successfully.`,
                     })
                 );
+            })
+            .catch((error) => {
+                API.createLog(error, req, res, 500, logModule);
+                res.status(500).json(
+                    func.responseModel({
+                        isSuccess: false,
+                        responseMessage: error,
+                    })
+                );
             });
     } catch (error) {
         console.log("error", error);
-        res.status(400).json(
+        API.createLog(error, req, res, 500, logModule);
+        res.status(500).json(
             func.responseModel({
                 isSuccess: false,
                 responseMessage: error,
@@ -160,10 +213,20 @@ router.put("/" + propertiesCollection + "/update", async (req, res) => {
             })
             .then((l) => {
                 res.status(200).json(func.responseModel({ responseMessage: "Updated successfully" }));
+            })
+            .catch((error) => {
+                API.createLog(error, req, res, 500, logModule);
+                res.status(500).json(
+                    func.responseModel({
+                        isSuccess: false,
+                        responseMessage: error,
+                    })
+                );
             });
     } catch (error) {
         console.log("error", error);
-        res.status(400).json(
+        API.createLog(error, req, res, 500, logModule);
+        res.status(500).json(
             func.responseModel({
                 isSuccess: false,
                 responseMessage: error,
@@ -185,10 +248,20 @@ router.get("/" + moduleCodeCollection + "/moduleType", async (req, res) => {
             })
             .then((l) => {
                 res.status(200).json(func.responseModel({ data: l }));
+            })
+            .catch((error) => {
+                API.createLog(error, req, res, 500, logModule);
+                res.status(500).json(
+                    func.responseModel({
+                        isSuccess: false,
+                        responseMessage: error,
+                    })
+                );
             });
     } catch (error) {
         console.log("error", error);
-        res.status(400).json(
+        API.createLog(error, req, res, 500, logModule);
+        res.status(500).json(
             func.responseModel({
                 isSuccess: false,
                 responseMessage: error,
@@ -210,10 +283,20 @@ router.get("/" + moduleCodeCollection + "/subModule/code", async (req, res) => {
             })
             .then((l) => {
                 res.status(200).json(func.responseModel({ data: l }));
+            })
+            .catch((error) => {
+                API.createLog(error, req, res, 500, logModule);
+                res.status(500).json(
+                    func.responseModel({
+                        isSuccess: false,
+                        responseMessage: error,
+                    })
+                );
             });
     } catch (error) {
         console.log("error", error);
-        res.status(400).json(
+        API.createLog(error, req, res, 500, logModule);
+        res.status(500).json(
             func.responseModel({
                 isSuccess: false,
                 responseMessage: error,
@@ -225,12 +308,24 @@ router.get("/" + moduleCodeCollection + "/subModule/code", async (req, res) => {
 // get all activities code by module code
 router.get("/activityModule", async (req, res) => {
     try {
-        propertyImp.getAllActivityModule().then((l) => {
-            res.status(200).json(func.responseModel({ data: l }));
-        });
+        propertyImp
+            .getAllActivityModule()
+            .then((l) => {
+                res.status(200).json(func.responseModel({ data: l }));
+            })
+            .catch((error) => {
+                API.createLog(error, req, res, 500, logModule);
+                res.status(500).json(
+                    func.responseModel({
+                        isSuccess: false,
+                        responseMessage: error,
+                    })
+                );
+            });
     } catch (error) {
         console.log("error", error);
-        res.status(400).json(
+        API.createLog(error, req, res, 500, logModule);
+        res.status(500).json(
             func.responseModel({
                 isSuccess: false,
                 responseMessage: error,
@@ -252,10 +347,20 @@ router.post("/" + moduleCodeCollection, async (req, res) => {
             })
             .then((l) => {
                 res.status(200).json(func.responseModel({ data: l }));
+            })
+            .catch((error) => {
+                API.createLog(error, req, res, 500, logModule);
+                res.status(500).json(
+                    func.responseModel({
+                        isSuccess: false,
+                        responseMessage: error,
+                    })
+                );
             });
     } catch (error) {
         console.log("error", error);
-        res.status(400).json(
+        API.createLog(error, req, res, 500, logModule);
+        res.status(500).json(
             func.responseModel({
                 isSuccess: false,
                 responseMessage: error,
@@ -282,10 +387,20 @@ router.post("/checkUnique", async (req, res) => {
                         data: notUniqueProperties ?? null,
                     })
                 );
+            })
+            .catch((error) => {
+                API.createLog(error, req, res, 500, logModule);
+                res.status(500).json(
+                    func.responseModel({
+                        isSuccess: false,
+                        responseMessage: error,
+                    })
+                );
             });
     } catch (error) {
         console.log("error", error);
-        res.status(400).json(
+        API.createLog(error, req, res, 500, logModule);
+        res.status(500).json(
             func.responseModel({
                 isSuccess: false,
                 responseMessage: error,
