@@ -9,6 +9,7 @@ import { PERMISSION_LIST } from '../../core/shared/constants/common.constants';
 import { CoreHttpService, UserPermissionDto } from '../../core/services/core-http.service';
 import { CoreAuthService } from '../../core/services/core-auth.service';
 import { ToastService } from '../../core/services/toast.service';
+import { EventService } from '../../core/services/event.service';
 
 @Component({
   selector: 'app-login',
@@ -30,7 +31,8 @@ export class LoginComponent {
     private router: Router,
     private _location: Location,
     private coreAuthService: CoreAuthService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private eventService: EventService,
   ) {
   }
 
@@ -76,6 +78,7 @@ export class LoginComponent {
       this.coreAuthService.userC = user;
       this.coreAuthService.getCurrentAuthUser().then(res => {
         this.coreAuthService.userC = res;
+        this.eventService.createEventLog("auth", "Login", `${user.displayName} logged in.`);
         this.router.navigate(["/"]);
       }).catch((error) => {
         this.errorMessage = error.error.message;

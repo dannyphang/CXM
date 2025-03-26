@@ -42,7 +42,7 @@ export class PermissionGuard extends BaseCoreAbstract implements CanActivate {
             }
             catch (error) {
                 // Redirect to the login page
-                this.router.navigate(['/signin']);
+                // this.router.navigate(['/signin']);
                 return resolve(false);
             }
         });

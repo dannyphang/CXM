@@ -70,10 +70,10 @@ export class LayoutComponent {
         this.permission = this.authService.returnPermission(this.user.permission);
       }
       else {
-        this.router.navigate(["/signin"]);
+        // this.router.navigate(["/signin"]);
       }
     }).catch(error => {
-      this.router.navigate(["/signin"]);
+      // this.router.navigate(["/signin"]);
     });
   }
 

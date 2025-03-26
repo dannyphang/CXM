@@ -15,6 +15,7 @@ import { ToastService } from '../../core/services/toast.service';
 import { BaseCoreAbstract } from '../../core/shared/base/base-core.abstract';
 import { DEFAULT_PROFILE_PIC_URL } from '../../core/shared/constants/common.constants';
 import { CoreAuthService, UserDto } from '../../core/services/core-auth.service';
+import { EventService } from '../../core/services/event.service';
 
 @Component({
   selector: 'app-header',
@@ -49,7 +50,8 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
     private themeService: ThemeService,
     private translateService: TranslateService,
     private commonService: CommonService,
-    private coreAuthService: CoreAuthService
+    private coreAuthService: CoreAuthService,
+    private eventService: EventService,
   ) {
     super();
     this.tenantFormControl.valueChanges.subscribe(val => {
@@ -100,44 +102,58 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
   initAvatarMenu() {
     this.userMenuItem = [
       {
-        separator: true
+        label: '',
       },
       {
-        label: this.translateService.instant('HEADER.PROFILE'),
+        label: this.translateService.instant('HEADER.SETTING'),
+        icon: 'pi pi-cog',
+        command: () => {
+          this.router.navigate(['/setting']);
+        }
+      },
+      {
+        label: this.translateService.instant('COMMON.LANGUAGE'),
+        icon: 'pi pi-language',
         items: [
           {
-            label: this.translateService.instant('HEADER.SETTING'),
-            icon: 'pi pi-cog',
+            label: this.translateService.instant('HEADER.LANGUAGE.EN'),
             command: () => {
-              this.router.navigate(['/setting']);
+              this.translateService.use('en');
+              this.commonService.setLanguage('en');
             }
-          }
-        ]
-      },
-      {
-        separator: true
-      },
-      {
-        items: [
-          {
-            label: this.translateService.instant('BUTTON.LOGOUT'),
-            icon: 'pi pi-sign-out',
-            command: () => {
-              this.authService.signOutUserAuth().subscribe();
-              this.router.navigate(["/signin"]);
-              // window.location.reload();
-            },
-            visible: this.user ? true : false
           },
           {
-            label: this.translateService.instant('BUTTON.LOGIN'),
-            icon: "pi pi-sign-in",
+            label: this.translateService.instant('HEADER.LANGUAGE.CN'),
             command: () => {
-              this.redirectToSignIn();
-            },
-            visible: this.user ? false : true
-          }
+              this.translateService.use('zh');
+              this.commonService.setLanguage('zh');
+            }
+          },
         ]
+
+      },
+      {
+        separator: true
+      },
+      {
+        label: this.translateService.instant('BUTTON.LOGOUT'),
+        icon: 'pi pi-sign-out',
+        command: () => {
+          this.authService.signOutUserAuth().subscribe(res => {
+            this.eventService.createEventLog("auth", "Log out", `${this.coreAuthService.userC.displayName} logged out.`);
+            window.location.reload();
+          });
+          // this.router.navigate(["/signin"]);
+        },
+        visible: this.currentUser ? true : false
+      },
+      {
+        label: this.translateService.instant('BUTTON.LOGIN'),
+        icon: "pi pi-sign-in",
+        command: () => {
+          this.redirectToSignIn();
+        },
+        visible: this.currentUser ? false : true
       }
     ];
   }
@@ -160,60 +176,7 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
     }
     this.coreAuthService.getCurrentAuthUser().then(res => {
       this.currentUser = res;
-      this.userMenuItem = [
-        {
-          label: '',
-        },
-        {
-          label: this.translateService.instant('HEADER.SETTING'),
-          icon: 'pi pi-cog',
-          command: () => {
-            this.router.navigate(['/setting']);
-          }
-        },
-        {
-          label: this.translateService.instant('COMMON.LANGUAGE'),
-          icon: 'pi pi-language',
-          items: [
-            {
-              label: this.translateService.instant('HEADER.LANGUAGE.EN'),
-              command: () => {
-                this.translateService.use('en');
-                this.commonService.setLanguage('en');
-              }
-            },
-            {
-              label: this.translateService.instant('HEADER.LANGUAGE.CN'),
-              command: () => {
-                this.translateService.use('zh');
-                this.commonService.setLanguage('zh');
-              }
-            },
-          ]
-
-        },
-        {
-          separator: true
-        },
-        {
-          label: this.translateService.instant('BUTTON.LOGOUT'),
-          icon: 'pi pi-sign-out',
-          command: () => {
-            this.authService.signOutUserAuth().subscribe();
-            this.router.navigate(["/signin"]);
-            // window.location.reload();
-          },
-          visible: this.currentUser ? true : false
-        },
-        {
-          label: this.translateService.instant('BUTTON.LOGIN'),
-          icon: "pi pi-sign-in",
-          command: () => {
-            this.redirectToSignIn();
-          },
-          visible: this.currentUser ? false : true
-        }
-      ];
+      this.initAvatarMenu();
     });
   }
 
@@ -242,7 +205,15 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
         console.log(value);
       });
 
-
+    this.userMenuItem = [
+      {
+        label: this.translateService.instant('BUTTON.LOGIN'),
+        icon: "pi pi-sign-in",
+        command: () => {
+          this.redirectToSignIn();
+        }
+      }
+    ];
   }
 
   redirectToSignIn() {

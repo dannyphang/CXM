@@ -3,8 +3,11 @@ import express from "express";
 const router = Router();
 import * as func from "../shared/function.js";
 import * as contactImp from "../implementation/contact.js";
+import * as API from "../shared/service.js";
 
 router.use(express.json());
+
+const logModule = "contact";
 
 // get all contacts
 router.get("/", async (req, res) => {
@@ -18,7 +21,8 @@ router.get("/", async (req, res) => {
         })
         .catch((error) => {
             console.log("error", error);
-            res.status(400).json(
+            API.createLog(error, req, res, 500, logModule);
+            res.status(500).json(
                 func.responseModel({
                     isSuccess: false,
                     responseMessage: error,
@@ -29,9 +33,9 @@ router.get("/", async (req, res) => {
 
 // get contact by id
 router.get("/:id", async (req, res) => {
-    const id = req.params.id;
-    let tenantId = func.body(req).tenantId;
     try {
+        const id = req.params.id;
+        let tenantId = func.body(req).tenantId;
         contactImp
             .getContactById({
                 tenantId: tenantId,
@@ -42,7 +46,8 @@ router.get("/:id", async (req, res) => {
             })
             .catch((error) => {
                 console.log("error", error);
-                res.status(400).json(
+                API.createLog(error, req, res, 500, logModule);
+                res.status(500).json(
                     func.responseModel({
                         isSuccess: false,
                         responseMessage: error,
@@ -51,7 +56,8 @@ router.get("/:id", async (req, res) => {
             });
     } catch (error) {
         console.log("error", error);
-        res.status(400).json(
+        API.createLog(error, req, res, 500, logModule);
+        res.status(500).json(
             func.responseModel({
                 isSuccess: false,
                 responseMessage: error,
@@ -75,10 +81,20 @@ router.post("/", async (req, res) => {
             })
             .then((cList) => {
                 res.status(200).json(func.responseModel({ data: cList }));
+            })
+            .catch((error) => {
+                API.createLog(error, req, res, 500, logModule);
+                res.status(500).json(
+                    func.responseModel({
+                        isSuccess: false,
+                        responseMessage: error,
+                    })
+                );
             });
     } catch (error) {
         console.log("error", error);
-        res.status(400).json(
+        API.createLog(error, req, res, 500, logModule);
+        res.status(500).json(
             func.responseModel({
                 isSuccess: false,
                 responseMessage: error,
@@ -100,10 +116,25 @@ router.put("/delete", async (req, res) => {
             })
             .then((cList) => {
                 res.status(200).json(func.responseModel({ responseMessage: "Deleted successfully" }));
+            })
+            .catch((error) => {
+                API.createLog(error, req, res, 500, logModule);
+                res.status(500).json(
+                    func.responseModel({
+                        isSuccess: false,
+                        responseMessage: error,
+                    })
+                );
             });
-    } catch (e) {
-        console.log(e);
-        res.status(400).json(e);
+    } catch (error) {
+        console.log(error);
+        API.createLog(error, req, res, 500, logModule);
+        res.status(500).json(
+            func.responseModel({
+                isSuccess: false,
+                responseMessage: error,
+            })
+        );
     }
 });
 
@@ -120,10 +151,20 @@ router.put("/", async (req, res) => {
             })
             .then((cList) => {
                 res.status(200).json(func.responseModel({ data: cList }));
+            })
+            .catch((error) => {
+                API.createLog(error, req, res, 500, logModule);
+                res.status(500).json(
+                    func.responseModel({
+                        isSuccess: false,
+                        responseMessage: error,
+                    })
+                );
             });
     } catch (error) {
         console.log("error", error);
-        res.status(400).json(
+        API.createLog(error, req, res, 500, logModule);
+        res.status(500).json(
             func.responseModel({
                 isSuccess: false,
                 responseMessage: error,
