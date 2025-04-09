@@ -7,7 +7,7 @@ const httpLog = axios.create({
 
 function createLog(error, req, res, statusCode, module) {
     const errorDetails = {
-        project: "CRM",
+        project: "JWT",
         module: module,
         server: "Server API",
         serverType: "API",
@@ -18,6 +18,7 @@ function createLog(error, req, res, statusCode, module) {
             url: req.originalUrl,
             method: req.method,
             path: req.path,
+            host: req.headers.host,
         },
     };
     return httpLog.post("exception", { errorDetails });
