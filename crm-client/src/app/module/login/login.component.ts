@@ -37,8 +37,9 @@ export class LoginComponent {
   }
 
   ngOnInit() {
-    this.authService.initAuth();
-    this.initLoginForm();
+    // this.authService.initAuth();
+    // this.initLoginForm();
+    this.authService.callJWT();
   }
 
   initLoginForm() {
