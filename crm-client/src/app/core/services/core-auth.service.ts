@@ -9,11 +9,20 @@ import { Observable } from "rxjs";
 export class CoreAuthService {
     private AUTH_URL = apiConfig.authUrl;
     userC: UserDto;
+    JWT_TOKEN: string = '';
 
     constructor(
         private http: HttpClient,
         private toastService: ToastService
     ) { }
+
+    set jwt_token(token: string) {
+        this.JWT_TOKEN = token;
+    }
+
+    get jwt_token() {
+        return this.JWT_TOKEN || '';
+    }
 
     buildHeader(option?: AuthHttpOption) {
         // Omit empty headers

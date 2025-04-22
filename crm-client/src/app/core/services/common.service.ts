@@ -6,12 +6,18 @@ import { CoreHttpService, ResponseModel } from "./core-http.service";
 import { ToastService } from "./toast.service";
 import { HttpClient } from "@angular/common/http";
 import { MessageService } from "primeng/api";
-import { BasedDto } from "./core-auth.service";
+import { BasedDto, CoreAuthService } from "./core-auth.service";
+import { ActivatedRoute } from "@angular/router";
 
 @Injectable({ providedIn: 'root' })
 export class CommonService {
     language: string = 'en';
     windowSize: WindowSizeDto = new WindowSizeDto();
+    private paramData = {
+        token: null,
+        project: null,
+        redirect_uri: null,
+    };
 
     constructor(
         private http: HttpClient,
@@ -19,11 +25,60 @@ export class CommonService {
         private coreService: CoreHttpService,
         private toastService: ToastService,
         private translateService: TranslateService,
+        private route: ActivatedRoute,
+        private authCoreService: CoreAuthService,
     ) {
     }
 
     set setWindowSize(windowSize: WindowSizeDto) {
         this.windowSize = windowSize;
+    }
+
+    set params(params: any) {
+        this.paramData = params;
+    }
+
+    get params() {
+        return this.paramData;
+    }
+
+    returnParamDataUrl(): string {
+        const params: Record<string, string | undefined | null> = {
+            redirect_uri: this.paramData.redirect_uri,
+            project: this.paramData.project,
+            token: this.paramData.token,
+        };
+
+        const query = Object.entries(params)
+            .filter(([_, value]) => value !== undefined && value !== null)
+            .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value!)}`)
+            .join("&");
+
+        return query ? `?${query}` : "";
+    }
+
+    getParamsUrl(): Promise<any> {
+        return new Promise((resolve, reject) => {
+            try {
+                this.route.queryParams.subscribe(params => {
+                    const redirectUri = params['redirect_uri'];
+                    const project = params['project'];
+                    const token = params['token'];
+                    this.params = {
+                        redirect_uri: redirectUri,
+                        project: project,
+                        token: token,
+                    }
+                    this.authCoreService.jwt_token = token;
+                    console.log(this.params);
+
+                    resolve(this.params);
+                });
+            }
+            catch (error) {
+                reject(error);
+            }
+        });
     }
 
     updateWindowSize() {

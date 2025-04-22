@@ -1,4 +1,7 @@
-<div class="login-container tw-w-screen tw-h-screen tw-grid tw-items-center">
+<div
+  class="login-container tw-w-screen tw-h-screen tw-grid tw-items-center"
+  *ngIf="!isIntegrated"
+>
   <div class="tw-grid tw-items-center tw-m-auto tw-w-1/3">
     <app-base-form [formConfig]="loginFormConfig" class="login-form">
     </app-base-form>
