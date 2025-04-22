@@ -3,12 +3,14 @@ import { isDevMode } from '@angular/core';
 
 const isProd = !isDevMode();
 const isServerConnect = false;
-const isAuthServerConnect = true;
+const isAuthServerConnect = false;
 const isLogServerConnect = true;
 
 const apiConfig = {
-    baseUrl: isProd || isServerConnect ? env.serverBaseUrl : env.localBaseUrl,
-    authUrl: isProd || isAuthServerConnect ? env.serverAuthUrl : env.localAuthUrl,
-    logUrl: isProd || isLogServerConnect ? env.serverLogUrl : env.localLogUrl,
+    clientUrl: isProd || isServerConnect ? env.server.client : env.local.client,
+    baseUrl: isProd || isServerConnect ? env.server.base : env.local.base,
+    authUrl: isProd || isAuthServerConnect ? env.server.auth : env.local.auth,
+    logUrl: isProd || isLogServerConnect ? env.server.log : env.server.log,
+    authClient: isProd || isAuthServerConnect ? env.server.authClient : env.local.authClient,
 };
 export default apiConfig;

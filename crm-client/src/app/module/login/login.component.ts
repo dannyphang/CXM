@@ -17,6 +17,7 @@ import { EventService } from '../../core/services/event.service';
   styleUrl: './login.component.scss'
 })
 export class LoginComponent {
+  isIntegrated: boolean = true;
   PERMISSION_LIST = PERMISSION_LIST;
   loginFormConfig: FormConfig[] = [];
   loginFormGroup: FormGroup = new FormGroup({
@@ -37,8 +38,7 @@ export class LoginComponent {
   }
 
   ngOnInit() {
-    this.authService.initAuth();
-    this.initLoginForm();
+    this.authService.callJWT();
   }
 
   initLoginForm() {

@@ -9,11 +9,20 @@ import { Observable } from "rxjs";
 export class CoreAuthService {
     private AUTH_URL = apiConfig.authUrl;
     userC: UserDto;
+    JWT_TOKEN: string = '';
 
     constructor(
         private http: HttpClient,
         private toastService: ToastService
     ) { }
+
+    set jwt_token(token: string) {
+        this.JWT_TOKEN = token;
+    }
+
+    get jwt_token() {
+        return this.JWT_TOKEN || '';
+    }
 
     buildHeader(option?: AuthHttpOption) {
         // Omit empty headers
@@ -70,6 +79,7 @@ export class CoreAuthService {
         return new Promise(async (resolve, reject) => {
             this.http.get<any>(`${this.AUTH_URL}/auth/user`, { withCredentials: true }).subscribe({
                 next: res => {
+                    // TODO: add new variable (authUID) to link the supabase (JWT project) user to firebase (CRM project) user
                     let authUid = res.data.uid;
                     this.getUserByAuthUid(authUid).subscribe(res2 => {
                         this.userC = res2.data;

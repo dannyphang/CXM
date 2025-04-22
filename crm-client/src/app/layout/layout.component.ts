@@ -40,7 +40,6 @@ export class LayoutComponent {
     this.onResize();
 
     // this.initBlobity(true);
-    await this.authService.initAuth();
 
     this.coreAuthService.getCurrentAuthUser().then(userC => {
       if (userC) {
