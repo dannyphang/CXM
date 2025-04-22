@@ -22,7 +22,7 @@ export class AuthService {
 
     callJWT() {
         let redirectUri = apiConfig.clientUrl + "/callback";
-        window.location.href = `${this.JWT_BASE_URL}?redirect_uri=${redirectUri}&project=CRM`;
+        window.location.href = `${this.JWT_BASE_URL}?redirect_uri=${redirectUri}&project=CRM&isRememberMeShow=false`;
     }
 
     signInUserAuth(email: string, password: string): Promise<UserDto> {
