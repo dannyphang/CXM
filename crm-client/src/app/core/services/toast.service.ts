@@ -86,14 +86,14 @@ export class ToastService {
     }
 
     clear(key?: string | string[]) {
-        this.messageService.clear()
-        // if (key) {
-        //     if (typeof key === 'string') {
-        //         this.messageService.clear(key);
-        //     }
-        // }
-        // else {
-        //     this.messageService.clear()
-        // }
+        // this.messageService.clear()
+        if (key) {
+            if (typeof key === 'string') {
+                this.messageService.clear(key);
+            }
+        }
+        else {
+            this.messageService.clear()
+        }
     }
 }

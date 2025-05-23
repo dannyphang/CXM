@@ -1,8 +1,12 @@
 {
-  "serverBaseUrl": "https://crm-six-mauve.vercel.app",
-  "localBaseUrl": "http://localhost:1113",
-  "serverAuthUrl": "https://jwt-authentication-fawn.vercel.app",
-  "localAuthUrl": "http://localhost:1110",
-  "serverLogUrl": "https://log-five-theta.vercel.app",
-  "localLogUrl": "http://localhost:1114"
+  "local": {
+    "baseUrl": "http://localhost:1113",
+    "authUrl": "http://localhost:1110",
+    "logUrl": "http://localhost:1114"
+  },
+  "server": {
+    "baseUrl": "https://crm-six-mauve.vercel.app/api",
+    "authUrl": "https://jwt-authentication-fawn.vercel.app/api",
+    "logUrl": "https://log-five-theta.vercel.app/api"
+  }
 }
