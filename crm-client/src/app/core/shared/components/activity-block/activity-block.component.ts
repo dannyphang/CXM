@@ -549,6 +549,8 @@ export class ActivityBlockComponent implements OnChanges {
                     fileSize: res2.data.metadata.size,
                     contactUid: this.assoContactForm.value ?? [],
                     companyUid: this.assoCompanyForm.value ?? [],
+                    url: res2.data.downloadUrl,
+                    fileType: res2.data.metadata.contentType,
                   }
 
                   this.activityService.uploadAttachment([uploadAttach]).subscribe(res3 => {

@@ -26,6 +26,7 @@ export class StorageService {
 
             uploadBytes(storageRef, file!).then(item => {
                 getDownloadURL(storageRef).then(url => {
+                    console.log('File available at', url);
                     resolve(url)
                 })
             })

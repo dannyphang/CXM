@@ -4,5 +4,23 @@
   styleClass="chip-box"
   class="tw-flex tw-text-ellipsis tw-overflow-hidden"
   (onRemove)="onRemove()"
+  [ngClass]="{
+    'app-chips-div': isFile, 
+  }"
+  [ngxFilePreview]="previewFile"
+  [themeMode]="returnThemeMode()"
 >
 </p-chip>
+
+<p-dialog
+  header="Attachment"
+  [(visible)]="isShowDIalog"
+  [modal]="true"
+  [baseZIndex]="10000"
+  [style]="{ width: '50vw' }"
+  [closeOnEscape]="true"
+  [dismissableMask]="true"
+  (onHide)="isShowDIalog = false"
+>
+  <div [ngxFilePreview]="previewFile"></div>
+</p-dialog>

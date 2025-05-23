@@ -15,6 +15,7 @@ import { PrimeNgModule } from './core/shared/modules/primeng.module';
 import { ComponentsModule } from './core/shared/components/components.module';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { LoginModule } from './module/login/login.module';
+import { PreviewDirective, PreviewListComponent } from '@eternalheart/ngx-file-preview';
 
 // Configure the translation loader
 export function HttpLoaderFactory(http: HttpClient): TranslateHttpLoader {
@@ -36,6 +37,9 @@ export const imports = [
   PrimeNgModule,
   ComponentsModule,
   LoginModule,
+
+  PreviewDirective,
+  PreviewListComponent,
 
   TranslateModule.forRoot({
     loader: {

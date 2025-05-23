@@ -465,10 +465,12 @@ export class AttachmentDto extends BasedDto {
     folderName: string;
     fullPath: string;
     fileName: string;
+    fileType: string;
     activityUid: string;
     fileSize: number;
     contactUid: string[];
     companyUid: string[];
+    url?: string;
 }
 
 export class CompanyDto extends BasedDto {

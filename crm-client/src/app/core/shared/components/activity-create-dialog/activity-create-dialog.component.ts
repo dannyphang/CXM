@@ -129,6 +129,8 @@ export class ActivityCreateDialogComponent {
                         fileSize: res2.data.metadata.size,
                         contactUid: this.noteData.associationContactUidList ?? [],
                         companyUid: this.noteData.associationCompanyUidList ?? [],
+                        url: res2.data.downloadUrl,
+                        fileType: res2.data.metadata.contentType,
                       }
 
                       this.activityService.uploadAttachment([uploadAttach]).subscribe(res3 => {
