@@ -1,28 +1,16 @@
-import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { FirebaseApp, initializeApp } from "firebase/app";
-import {
-    createUserWithEmailAndPassword,
-    signInWithEmailAndPassword,
-    updateProfile,
-    signOut,
-    Auth,
-    User,
-    getAuth,
-} from "firebase/auth";
-import { CommonService } from "./common.service";
 import apiConfig from "../../../environments/apiConfig";
 import { Observable } from "rxjs";
-import { CoreHttpService, PermissionObjDto, ResponseModel, RoleDto, TenantDto, UserPermissionDto } from "./core-http.service";
+import { CoreHttpService, ResponseModel, RoleDto, UserPermissionDto } from "./core-http.service";
 import { BasedDto, CoreAuthService, SettingDto, UserDto } from "./core-auth.service";
 import { PERMISSION_LIST } from "../shared/constants/common.constants";
 import { ToastService } from "./toast.service";
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
+    JWT_BASE_URL = apiConfig.authClient;
     PERMISSION_LIST = PERMISSION_LIST;
     SERVICE_PATH = 'auth';
-    app: FirebaseApp;
 
     constructor(
         private coreService: CoreHttpService,
@@ -32,13 +20,9 @@ export class AuthService {
 
     }
 
-    initAuth(): Promise<any> {
-        return new Promise((resolve, reject) => {
-            this.coreService.getEnvToken().subscribe(res => {
-                this.app = initializeApp(res);
-                resolve(null);
-            })
-        });
+    callJWT() {
+        let redirectUri = apiConfig.clientUrl + "/callback";
+        window.location.href = `${this.JWT_BASE_URL}?redirect_uri=${redirectUri}&project=CRM&isRememberMeShow=false`;
     }
 
     signInUserAuth(email: string, password: string): Promise<UserDto> {
