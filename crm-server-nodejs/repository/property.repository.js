@@ -1,10 +1,30 @@
 import * as firebase from "../configuration/firebase-admin.js";
 import { Filter } from "firebase-admin/firestore";
 import { DEFAULT_SYSTEM_TENANT } from "../shared/constant.js";
+import { supabase } from "../configuration/supabase.js";
 
 const propertiesCollection = "properties";
 const propertiesLookupCollection = "propertiesLookup";
 const moduleCodeCollection = "moduleCode";
+const propertyTable = "properties";
+
+function getSingleProperty() {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const { data, error } = await supabase.from(propertyTable).select("*").limit(1).single();
+            if (error) {
+                if (!data) {
+                    reject("Data not found");
+                }
+                reject(error);
+            } else {
+                resolve(data);
+            }
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
 
 function getAllModuleByModuleType({ tenantId, moduleType }) {
     return new Promise(async (resolve, reject) => {
@@ -171,6 +191,7 @@ function getActivitySubControlList() {
 }
 
 export {
+    getSingleProperty,
     getAllModuleByModuleType,
     getAllModuleBySubModule,
     createModule,
