@@ -1,12 +1,18 @@
-import { Injectable, NgZone } from '@angular/core';
+import { ChangeDetectorRef, Injectable, NgZone, ViewChild, ViewContainerRef } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { MessageService } from 'primeng/api';
 import { MessageModel } from './core-http.service';
+import { BehaviorSubject, Subject } from 'rxjs';
+import { Toast } from 'primeng/toast';
 
 @Injectable({
     providedIn: 'root',
 })
 export class ToastService {
+    private toastListSubject = new BehaviorSubject<MessageModel[]>([]);
+    toastList$ = this.toastListSubject.asObservable();
+    private toasts: MessageModel[] = [];
+
     constructor(
         private messageService: MessageService,
         private translateService: TranslateService,
@@ -26,14 +32,16 @@ export class ToastService {
             case 'info':
                 toastConfig.icon = 'pi pi-info-circle';
                 break;
+            case 'warn':
+                toastConfig.icon = 'pi pi-exclamation-triangle';
+                break;
         }
 
-        // Ensure toastConfig.messageData is always defined
         const messageData = toastConfig.messageData || [];
 
-        this.messageService.add({
+        this.toasts.push({
             severity: toastConfig.severity,
-            detail:
+            message:
                 typeof toastConfig.message === 'string'
                     ? this.translateService.instant(
                         toastConfig.message,
@@ -43,10 +51,19 @@ export class ToastService {
                         }, {})
                     ) || toastConfig.message
                     : '',
-            key: 'tr',
-            sticky: toastConfig.isLoading,
+            key: toastConfig.key,
+            sticky: toastConfig.isLoading || toastConfig.sticky,
             icon: toastConfig.isLoading ? 'pi pi-spin pi-spinner' : toastConfig.icon,
         });
+        this.toastListSubject.next([...this.toasts]);
+
+        // Auto-remove if not sticky
+        if (!toastConfig.sticky && !toastConfig.isLoading) {
+            console.log(toastConfig)
+            setTimeout(() => this.clear(toastConfig.key), 3000);
+        }
+
+        console.log();
     }
 
     private loadMessageData(data: any[]) {
@@ -85,15 +102,31 @@ export class ToastService {
         );
     }
 
-    clear(key?: string | string[]) {
-        // this.messageService.clear()
+    // clear(key?: string | string[]) {
+    //     // this.messageService.clear()
+    //     // if (key) {
+    //     //     if (typeof key === 'string') {
+    //     //         this.messageService.clear(key);
+    //     //     }
+    //     // }
+    //     // else {
+    //     //     this.messageService.clear()
+    //     // }
+    // }
+
+    clear(key?: string) {
+        // this.toast.messages = this.toast.messages.filter(
+        //     (x) => x.key !== key
+        // );
+        // const changeDetectorRef = this.toastRef.injector.get(ChangeDetectorRef);
+        // changeDetectorRef.detectChanges();
+
+
         if (key) {
-            if (typeof key === 'string') {
-                this.messageService.clear(key);
-            }
+            this.toasts = this.toasts.filter(t => t.key !== key);
+        } else {
+            this.toasts = [];
         }
-        else {
-            this.messageService.clear()
-        }
+        this.toastListSubject.next([...this.toasts]);
     }
 }

@@ -9,6 +9,58 @@
   }
 }
 
+.toast-enter {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.toast-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: transform 300ms ease, opacity 300ms ease;
+}
+
+.toast-leave {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.toast-leave-active {
+  opacity: 0;
+  transform: translateY(-20px);
+  transition: transform 300ms ease, opacity 300ms ease;
+}
+
 .toast-div {
   gap: var(--content-gap);
+  width: 200px;
+  justify-content: space-between;
+}
+
+.toast-container {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 9999;
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  padding: 1rem;
+  margin-bottom: 0.5rem;
+  border-radius: 6px;
+  color: white;
+  min-width: 250px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  animation: fadeIn 0.3s ease;
+}
+
+.close {
+  background: none;
+  border: none;
+  color: inherit;
+  font-size: 1.2rem;
+  margin-left: auto;
+  cursor: pointer;
 }

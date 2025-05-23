@@ -3,7 +3,7 @@ import { isDevMode } from '@angular/core';
 
 const isProd = !isDevMode();
 const isServerConnect = false;
-const isAuthServerConnect = false;
+const isAuthServerConnect = true;
 const isLogServerConnect = true;
 
 const apiConfig = {

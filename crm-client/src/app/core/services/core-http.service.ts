@@ -105,11 +105,12 @@ export class ResponseModel<T> {
 
 export class MessageModel {
     message: string;
-    severity?: 'success' | 'info' | 'error';
+    severity?: 'success' | 'info' | 'error' | 'warn';
     key?: string;
     icon?: string;
     isLoading?: boolean;
     messageData?: any[];
+    sticky?: boolean;
 }
 
 export class TenantDto extends BasedDto {
