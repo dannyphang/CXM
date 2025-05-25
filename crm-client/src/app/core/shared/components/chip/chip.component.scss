@@ -9,14 +9,19 @@
       text-overflow: ellipsis;
       overflow: hidden;
       text-wrap: nowrap;
+
+      &:hover {
+        text-decoration: underline;
+        cursor: pointer;
+      }
     }
   }
 
   .p-icon {
     color: var(--primary-color);
-  }
-}
 
-.app-chips-div:hover {
-  text-decoration: underline;
+    &:hover {
+      color: var(--highlight-text-color);
+    }
+  }
 }

@@ -22,6 +22,9 @@ export class AuthGuard implements CanActivate {
         return new Promise((resolve, reject) => {
             this.coreAuthService.getCurrentAuthUser().then(res => {
                 resolve(res)
+            }).catch(err => {
+                console.log(err);
+                resolve(null);
             })
         })
     }
@@ -32,7 +35,7 @@ export class AuthGuard implements CanActivate {
                 return resolve(true); // Allow access to the route
             } else {
                 // Redirect to the login page
-                // this.router.navigate(['/signin']);
+                this.router.navigate(['/']);
                 return resolve(false);
             }
         });

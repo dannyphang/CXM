@@ -49,6 +49,7 @@ import { AssociationComponent } from './profile-page/right-panel/association/ass
 import { AttachmentComponent } from './profile-page/right-panel/attachment/attachment.component';
 import { NoteComponent } from './activity-create-dialog/components/note/note.component';
 import { PreviewDirective, PreviewListComponent } from '@eternalheart/ngx-file-preview';
+import { AttachmentChipComponent } from "./attachment-chip/attachment-chip.component";
 
 const components = [
   BaseInputComponent,
@@ -92,6 +93,7 @@ const components = [
   AssociationComponent,
   AttachmentComponent,
   NoteComponent,
+  AttachmentChipComponent
 ];
 
 @NgModule({
@@ -108,7 +110,7 @@ const components = [
     OnlyNumberDirective,
     PasswordValidator,
     PreviewListComponent,
-    PreviewDirective
+    PreviewDirective,
   ],
   exports: [
     components

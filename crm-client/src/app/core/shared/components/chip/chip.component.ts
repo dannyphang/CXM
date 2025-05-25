@@ -1,7 +1,8 @@
 import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
 import { AttachmentDto } from '../../../services/common.service';
-import { PreviewFile } from '@eternalheart/ngx-file-preview';
+import { PreviewEvent, PreviewFile } from '@eternalheart/ngx-file-preview';
 import { CoreAuthService } from '../../../services/core-auth.service';
+import { StorageService } from '../../../services/storage.service';
 
 @Component({
   selector: 'app-chip',
@@ -22,27 +23,29 @@ export class ChipComponent {
 
   constructor(
     private coreAuthService: CoreAuthService,
+    private storageService: StorageService
   ) {
   }
 
   ngOnInit() {
-
+    if (this.file || this.attachment) {
+      this.previewFile = {
+        name: this.attachment?.fileName ?? this.file?.name,
+        size: this.attachment?.fileSize ?? this.file?.size,
+        type: this.storageService.mapMimeTypeToPreviewType(this.attachment?.fileType ?? this.file?.type),
+        url: this.attachment?.url,
+      };
+    }
   }
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['attachment'] && changes['attachment'].currentValue) {
-      this.previewFile = {
-        name: this.attachment.fileName,
-        size: this.attachment.fileSize,
-        type: 'image',
-        url: this.attachment.url
-      };
 
-      console.log(this.previewFile)
     }
   }
 
   onRemove() {
+    this.previewFile = null;
     if (this.isFile) {
       this.remove.emit(this.file);
     }
@@ -51,14 +54,18 @@ export class ChipComponent {
     }
   }
 
-  onShowPreview() {
-    this.isShowDIalog = true;
-    console.log(this.previewFile)
-    console.log(this.file)
-    console.log(this.attachment)
-  }
-
   returnThemeMode(): 'dark' | 'light' {
     return this.coreAuthService.userC.setting.darkMode ? 'dark' : 'light';
+  }
+
+  handlePreviewEvent(event: PreviewEvent) {
+    console.log(event);
+    const { type, message, event: targetEvent } = event;
+    if (type === "error") {
+      console.log(message); // Handle error event
+    }
+    if (type === "select") {
+      console.log(targetEvent); // Handle file selection event
+    }
   }
 }

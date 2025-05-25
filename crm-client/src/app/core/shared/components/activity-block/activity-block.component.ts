@@ -1,4 +1,4 @@
-import { Component, EventEmitter, HostListener, Input, NgZone, OnChanges, Output, SimpleChanges } from '@angular/core';
+import { Component, ElementRef, EventEmitter, HostListener, Input, NgZone, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
 import { ActivityDto, ActivityModuleDto, ActivityService, UpdateActivityDto } from '../../../services/activity.service';
 import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
 import { AttachmentDto, CommonService, CompanyDto, ContactDto, ModuleDto, WindowSizeDto } from '../../../services/common.service';
@@ -9,11 +9,23 @@ import { BaseCoreAbstract } from '../../base/base-core.abstract';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastService } from '../../../services/toast.service';
 import { AuthService } from '../../../services/auth.service';
+import { trigger, transition, style, animate } from '@angular/animations';
 
 @Component({
   selector: 'app-activity-block',
   templateUrl: './activity-block.component.html',
-  styleUrl: './activity-block.component.scss'
+  styleUrl: './activity-block.component.scss',
+  animations: [
+    trigger('fadeInOut', [
+      transition(':enter', [ // when element enters the DOM
+        style({ opacity: 0 }),
+        animate('800ms ease-in', style({ opacity: 1 }))
+      ]),
+      transition(':leave', [ // when element leaves the DOM
+        animate('300ms ease-out', style({ opacity: 0 }))
+      ])
+    ])
+  ]
 })
 export class ActivityBlockComponent implements OnChanges {
   @Input() activity: ActivityDto = new ActivityDto();
@@ -26,6 +38,7 @@ export class ActivityBlockComponent implements OnChanges {
   @Input() companyProfile: CompanyDto = new CompanyDto();
   @Input() moduleLable: string = '';
   @Output() activityReload: EventEmitter<any> = new EventEmitter<any>();
+  @ViewChild('uploader') uploader: ElementRef;
 
   windowSize: WindowSizeDto = new WindowSizeDto();
 
@@ -47,6 +60,7 @@ export class ActivityBlockComponent implements OnChanges {
   contentWordLength: number = 0;
   editorContentLimit = EDITOR_CONTENT_LIMIT;
   attachmentList: File[] = [];
+  displayedAttachmentList: AttachmentDto[] = [];
   fileMaxSize: number = ATTACHMENT_MAX_SIZE;
   assoContactFormConfig: FormConfig[] = [];
   assoCompanyFormConfig: FormConfig[] = [];
@@ -98,15 +112,6 @@ export class ActivityBlockComponent implements OnChanges {
           default:
           // console.log(comp);
         }
-
-        // this.activityService.updateActivity(updateAct).subscribe(res => {
-        //   if (!res.isSuccess) {
-        //     this.toastService.addSingle({
-        //       message: res.responseMessage,
-        //       severity: 'error'
-        //     });
-        //   }
-        // });
         this.readonly = false;
       })
     })
@@ -181,6 +186,9 @@ export class ActivityBlockComponent implements OnChanges {
     }
     if (changes['companyProfile'] && changes['companyProfile'].currentValue) {
       this.setAssociation();
+    }
+    if (changes['activity'] && changes['activity'].currentValue) {
+      this.displayedAttachmentList = this.activity.attachmentList;
     }
   }
 
@@ -398,6 +406,7 @@ export class ActivityBlockComponent implements OnChanges {
     let assoCompanyList: OptionsModel[] = [];
     let assoContactList: OptionsModel[] = [];
 
+    // assign association from activity 
     this.activity.association.contactList.forEach((profile) => {
       assoContactList.push({
         label: `${profile.contactFirstName} ${profile.contactLastName}  (${profile.contactEmail})`,
@@ -411,6 +420,28 @@ export class ActivityBlockComponent implements OnChanges {
         value: profile.uid
       });
     })
+
+    // push association from currect profile
+    if (this.module === 'CONT') {
+      this.contactProfile.association?.companyList.forEach(co => {
+        if (!assoCompanyList.find(c => c.value === co.uid)) {
+          assoCompanyList.push({
+            label: `${co.companyName} (${co.companyEmail})`,
+            value: co.uid
+          });
+        }
+      });
+    }
+    else if (this.module === 'COMP') {
+      this.companyProfile.association?.contactList.forEach(co => {
+        if (!assoContactList.find(c => c.value === co.uid)) {
+          assoContactList.push({
+            label: `${co.contactFirstName} ${co.contactLastName}  (${co.contactEmail})`,
+            value: co.uid
+          });
+        }
+      });
+    }
 
     this.assoContactFormConfig = [
       {
@@ -481,7 +512,7 @@ export class ActivityBlockComponent implements OnChanges {
 
   countTextLength(text: any) {
     this.ngZone.run(() => {
-      this.contentWordLength = text.textValue.length;
+      this.activity.activityContentLength = text.textValue.length;
     });
   }
 
@@ -489,20 +520,26 @@ export class ActivityBlockComponent implements OnChanges {
     let list: File[] = event.target.files;
 
     for (let i = 0; i < list.length; i++) {
-      if (!this.activity.attachmentList?.find(item => item.fileName === list[i].name)) {
+      if (!this.displayedAttachmentList?.find(item => item.fileName === list[i].name) && !this.attachmentList.find(item => item.name === list[i].name)) {
         if (list[i].size > this.fileMaxSize) {
           this.toastService.addSingle({
-            message: `File size is exceed. (${this.returnFileSize(list[i].size)})`,
-            severity: 'error'
+            message: "MESSAGE.FILE_SIZE_EXCEED",
+            messageData: [{ key: 'file_size', value: this.returnFileSize(this.fileMaxSize) }, { key: 'file_name', value: list[i].name }],
+            severity: 'error',
+            key: 'file_size_exceed'
           });
+          this.uploader.nativeElement.value = '';
           break;
         }
         this.attachmentList.push(list[i]);
+        this.readonly = false;
       }
-      else {
+      else if (this.displayedAttachmentList?.find(item => item.fileName === list[i].name) || this.attachmentList.find(item => item.name === list[i].name)) {
         this.toastService.addSingle({
-          message: `(${list[i].name}) is duplicated.`,
-          severity: 'error'
+          message: "MESSAGE.FILE_ALREADY_EXISTS",
+          messageData: [{ key: 'file_name', value: list[i].name }],
+          severity: 'error',
+          key: 'file_already_exists',
         });
       }
     }
@@ -520,8 +557,9 @@ export class ActivityBlockComponent implements OnChanges {
     return `${parseFloat((bytes / Math.pow(k, i)).toFixed(dm))} ${sizes[i]}`
   }
 
-  removeFile(file: File) {
-    this.activity.attachmentList = this.activity.attachmentList.filter(item => item.fileName !== file.name)
+  removeFile(file: File | AttachmentDto) {
+    this.displayedAttachmentList = this.activity.attachmentList.filter(item => item.fileName !== (file as AttachmentDto).fileName);
+    this.updateAct.attachmentList = this.displayedAttachmentList;
   }
 
   updateActivity() {
@@ -533,6 +571,7 @@ export class ActivityBlockComponent implements OnChanges {
         severity: 'info'
       });
       this.activityService.updateActivity([{
+        uid: this.activity.uid,
         activityContent: this.editorFormControl.value,
         ...this.updateAct
       }]).subscribe(res => {
@@ -566,6 +605,7 @@ export class ActivityBlockComponent implements OnChanges {
                               this.activity.activityContent = this.editorFormControl.value;
                               this.readonly = true;
                               this.toastService.clear('update_activity');
+                              this.activityReload.emit();
                             }
                             else {
                               this.toastService.addSingle({
@@ -605,6 +645,7 @@ export class ActivityBlockComponent implements OnChanges {
             this.activity.activityContent = this.editorFormControl.value;
             this.readonly = true;
             this.toastService.clear('update_activity');
+            this.activityReload.emit();
           }
         }
         else {
@@ -622,8 +663,18 @@ export class ActivityBlockComponent implements OnChanges {
     }
   }
 
-  panelOnClick() {
+  panelOnClick(updatable: boolean) {
     this.activity.isExpand = !this.activity.isExpand;
+    if (this.activity.isExpand) {
+      this.readonly = true;
+      this.contentReadonly = true;
+    }
+    if (this.activity.isExpand && updatable) {
+      this.readonly = false;
+      this.contentReadonly = false;
+    }
+    console.log(this.activity);
+    console.log(this.assoCompanyFormConfig);
   }
 
   returnModuleInfo(code: string, id: string): string {
@@ -644,5 +695,14 @@ export class ActivityBlockComponent implements OnChanges {
       }
     }
     return [];
+  }
+
+  cancelActivity() {
+    this.readonly = true;
+    this.contentReadonly = true;
+    this.displayedAttachmentList = this.activity.attachmentList;
+    this.attachmentList = [];
+    this.assignActivityValue();
+    this.setAssociation();
   }
 }

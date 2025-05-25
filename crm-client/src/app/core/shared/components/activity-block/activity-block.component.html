@@ -8,7 +8,7 @@
     <div
       acc-panel-header
       class="activity-panel-header"
-      (click)="panelOnClick()"
+      (click)="panelOnClick(false)"
     >
       <app-base-label
         [label]="
@@ -63,6 +63,8 @@
           (click)="contentReadonly = false; readonly = false"
         ></div>
 
+        <p-divider *ngIf="contentReadonly"></p-divider>
+
         <p-editor
           *ngIf="!contentReadonly"
           [formControl]="editorFormControl"
@@ -77,7 +79,7 @@
         <!-- word count -->
         <div class="tw-grid tw-items-center tw-pl-[var(--content-gap)]">
           <div *ngIf="!contentReadonly">
-            {{ contentWordLength }} / {{ editorContentLimit }}
+            {{ activity.activityContentLength }} / {{ editorContentLimit }}
             {{ "ACTIVITY.WORDS" | translate }}
           </div>
         </div>
@@ -116,23 +118,30 @@
       <!-- attachment -->
       <div
         class="attachment-div tw-mt-[15px] tw-flex"
-        *ngIf="activity.attachmentList && activity.attachmentList.length > 0"
+        *ngIf="
+          (displayedAttachmentList && displayedAttachmentList.length > 0) ||
+          (attachmentList && attachmentList.length > 0)
+        "
       >
         <div class="tw-grid tw-items-center tw-mr-[15px]">
           <div class="pi pi-paperclip"></div>
         </div>
         <div class="attachment-chip-div tw-flex tw-flex-wrap">
           <app-chip
-            *ngFor="let file of activity.attachmentList"
+            *ngFor="let file of displayedAttachmentList"
             label="{{ file?.fileName }} ({{ returnFileSize(file?.fileSize) }})"
+            [attachment]="file"
             class="tw-mr-2 tw-mt-1"
             (remove)="removeFile($event)"
+            [removable]="!contentReadonly || !readonly"
           ></app-chip>
           <app-chip
             *ngFor="let file of attachmentList"
             label="{{ file?.name }} ({{ returnFileSize(file?.size) }})"
+            [file]="file"
             class="tw-mr-2 tw-mt-1"
             (remove)="removeFile($event)"
+            [removable]="!contentReadonly || !readonly"
           ></app-chip>
         </div>
       </div>
@@ -144,11 +153,14 @@
       ></app-base-form>
 
       <!-- footer buttons -->
-      <div class="content-btn-div tw-flex tw-justify-between" *ngIf="!readonly">
+      <div
+        class="content-btn-div tw-flex tw-justify-between tw-mt-[var(--content-gap)]"
+        *ngIf="!readonly"
+      >
         <app-base-button
           [label]="'BUTTON.CANCEL' | translate"
           [outlined]="true"
-          (onClick)="readonly = true"
+          (onClick)="cancelActivity()"
         ></app-base-button>
         <app-base-button
           [label]="'BUTTON.UPDATE' | translate"
@@ -161,8 +173,9 @@
   <div
     *ngIf="activity.activityContent && !this.activity.isExpand"
     class="activity-content"
+    [@fadeInOut]
     [innerHTML]="activity.activityContent"
-    (click)="panelOnClick()"
+    (click)="panelOnClick(true)"
   ></div>
 </div>
 

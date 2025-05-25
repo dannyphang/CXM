@@ -5,22 +5,20 @@
   class="tw-flex tw-text-ellipsis tw-overflow-hidden"
   (onRemove)="onRemove()"
   [ngClass]="{
-    'app-chips-div': isFile, 
+    'app-chips-div': previewFile, 
   }"
   [ngxFilePreview]="previewFile"
   [themeMode]="returnThemeMode()"
+  lang="en"
+  (previewEvent)="handlePreviewEvent($event)"
+  *ngIf="isReadable"
 >
 </p-chip>
-
-<p-dialog
-  header="Attachment"
-  [(visible)]="isShowDIalog"
-  [modal]="true"
-  [baseZIndex]="10000"
-  [style]="{ width: '50vw' }"
-  [closeOnEscape]="true"
-  [dismissableMask]="true"
-  (onHide)="isShowDIalog = false"
->
-  <div [ngxFilePreview]="previewFile"></div>
-</p-dialog>
+<p-chip
+  [label]="label"
+  [removable]="removable"
+  styleClass="chip-box"
+  class="tw-flex tw-text-ellipsis tw-overflow-hidden"
+  (onRemove)="onRemove()"
+  *ngIf="!isReadable"
+></p-chip>

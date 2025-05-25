@@ -3,8 +3,8 @@
 <div class="tw-flex profile-box" *ngIf="contactProfile || companyProfile">
   <!-- desktop -->
   <p-splitter
-    [panelSizes]="[30, 70]"
-    [minSizes]="[22, 50]"
+    [panelSizes]="[25, 75]"
+    [minSizes]="[20, 50]"
     *ngIf="windowSize.desktop"
   >
     <ng-template pTemplate>
@@ -20,7 +20,7 @@
     </ng-template>
 
     <ng-template pTemplate>
-      <p-splitter [panelSizes]="[75, 25]" [minSizes]="[50, 20]">
+      <p-splitter [panelSizes]="[70, 30]" [minSizes]="[50, 20]">
         <ng-template pTemplate>
           <app-middle-panel
             [module]="module"

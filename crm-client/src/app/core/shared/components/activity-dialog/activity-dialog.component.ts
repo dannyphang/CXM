@@ -428,6 +428,7 @@ export class ActivityDialogComponent implements OnChanges {
           activityModuleSubCode: this.activityModule.moduleSubCode,
           activityModuleId: this.activityModule.uid,
           activityContent: this.editorFormControl.value,
+          activityContentLength: this.contentWordLength,
           activityContactedIdList: this.activityFormGroup.controls['CONT'].value,
           activityDatetime: this.convertDateAndTime(this.activityFormGroup.controls['DATE'].value, this.activityFormGroup.controls['TIME'].value),
           activityDirectionId: this.activityFormGroup.controls['DIRECT'].value,

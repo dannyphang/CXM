@@ -36,11 +36,15 @@ function createActivity({ activity }) {
 
 function updateActivity({ activity }) {
   return new Promise(async (resolve, reject) => {
-    let actRef = firebase.db.collection(activityCollection).doc(activity.uid);
+    try {
+      let actRef = firebase.db.collection(activityCollection).doc(activity.uid);
 
-    await actRef.update(activity);
+      await actRef.update(activity);
 
-    resolve(activity);
+      resolve(activity);
+    } catch (error) {
+      reject(error);
+    }
   });
 }
 
