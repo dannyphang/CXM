@@ -1,4 +1,4 @@
-import { Component, HostListener, SimpleChanges } from '@angular/core';
+import { Component, ElementRef, HostListener, SimpleChanges, ViewChild } from '@angular/core';
 import { MenuItem, MessageService } from 'primeng/api';
 import { BaseCoreAbstract } from '../../core/shared/base/base-core.abstract';
 import { TranslateService } from '@ngx-translate/core';
@@ -8,6 +8,7 @@ import { CommonService, WindowSizeDto } from '../../core/services/common.service
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { CoreAuthService, UserDto } from '../../core/services/core-auth.service';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-setting',
@@ -15,11 +16,13 @@ import { CoreAuthService, UserDto } from '../../core/services/core-auth.service'
   styleUrl: './setting.component.scss'
 })
 export class SettingComponent extends BaseCoreAbstract {
+  @ViewChild('settingContainer', { static: false }) settingContainerRef!: ElementRef;
   permission: UserPermissionDto[] = [];
   module = 'SETTING';
   settingMenuItem: MenuItem[] = [];
   userC: UserDto;
   fragment: string;
+  activeSection: string = 'general'; // default section
 
   windowSize: WindowSizeDto = new WindowSizeDto();
 
@@ -36,6 +39,7 @@ export class SettingComponent extends BaseCoreAbstract {
     private titleService: Title,
     private route: ActivatedRoute,
     private coreAuthService: CoreAuthService,
+    private location: Location,
   ) {
     super();
     this.windowSize = this.commonService.windowSize;
@@ -99,7 +103,7 @@ export class SettingComponent extends BaseCoreAbstract {
         document.getElementById("setting_menu_panel")!.style.top = "10px";
       }
       else {
-        document.getElementById("setting_left")!.style.width = "auto";
+        document.getElementById("setting_left")!.style.width = "280px";
         document.getElementById("setting_menu_panel")!.style.position = "relative";
         document.getElementById("setting_menu_panel")!.style.top = "0";
       }
@@ -110,6 +114,49 @@ export class SettingComponent extends BaseCoreAbstract {
   onResize() {
     this.commonService.updateWindowSize();
     this.windowSize = this.commonService.windowSize;
+  }
+
+  ngAfterViewInit() {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const id = entry.target.id;
+            this.activeSection = id;
+            this.highlightMenuItem();
+            this.location.replaceState(this.location.path().split('#')[0] + `#${id}`);
+          }
+        });
+      },
+      {
+        root: this.settingContainerRef?.nativeElement,
+        threshold: 0.5,
+      }
+    );
+
+    const sectionIds = ['general', 'team', 'property'];
+    sectionIds.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) {
+        observer.observe(el);
+      }
+    });
+  }
+
+  highlightMenuItem() {
+    this.settingMenuItem = this.settingMenuItem.map(item => {
+      const idMap = {
+        [this.translateService.instant('SETTING.GENERAL')]: 'general',
+        [this.translateService.instant('SETTING.TEAM_MANAGEMENT')]: 'team',
+        [this.translateService.instant('SETTING.PROPERTY')]: 'property'
+      };
+
+      const sectionId = idMap[item.label];
+      return {
+        ...item,
+        styleClass: sectionId === this.activeSection ? 'active-menu-item' : ''
+      };
+    });
   }
 
   returnPermissionObj(module: string, action: string): boolean {

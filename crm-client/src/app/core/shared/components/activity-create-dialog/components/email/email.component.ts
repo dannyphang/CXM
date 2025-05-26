@@ -71,7 +71,8 @@ export class EmailComponent {
         content: this.editorFormControl.value,
         emailDateTime: new Date(),
         contactAssoList: this.assoContactForm.value,
-        companyAssoList: this.assoCompanyForm.value
+        companyAssoList: this.assoCompanyForm.value,
+        textLength: this.contentWordLength
       });
     });
 
@@ -84,7 +85,8 @@ export class EmailComponent {
         content: change,
         emailDateTime: new Date(),
         contactAssoList: this.assoContactForm.value,
-        companyAssoList: this.assoCompanyForm.value
+        companyAssoList: this.assoCompanyForm.value,
+        textLength: this.contentWordLength
       });
     });
 
@@ -97,7 +99,8 @@ export class EmailComponent {
         content: this.editorFormControl.value,
         emailDateTime: new Date(),
         contactAssoList: change,
-        companyAssoList: this.assoCompanyForm.value
+        companyAssoList: this.assoCompanyForm.value,
+        textLength: this.contentWordLength
       });
     });
 
@@ -110,7 +113,8 @@ export class EmailComponent {
         content: this.editorFormControl.value,
         emailDateTime: new Date(),
         contactAssoList: this.assoContactForm.value,
-        companyAssoList: change
+        companyAssoList: change,
+        textLength: this.contentWordLength
       });
     });
   }

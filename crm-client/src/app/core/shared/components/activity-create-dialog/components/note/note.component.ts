@@ -171,6 +171,7 @@ export class NoteComponent {
       activityModuleSubCode: this.activityModule.moduleSubCode,
       activityModuleId: this.activityModule.uid,
       activityContent: this.editorFormControl.value,
+      activityContentLength: this.contentWordLength,
       activityContactedIdList: [],
       activityDatetime: new Date(),
       activityDirectionId: null,

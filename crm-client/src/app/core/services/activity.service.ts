@@ -79,6 +79,7 @@ export class ActivityDto extends BasedDto {
     activityDirectionId: string;
     activityDuration: string;
     activityContent: string;
+    activityContentLength: number;
     activityModuleId: string;
     activityModuleCode: string;
     activityModuleSubCode: string;
@@ -120,6 +121,7 @@ export class CreateActivityDto extends BasedDto {
     activityDirectionId?: string;
     activityDuration?: string;
     activityContent: string;
+    activityContentLength: number;
     associationContactUidList: string[];
     associationCompanyUidList: string[];
     attachmentUid?: string[];
@@ -138,6 +140,7 @@ export class EmailDto extends BasedDto {
     emailDateTime: Date;
     contactAssoList?: string[];
     companyAssoList?: string[];
+    textLength: number;
 }
 
 export class ActivityTypeDto {

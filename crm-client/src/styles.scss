@@ -61,3 +61,8 @@ a {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--gray-300);
 }
+
+.nfp-modal__content {
+  width: 70% !important;
+  height: 70% !important;
+}

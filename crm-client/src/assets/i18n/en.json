@@ -71,7 +71,11 @@
     "REMOVING_SUCCESSFUL": "Removed successfully.",
     "SENDING_EMAIL": "Sending Email",
     "PROFILE_NOT_CREATED": "Profile is not created. Please check again.",
-    "SOMETHING_WRONG_PROPERTY": "Something wrong with the property list."
+    "SOMETHING_WRONG_PROPERTY": "Something wrong with the property list.",
+    "FILE_SIZE_EXCEED": "File size is exceed {{file_size}} on {{file_name}}.",
+    "FILE_TYPE_NOT_SUPPORT": "File type is not supported on {{file_name}}.",
+    "FILE_ALREADY_EXISTS": "File already exists on {{file_name}}.",
+    "FILE_NOT_READABLE_OR_PREVIEW": "File is not readable or preview URL is not available."
   },
   "BUTTON": {
     "SAVE": "Save",
@@ -148,7 +152,8 @@
     "OUTCOME": "Outcome",
     "DIRECT": "Direction",
     "PIN": "Pin",
-    "UNPIN": "Unpin"
+    "UNPIN": "Unpin",
+    "AT": "at"
   },
   "PROFILE": {
     "AVATAR_EDIT": "Edit profile picture",

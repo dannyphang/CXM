@@ -40,6 +40,9 @@
     class="right-panel-content-div"
     class="tw-p-[var(--content-gap)] tw-gap-[var(--content-gap)] tw-flex tw-flex-wrap"
   >
+    <!-- <app-attachment-chip
+      [attachmentList]="attachmentList"
+    ></app-attachment-chip> -->
     <app-chip
       *ngFor="let attachment of attachmentList"
       label="{{ attachment.fileName }} ({{

@@ -48,6 +48,9 @@ import { TabPanelPageComponent } from './contact-company-page/tab-panel-page/tab
 import { AssociationComponent } from './profile-page/right-panel/association/association.component';
 import { AttachmentComponent } from './profile-page/right-panel/attachment/attachment.component';
 import { NoteComponent } from './activity-create-dialog/components/note/note.component';
+import { PreviewDirective, PreviewListComponent } from '@eternalheart/ngx-file-preview';
+import { AttachmentChipComponent } from "./attachment-chip/attachment-chip.component";
+import { PreviewModalComponent } from '@eternalheart/ngx-file-preview/lib/components';
 
 const components = [
   BaseInputComponent,
@@ -91,6 +94,7 @@ const components = [
   AssociationComponent,
   AttachmentComponent,
   NoteComponent,
+  AttachmentChipComponent
 ];
 
 @NgModule({
@@ -105,7 +109,9 @@ const components = [
     ReactiveFormsModule,
     TranslateModule,
     OnlyNumberDirective,
-    PasswordValidator
+    PasswordValidator,
+    PreviewListComponent,
+    PreviewDirective,
   ],
   exports: [
     components

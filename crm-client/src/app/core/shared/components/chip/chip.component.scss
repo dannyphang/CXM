@@ -9,10 +9,19 @@
       text-overflow: ellipsis;
       overflow: hidden;
       text-wrap: nowrap;
+
+      &:hover {
+        text-decoration: underline;
+        cursor: pointer;
+      }
     }
   }
 
   .p-icon {
     color: var(--primary-color);
+
+    &:hover {
+      color: var(--highlight-text-color);
+    }
   }
 }

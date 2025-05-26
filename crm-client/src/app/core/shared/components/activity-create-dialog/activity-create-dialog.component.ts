@@ -1,4 +1,4 @@
-import { Component, EventEmitter, HostListener, Input, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, HostListener, Input, NgZone, Output, SimpleChanges } from '@angular/core';
 import { ContactDto, CompanyDto, ModuleDto, WindowSizeDto, CommonService, AttachmentDto } from '../../../services/common.service';
 import { ActivityService, CreateActivityDto, EmailDto } from '../../../services/activity.service';
 import { ToastService } from '../../../services/toast.service';
@@ -28,11 +28,14 @@ export class ActivityCreateDialogComponent {
   noteData: CreateActivityDto = new CreateActivityDto();
   attachmentList: File[] = [];
 
+  contentLength: number = 0;
+
   constructor(
     private activityService: ActivityService,
     private toastService: ToastService,
     private commonService: CommonService,
-    private authService: AuthService
+    private authService: AuthService,
+    private ngZone: NgZone,
   ) {
     this.windowSize = this.commonService.windowSize;
   }
@@ -86,6 +89,7 @@ export class ActivityCreateDialogComponent {
             activityContactedIdList: this.emailData.toEmailUid,
             activityDatetime: this.emailData.emailDateTime,
             activityContent: this.emailData.content,
+            activityContentLength: this.contentLength,
             associationContactUidList: this.emailData.contactAssoList,
             associationCompanyUidList: this.emailData.companyAssoList,
             activityType: {
@@ -129,6 +133,8 @@ export class ActivityCreateDialogComponent {
                         fileSize: res2.data.metadata.size,
                         contactUid: this.noteData.associationContactUidList ?? [],
                         companyUid: this.noteData.associationCompanyUidList ?? [],
+                        url: res2.data.downloadUrl,
+                        fileType: res2.data.metadata.contentType,
                       }
 
                       this.activityService.uploadAttachment([uploadAttach]).subscribe(res3 => {

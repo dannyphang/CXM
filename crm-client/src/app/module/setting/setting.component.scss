@@ -9,3 +9,8 @@ html {
 .setting-content {
   width: 100%;
 }
+
+::ng-deep .p-menuitem.active-menu-item {
+  border: 1px solid var(--primary-color);
+  border-radius: var(--border-radius);
+}

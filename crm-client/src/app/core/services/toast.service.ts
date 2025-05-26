@@ -59,7 +59,6 @@ export class ToastService {
 
         // Auto-remove if not sticky
         if (!toastConfig.sticky && !toastConfig.isLoading) {
-            console.log(toastConfig)
             setTimeout(() => this.clear(toastConfig.key), 3000);
         }
 
