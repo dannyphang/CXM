@@ -50,6 +50,7 @@ import { AttachmentComponent } from './profile-page/right-panel/attachment/attac
 import { NoteComponent } from './activity-create-dialog/components/note/note.component';
 import { PreviewDirective, PreviewListComponent } from '@eternalheart/ngx-file-preview';
 import { AttachmentChipComponent } from "./attachment-chip/attachment-chip.component";
+import { PreviewModalComponent } from '@eternalheart/ngx-file-preview/lib/components';
 
 const components = [
   BaseInputComponent,

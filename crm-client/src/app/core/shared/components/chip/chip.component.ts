@@ -3,6 +3,8 @@ import { AttachmentDto } from '../../../services/common.service';
 import { PreviewEvent, PreviewFile } from '@eternalheart/ngx-file-preview';
 import { CoreAuthService } from '../../../services/core-auth.service';
 import { StorageService } from '../../../services/storage.service';
+import { DomSanitizer } from '@angular/platform-browser';
+import { ToastService } from '../../../services/toast.service';
 
 @Component({
   selector: 'app-chip',
@@ -15,27 +17,23 @@ export class ChipComponent {
   @Input() file: File;
   @Input() attachment: AttachmentDto;
   @Input() isFile: boolean = false;
-  @Input() isReadable: boolean = true;
+  @Input() downloadable: boolean = true;
   @Output() remove = new EventEmitter();
 
   isShowDIalog: boolean = false;
   previewFile: PreviewFile;
+  safeGoogleDocsUrl: any;
 
   constructor(
     private coreAuthService: CoreAuthService,
-    private storageService: StorageService
+    private storageService: StorageService,
+    public sanitizer: DomSanitizer,
+    private toastService: ToastService
   ) {
   }
 
   ngOnInit() {
-    if (this.file || this.attachment) {
-      this.previewFile = {
-        name: this.attachment?.fileName ?? this.file?.name,
-        size: this.attachment?.fileSize ?? this.file?.size,
-        type: this.storageService.mapMimeTypeToPreviewType(this.attachment?.fileType ?? this.file?.type),
-        url: this.attachment?.url,
-      };
-    }
+
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -45,7 +43,6 @@ export class ChipComponent {
   }
 
   onRemove() {
-    this.previewFile = null;
     if (this.isFile) {
       this.remove.emit(this.file);
     }
@@ -54,18 +51,19 @@ export class ChipComponent {
     }
   }
 
-  returnThemeMode(): 'dark' | 'light' {
-    return this.coreAuthService.userC.setting.darkMode ? 'dark' : 'light';
-  }
-
-  handlePreviewEvent(event: PreviewEvent) {
-    console.log(event);
-    const { type, message, event: targetEvent } = event;
-    if (type === "error") {
-      console.log(message); // Handle error event
-    }
-    if (type === "select") {
-      console.log(targetEvent); // Handle file selection event
+  previewFileClick() {
+    if (this.downloadable && this.previewFile?.url) {
+      const link = document.createElement('a');
+      link.href = this.previewFile.url;
+      link.download = this.previewFile.name || 'download'; // optional: custom filename
+      link.target = '_blank'; // optional: opens in new tab
+      link.click();
+    } else {
+      this.toastService.addSingle({
+        message: 'MESSAGE.FILE_NOT_READABLE_OR_PREVIEW',
+        severity: 'error',
+        key: 'filePreviewError'
+      })
     }
   }
 }

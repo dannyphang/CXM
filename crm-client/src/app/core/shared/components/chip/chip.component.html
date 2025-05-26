@@ -4,21 +4,14 @@
   styleClass="chip-box"
   class="tw-flex tw-text-ellipsis tw-overflow-hidden"
   (onRemove)="onRemove()"
-  [ngClass]="{
-    'app-chips-div': previewFile, 
-  }"
-  [ngxFilePreview]="previewFile"
-  [themeMode]="returnThemeMode()"
-  lang="en"
-  (previewEvent)="handlePreviewEvent($event)"
-  *ngIf="isReadable"
->
-</p-chip>
+  *ngIf="!downloadable"
+></p-chip>
 <p-chip
   [label]="label"
   [removable]="removable"
   styleClass="chip-box"
   class="tw-flex tw-text-ellipsis tw-overflow-hidden"
   (onRemove)="onRemove()"
-  *ngIf="!isReadable"
+  *ngIf="downloadable"
+  (click)="previewFileClick()"
 ></p-chip>
