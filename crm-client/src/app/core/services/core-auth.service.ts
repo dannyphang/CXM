@@ -132,6 +132,8 @@ export class SettingDto {
         contact: TableFilterDto;
         company: TableFilterDto;
     }
+    defaultLanguage?: number;
+    calendarEmail?: string;
 }
 
 export class TableFilterDto {

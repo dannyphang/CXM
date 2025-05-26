@@ -173,7 +173,9 @@
     "PROFILE_PHONE": "Phone number",
     "PROFILE_NICKNAME": "Nickname",
     "PROFILE_DISPLAYNAME": "Display Name",
-    "ATTACHMENTS": "Attachments"
+    "ATTACHMENTS": "Attachments",
+    "CALENDAR_EMAIL": "Calendar Email",
+    "LANGUAGE": "Language"
   },
   "SETTING": {
     "GENERAL": "General",

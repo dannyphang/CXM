@@ -1,8 +1,8 @@
 import { Injectable, Injector } from "@angular/core";
 import { Observable } from "rxjs"; import apiConfig from "../../../environments/apiConfig";
-import { CONTROL_TYPE_CODE } from "./components.service";
+import { CONTROL_TYPE_CODE, OptionsModel } from "./components.service";
 import { TranslateService } from "@ngx-translate/core";
-import { CoreHttpService, ResponseModel } from "./core-http.service";
+import { CoreHttpService, LanguageDto, ResponseModel } from "./core-http.service";
 import { ToastService } from "./toast.service";
 import { HttpClient } from "@angular/common/http";
 import { MessageService } from "primeng/api";
@@ -357,6 +357,10 @@ export class CommonService {
                 }
             });
         });
+    }
+
+    getLanguageOptions(): Observable<ResponseModel<LanguageDto[]>> {
+        return this.coreService.get<LanguageDto[]>('general/language', {});
     }
 }
 

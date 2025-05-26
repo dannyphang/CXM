@@ -8,38 +8,73 @@ import * as API from "../shared/service.js";
 router.use(express.json());
 
 router.get("/ping", async (req, res) => {
-    try {
-        generalImp
-            .getSingleProperty()
-            .then((property) => {
-                res.status(200).json(
-                    func.responseModel({
-                        data: property,
-                        responseMessage: "pong",
-                    })
-                );
-            })
-            .catch((error) => {
-                if (error) {
-                    API.createLog(error, req, res, 500, "general");
-                    res.status(500).json(
-                        func.responseModel({
-                            isSuccess: false,
-                            responseMessage: error,
-                        })
-                    );
-                }
-            });
-    } catch (error) {
-        console.log("error", error);
-        API.createLog(error, req, res, 500, "general");
-        res.status(500).json(
-            func.responseModel({
-                isSuccess: false,
-                responseMessage: error,
-            })
+  try {
+    generalImp
+      .getSingleProperty()
+      .then((property) => {
+        res.status(200).json(
+          func.responseModel({
+            data: property,
+            responseMessage: "pong",
+          })
         );
-    }
+      })
+      .catch((error) => {
+        if (error) {
+          API.createLog(error, req, res, 500, "general");
+          res.status(500).json(
+            func.responseModel({
+              isSuccess: false,
+              responseMessage: error,
+            })
+          );
+        }
+      });
+  } catch (error) {
+    console.log("error", error);
+    API.createLog(error, req, res, 500, "general");
+    res.status(500).json(
+      func.responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
+  }
+});
+
+router.get("/language", async (req, res) => {
+  try {
+    generalImp
+      .getLanguage()
+      .then((language) => {
+        res.status(200).json(
+          func.responseModel({
+            data: language,
+            responseMessage: "Language fetched successfully",
+          })
+        );
+      })
+      .catch((error) => {
+        if (error) {
+          API.createLog(error, req, res, 500, "general");
+          res.status(500).json(
+            func.responseModel({
+              isSuccess: false,
+              responseMessage: error,
+            })
+          );
+        }
+      });
+  } catch (error) {
+    console.log("error", error);
+    API.createLog(error, req, res, 500, "general");
+    res.status(500).json(
+      func.responseModel({
+        isSuccess: false,
+        responseMessage: error,
+      })
+    );
+  }
 });
 
 export default router;
