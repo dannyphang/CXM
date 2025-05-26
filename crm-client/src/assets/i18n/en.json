@@ -151,7 +151,8 @@
     "OUTCOME": "Outcome",
     "DIRECT": "Direction",
     "PIN": "Pin",
-    "UNPIN": "Unpin"
+    "UNPIN": "Unpin",
+    "AT": "at"
   },
   "PROFILE": {
     "AVATAR_EDIT": "Edit profile picture",

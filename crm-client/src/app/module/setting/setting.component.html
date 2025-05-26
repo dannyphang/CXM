@@ -2,11 +2,16 @@
 
 <div class="setting-container" (scroll)="onScroll($event)" *ngIf="userC">
   <div
-    class="tw-p-[var(--content-gap)] setting-left-container"
+    class="tw-p-[var(--content-gap)] setting-left-container tw-w-[300px!important]"
     id="setting_left"
     *ngIf="windowSize.desktop"
   >
-    <p-menu [model]="settingMenuItem" id="setting_menu_panel"> </p-menu>
+    <p-menu
+      [model]="settingMenuItem"
+      id="setting_menu_panel"
+      styleClass="tw-w-[236px]"
+    >
+    </p-menu>
   </div>
 
   <div class="setting-content">

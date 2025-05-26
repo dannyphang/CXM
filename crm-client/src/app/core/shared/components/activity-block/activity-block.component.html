@@ -40,7 +40,9 @@
 
       <!-- activity date -->
       <div class="activity-date tw-grid tw-items-center">
-        {{ activity.activityDatetime | date : "yyyy-MM-dd HH:mm" }}
+        {{ activity.activityDatetime | date : "yyyy-MM-dd" }}
+        {{ "ACTIVITY.AT" | translate }}
+        {{ activity.activityDatetime | date : "HH:mm" }}
       </div>
     </div>
 
