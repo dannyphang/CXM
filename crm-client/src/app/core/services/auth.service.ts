@@ -2,7 +2,7 @@ import { Injectable } from "@angular/core";
 import apiConfig from "../../../environments/apiConfig";
 import { Observable } from "rxjs";
 import { CoreHttpService, ResponseModel, RoleDto, UserPermissionDto } from "./core-http.service";
-import { BasedDto, CoreAuthService, SettingDto, UserDto } from "./core-auth.service";
+import { BasedDto, CoreAuthService, SettingDto, UpdateSettingDto, UserDto } from "./core-auth.service";
 import { PERMISSION_LIST } from "../shared/constants/common.constants";
 import { ToastService } from "./toast.service";
 
@@ -129,7 +129,7 @@ export class AuthService {
         return this.coreService.post<UserDto>('auth/user', { user }).pipe();
     }
 
-    updateUserFirestore(user: CreateUserDto[]): Observable<ResponseModel<any>> {
+    updateUserFirestore(user: UpdateUserDto[]): Observable<ResponseModel<any>> {
         return this.coreService.put<any>('auth/user/update', { user }).pipe();
     }
 
@@ -187,6 +187,21 @@ export class CreateUserDto extends BasedDto {
     roleId?: number;
     permission?: string;
     setting?: SettingDto;
+}
+
+export class UpdateUserDto extends BasedDto {
+    uid: string;
+    firstName?: string;
+    lastName?: string;
+    nickname?: string;
+    displayName?: string;
+    profilePhotoUrl?: string;
+    email?: string;
+    phoneNumber?: string;
+    authUid?: string;
+    roleId?: number;
+    permission?: string;
+    setting?: UpdateSettingDto;
 }
 
 export class UpdateUserRoleDto {

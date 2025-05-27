@@ -9,7 +9,7 @@ import { Subscription } from 'rxjs';
 import { ToastService } from '../core/services/toast.service';
 import { CoreHttpService, TenantDto, UserPermissionDto } from '../core/services/core-http.service';
 import { CommonService } from '../core/services/common.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CoreAuthService, UserDto } from '../core/services/core-auth.service';
 
 @Component({
@@ -31,9 +31,9 @@ export class LayoutComponent {
     private toastService: ToastService,
     private coreService: CoreHttpService,
     private router: Router,
-    private coreAuthService: CoreAuthService
+    private coreAuthService: CoreAuthService,
+    private route: ActivatedRoute,
   ) {
-
   }
 
   async ngOnInit() {
@@ -44,6 +44,13 @@ export class LayoutComponent {
     this.coreAuthService.getCurrentAuthUser().then(userC => {
       if (userC) {
         this.user = userC;
+
+        this.commonService.getParamsUrl().then(params => {
+          if (params.calendarEmail) {
+            this.user.setting.calendarEmail = params.calendarEmail;
+            this.authService.updateUserFirestore([this.user]).subscribe({});
+          }
+        })
         this.toastService.addSingle({
           key: 'tenant',
           message: this.translateService.instant('COMMON.LOADING',

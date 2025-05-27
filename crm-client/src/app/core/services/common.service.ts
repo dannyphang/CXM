@@ -17,6 +17,8 @@ export class CommonService {
         token: null,
         project: null,
         redirect_uri: null,
+        module: null,
+        calendarEmail: null
     };
 
     constructor(
@@ -64,10 +66,16 @@ export class CommonService {
                     const redirectUri = params['redirect_uri'];
                     const project = params['project'];
                     const token = params['token'];
+                    const module = params['module'];
+                    const calendarEmail = params['calendarEmail'];
+                    const userId = params['userId'];
                     this.params = {
                         redirect_uri: redirectUri,
                         project: project,
                         token: token,
+                        module: module,
+                        calendarEmail: calendarEmail,
+                        userId: userId,
                     }
                     this.authCoreService.jwt_token = token;
                     console.log(this.params);

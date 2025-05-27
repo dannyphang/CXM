@@ -23,4 +23,13 @@ function convertFirebaseDateFormat(date) {
     }
 }
 
-export { responseModel, body, convertFirebaseDateFormat };
+function returnParamDataUrl(params) {
+    const query = Object.entries(params)
+        .filter(([_, value]) => value !== undefined && value !== null)
+        .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+        .join("&");
+
+    return query ? `?${query}` : "";
+}
+
+export { responseModel, body, convertFirebaseDateFormat, returnParamDataUrl };

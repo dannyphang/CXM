@@ -6,7 +6,7 @@ import { CONTROL_TYPE, FormConfig } from '../../../core/services/components.serv
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { DEFAULT_PROFILE_PIC_URL } from '../../../core/shared/constants/common.constants';
 import { StorageService } from '../../../core/services/storage.service';
-import { AuthService, CreateUserDto } from '../../../core/services/auth.service';
+import { AuthService, CreateUserDto, UpdateUserDto } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { CoreHttpService, UserPermissionDto } from '../../../core/services/core-http.service';
 import { CoreAuthService, UserDto } from '../../../core/services/core-auth.service';
@@ -259,7 +259,7 @@ export class CreateComponent extends BaseCoreAbstract {
         }
       }
       else {
-        let updateUser: CreateUserDto = {
+        let updateUser: UpdateUserDto = {
           uid: this.userProfile.uid,
           firstName: this.createFormGroup.controls['first_name'].value,
           lastName: this.createFormGroup.controls['last_name'].value,
@@ -270,7 +270,8 @@ export class CreateComponent extends BaseCoreAbstract {
           profilePhotoUrl: this.profilePhotoUrl ?? '',
           setting: {
             tableFilter: this.userProfile.setting?.tableFilter,
-            defaultLanguage: this.createFormGroup.controls['language'].value
+            defaultLanguage: this.createFormGroup.controls['language'].value,
+            calendarEmail: this.createFormGroup.controls['calendarEmail'].value
           }
         }
 

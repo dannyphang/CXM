@@ -77,19 +77,25 @@ export class CoreAuthService {
 
     getCurrentAuthUser(): Promise<UserDto> {
         return new Promise(async (resolve, reject) => {
-            this.http.get<any>(`${this.AUTH_URL}/auth/user`, { withCredentials: true }).subscribe({
-                next: res => {
-                    // TODO: add new variable (authUID) to link the supabase (JWT project) user to firebase (CRM project) user
-                    let authUid = res.data.uid;
-                    this.getUserByAuthUid(authUid).subscribe(res2 => {
-                        this.userC = res2.data;
-                        resolve(res2.data);
-                    });
-                },
-                error: err => {
-                    reject(err)
-                }
-            })
+            try {
+                this.http.get<any>(`${this.AUTH_URL}/auth/user`, { withCredentials: true }).subscribe({
+                    next: res => {
+                        // TODO: add new variable (authUID) to link the supabase (JWT project) user to firebase (CRM project) user
+                        let authUid = res.data.uid;
+                        this.getUserByAuthUid(authUid).subscribe(res2 => {
+                            this.userC = res2.data;
+                            resolve(res2.data);
+                        });
+                    },
+                    error: err => {
+                        reject(err)
+                    }
+                })
+            } catch (error) {
+                console.error('Error getting current auth user:', error);
+
+                reject(error);
+            }
         })
     }
 }
@@ -129,6 +135,17 @@ export class SettingDto {
     darkMode?: boolean;
     defaultTenantId?: string;
     tableFilter: {
+        contact: TableFilterDto;
+        company: TableFilterDto;
+    }
+    defaultLanguage?: number;
+    calendarEmail?: string;
+}
+
+export class UpdateSettingDto {
+    darkMode?: boolean;
+    defaultTenantId?: string;
+    tableFilter?: {
         contact: TableFilterDto;
         company: TableFilterDto;
     }

@@ -10,6 +10,7 @@ import activityController from "./controller/activity.controller.js";
 import attachmentController from "./controller/attachment.controller.js";
 import authController from "./controller/auth.controller.js";
 import generalController from "./controller/general.controller.js";
+import calendarController from "./controller/calendar.controller.js";
 import cors from "cors";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
@@ -20,7 +21,7 @@ const __dirname = dirname(__filename);
 const app = express();
 // app.use(express.json());
 
-const port = process.env.PORT || 1113;
+const port = 1113;
 
 global.__basedir = __dirname;
 
@@ -56,6 +57,7 @@ app.use("/token", tokenController);
 app.use("/auth", authController);
 app.use("/location", locationController);
 app.use("/general", generalController);
+app.use("/calendar", calendarController);
 
 app.listen(port, () => {
     console.log(`server is running at port: ${port}... (${new Date()})`);

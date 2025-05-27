@@ -6,7 +6,7 @@ import * as ExcelJS from 'exceljs';
 import saveAs from 'file-saver';
 import { MenuItem, MessageService } from 'primeng/api';
 import { debounceTime, distinctUntilChanged, map, Observable, of } from 'rxjs';
-import { AuthService, CreateUserDto } from '../../../services/auth.service';
+import { AuthService, CreateUserDto, UpdateUserDto } from '../../../services/auth.service';
 import { CommonService, CompanyDto, ContactDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, PropertyLookupDto, UserCommonDto, WindowSizeDto } from '../../../services/common.service';
 import { BaseDataSourceActionEvent, CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../../../services/components.service';
 import { ROW_PER_PAGE_DEFAULT, ROW_PER_PAGE_DEFAULT_LIST, EMPTY_VALUE_STRING, NUMBER_OF_EXCEL_INSERT_ROW, DOWNLOAD_IMPORT_PROFILE_TEMPLATE_FILE_NAME_XLSX, MAX_PANEL_LIST } from '../../constants/common.constants';
@@ -274,7 +274,7 @@ export class ContactCompanyPageComponent implements OnChanges {
 
   updateUserSetting(setting: SettingDto) {
     if (this.authService.returnPermissionObj(this.module, 'update')) {
-      let updateUser: CreateUserDto = {
+      let updateUser: UpdateUserDto = {
         uid: this.coreAuthService.userC.uid,
         setting: setting
       };
@@ -357,7 +357,7 @@ export class ContactCompanyPageComponent implements OnChanges {
       setting.tableFilter[this.module === "CONT" ? "contact" : "company"].propertyFilter = setting.tableFilter[this.module === "CONT" ? "contact" : "company"].propertyFilter.filter((item) => item.tabUid !== removeTabUid)
     }
 
-    let updateUser: CreateUserDto = {
+    let updateUser: UpdateUserDto = {
       uid: this.coreAuthService.userC.uid,
       setting: setting
     };

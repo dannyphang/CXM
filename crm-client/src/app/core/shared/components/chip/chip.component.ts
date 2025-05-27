@@ -1,6 +1,5 @@
 import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
 import { AttachmentDto } from '../../../services/common.service';
-import { PreviewEvent, PreviewFile } from '@eternalheart/ngx-file-preview';
 import { CoreAuthService } from '../../../services/core-auth.service';
 import { StorageService } from '../../../services/storage.service';
 import { DomSanitizer } from '@angular/platform-browser';
@@ -21,7 +20,6 @@ export class ChipComponent {
   @Output() remove = new EventEmitter();
 
   isShowDIalog: boolean = false;
-  previewFile: PreviewFile;
   safeGoogleDocsUrl: any;
 
   constructor(
@@ -52,12 +50,14 @@ export class ChipComponent {
   }
 
   previewFileClick() {
-    if (this.downloadable && this.previewFile?.url) {
+    if (this.downloadable && this.attachment?.url) {
       const link = document.createElement('a');
-      link.href = this.previewFile.url;
-      link.download = this.previewFile.name || 'download'; // optional: custom filename
-      link.target = '_blank'; // optional: opens in new tab
-      link.click();
+      if (this.attachment) {
+        link.href = this.attachment.url;
+        link.download = this.attachment.fileName || 'download'; // optional: custom filename
+        link.target = '_blank'; // optional: opens in new tab
+        link.click();
+      }
     } else {
       this.toastService.addSingle({
         message: 'MESSAGE.FILE_NOT_READABLE_OR_PREVIEW',
