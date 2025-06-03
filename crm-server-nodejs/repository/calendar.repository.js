@@ -3,13 +3,11 @@ import { supabase } from "../configuration/supabase.js";
 function createToken({ token }) {
     return new Promise(async (resolve, reject) => {
         try {
-            console.log("Creating token:", token);
             const { data, error } = await supabase.from("token").insert([token]).select();
 
             if (error) {
                 reject(error);
             } else {
-                console.log("Token created successfully:", data);
                 resolve(data);
             }
         } catch (error) {
@@ -24,7 +22,7 @@ function getTokenByEmail({ email }) {
             if (!email) {
                 reject(new Error("Email is required to get token"));
             }
-            const { data, error } = await supabase.from("token").select("*").eq("email", email).eq("statusId", 1).single();
+            const { data, error } = await supabase.from("token").select("*").eq("email", email).eq("module", "calendar").eq("statusId", 1).single();
 
             if (error) {
                 reject(error);
@@ -37,7 +35,7 @@ function getTokenByEmail({ email }) {
     });
 }
 
-function updateToken({ token }) {
+function updateToken({ token, email }) {
     return new Promise(async (resolve, reject) => {
         try {
             const { tokenEmail, err } = await supabase.from("token").select("*").eq("email", email).eq("statusId", 1).eq("module", token.module).single();

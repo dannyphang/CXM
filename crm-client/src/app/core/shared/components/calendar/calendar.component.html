@@ -1,8 +1,134 @@
-<app-base-button
-  (onClick)="fetchCalendar()"
-  [label]="'fetch calendar'"
-></app-base-button>
-<app-base-button
-  (onClick)="connectCalendar()"
-  [label]="'connect calendar'"
-></app-base-button>
+<div class="calendar-div">
+  <div class="calendar-hear-toolbar-div">
+    <app-base-label
+      [label]="fcCalendar.getDate() | date : 'MMMM yyyy'"
+      *ngIf="fcCalendar"
+    ></app-base-label>
+
+    <div class="date-page-div">
+      <app-base-button
+        (onClick)="today()"
+        [outlined]="true"
+        [iconName]="'pi pi-calendar'"
+        [label]="'BUTTON.TODAY'"
+      ></app-base-button>
+
+      <app-base-button
+        (onClick)="prev()"
+        [rounded]="true"
+        [outlined]="true"
+        [iconName]="'pi pi-angle-left'"
+      ></app-base-button>
+
+      <app-base-button
+        (onClick)="next()"
+        [rounded]="true"
+        [outlined]="true"
+        [iconName]="'pi pi-angle-right'"
+      ></app-base-button>
+    </div>
+  </div>
+
+  <full-calendar
+    id="calendar"
+    [options]="calendarOptions"
+    [events]="eventsPromise | async"
+  ></full-calendar>
+</div>
+
+<p-dialog
+  [header]="'event'"
+  [(visible)]="showEventDialog"
+  [modal]="true"
+  styleClass="tw-w-[80%] tw-h-[80%]"
+  [draggable]="false"
+>
+  <ng-template pTemplate="header">
+    <div
+      class="tw-flex tw-gap-[var(--content-gap)] tw-w-full tw-mr-[var(--content-gap)]"
+    >
+      <i class="pi pi-calendar tw-content-center"></i>
+      <app-base-input
+        [fieldControl]="returnFormControl('subject')"
+        class="tw-w-full"
+      ></app-base-input>
+    </div>
+  </ng-template>
+
+  <div class="event-body-div tw-gap-[var(--content-gap)] tw-grid">
+    <!-- date time -->
+    <div class="event-date-time-div tw-flex tw-gap-[var(--content-gap)]">
+      <i class="pi pi-clock tw-content-center"></i>
+      <div class="tw-grid tw-gap-[var(--content-gap)]">
+        <div class="tw-flex tw-gap-[var(--content-gap)]">
+          <app-base-datepicker
+            [fieldControl]="returnFormControl('start')"
+            class="tw-w-[30%]"
+            [showTime]="!this.selectedEventFormGroup.value.isAllDay[0]"
+          ></app-base-datepicker>
+
+          <div class="tw-items-center tw-flex">-</div>
+
+          <app-base-datepicker
+            [fieldControl]="returnFormControl('end')"
+            class="tw-w-[30%]"
+            [showTime]="!this.selectedEventFormGroup.value.isAllDay[0]"
+          ></app-base-datepicker>
+        </div>
+        <app-base-checkbox
+          [options]="[{ label: 'All Day', value: 'true' }]"
+          [fieldControl]="returnFormControl('isAllDay')"
+          class="tw-w-max tw-items-center tw-flex"
+        ></app-base-checkbox>
+      </div>
+    </div>
+
+    <!-- location -->
+    <div class="tw-flex tw-gap-[var(--content-gap)]">
+      <i class="pi pi-map-marker tw-content-center"></i>
+      <app-base-input
+        [fieldControl]="returnFormControl('location')"
+        [placeholder]="'INPUT.ADD_LOCATION_PLACEHOLDER'"
+        class="tw-w-[90%]"
+      ></app-base-input>
+    </div>
+
+    <!-- description -->
+    <div class="description-div tw-flex tw-gap-[var(--content-gap)]">
+      <i class="pi pi-align-left tw-content-center"></i>
+      <div
+        [innerHTML]="
+          sanitizeDescription(returnFormControl('description').value)
+        "
+        *ngIf="!editDesc"
+        (click)="editDesc = true"
+        class="tw-w-[90%] tw-min-h-[50px] hover:tw-cursor-pointer hover:tw-bg-[var(--surface-hover)] tw-rounded-[var(--border-radius)]"
+      ></div>
+
+      <app-base-textarea
+        *ngIf="editDesc"
+        [fieldControl]="returnFormControl('description')"
+        class="tw-w-[90%]"
+        [maxLength]="2500"
+        [hideLengthLimit]="true"
+        [placeholder]="'INPUT.ADD_DESCRIPTION_PLACEHOLDER'"
+        (focusout)="editDesc = false"
+        [autoFocus]="true"
+        [customClass]="'tw-min-h-[300px]'"
+      ></app-base-textarea>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex justify-content-between">
+      <app-base-button
+        [label]="'BUTTON.CANCEL'"
+        [isTextStyle]="true"
+        (onClick)="cancel()"
+      ></app-base-button>
+      <app-base-button
+        [label]="'BUTTON.SAVE'"
+        (onClick)="save()"
+      ></app-base-button>
+    </div> </ng-template
+></p-dialog>

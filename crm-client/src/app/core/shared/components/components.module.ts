@@ -49,6 +49,7 @@ import { AssociationComponent } from './profile-page/right-panel/association/ass
 import { AttachmentComponent } from './profile-page/right-panel/attachment/attachment.component';
 import { NoteComponent } from './activity-create-dialog/components/note/note.component';
 import { CalendarComponent } from './calendar/calendar.component';
+import { FullCalendarModule } from '@fullcalendar/angular';
 
 const components = [
   BaseInputComponent,
@@ -92,7 +93,7 @@ const components = [
   AssociationComponent,
   AttachmentComponent,
   NoteComponent,
-  CalendarComponent
+  CalendarComponent,
 ];
 
 @NgModule({
@@ -107,7 +108,8 @@ const components = [
     ReactiveFormsModule,
     TranslateModule,
     OnlyNumberDirective,
-    PasswordValidator
+    PasswordValidator,
+    FullCalendarModule,
   ],
   exports: [
     components

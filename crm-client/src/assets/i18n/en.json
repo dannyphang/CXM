@@ -110,7 +110,8 @@
     "CHECK_USER_EMAIL": "Check email existing",
     "FILTER": "Filter",
     "ADD_USER": "Add user",
-    "CREATE_USER": "Create user"
+    "CREATE_USER": "Create user",
+    "TODAY": "Today"
   },
   "INPUT": {
     "SEARCH": "Search",
@@ -131,7 +132,10 @@
     "EMAIL": "Email",
     "PASSWORD": "Password",
     "USERNAME": "Username",
-    "CONFIRM_PASSWORD": "Confirm password"
+    "CONFIRM_PASSWORD": "Confirm password",
+    "ADD_DESCRIPTION_PLACEHOLDER": "Add description",
+    "LOCATION": "Location",
+    "ADD_LOCATION_PLACEHOLDER": "Add location"
   },
   "ACTIVITY": {
     "MODULE": {

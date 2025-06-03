@@ -52,6 +52,7 @@ function fetchCalendar({ calendarEmail }) {
     return new Promise(async (resolve, reject) => {
         try {
             const token = await getTokenByEmail(calendarEmail);
+
             if (!token) {
                 return reject(new Error("Token not found for the provided email."));
             }
@@ -64,34 +65,33 @@ function fetchCalendar({ calendarEmail }) {
                 expiry_date: token.expiryDate,
             });
 
-            oauth2Client.on("tokens", (newToken) => {
-                let updateToken = {
-                    accessToken: newToken.access_token,
-                    refreshToken: newToken.refresh_token ?? token.refreshToken,
-                    expiryDate: newToken.expiry_date,
+            const calendar = google.calendar({ version: "v3", auth: oauth2Client });
+
+            // 🔁 Attempt to make API call
+            const response = await calendar.events.list({
+                calendarId: "primary",
+                timeMin: new Date().toISOString(),
+                // maxResults: 5,
+                singleEvents: true,
+                orderBy: "startTime",
+            });
+
+            // ✅ If new tokens were used in background, update them here
+            const newCredentials = oauth2Client.credentials;
+            if (newCredentials.access_token !== token.accessToken) {
+                const updateToken = {
+                    accessToken: newCredentials.access_token,
+                    refreshToken: newCredentials.refresh_token ?? token.refreshToken,
+                    expiryDate: newCredentials.expiry_date,
                     email: calendarEmail,
                     statusId: 1,
                     modifiedDateTime: new Date().toISOString(),
                 };
 
-                calendarRepo
-                    .updateToken({ token: updateToken })
-                    .then(async (data) => {
-                        const calendar = google.calendar({ version: "v3", auth: oauth2Client });
-                        const response = await calendar.events.list({
-                            calendarId: "primary",
-                            timeMin: new Date().toISOString(),
-                            maxResults: 5,
-                            singleEvents: true,
-                            orderBy: "startTime",
-                        });
-                        resolve(response.data.items);
-                    })
-                    .catch((error) => {
-                        reject(error);
-                    });
-            });
-            resolve(token);
+                await calendarRepo.updateToken({ token: updateToken });
+            }
+
+            resolve(response.data.items);
         } catch (error) {
             reject(error);
         }
@@ -104,7 +104,6 @@ function calendarCallback({ code, userId }) {
             const oauth2Client = new google.auth.OAuth2(config.default.calendar.google.clientId, config.default.calendar.google.clientSecret, `${envConfig.baseUrl}/calendar/callback`);
 
             oauth2Client.getToken(code, async (err, tokens) => {
-                console.log(tokens);
                 if (err) {
                     console.error("Error retrieving access token", err);
                     return res.status(500).json(
@@ -143,9 +142,8 @@ function calendarCallback({ code, userId }) {
                     userId: userId,
                 });
                 calendarRepo
-                    .updateToken({ token: newToken })
+                    .updateToken({ token: newToken, email: email })
                     .then(() => {
-                        console.log("Token updated successfully");
                         resolve(query);
                     })
                     .catch((error) => {

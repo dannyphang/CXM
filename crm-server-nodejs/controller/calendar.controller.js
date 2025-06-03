@@ -18,6 +18,7 @@ router.get("/", async (req, res) => {
         };
         const url = oauth2Client.generateAuthUrl({
             access_type: "offline",
+            prompt: "consent",
             scope: [
                 "https://www.googleapis.com/auth/calendar",
                 "https://www.googleapis.com/auth/calendar.events",
@@ -79,7 +80,6 @@ router.get("/callback", async (req, res) => {
 router.get("/fetch", async (req, res) => {
     try {
         const calendarEmail = func.body(req).headers.calendaremail;
-        console.log("calendarEmail", calendarEmail);
         calendarImpl
             .fetchCalendar({ calendarEmail: calendarEmail })
             .then((data) => {

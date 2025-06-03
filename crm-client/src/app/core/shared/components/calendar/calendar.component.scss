@@ -1,0 +1,22 @@
+::ng-deep .fc-header-toolbar {
+  display: none !important;
+}
+
+.calendar-div {
+  padding: var(--content-gap);
+  background-color: var(--surface-0);
+}
+
+.calendar-hear-toolbar-div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: var(--content-gap);
+}
+
+.date-page-div {
+  display: flex;
+  align-items: center;
+  gap: var(--content-gap);
+  justify-content: end;
+}
