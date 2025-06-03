@@ -29,11 +29,7 @@
     </div>
   </div>
 
-  <full-calendar
-    id="calendar"
-    [options]="calendarOptions"
-    [events]="eventsPromise | async"
-  ></full-calendar>
+  <full-calendar id="calendar"></full-calendar>
 </div>
 
 <p-dialog
@@ -63,7 +59,7 @@
         <div class="tw-flex tw-gap-[var(--content-gap)]">
           <app-base-datepicker
             [fieldControl]="returnFormControl('start')"
-            class="tw-w-[30%]"
+            class="tw-w-[35%]"
             [showTime]="!this.selectedEventFormGroup.value.isAllDay[0]"
           ></app-base-datepicker>
 
@@ -71,7 +67,7 @@
 
           <app-base-datepicker
             [fieldControl]="returnFormControl('end')"
-            class="tw-w-[30%]"
+            class="tw-w-[35%]"
             [showTime]="!this.selectedEventFormGroup.value.isAllDay[0]"
           ></app-base-datepicker>
         </div>

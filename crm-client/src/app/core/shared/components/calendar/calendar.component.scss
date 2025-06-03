@@ -20,3 +20,21 @@
   gap: var(--content-gap);
   justify-content: end;
 }
+
+.fc-now-indicator {
+  border-color: var(--primary-color);
+}
+
+::ng-deep .fc-hover-box {
+  position: absolute;
+  background-color: rgba(0, 123, 255, 0.2);
+  border: 1px dashed #007bff;
+  pointer-events: none;
+  z-index: 999;
+  width: 100%;
+  height: 30px; // 30 minutes if each slot is 30px
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 12px;
+}

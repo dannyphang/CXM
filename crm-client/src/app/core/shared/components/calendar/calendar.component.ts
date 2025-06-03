@@ -2,8 +2,9 @@ import { Component, NgZone } from '@angular/core';
 import { CalendarEventDto, CalendarService } from '../../../services/calendar.service';
 import { CoreAuthService } from '../../../services/core-auth.service';
 import { Subscription } from 'rxjs';
-import { Calendar, CalendarOptions, EventInput, EventSourceInput } from '@fullcalendar/core'; // useful for typechecking
+import { Calendar, CalendarOptions, EventInput } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { FormControl, FormGroup } from '@angular/forms';
 
@@ -14,12 +15,11 @@ import { FormControl, FormGroup } from '@angular/forms';
 })
 export class CalendarComponent {
   fcCalendar: Calendar;
-  selectedDate: Date = new Date();
   calendarEvent: EventInput[] = [];
   private eventSub: Subscription;
   calendarOptions: CalendarOptions = {
-    initialView: 'dayGridMonth',
-    plugins: [interactionPlugin, dayGridPlugin],
+    initialView: 'timeGridWeek',
+    plugins: [interactionPlugin, timeGridPlugin],
     dateClick: (arg) => this.handleDateClick(arg),
     eventClick: (arg) => this.handleEventClick(arg),
     eventDrop: (arg) => this.handleEventDrop(arg),
@@ -30,6 +30,8 @@ export class CalendarComponent {
       end: '',
     },
     fixedWeekCount: false,
+    nowIndicator: true,
+    slotLaneDidMount: (arg) => this.addHoverListeners(arg),
   };
   eventsPromise: Promise<EventInput[]>;
   showDialog: boolean = false;
@@ -41,7 +43,7 @@ export class CalendarComponent {
     subject: new FormControl<string>(''),
     description: new FormControl<string>(''),
     location: new FormControl<string>(''),
-    isAllDay: new FormControl<boolean>(true),
+    isAllDay: new FormControl<boolean>(false),
     isRecurring: new FormControl<boolean>(false),
   });
   editSubject: boolean = false;
@@ -50,8 +52,7 @@ export class CalendarComponent {
   constructor(
     private calendarService: CalendarService,
     private coreAuthService: CoreAuthService,
-  ) {
-  }
+  ) { }
 
   ngOnInit() {
     this.calendarService.event$.subscribe((eventSetting) => {
@@ -67,14 +68,23 @@ export class CalendarComponent {
               description: event.description,
               location: event.location,
             },
-            editable: false,
+            editable: true,
           } as EventInput;
         });
 
         this.fcCalendar = new Calendar(document.getElementById('calendar') as HTMLElement, {
           ...this.calendarOptions,
           events: this.calendarEvent,
+          slotLabelContent: (arg) => {
+            // Optional: Customize time labels
+            return arg.text;
+          },
+          slotLaneContent: (arg) => {
+            // This runs per time row per date
+            setTimeout(() => this.addCustomHoverEffect(arg), 0);
+          },
         });
+
         this.fcCalendar.render();
       }
     });
@@ -82,21 +92,24 @@ export class CalendarComponent {
 
   ngOnDestroy() {
     if (this.eventSub) {
-      this.eventSub.unsubscribe(); // prevent memory leaks
+      this.eventSub.unsubscribe();
     }
   }
 
   checkAccessable(id: string): boolean {
-    return this.calendarEvent.find(event => event.id === id).editable ?? false;
+    return this.calendarEvent.find(event => event.id === id)?.editable ?? false;
   }
 
   handleDateClick(arg: any) {
-    this.selectedDate = new Date(arg.date);
+    const start = new Date(arg.date);
+    const end = new Date(start);
+    end.setMinutes(start.getMinutes() + 60);
+
     this.selectedEventFormGroup.reset();
     this.selectedEventFormGroup.patchValue({
       id: '',
-      start: arg.date,
-      end: arg.date,
+      start,
+      end,
       subject: '',
       description: '',
       location: '',
@@ -108,12 +121,9 @@ export class CalendarComponent {
   }
 
   handleEventClick(arg: any) {
-    if (!this.checkAccessable(arg.event.id)) {
-      return;
-    }
+    if (!this.checkAccessable(arg.event.id)) return;
 
     this.selectedEventFormGroup.reset();
-
     this.selectedEventFormGroup.patchValue({
       id: arg.event.id,
       start: arg.event.start,
@@ -129,9 +139,8 @@ export class CalendarComponent {
   }
 
   handleEventDrop(arg: any) {
-    if (!this.checkAccessable(arg.event.id)) {
-      return;
-    }
+    if (!this.checkAccessable(arg.event.id)) return;
+
     this.selectedEventFormGroup.patchValue({
       id: arg.event.id,
       start: arg.event.start,
@@ -143,7 +152,69 @@ export class CalendarComponent {
       isRecurring: false,
     });
 
-    this.save()
+    this.save();
+  }
+
+  addHoverListeners(arg: any) {
+    const cellEl = arg.el;
+
+    const time = cellEl.getAttribute('data-time');
+    const dateCell = cellEl.closest('[data-date]');
+    const date = dateCell?.getAttribute('data-date');
+
+    cellEl.addEventListener('mouseenter', () => {
+      const hoverBox = document.createElement('div');
+      hoverBox.className = 'fc-hover-box';
+      hoverBox.innerText = '📅 2:45 – 3:15 PM';
+      hoverBox.style.position = 'absolute';
+      hoverBox.style.left = '0';
+      hoverBox.style.width = '100%';
+      hoverBox.style.height = '100%';
+      hoverBox.style.backgroundColor = 'rgba(0, 123, 255, 0.15)';
+      hoverBox.style.border = '1px dashed #007bff';
+      hoverBox.style.pointerEvents = 'none';
+      hoverBox.style.display = 'flex';
+      hoverBox.style.justifyContent = 'center';
+      hoverBox.style.alignItems = 'center';
+      hoverBox.style.zIndex = '10';
+
+      cellEl.style.position = 'relative';
+      hoverBox.classList.add('hover-box');
+      cellEl.appendChild(hoverBox);
+    });
+
+    cellEl.addEventListener('mouseleave', () => {
+      const existing = cellEl.querySelector('.hover-box');
+      if (existing) existing.remove();
+    });
+  }
+
+  addCustomHoverEffect(arg: any) {
+    const cellEl = arg.el;
+    const dateAttr = cellEl.getAttribute('data-date'); // ISO Date string
+    const timeAttr = cellEl.getAttribute('data-time'); // e.g., "14:30:00"
+
+    if (!dateAttr || !timeAttr) return;
+
+    const matchDate = '2025-05-30'; // Your target date
+    const matchTime = '14:45:00';   // Your target time (2:45 PM)
+
+    // Only target specific time+date
+    if (dateAttr === matchDate && timeAttr === matchTime) {
+      const hoverBox = document.createElement('div');
+      hoverBox.className = 'fc-hover-box';
+      hoverBox.innerText = '2:45 – 3:15 PM';
+
+      cellEl.addEventListener('mouseenter', () => {
+        cellEl.appendChild(hoverBox);
+      });
+
+      cellEl.addEventListener('mouseleave', () => {
+        if (cellEl.contains(hoverBox)) {
+          cellEl.removeChild(hoverBox);
+        }
+      });
+    }
   }
 
   subtractOneDay(date: Date): Date {
@@ -165,7 +236,6 @@ export class CalendarComponent {
   }
 
   blurContent() {
-    console.log('Blurred content');
     this.editDesc = false;
   }
 
@@ -188,29 +258,21 @@ export class CalendarComponent {
         isAllDay: this.selectedEventFormGroup.value.isAllDay[0] ?? false,
       };
       console.log('Saving Event:', eventData);
-
       this.showDialog = false;
       this.showEventDialog = false;
     }
   }
 
   next() {
-    if (this.fcCalendar) {
-      this.fcCalendar.next();
-    }
+    if (this.fcCalendar) this.fcCalendar.next();
   }
 
   prev() {
-    if (this.fcCalendar) {
-      this.fcCalendar.prev();
-    }
+    if (this.fcCalendar) this.fcCalendar.prev();
   }
 
   today() {
-    if (this.fcCalendar) {
-      this.fcCalendar.today();
-      this.selectedDate = new Date();
-    }
+    if (this.fcCalendar) this.fcCalendar.today();
   }
 
   addEvent() {
@@ -236,8 +298,8 @@ export class CalendarComponent {
           description: eventData.description,
           location: eventData.location,
         },
-        editable: true, // Allow editing of the newly added event
-      } as EventInput)
+        editable: true,
+      } as EventInput);
 
       this.showDialog = false;
       this.showEventDialog = false;

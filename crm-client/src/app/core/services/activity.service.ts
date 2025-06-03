@@ -1,10 +1,7 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { map, Observable } from "rxjs";
-import apiConfig from "../../../environments/apiConfig";
-import { AssociationDto, AttachmentDto, CompanyDto, ContactDto, ModuleDto } from "./common.service";
-import { DateFilterFn } from "@angular/material/datepicker";
-import { producerAccessed } from "@angular/core/primitives/signals";
+import { Observable } from "rxjs";
+import { AssociationDto, AttachmentDto, ModuleDto } from "./common.service";
 import { CoreHttpService, ResponseModel } from "./core-http.service";
 import { BasedDto } from "./core-auth.service";
 
@@ -143,7 +140,14 @@ export class EmailDto extends BasedDto {
     textLength: number;
 }
 
-export class ActivityTypeDto {
-    email?: EmailDto;
+export class MeetingDto extends BasedDto {
+    location?: string;
+    internalNotes?: string;
+    reminder?: number; // in minutes (minutes, hours, days, weeks)
+
 }
 
+export class ActivityTypeDto {
+    email?: EmailDto;
+    meeting?: MeetingDto;
+}
