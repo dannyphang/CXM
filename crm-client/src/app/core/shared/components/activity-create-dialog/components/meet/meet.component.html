@@ -1,0 +1,9 @@
+<div class="meet-template-container">
+  <div class="left-div">
+    <app-base-form [formConfig]="meetFormConfig"></app-base-form>
+  </div>
+  <p-divider [layout]="'vertical'"></p-divider>
+  <div class="right-div">
+    <app-calendar (formEmit)="formUpdate($event)"></app-calendar>
+  </div>
+</div>

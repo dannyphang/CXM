@@ -18,6 +18,7 @@
         [rounded]="true"
         [outlined]="true"
         [iconName]="'pi pi-angle-left'"
+        [disabled]="fcCalendar?.getDate() <= returnDateNow()"
       ></app-base-button>
 
       <app-base-button
@@ -59,7 +60,7 @@
         <div class="tw-flex tw-gap-[var(--content-gap)]">
           <app-base-datepicker
             [fieldControl]="returnFormControl('start')"
-            class="tw-w-[35%]"
+            class="tw-w-auto"
             [showTime]="!this.selectedEventFormGroup.value.isAllDay[0]"
           ></app-base-datepicker>
 
@@ -67,7 +68,7 @@
 
           <app-base-datepicker
             [fieldControl]="returnFormControl('end')"
-            class="tw-w-[35%]"
+            class="tw-w-auto"
             [showTime]="!this.selectedEventFormGroup.value.isAllDay[0]"
           ></app-base-datepicker>
         </div>

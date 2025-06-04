@@ -68,10 +68,14 @@ function fetchCalendar({ calendarEmail }) {
             const calendar = google.calendar({ version: "v3", auth: oauth2Client });
 
             // 🔁 Attempt to make API call
+            const startOfMonth = new Date();
+            startOfMonth.setDate(1);
+            startOfMonth.setHours(0, 0, 0, 0);
+
             const response = await calendar.events.list({
                 calendarId: "primary",
-                timeMin: new Date().toISOString(),
-                // maxResults: 5,
+                timeMin: startOfMonth.toISOString(),
+                maxResults: 2500, // (optional) increase limit if needed
                 singleEvents: true,
                 orderBy: "startTime",
             });
@@ -84,6 +88,7 @@ function fetchCalendar({ calendarEmail }) {
                     refreshToken: newCredentials.refresh_token ?? token.refreshToken,
                     expiryDate: newCredentials.expiry_date,
                     email: calendarEmail,
+                    module: "calendar",
                     statusId: 1,
                     modifiedDateTime: new Date().toISOString(),
                 };

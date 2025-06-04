@@ -35,26 +35,15 @@ function getTokenByEmail({ email }) {
     });
 }
 
-function updateToken({ token, email }) {
+function updateToken({ token }) {
     return new Promise(async (resolve, reject) => {
         try {
-            const { tokenEmail, err } = await supabase.from("token").select("*").eq("email", email).eq("statusId", 1).eq("module", token.module).single();
-            if (tokenEmail) {
-                const { data, error } = await supabase.from("token").update(token).eq("email", token.email).eq("module", token.module).select();
+            const { data, error } = await supabase.from("token").update(token).eq("email", token.email).eq("module", token.module).select();
 
-                if (error) {
-                    reject(error);
-                } else {
-                    resolve(data);
-                }
+            if (error) {
+                reject(error);
             } else {
-                createToken({ token: token })
-                    .then((data) => {
-                        resolve(data);
-                    })
-                    .catch((err) => {
-                        reject(err);
-                    });
+                resolve(data);
             }
         } catch (error) {
             reject(error);

@@ -111,7 +111,8 @@
     "FILTER": "Filter",
     "ADD_USER": "Add user",
     "CREATE_USER": "Create user",
-    "TODAY": "Today"
+    "TODAY": "Today",
+    "UNAVAILABLE": "Unavailable"
   },
   "INPUT": {
     "SEARCH": "Search",
@@ -135,7 +136,17 @@
     "CONFIRM_PASSWORD": "Confirm password",
     "ADD_DESCRIPTION_PLACEHOLDER": "Add description",
     "LOCATION": "Location",
-    "ADD_LOCATION_PLACEHOLDER": "Add location"
+    "ADD_LOCATION_PLACEHOLDER": "Add location",
+    "TITLE": "Title",
+    "DESCRIPTION": "Description",
+    "START_TIME": "Start time",
+    "END_TIME": "End time",
+    "ATTENDEES": "Attendees",
+    "REMINDER": "Reminder",
+    "MINUTES": "Minutes",
+    "HOURS": "Hours",
+    "DAYS": "Days",
+    "WEEKS": "Weeks"
   },
   "ACTIVITY": {
     "MODULE": {

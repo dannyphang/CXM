@@ -28,6 +28,9 @@ export class ActivityCreateDialogComponent {
   noteData: CreateActivityDto = new CreateActivityDto();
   attachmentList: File[] = [];
 
+  //meet
+  meetData: CreateActivityDto = new CreateActivityDto();
+
   contentLength: number = 0;
 
   constructor(
@@ -67,6 +70,10 @@ export class ActivityCreateDialogComponent {
 
   noteValueEmit(event: CreateActivityDto) {
     this.noteData = event;
+  }
+
+  meetValueEmit(event: CreateActivityDto) {
+    this.meetData = event;
   }
 
   attachmentEmit(event: File[]) {
@@ -199,6 +206,9 @@ export class ActivityCreateDialogComponent {
         else {
           // TODO
         }
+        break;
+      case 'MEET':
+        console.log(this.meetData);
         break;
     }
   }

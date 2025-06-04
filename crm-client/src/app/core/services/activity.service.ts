@@ -141,10 +141,13 @@ export class EmailDto extends BasedDto {
 }
 
 export class MeetingDto extends BasedDto {
+    subject: string;
+    start: Date;
+    end: Date;
     location?: string;
     internalNotes?: string;
-    reminder?: number; // in minutes (minutes, hours, days, weeks)
-
+    reminder?: number;
+    reminderType?: number; // 1: Minutes, 2: Hours, 3: Days, 4: Weeks
 }
 
 export class ActivityTypeDto {
