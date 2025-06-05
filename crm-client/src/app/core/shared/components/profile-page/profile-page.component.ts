@@ -62,8 +62,8 @@ export class ProfilePageComponent implements OnChanges {
         this.getCompany();
       }
 
-      this.getProperties();
-      this.getActivities();
+      // this.getProperties();
+      // this.getActivities();
       this.getPermission();
     }
   }

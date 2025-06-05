@@ -3,6 +3,7 @@ import { ContactDto, CompanyDto, ModuleDto, WindowSizeDto, CommonService, Attach
 import { ActivityService, CreateActivityDto, EmailDto } from '../../../services/activity.service';
 import { ToastService } from '../../../services/toast.service';
 import { AuthService } from '../../../services/auth.service';
+import { CoreAuthService } from '../../../services/core-auth.service';
 
 @Component({
   selector: 'app-activity-create-dialog',
@@ -38,7 +39,7 @@ export class ActivityCreateDialogComponent {
     private toastService: ToastService,
     private commonService: CommonService,
     private authService: AuthService,
-    private ngZone: NgZone,
+    private coreAuthService: CoreAuthService,
   ) {
     this.windowSize = this.commonService.windowSize;
   }
@@ -209,6 +210,41 @@ export class ActivityCreateDialogComponent {
         break;
       case 'MEET':
         console.log(this.meetData);
+        if (this.authService.returnPermissionObj(this.module, 'create')) {
+          this.toastService.addSingle({
+            message: 'MESSAGE.CREATING_MEETING',
+            isLoading: true,
+            severity: 'info',
+            key: 'creating_meeting',
+          })
+          let newActivity: CreateActivityDto = {
+            activityModuleCode: this.activityModule.moduleCode,
+            activityModuleSubCode: this.activityModule.moduleSubCode,
+            activityModuleId: this.activityModule.uid,
+            activityContactedIdList: this.meetData.activityContactedIdList,
+            // activityDatetime: this.emailData.emailDateTime,
+            activityContent: '',
+            activityContentLength: 0,
+            associationContactUidList: this.meetData.associationContactUidList,
+            associationCompanyUidList: this.meetData.associationCompanyUidList,
+            activityType: {
+              meeting: this.meetData.activityType.meeting
+            }
+          }
+          this.activityService.createMeeting(newActivity, this.coreAuthService.userC.setting.calendarEmail).subscribe(res => {
+            this.toastService.clear('creating_meeting');
+            if (res.isSuccess) {
+              this.closeDialog()
+            }
+            this.toastService.addSingle({
+              message: res.responseMessage,
+              severity: res.isSuccess ? 'success' : 'error'
+            });
+          });
+        }
+        else {
+          // TODO
+        }
         break;
     }
   }

@@ -8,6 +8,7 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { FormControl, FormGroup } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
+import { ToastService } from '../../../services/toast.service';
 
 @Component({
   selector: 'app-calendar',
@@ -18,6 +19,7 @@ export class CalendarComponent {
   @Input() newEvent: {
     startTime: Date;
     endTime: Date;
+    subject?: string;
   };
   @Output() formEmit: EventEmitter<any> = new EventEmitter<any>();
   fcCalendar: Calendar;
@@ -25,21 +27,18 @@ export class CalendarComponent {
   private eventSub: Subscription;
   calendarOptions: CalendarOptions = {
     initialView: 'timeGridWeek',
-    plugins: [interactionPlugin, timeGridPlugin, dayGridPlugin,],
+    plugins: [timeGridPlugin, interactionPlugin],
     dateClick: (arg) => this.handleDateClick(arg),
     eventClick: (arg) => this.handleEventClick(arg),
     eventDrop: (arg) => this.handleEventDrop(arg),
     eventResize: (arg) => this.handleEventDrop(arg),
-    headerToolbar: {
-      start: '',
-      center: '',
-      end: '',
-    },
+    select: (arg) => this.handleSelect(arg),
     fixedWeekCount: false,
     nowIndicator: true,
     slotLaneDidMount: (arg) => this.addHoverListeners(arg),
     allDayClassNames: ['fc-all-day-div'],
     allDayText: '',
+    selectable: true,
   };
   eventsPromise: Promise<EventInput[]>;
   showDialog: boolean = false;
@@ -61,6 +60,7 @@ export class CalendarComponent {
     private calendarService: CalendarService,
     private coreAuthService: CoreAuthService,
     private translateService: TranslateService,
+    private toastService: ToastService,
   ) { }
 
   ngOnInit() {
@@ -78,18 +78,20 @@ export class CalendarComponent {
               location: event.location,
             },
             editable: false,
-            backgroundColor: event.endTime < new Date() ? 'var(--text-color-secondary)' : 'var(--primary-color)',
+            backgroundColor: event.endTime < new Date() ? 'var(--text-color-secondary)' : 'var(--primary-400)',
           } as EventInput;
         });
-
-        this.fcCalendar = new Calendar(document.getElementById('calendar') as HTMLElement, {
-          ...this.calendarOptions,
-          events: this.calendarEvent,
-        });
-
-        this.fcCalendar.render();
         // calendar.setOption('height', 700);
       }
+      this.fcCalendar = new Calendar(document.getElementById('calendar') as HTMLElement, {
+        ...this.calendarOptions,
+        events: this.calendarEvent,
+      });
+
+      this.fcCalendar.render();
+      setTimeout(() => {
+        this.fcCalendar.today();
+      }, 300);
     });
   }
 
@@ -101,13 +103,21 @@ export class CalendarComponent {
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['newEvent'] && changes['newEvent'].currentValue) {
-      this.fcCalendar.getEventById('new-event')?.remove();
-      this.fcCalendar.addEvent({
-        id: 'new-event',
-        start: this.newEvent.startTime,
-        end: this.newEvent.endTime,
-      })
+      this.insertOnlyOneNewEvent();
     }
+  }
+
+  insertOnlyOneNewEvent() {
+    this.fcCalendar.getEventById('new-event')?.remove();
+    this.fcCalendar.addEvent({
+      id: 'new-event',
+      start: this.newEvent.startTime,
+      end: this.newEvent.endTime,
+      title: this.newEvent.subject || '',
+      backgroundColor: 'var(--surface-300)',
+      textColor: 'var(--text-color)',
+      editable: true,
+    });
   }
 
   checkAccessable(id: string): boolean {
@@ -161,20 +171,69 @@ export class CalendarComponent {
   }
 
   handleEventDrop(arg: any) {
-    if (!this.checkAccessable(arg.event.id)) return;
+    // if (!this.checkAccessable(arg.event.id)) return;
 
-    this.selectedEventFormGroup.patchValue({
-      id: arg.event.id,
-      start: arg.event.start,
-      end: arg.event.allDay ? this.subtractOneDay(arg.event.end) : arg.event.end,
-      subject: arg.event.title,
-      description: arg.event.extendedProps.description || '',
-      location: arg.event.extendedProps.location || '',
-      isAllDay: arg.event.allDay ? ['true'] : [],
-      isRecurring: false,
+    // this.selectedEventFormGroup.patchValue({
+    //   id: arg.event.id,
+    //   start: arg.event.start,
+    //   end: arg.event.allDay ? this.subtractOneDay(arg.event.end) : arg.event.end,
+    //   subject: arg.event.title,
+    //   description: arg.event.extendedProps.description || '',
+    //   location: arg.event.extendedProps.location || '',
+    //   isAllDay: arg.event.allDay ? ['true'] : [],
+    //   isRecurring: false,
+    // });
+
+    // this.save();
+
+    if (arg.event.start < new Date()) {
+      this.toastService.addSingle({
+        message: 'ERROR.ONLY_CAN_SELECT_FUTURE_DATE',
+        severity: 'error',
+      })
+      this.insertOnlyOneNewEvent();
+    }
+    else {
+      const start = new Date(arg.event.start);
+      const end = new Date(arg.event.end);
+
+      this.newEvent = {
+        startTime: start,
+        endTime: end,
+      }
+      this.insertOnlyOneNewEvent();
+
+      this.formEmit.emit({
+        startTime: start,
+        endTime: end,
+      });
+    }
+  }
+
+  handleSelect(arg: any) {
+    if (arg.start < new Date()) {
+      this.toastService.addSingle({
+        message: 'ERROR.ONLY_CAN_SELECT_FUTURE_DATE',
+        severity: 'error',
+      });
+      this.fcCalendar.unselect();
+      this.insertOnlyOneNewEvent();
+      return;
+    }
+
+    const start = new Date(arg.start);
+    const end = new Date(arg.end);
+
+    this.newEvent = {
+      startTime: start,
+      endTime: end,
+    }
+    this.insertOnlyOneNewEvent();
+
+    this.formEmit.emit({
+      startTime: start,
+      endTime: end,
     });
-
-    this.save();
   }
 
   addHoverListeners(arg: any) {

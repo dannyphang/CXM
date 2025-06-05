@@ -21,7 +21,7 @@ export class MeetComponent {
   meetFormGroup: FormGroup = new FormGroup({
     subject: new FormControl(''),
     start: new FormControl(new Date()),
-    end: new FormControl(new Date()),
+    end: new FormControl(this.increasedEndTime()),
     location: new FormControl(''),
     description: new FormControl(''),
     internalNotes: new FormControl(''),
@@ -55,6 +55,7 @@ export class MeetComponent {
   tempEvent: {
     startTime: Date;
     endTime: Date;
+    subject?: string;
   };
 
   constructor(
@@ -74,6 +75,7 @@ export class MeetComponent {
         activityModuleCode: this.activityModule.moduleCode,
         activityModuleSubCode: this.activityModule.moduleSubCode,
         activityContent: '',
+        activityContactedIdList: this.meetFormGroup.controls['attendees'].value || [],
         activityModuleId: this.activityModule.moduleId,
         associationContactUidList: this.meetFormGroup.controls['association'].get('contact')?.value || [],
         associationCompanyUidList: this.meetFormGroup.controls['association'].get('company')?.value || [], activityContentLength: 0,
@@ -91,10 +93,17 @@ export class MeetComponent {
       };
       this.tempEvent = {
         startTime: this.meetFormGroup.controls['start'].value,
-        endTime: this.meetFormGroup.controls['end'].value
+        endTime: this.meetFormGroup.controls['end'].value,
+        subject: this.meetFormGroup.controls['subject'].value,
       }
       this.meetValueEmit.emit(meet);
     });
+  }
+
+  increasedEndTime(): Date {
+    let time = new Date();
+    let endTime = time.setMinutes(time.getMinutes() + 30);
+    return new Date(endTime);
   }
 
   formUpdate(form: any) {

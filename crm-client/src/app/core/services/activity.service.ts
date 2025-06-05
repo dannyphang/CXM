@@ -45,6 +45,10 @@ export class ActivityService {
         return this.coreService.post<any>('activity/email', { data, createActivity }).pipe();
     }
 
+    createMeeting(createActivity: CreateActivityDto, calendarEmail: string): Observable<ResponseModel<ActivityDto[]>> {
+        return this.coreService.post<ActivityDto[]>('activity/meeting', { createActivity, calendarEmail }).pipe();
+    }
+
     getAttachments(module: 'CONT' | 'COMP', id: string): Observable<ResponseModel<AttachmentDto[]>> {
         let headers = {
             module: module,
@@ -146,6 +150,7 @@ export class MeetingDto extends BasedDto {
     end: Date;
     location?: string;
     internalNotes?: string;
+    description?: string;
     reminder?: number;
     reminderType?: number; // 1: Minutes, 2: Hours, 3: Days, 4: Weeks
 }
