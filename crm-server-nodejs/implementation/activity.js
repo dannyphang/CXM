@@ -8,6 +8,8 @@ import emailjs from "@emailjs/nodejs";
 import * as func from "../shared/function.js";
 import { google } from "googleapis";
 import * as calendarImpl from "../implementation/calendar.js";
+import * as contactImp from "../implementation/contact.js";
+import * as companyImp from "../implementation/company.js";
 
 function getAllActivityByProfileId({ tenantId, profileUid }) {
     return new Promise(async (resolve, reject) => {
@@ -179,7 +181,7 @@ function updateActivity({ userId, activityList }) {
     });
 }
 
-function sendEmail({ tenantId, createActivity }) {
+function sendEmail({ tenantId, createActivity, userId }) {
     return new Promise(async (resolve, reject) => {
         try {
             const emailConfig = config.emailjs;
@@ -257,12 +259,50 @@ function createMeeting({ userId, tenantId, createActivityObj, calendarEmail }) {
 
             const calendar = google.calendar({ version: "v3", auth: oauth2Client });
 
+            const companyPromises =
+                createActivityObj.associationCompanyUidList?.map(
+                    async (uid) =>
+                        await companyRepo.getCompanyById({
+                            tenantId: tenantId,
+                            companyUid: uid,
+                        })
+                ) || [];
+
+            const contactPromises =
+                createActivityObj.associationContactUidList?.map(
+                    async (uid) =>
+                        await contactRepo.getContactById({
+                            tenantId: tenantId,
+                            contactUid: uid,
+                        })
+                ) || [];
+
+            // Run both company and contact fetches in parallel
+            const [companyList, contactList] = await Promise.all([Promise.all(companyPromises), Promise.all(contactPromises)]);
+
+            let attendeesList = [];
+            if (contactList.length > 0) {
+                contactList.forEach((contact) => {
+                    attendeesList.push(contact.contactEmail);
+                });
+            }
+            if (companyList.length > 0) {
+                companyList.forEach((company) => {
+                    if (company.companyEmail && company.companyEmail.trim() !== "") {
+                        attendeesList.push(company.companyEmail);
+                    }
+                });
+            }
+
+            const attendees = attendeesList.filter((email) => email && email.trim() !== "").map((email) => ({ email }));
+
             calendar.events
                 .insert({
                     calendarId: "primary",
                     requestBody: {
                         summary: createActivityObj.activityType.meeting.subject,
                         description: createActivityObj.activityType.meeting.description,
+                        organizer: createActivityObj.activityType.meeting.organizer,
                         start: {
                             dateTime: createActivityObj.activityType.meeting.start,
                             timeZone: "UTC", // Adjust as necessary
@@ -287,6 +327,7 @@ function createMeeting({ userId, tenantId, createActivityObj, calendarEmail }) {
                                       ],
                                   }
                                 : null,
+                        attendees: attendees,
                     },
                 })
                 .then((event) => {

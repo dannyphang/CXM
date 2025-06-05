@@ -20,6 +20,7 @@ export class MeetComponent {
   meetFormConfig: FormConfig[] = [];
   meetFormGroup: FormGroup = new FormGroup({
     subject: new FormControl(''),
+    organizer: new FormControl(''),
     start: new FormControl(new Date()),
     end: new FormControl(this.increasedEndTime()),
     location: new FormControl(''),
@@ -57,6 +58,10 @@ export class MeetComponent {
     endTime: Date;
     subject?: string;
   };
+  assoContactFormConfig: FormConfig[] = [];
+  assoCompanyFormConfig: FormConfig[] = [];
+  assoCompanyList: OptionsModel[] = [];
+  assoContactList: OptionsModel[] = [];
 
   constructor(
     private translateService: TranslateService,
@@ -70,33 +75,14 @@ export class MeetComponent {
 
   ngOnInit() {
     this.initMeetFormConfig();
+    this.setAssociation();
     this.meetFormGroup.valueChanges.subscribe(change => {
-      let meet: CreateActivityDto = {
-        activityModuleCode: this.activityModule.moduleCode,
-        activityModuleSubCode: this.activityModule.moduleSubCode,
-        activityContent: '',
-        activityContactedIdList: this.meetFormGroup.controls['attendees'].value || [],
-        activityModuleId: this.activityModule.moduleId,
-        associationContactUidList: this.meetFormGroup.controls['association'].get('contact')?.value || [],
-        associationCompanyUidList: this.meetFormGroup.controls['association'].get('company')?.value || [], activityContentLength: 0,
-        activityType: {
-          meeting: {
-            subject: this.meetFormGroup.controls['subject'].value,
-            location: this.meetFormGroup.controls['location'].value,
-            internalNotes: this.meetFormGroup.controls['internalNotes'].value,
-            reminder: this.meetFormGroup.controls['reminder'].value,
-            reminderType: this.meetFormGroup.controls['reminderType'].value,
-            start: this.meetFormGroup.controls['start'].value,
-            end: this.meetFormGroup.controls['end'].value
-          }
-        }
-      };
       this.tempEvent = {
         startTime: this.meetFormGroup.controls['start'].value,
         endTime: this.meetFormGroup.controls['end'].value,
         subject: this.meetFormGroup.controls['subject'].value,
-      }
-      this.meetValueEmit.emit(meet);
+      };
+      this.sendEmit();
     });
   }
 
@@ -146,13 +132,23 @@ export class MeetComponent {
         showTime: true,
       },
       {
-        label: 'INPUT.ATTENDEES',
-        type: CONTROL_TYPE.Dropdown,
-        fieldControl: this.meetFormGroup.controls['attendees'],
-        options: [],
+        label: 'INPUT.ORGANIZATER',
+        type: CONTROL_TYPE.Textbox,
+        fieldControl: this.meetFormGroup.controls['organizer'],
+        required: true,
         layoutDefine: {
           row: 2,
           column: 0
+        }
+      },
+      {
+        label: 'INPUT.ATTENDEES',
+        type: CONTROL_TYPE.Multiselect,
+        fieldControl: this.meetFormGroup.controls['attendees'],
+        options: this.getAttendeeList(),
+        layoutDefine: {
+          row: 2,
+          column: 1
         }
       },
       {
@@ -196,7 +192,148 @@ export class MeetComponent {
         },
         options: this.reminderTypes,
       },
+      {
+        type: CONTROL_TYPE.Html,
+        layoutDefine: {
+          row: 6,
+          column: 0,
+        },
+        dynamicHTML: `<a
+      (click)="assoPanel.toggle($event)"
+      class="asso-btn tw-flex tw-justify-end tw-self-center tw-text-[var(--primary-color)] tw-cursor-pointer"
+      >${"Associated with " +
+          (this.meetFormGroup.controls["attendees"].value?.length +
+            this.meetFormGroup.controls["association"].get("company").value
+              ?.length) +
+          " records"
+          }</a
+    >`,
+      }
     ]
+  }
+
+  setAssociation() {
+    // assign association 
+    if (this.module === 'CONT' && this.contactProfile.association) {
+      this.contactProfile.association.companyList.forEach(profile => {
+        this.assoCompanyList.push({
+          label: `${profile.companyName} (${profile.companyEmail})`,
+          value: profile.uid
+        });
+      });
+
+      this.assoContactList.push({
+        label: `${this.contactProfile.contactFirstName} ${this.contactProfile.contactLastName} (${this.contactProfile.contactEmail})`,
+        value: this.contactProfile.uid
+      });
+    }
+    else if (this.module === 'COMP' && this.companyProfile.association) {
+      this.companyProfile.association.contactList.forEach(profile => {
+        this.assoContactList.push({
+          label: `${profile.contactFirstName} ${profile.contactLastName}  (${profile.contactEmail})`,
+          value: profile.uid
+        });
+      });
+
+      this.assoCompanyList.push({
+        label: `${this.companyProfile.companyName} (${this.companyProfile.companyEmail})`,
+        value: this.companyProfile.uid
+      });
+    }
+
+    this.assoContactFormConfig = [
+      {
+        id: '',
+        type: CONTROL_TYPE.Multiselect,
+        layoutDefine: {
+          row: 0,
+          column: 0
+        },
+        options: this.assoContactList,
+        fieldControl: this.meetFormGroup.controls['attendees']
+      }
+    ];
+
+    this.assoCompanyFormConfig = [
+      {
+        id: '',
+        type: CONTROL_TYPE.Multiselect,
+        layoutDefine: {
+          row: 0,
+          column: 0
+        },
+        options: this.assoCompanyList,
+        fieldControl: this.meetFormGroup.controls['association'].get('company'),
+      }
+    ];
+
+    if (this.module === 'CONT' && this.contactProfile.association) {
+      this.meetFormGroup.controls['attendees'].setValue([this.contactProfile.uid]);
+      this.meetFormGroup.controls['attendees'].disable();
+    }
+    else if (this.module === 'COMP' && this.companyProfile.association) {
+      this.meetFormGroup.controls['association'].get('company').setValue([this.companyProfile.uid]);
+      this.meetFormGroup.controls['association'].get('company').disable();
+    }
+
+    this.meetFormGroup.controls['attendees'].valueChanges.subscribe(val => {
+      this.sendEmit();
+    });
+
+    this.meetFormGroup.controls['association'].get('company').valueChanges.subscribe(val => {
+      this.sendEmit();
+    });
+  }
+
+  getAttendeeList(): OptionsModel[] {
+    if (this.module === 'COMP') {
+      let contactList: OptionsModel[] = [];
+      this.companyProfile.association?.contactList.forEach(profile => {
+        contactList.push({
+          label: `${profile.contactFirstName} ${profile.contactLastName}  (${profile.contactEmail})`,
+          value: profile.uid
+        });
+      });
+
+      return contactList;
+    }
+    else if (this.module === 'CONT') {
+      return [
+        {
+          label: `${this.contactProfile.contactFirstName} ${this.contactProfile.contactLastName} (${this.contactProfile.contactEmail})`,
+          value: this.contactProfile.uid
+        }
+      ];
+    }
+
+    return [];
+  }
+
+  sendEmit() {
+    let meet: CreateActivityDto = {
+      activityModuleCode: this.activityModule.moduleCode,
+      activityModuleSubCode: this.activityModule.moduleSubCode,
+      activityContent: '',
+      activityDatetime: this.meetFormGroup.controls['start'].value,
+      activityContactedIdList: this.meetFormGroup.controls['attendees'].value || [],
+      activityModuleId: this.activityModule.moduleId,
+      associationContactUidList: this.meetFormGroup.controls['attendees'].value || [],
+      associationCompanyUidList: this.meetFormGroup.controls['association'].get('company')?.value || [], activityContentLength: 0,
+      activityType: {
+        meeting: {
+          subject: this.meetFormGroup.controls['subject'].value,
+          organizer: this.meetFormGroup.controls['organizer'].value,
+          location: this.meetFormGroup.controls['location'].value,
+          internalNotes: this.meetFormGroup.controls['internalNotes'].value,
+          reminder: this.meetFormGroup.controls['reminder'].value,
+          reminderType: this.meetFormGroup.controls['reminderType'].value,
+          start: this.meetFormGroup.controls['start'].value,
+          end: this.meetFormGroup.controls['end'].value
+        }
+      }
+    };
+    console.log('meet', meet);
+    this.meetValueEmit.emit(meet);
   }
 }
 

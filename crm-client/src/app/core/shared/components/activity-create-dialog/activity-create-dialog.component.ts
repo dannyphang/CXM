@@ -74,6 +74,7 @@ export class ActivityCreateDialogComponent {
   }
 
   meetValueEmit(event: CreateActivityDto) {
+    console.log(this.meetData);
     this.meetData = event;
   }
 
@@ -222,7 +223,7 @@ export class ActivityCreateDialogComponent {
             activityModuleSubCode: this.activityModule.moduleSubCode,
             activityModuleId: this.activityModule.uid,
             activityContactedIdList: this.meetData.activityContactedIdList,
-            // activityDatetime: this.emailData.emailDateTime,
+            activityDatetime: this.meetData.activityDatetime,
             activityContent: '',
             activityContentLength: 0,
             associationContactUidList: this.meetData.associationContactUidList,

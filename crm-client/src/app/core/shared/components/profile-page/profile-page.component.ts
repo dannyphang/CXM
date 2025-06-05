@@ -63,7 +63,7 @@ export class ProfilePageComponent implements OnChanges {
       }
 
       // this.getProperties();
-      // this.getActivities();
+      this.getActivities();
       this.getPermission();
     }
   }

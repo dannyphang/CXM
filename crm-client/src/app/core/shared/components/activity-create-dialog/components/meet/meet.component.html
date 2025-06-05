@@ -1,6 +1,18 @@
 <div class="meet-template-container">
   <div class="left-div">
     <app-base-form [formConfig]="meetFormConfig"></app-base-form>
+
+    <!-- <a
+      (click)="assoPanel.toggle($event)"
+      class="asso-btn tw-flex tw-justify-end tw-self-center tw-text-[var(--primary-color)] tw-cursor-pointer"
+      >{{
+        "Associated with " +
+          (meetFormGroup.controls["attendees"].value?.length +
+            meetFormGroup.controls["association"].get("company").value
+              ?.length) +
+          " records"
+      }}</a
+    > -->
   </div>
   <p-divider [layout]="'vertical'"></p-divider>
   <div class="right-div">
@@ -10,3 +22,42 @@
     ></app-calendar>
   </div>
 </div>
+
+<p-overlayPanel #assoPanel>
+  <div class="asso-div tw-flex">
+    <p-tabView>
+      <!-- contact tab -->
+      <p-tabPanel>
+        <ng-template pTemplate="header">
+          <div styleClass="tw-flex tw-w-full tw-justify-between">
+            {{ "PROFILE.CONTACTS" | translate }}
+          </div>
+          <div>
+            ({{ meetFormGroup.controls["attendees"].value?.length ?? 0 }})
+          </div>
+        </ng-template>
+        <div>
+          <app-base-form [formConfig]="assoContactFormConfig"></app-base-form>
+        </div>
+      </p-tabPanel>
+
+      <!-- company tab -->
+      <p-tabPanel>
+        <ng-template pTemplate="header">
+          <div styleClass="tw-flex tw-w-full tw-justify-between">
+            {{ "PROFILE.COMPANYS" | translate }}
+          </div>
+          <div>
+            ({{
+              meetFormGroup.controls["association"].get("company").value
+                ?.length ?? 0
+            }})
+          </div>
+        </ng-template>
+        <div>
+          <app-base-form [formConfig]="assoCompanyFormConfig"></app-base-form>
+        </div>
+      </p-tabPanel>
+    </p-tabView>
+  </div>
+</p-overlayPanel>

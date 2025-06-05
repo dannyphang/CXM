@@ -148,7 +148,8 @@
     "MINUTES": "Minutes",
     "HOURS": "Hours",
     "DAYS": "Days",
-    "WEEKS": "Weeks"
+    "WEEKS": "Weeks",
+    "ORGANIZATER": "Organizer"
   },
   "ACTIVITY": {
     "MODULE": {

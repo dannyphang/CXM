@@ -146,6 +146,7 @@ router.post("/email", async (req, res) => {
             .sendEmail({
                 tenantId: func.body(req).tenantId,
                 createActivity: func.body(req).data.createActivity,
+                userId: func.body(req).userId,
             })
             .then((list) => {
                 res.status(200).json(func.responseModel({ data: list }));

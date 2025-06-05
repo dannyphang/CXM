@@ -146,6 +146,7 @@ export class EmailDto extends BasedDto {
 
 export class MeetingDto extends BasedDto {
     subject: string;
+    organizer: string;
     start: Date;
     end: Date;
     location?: string;
