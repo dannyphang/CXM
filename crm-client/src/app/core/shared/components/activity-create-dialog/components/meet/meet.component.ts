@@ -51,7 +51,11 @@ export class MeetComponent {
       label: 'INPUT.WEEKS',
       value: ReminderTypeEnum.Weeks
     }
-  ]
+  ];
+  tempEvent: {
+    startTime: Date;
+    endTime: Date;
+  };
 
   constructor(
     private translateService: TranslateService,
@@ -85,6 +89,10 @@ export class MeetComponent {
           }
         }
       };
+      this.tempEvent = {
+        startTime: this.meetFormGroup.controls['start'].value,
+        endTime: this.meetFormGroup.controls['end'].value
+      }
       this.meetValueEmit.emit(meet);
     });
   }

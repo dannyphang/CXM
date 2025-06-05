@@ -1,4 +1,4 @@
-import { Component, EventEmitter, NgZone, Output } from '@angular/core';
+import { Component, EventEmitter, Input, NgZone, Output, SimpleChanges } from '@angular/core';
 import { CalendarEventDto, CalendarService } from '../../../services/calendar.service';
 import { CoreAuthService } from '../../../services/core-auth.service';
 import { Subscription } from 'rxjs';
@@ -15,6 +15,10 @@ import { TranslateService } from '@ngx-translate/core';
   styleUrl: './calendar.component.scss',
 })
 export class CalendarComponent {
+  @Input() newEvent: {
+    startTime: Date;
+    endTime: Date;
+  };
   @Output() formEmit: EventEmitter<any> = new EventEmitter<any>();
   fcCalendar: Calendar;
   calendarEvent: EventInput[] = [];
@@ -95,6 +99,17 @@ export class CalendarComponent {
     }
   }
 
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['newEvent'] && changes['newEvent'].currentValue) {
+      this.fcCalendar.getEventById('new-event')?.remove();
+      this.fcCalendar.addEvent({
+        id: 'new-event',
+        start: this.newEvent.startTime,
+        end: this.newEvent.endTime,
+      })
+    }
+  }
+
   checkAccessable(id: string): boolean {
     return this.calendarEvent.find(event => event.id === id)?.editable ?? false;
   }
@@ -106,7 +121,7 @@ export class CalendarComponent {
     else {
       const start = new Date(arg.date);
       const end = new Date(start);
-      end.setMinutes(start.getMinutes() + 60);
+      end.setMinutes(start.getMinutes() + 30);
 
       this.selectedEventFormGroup.reset({ emitEvent: false });
       this.selectedEventFormGroup.patchValue({

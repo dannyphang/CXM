@@ -4,6 +4,9 @@
   </div>
   <p-divider [layout]="'vertical'"></p-divider>
   <div class="right-div">
-    <app-calendar (formEmit)="formUpdate($event)"></app-calendar>
+    <app-calendar
+      (formEmit)="formUpdate($event)"
+      [newEvent]="tempEvent"
+    ></app-calendar>
   </div>
 </div>
