@@ -146,9 +146,50 @@ router.post("/email", async (req, res) => {
             .sendEmail({
                 tenantId: func.body(req).tenantId,
                 createActivity: func.body(req).data.createActivity,
+                userId: func.body(req).userId,
             })
             .then((list) => {
                 res.status(200).json(func.responseModel({ data: list }));
+            })
+            .catch((error) => {
+                console.log("error", error);
+                API.createLog(error, req, res, 500, logModule);
+                res.status(500).json(
+                    func.responseModel({
+                        isSuccess: false,
+                        responseMessage: error,
+                    })
+                );
+            });
+    } catch (error) {
+        console.log("error", error);
+        API.createLog(error, req, res, 500, logModule);
+        res.status(500).json(
+            func.responseModel({
+                isSuccess: false,
+                responseMessage: error,
+            })
+        );
+    }
+});
+
+// create meeting
+router.post("/meeting", async (req, res) => {
+    try {
+        activityImp
+            .createMeeting({
+                tenantId: func.body(req).tenantId,
+                userId: func.body(req).userId,
+                createActivityObj: func.body(req).data.createActivity,
+                calendarEmail: func.body(req).data.calendarEmail,
+            })
+            .then((data) => {
+                res.status(200).json(
+                    func.responseModel({
+                        data: data,
+                        responseMessage: "Meeting created successfully",
+                    })
+                );
             })
             .catch((error) => {
                 console.log("error", error);

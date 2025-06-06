@@ -57,6 +57,15 @@
         "
       ></app-base-form>
 
+      <!-- meet form -->
+      <app-base-form
+        [formConfig]="meetFormConfig"
+        *ngIf="
+          activity.activityModuleCode === 'CREATE' &&
+          activity.activityModuleSubCode === 'MEET'
+        "
+      ></app-base-form>
+
       <div class="text-editor">
         <div
           [innerHTML]="activity.activityContent"

@@ -1,8 +1,8 @@
 import { Injectable, Injector } from "@angular/core";
 import { Observable } from "rxjs"; import apiConfig from "../../../environments/apiConfig";
-import { CONTROL_TYPE_CODE } from "./components.service";
+import { CONTROL_TYPE_CODE, OptionsModel } from "./components.service";
 import { TranslateService } from "@ngx-translate/core";
-import { CoreHttpService, ResponseModel } from "./core-http.service";
+import { CoreHttpService, LanguageDto, ResponseModel } from "./core-http.service";
 import { ToastService } from "./toast.service";
 import { HttpClient } from "@angular/common/http";
 import { MessageService } from "primeng/api";
@@ -17,6 +17,8 @@ export class CommonService {
         token: null,
         project: null,
         redirect_uri: null,
+        module: null,
+        calendarEmail: null
     };
 
     constructor(
@@ -64,10 +66,16 @@ export class CommonService {
                     const redirectUri = params['redirect_uri'];
                     const project = params['project'];
                     const token = params['token'];
+                    const module = params['module'];
+                    const calendarEmail = params['calendarEmail'];
+                    const userId = params['userId'];
                     this.params = {
                         redirect_uri: redirectUri,
                         project: project,
                         token: token,
+                        module: module,
+                        calendarEmail: calendarEmail,
+                        userId: userId,
                     }
                     this.authCoreService.jwt_token = token;
                     console.log(this.params);
@@ -357,6 +365,10 @@ export class CommonService {
                 }
             });
         });
+    }
+
+    getLanguageOptions(): Observable<ResponseModel<LanguageDto[]>> {
+        return this.coreService.get<LanguageDto[]>('general/language', {});
     }
 }
 

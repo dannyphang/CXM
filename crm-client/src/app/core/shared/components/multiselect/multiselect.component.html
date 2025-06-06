@@ -44,7 +44,7 @@
     </p-multiSelect>
   </div>
 
-  <div class="flex mt-2 flex-wrap">
+  <div class="flex mt-2 flex-wrap" *ngIf="showChips">
     <app-chip
       class="mr-2 mb-2"
       *ngFor="let item of fieldControl.value"

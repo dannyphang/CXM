@@ -3,14 +3,12 @@ import { TranslateService } from '@ngx-translate/core';
 import * as Blobity from 'blobity';
 import { AuthService } from '../core/services/auth.service';
 import { OptionsModel } from '../core/services/components.service';
-import { BaseCoreAbstract } from '../core/shared/base/base-core.abstract';
-import { Message, MessageService } from 'primeng/api';
-import { Subscription } from 'rxjs';
 import { ToastService } from '../core/services/toast.service';
 import { CoreHttpService, TenantDto, UserPermissionDto } from '../core/services/core-http.service';
 import { CommonService } from '../core/services/common.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CoreAuthService, UserDto } from '../core/services/core-auth.service';
+import { CalendarEventDto, CalendarService } from '../core/services/calendar.service';
 
 @Component({
   selector: 'app-layout',
@@ -31,9 +29,10 @@ export class LayoutComponent {
     private toastService: ToastService,
     private coreService: CoreHttpService,
     private router: Router,
-    private coreAuthService: CoreAuthService
+    private coreAuthService: CoreAuthService,
+    private route: ActivatedRoute,
+    private calendarService: CalendarService
   ) {
-
   }
 
   async ngOnInit() {
@@ -41,9 +40,16 @@ export class LayoutComponent {
 
     // this.initBlobity(true);
 
-    this.coreAuthService.getCurrentAuthUser().then(userC => {
+    this.coreAuthService.getCurrentAuthUser().then(async userC => {
       if (userC) {
         this.user = userC;
+
+        this.commonService.getParamsUrl().then(params => {
+          if (params.calendarEmail) {
+            this.user.setting.calendarEmail = params.calendarEmail;
+            this.authService.updateUserFirestore([this.user]).subscribe({});
+          }
+        })
         this.toastService.addSingle({
           key: 'tenant',
           message: this.translateService.instant('COMMON.LOADING',
@@ -67,6 +73,7 @@ export class LayoutComponent {
           }
         });
         this.permission = this.authService.returnPermission(this.user.permission);
+        await this.fetchCalendar();
       }
       else {
         // this.router.navigate(["/signin"]);
@@ -114,5 +121,36 @@ export class LayoutComponent {
 
   blobityFunc(isOn: boolean) {
     this.initBlobity(isOn);
+  }
+
+  fetchCalendar(): Promise<void> {
+    return new Promise<void>((resolve, reject) => {
+      try {
+        this.calendarService.fetchCalendar(this.coreAuthService.userC.setting?.calendarEmail).subscribe({
+          next: calendar => {
+            let events: CalendarEventDto[] = calendar.data.map(event => ({
+              id: event.id,
+              subject: event.summary,
+              isAllDay: event.start.dateTime ? false : true,
+              startTime: new Date(event.start.dateTime || event.start.date),
+              endTime: new Date(event.end.dateTime || event.end.date),
+              location: event.location || '',
+              description: event.description || '',
+              recurrenceRule: event.recurrence ? event.recurrence.rule : '',
+              recurrenceID: event.recurrence ? event.recurrence.id : null,
+              iCalUid: event.iCalUid || '',
+            }));
+            this.calendarService.calendarSettingEvents = events
+          },
+          error: error => {
+            console.error('Error fetching Calendar:', error);
+          }
+        });
+      }
+      catch (error) {
+        console.error('Error in fetchCalendar:', error);
+        reject(error);
+      }
+    });
   }
 }

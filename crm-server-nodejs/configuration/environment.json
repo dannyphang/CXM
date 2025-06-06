@@ -1,3 +1,5 @@
 {
-    "log": "http://localhost:1114"
+    "log": "http://localhost:1114",
+    "base": "http://localhost:1113",
+    "client": "http://localhost:1111"
 }

@@ -131,6 +131,7 @@ export interface BaseDatepickerFormConfig extends BaseFormConfig {
     view?: string;
     showTime?: boolean;
     timeOnly?: boolean;
+    showSeconds?: boolean;
 }
 
 export interface BaseTextAreaFormConfig extends BaseFormConfig, BaseInputTextConfig {
@@ -198,6 +199,7 @@ export type BaseMultiselectFormConfig = BaseSelectFormConfig & {
     sortOption?: boolean;
     group?: boolean;
     showClear?: boolean;
+    showChips?: boolean;
 };
 
 export type BaseCheckBoxFormConfig = BaseSelectFormConfig & {

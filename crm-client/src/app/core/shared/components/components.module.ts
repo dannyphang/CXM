@@ -48,9 +48,9 @@ import { TabPanelPageComponent } from './contact-company-page/tab-panel-page/tab
 import { AssociationComponent } from './profile-page/right-panel/association/association.component';
 import { AttachmentComponent } from './profile-page/right-panel/attachment/attachment.component';
 import { NoteComponent } from './activity-create-dialog/components/note/note.component';
-import { PreviewDirective, PreviewListComponent } from '@eternalheart/ngx-file-preview';
-import { AttachmentChipComponent } from "./attachment-chip/attachment-chip.component";
-import { PreviewModalComponent } from '@eternalheart/ngx-file-preview/lib/components';
+import { MeetComponent } from './activity-create-dialog/components/meet/meet.component';
+import { CalendarComponent } from './calendar/calendar.component';
+import { FullCalendarModule } from '@fullcalendar/angular';
 
 const components = [
   BaseInputComponent,
@@ -94,7 +94,8 @@ const components = [
   AssociationComponent,
   AttachmentComponent,
   NoteComponent,
-  AttachmentChipComponent
+  MeetComponent,
+  CalendarComponent,
 ];
 
 @NgModule({
@@ -110,8 +111,7 @@ const components = [
     TranslateModule,
     OnlyNumberDirective,
     PasswordValidator,
-    PreviewListComponent,
-    PreviewDirective,
+    FullCalendarModule,
   ],
   exports: [
     components

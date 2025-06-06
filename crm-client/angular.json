@@ -35,15 +35,7 @@
             "polyfills": ["zone.js"],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
-            "assets": [
-              "src/favicon.ico",
-              "src/assets",
-              {
-                "glob": "**/*",
-                "input": "node_modules/ngx-extended-pdf-viewer/assets",
-                "output": "assets"
-              }
-            ],
+            "assets": ["src/favicon.ico", "src/assets"],
             "styles": [
               {
                 "input": "src/assets/themes/theme-vela-blue.scss",
@@ -71,12 +63,9 @@
                 "inject": false
               },
               "primeng/resources/primeng.min.css",
-              "src/styles.scss",
-              "node_modules/@eternalheart/ngx-file-preview/src/assets/icon/font/nfp.css"
+              "src/styles.scss"
             ],
-            "scripts": [
-              "node_modules/@eternalheart/ngx-file-preview/src/assets/icon/color/nfp.js"
-            ]
+            "scripts": []
           },
           "configurations": {
             "production": {

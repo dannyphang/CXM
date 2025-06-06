@@ -19,6 +19,7 @@
       pTooltip="{{ tooltip | translate }}"
       pAutoFocus
       [autofocus]="autoFocus"
+      [class]="customClass"
     ></textarea>
     <div class="count" *ngIf="maxLength > 0 && !hideLengthLimit">
       ({{ currentLength }}/{{ maxLength }} characters)

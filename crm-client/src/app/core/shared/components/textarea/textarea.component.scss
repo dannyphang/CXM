@@ -17,6 +17,9 @@
 
       textarea {
         width: 100%;
+        height: auto !important;
+        // min-height: 200px !important;
+        overflow: auto !important;
       }
 
       .p-inputtext:enabled {

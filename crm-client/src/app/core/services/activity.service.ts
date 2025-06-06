@@ -1,10 +1,7 @@
 import { HttpClient } from "@angular/common/http";
 import { Injectable } from "@angular/core";
-import { map, Observable } from "rxjs";
-import apiConfig from "../../../environments/apiConfig";
-import { AssociationDto, AttachmentDto, CompanyDto, ContactDto, ModuleDto } from "./common.service";
-import { DateFilterFn } from "@angular/material/datepicker";
-import { producerAccessed } from "@angular/core/primitives/signals";
+import { Observable } from "rxjs";
+import { AssociationDto, AttachmentDto, ModuleDto } from "./common.service";
 import { CoreHttpService, ResponseModel } from "./core-http.service";
 import { BasedDto } from "./core-auth.service";
 
@@ -46,6 +43,10 @@ export class ActivityService {
 
     sendEmail(data: EmailDto, createActivity: CreateActivityDto): Observable<ResponseModel<any>> {
         return this.coreService.post<any>('activity/email', { data, createActivity }).pipe();
+    }
+
+    createMeeting(createActivity: CreateActivityDto, calendarEmail: string): Observable<ResponseModel<ActivityDto[]>> {
+        return this.coreService.post<ActivityDto[]>('activity/meeting', { createActivity, calendarEmail }).pipe();
     }
 
     getAttachments(module: 'CONT' | 'COMP', id: string): Observable<ResponseModel<AttachmentDto[]>> {
@@ -108,6 +109,8 @@ export class UpdateActivityDto extends BasedDto {
     associationCompanyUidList?: string[];
     attachmentUid?: string[];
     attachmentList?: AttachmentDto[];
+    activityType?: ActivityTypeDto;
+    activityContentLength?: number;
 }
 
 export class CreateActivityDto extends BasedDto {
@@ -143,7 +146,25 @@ export class EmailDto extends BasedDto {
     textLength: number;
 }
 
-export class ActivityTypeDto {
-    email?: EmailDto;
+export class MeetingDto extends BasedDto {
+    subject: string;
+    organizer: string;
+    start: Date;
+    end: Date;
+    location?: string;
+    internalNotes?: string;
+    reminder?: number;
+    reminderType?: number; // 1: Minutes, 2: Hours, 3: Days, 4: Weeks
 }
 
+export class ActivityTypeDto {
+    email?: EmailDto;
+    meeting?: MeetingDto;
+}
+
+export enum ReminderTypeEnum {
+    Minutes = 1,
+    Hours = 2,
+    Days = 3,
+    Weeks = 4,
+}

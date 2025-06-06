@@ -1,8 +1,9 @@
 import { Component, EventEmitter, HostListener, Input, NgZone, Output, SimpleChanges } from '@angular/core';
 import { ContactDto, CompanyDto, ModuleDto, WindowSizeDto, CommonService, AttachmentDto } from '../../../services/common.service';
-import { ActivityService, CreateActivityDto, EmailDto } from '../../../services/activity.service';
+import { ActivityModuleDto, ActivityService, CreateActivityDto, EmailDto } from '../../../services/activity.service';
 import { ToastService } from '../../../services/toast.service';
 import { AuthService } from '../../../services/auth.service';
+import { CoreAuthService } from '../../../services/core-auth.service';
 
 @Component({
   selector: 'app-activity-create-dialog',
@@ -20,6 +21,7 @@ export class ActivityCreateDialogComponent {
   windowSize: WindowSizeDto = new WindowSizeDto();
 
   header: string = '';
+  activityControlList: ActivityModuleDto[] = [];
 
   // email
   emailData: EmailDto = new EmailDto();
@@ -28,6 +30,9 @@ export class ActivityCreateDialogComponent {
   noteData: CreateActivityDto = new CreateActivityDto();
   attachmentList: File[] = [];
 
+  //meet
+  meetData: CreateActivityDto = new CreateActivityDto();
+
   contentLength: number = 0;
 
   constructor(
@@ -35,7 +40,7 @@ export class ActivityCreateDialogComponent {
     private toastService: ToastService,
     private commonService: CommonService,
     private authService: AuthService,
-    private ngZone: NgZone,
+    private coreAuthService: CoreAuthService,
   ) {
     this.windowSize = this.commonService.windowSize;
   }
@@ -47,7 +52,25 @@ export class ActivityCreateDialogComponent {
   }
 
   ngOnInit() {
-
+    this.activityService.getAllActivityModule().subscribe({
+      next: res => {
+        if (res.isSuccess) {
+          this.activityControlList = res.data.activityControlList;
+        }
+        else {
+          this.toastService.addSingle({
+            message: res.responseMessage,
+            severity: 'error'
+          });
+        }
+      },
+      error: err => {
+        this.toastService.addSingle({
+          message: err,
+          severity: 'error'
+        });
+      }
+    })
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -69,8 +92,16 @@ export class ActivityCreateDialogComponent {
     this.noteData = event;
   }
 
+  meetValueEmit(event: CreateActivityDto) {
+    this.meetData = event;
+  }
+
   attachmentEmit(event: File[]) {
     this.attachmentList = event;
+  }
+
+  returnActivityControlList(moduleCode: string, subActivityModuleCode: string): string {
+    return this.activityControlList.find(m => m.moduleCode === moduleCode)?.subActivityControl.find(s => s.moduleCode === subActivityModuleCode)?.uid || '';
   }
 
   send() {
@@ -194,6 +225,44 @@ export class ActivityCreateDialogComponent {
                 severity: 'error'
               });
             }
+          });
+        }
+        else {
+          // TODO
+        }
+        break;
+      case 'MEET':
+        if (this.authService.returnPermissionObj(this.module, 'create')) {
+          this.toastService.addSingle({
+            message: 'MESSAGE.CREATING_MEETING',
+            isLoading: true,
+            severity: 'info',
+            key: 'creating_meeting',
+          })
+          let newActivity: CreateActivityDto = {
+            activityModuleCode: this.activityModule.moduleCode,
+            activityModuleSubCode: this.activityModule.moduleSubCode,
+            activityModuleId: this.activityModule.uid,
+            activityContactedIdList: this.meetData.activityContactedIdList,
+            activityDatetime: this.meetData.activityDatetime,
+            activityContent: this.meetData.activityContent,
+            activityContentLength: this.meetData.activityContentLength,
+            activityOutcomeId: this.returnActivityControlList('OUTCOME_M', 'SCH'),
+            associationContactUidList: this.meetData.associationContactUidList,
+            associationCompanyUidList: this.meetData.associationCompanyUidList,
+            activityType: {
+              meeting: this.meetData.activityType.meeting
+            }
+          }
+          this.activityService.createMeeting(newActivity, this.coreAuthService.userC.setting.calendarEmail).subscribe(res => {
+            this.toastService.clear('creating_meeting');
+            if (res.isSuccess) {
+              this.closeDialog()
+            }
+            this.toastService.addSingle({
+              message: res.responseMessage,
+              severity: res.isSuccess ? 'success' : 'error'
+            });
           });
         }
         else {

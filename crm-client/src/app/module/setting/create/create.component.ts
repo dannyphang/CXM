@@ -6,10 +6,12 @@ import { CONTROL_TYPE, FormConfig } from '../../../core/services/components.serv
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { DEFAULT_PROFILE_PIC_URL } from '../../../core/shared/constants/common.constants';
 import { StorageService } from '../../../core/services/storage.service';
-import { AuthService, CreateUserDto } from '../../../core/services/auth.service';
+import { AuthService, CreateUserDto, UpdateUserDto } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { CoreHttpService, UserPermissionDto } from '../../../core/services/core-http.service';
 import { CoreAuthService, UserDto } from '../../../core/services/core-auth.service';
+import { CommonService } from '../../../core/services/common.service';
+import { map } from 'rxjs';
 
 @Component({
   selector: 'app-create',
@@ -30,6 +32,8 @@ export class CreateComponent extends BaseCoreAbstract {
     phone: new FormControl(""),
     password: new FormControl(""),
     confirm_password: new FormControl(""),
+    language: new FormControl(0),
+    calendarEmail: new FormControl("", Validators.email)
   });
   // profile pic
   isShowAvatarEditDialog: boolean = false;
@@ -45,7 +49,8 @@ export class CreateComponent extends BaseCoreAbstract {
     private authService: AuthService,
     private toastService: ToastService,
     private coreService: CoreHttpService,
-    private coreAuthService: CoreAuthService
+    private coreAuthService: CoreAuthService,
+    private commonService: CommonService
   ) {
     super()
   }
@@ -63,6 +68,8 @@ export class CreateComponent extends BaseCoreAbstract {
     this.createFormGroup.controls['nickname'].setValue(this.userProfile.nickname, { emitEvent: false });
     this.createFormGroup.controls['email'].setValue(this.userProfile.email, { emitEvent: false });
     this.createFormGroup.controls['phone'].setValue(this.userProfile.phoneNumber, { emitEvent: false });
+    this.createFormGroup.controls['language'].setValue(this.userProfile.setting?.defaultLanguage, { emitEvent: false });
+    this.createFormGroup.controls['calendarEmail'].setValue(this.userProfile.setting?.calendarEmail, { emitEvent: false });
 
     this.profilePhotoUrl = this.userProfile.profilePhotoUrl;
   }
@@ -145,6 +152,36 @@ export class CreateComponent extends BaseCoreAbstract {
         },
         mode: 'password'
       },
+      {
+        label: 'PROFILE.LANGUAGE',
+        type: CONTROL_TYPE.Dropdown,
+        fieldControl: this.createFormGroup.controls['language'],
+        layoutDefine: {
+          row: 4,
+          column: 0
+        },
+        dataSourceAction: () => {
+          return this.commonService.getLanguageOptions().pipe(
+            map(
+              (res) => res.data.map(lang => ({
+                label: lang.value,
+                value: lang.id
+              }))
+            )
+          );
+        },
+        defaultValue: this.coreAuthService.userC.setting?.defaultLanguage ?? 1
+      },
+      {
+        label: 'PROFILE.CALENDAR_EMAIL',
+        type: CONTROL_TYPE.Textbox,
+        fieldControl: this.createFormGroup.controls['calendarEmail'],
+        layoutDefine: {
+          row: 4,
+          column: 1
+        },
+        mode: 'email'
+      },
     ]
   }
 
@@ -222,7 +259,7 @@ export class CreateComponent extends BaseCoreAbstract {
         }
       }
       else {
-        let updateUser: CreateUserDto = {
+        let updateUser: UpdateUserDto = {
           uid: this.userProfile.uid,
           firstName: this.createFormGroup.controls['first_name'].value,
           lastName: this.createFormGroup.controls['last_name'].value,
@@ -230,7 +267,12 @@ export class CreateComponent extends BaseCoreAbstract {
           displayName: this.createFormGroup.controls['displayName'].value,
           email: this.createFormGroup.controls['email'].value,
           phoneNumber: this.createFormGroup.controls['phone'].value,
-          profilePhotoUrl: this.profilePhotoUrl ?? ''
+          profilePhotoUrl: this.profilePhotoUrl ?? '',
+          setting: {
+            tableFilter: this.userProfile.setting?.tableFilter,
+            defaultLanguage: this.createFormGroup.controls['language'].value,
+            calendarEmail: this.createFormGroup.controls['calendarEmail'].value
+          }
         }
 
         this.authService.updateUserFirestore([updateUser]).subscribe(res => {

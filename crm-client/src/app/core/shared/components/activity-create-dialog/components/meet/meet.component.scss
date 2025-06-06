@@ -1,0 +1,14 @@
+.meet-template-container {
+  display: flex;
+  width: 100%;
+}
+
+.left-div {
+  width: 60%;
+  overflow-y: auto;
+  max-height: 60vh;
+}
+
+.right-div {
+  width: 100%;
+}

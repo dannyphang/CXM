@@ -48,7 +48,8 @@
     "NO_PERMISSION_DELETE": "No permission to delete",
     "NO_PERMISSION_VIEW": "No permission to view",
     "PROPERTY_NOT_EDITABLE": "This property is not editable",
-    "PASSWORD_NOT_MATCH": "Password not match"
+    "PASSWORD_NOT_MATCH": "Password not match",
+    "ONLY_CAN_SELECT_FUTURE_DATE": "Only can select future date and time"
   },
   "MESSAGE": {
     "DELETED_SUCCESSFULLY": "The {{module}}(s) are deleted successfully.",
@@ -75,7 +76,8 @@
     "FILE_SIZE_EXCEED": "File size is exceed {{file_size}} on {{file_name}}.",
     "FILE_TYPE_NOT_SUPPORT": "File type is not supported on {{file_name}}.",
     "FILE_ALREADY_EXISTS": "File already exists on {{file_name}}.",
-    "FILE_NOT_READABLE_OR_PREVIEW": "File is not readable or preview URL is not available."
+    "FILE_NOT_READABLE_OR_PREVIEW": "File is not readable or preview URL is not available.",
+    "CREATING_MEETING": "Creating meeting..."
   },
   "BUTTON": {
     "SAVE": "Save",
@@ -110,7 +112,9 @@
     "CHECK_USER_EMAIL": "Check email existing",
     "FILTER": "Filter",
     "ADD_USER": "Add user",
-    "CREATE_USER": "Create user"
+    "CREATE_USER": "Create user",
+    "TODAY": "Today",
+    "UNAVAILABLE": "Unavailable"
   },
   "INPUT": {
     "SEARCH": "Search",
@@ -131,7 +135,21 @@
     "EMAIL": "Email",
     "PASSWORD": "Password",
     "USERNAME": "Username",
-    "CONFIRM_PASSWORD": "Confirm password"
+    "CONFIRM_PASSWORD": "Confirm password",
+    "ADD_DESCRIPTION_PLACEHOLDER": "Add description",
+    "LOCATION": "Location",
+    "ADD_LOCATION_PLACEHOLDER": "Add location",
+    "TITLE": "Title",
+    "DESCRIPTION": "Description",
+    "START_TIME": "Start time",
+    "END_TIME": "End time",
+    "ATTENDEES": "Attendees",
+    "REMINDER": "Reminder",
+    "MINUTES": "Minutes",
+    "HOURS": "Hours",
+    "DAYS": "Days",
+    "WEEKS": "Weeks",
+    "ORGANIZATER": "Organizer"
   },
   "ACTIVITY": {
     "MODULE": {
@@ -173,7 +191,9 @@
     "PROFILE_PHONE": "Phone number",
     "PROFILE_NICKNAME": "Nickname",
     "PROFILE_DISPLAYNAME": "Display Name",
-    "ATTACHMENTS": "Attachments"
+    "ATTACHMENTS": "Attachments",
+    "CALENDAR_EMAIL": "Calendar Email",
+    "LANGUAGE": "Language"
   },
   "SETTING": {
     "GENERAL": "General",
