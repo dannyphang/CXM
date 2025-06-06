@@ -39,6 +39,7 @@ export class BaseDatepickerComponent
   @Input() maxDate!: Date;
   @Input() view?: CalendarTypeView = 'date';
   @Input() showTime: boolean = false;
+  @Input() showSeconds: boolean = false;
   @Input() timeOnly: boolean = false;
   destroy$: Subject<boolean> = new Subject<boolean>();
 

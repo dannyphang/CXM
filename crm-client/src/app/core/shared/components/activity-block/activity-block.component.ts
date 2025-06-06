@@ -1,5 +1,5 @@
 import { Component, ElementRef, EventEmitter, HostListener, Input, NgZone, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
-import { ActivityDto, ActivityModuleDto, ActivityService, UpdateActivityDto } from '../../../services/activity.service';
+import { ActivityDto, ActivityModuleDto, ActivityService, ReminderTypeEnum, UpdateActivityDto } from '../../../services/activity.service';
 import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
 import { AttachmentDto, CommonService, CompanyDto, ContactDto, ModuleDto, WindowSizeDto } from '../../../services/common.service';
 import { CONTROL_TYPE, FormConfig, OptionsModel } from '../../../services/components.service';
@@ -76,6 +76,37 @@ export class ActivityBlockComponent implements OnChanges {
   });
   emailFormConfig: FormConfig[] = [];
 
+  meetFormGroup: FormGroup = new FormGroup({
+    subject: new FormControl(''),
+    organizer: new FormControl(''),
+    start: new FormControl(new Date()),
+    end: new FormControl(new Date()),
+    location: new FormControl(''),
+    attendees: new FormControl<string[]>([]),
+    module: new FormControl(this.module),
+    reminder: new FormControl(0),
+    reminderType: new FormControl(1),
+  });
+  meetFormConfig: FormConfig[] = [];
+  reminderTypes: OptionsModel[] = [
+    {
+      label: 'INPUT.MINUTES',
+      value: ReminderTypeEnum.Minutes
+    },
+    {
+      label: 'INPUT.HOURS',
+      value: ReminderTypeEnum.Hours
+    },
+    {
+      label: 'INPUT.DAYS',
+      value: ReminderTypeEnum.Days
+    },
+    {
+      label: 'INPUT.WEEKS',
+      value: ReminderTypeEnum.Weeks
+    }
+  ];
+
   constructor(
     private activityService: ActivityService,
     private ngZone: NgZone,
@@ -114,6 +145,27 @@ export class ActivityBlockComponent implements OnChanges {
         }
         this.readonly = false;
       })
+    });
+
+    this.meetFormGroup.valueChanges.subscribe(value => {
+      this.updateAct.uid = this.activity.uid;
+      this.updateAct = {
+        ...this.updateAct,
+        activityContactedIdList: value.attendees,
+        activityDatetime: value.start,
+        activityType: {
+          meeting: {
+            ...this.activity.activityType?.meeting,
+            subject: value.subject,
+            start: value.start,
+            end: value.end,
+            location: value.location,
+            reminder: value.reminder,
+            reminderType: value.reminderType,
+          }
+        },
+      }
+      this.readonly = false;
     })
   }
 
@@ -304,51 +356,169 @@ export class ActivityBlockComponent implements OnChanges {
     }
     else if (this.activity.activityModuleCode === 'CREATE') {
       // assign email form
-      let emailList: OptionsModel[] = [
-        {
-          label: this.module === 'CONT' ? this.contactProfile.contactEmail : this.companyProfile.companyEmail,
-          value: this.module === 'CONT' ? this.contactProfile.contactEmail : this.companyProfile.companyEmail,
-        }
-      ]
-      this.emailFormConfig = [
-        {
-          label: 'INPUT.TO',
-          fieldControl: this.emailFormGroup.controls['toEmail'],
-          type: CONTROL_TYPE.Multiselect,
-          layoutDefine: {
-            row: 0,
-            column: 0
+      if (this.activity.activityModuleSubCode === 'EMAIL') {
+        let emailList: OptionsModel[] = [
+          {
+            label: this.module === 'CONT' ? this.contactProfile.contactEmail : this.companyProfile.companyEmail,
+            value: this.module === 'CONT' ? this.contactProfile.uid : this.companyProfile.uid,
+          }
+        ]
+        this.emailFormConfig = [
+          {
+            label: 'INPUT.TO',
+            fieldControl: this.emailFormGroup.controls['toEmail'],
+            type: CONTROL_TYPE.Multiselect,
+            layoutDefine: {
+              row: 0,
+              column: 0
+            },
+            options: emailList,
+            disabled: true
           },
-          options: emailList,
-          disabled: true
-        },
-        {
-          label: 'INPUT.FROM',
-          fieldControl: this.emailFormGroup.controls['fromEmail'],
-          type: CONTROL_TYPE.Textbox,
-          layoutDefine: {
-            row: 0,
-            column: 1
+          {
+            label: 'INPUT.FROM',
+            fieldControl: this.emailFormGroup.controls['fromEmail'],
+            type: CONTROL_TYPE.Textbox,
+            layoutDefine: {
+              row: 0,
+              column: 1
+            },
+            mode: 'email',
+            disabled: true,
           },
-          mode: 'email',
-          disabled: true,
-        },
-        {
-          label: 'INPUT.SUBJECT',
-          fieldControl: this.emailFormGroup.controls['subject'],
-          type: CONTROL_TYPE.Textbox,
-          layoutDefine: {
-            row: 1,
-            column: 0
+          {
+            label: 'INPUT.SUBJECT',
+            fieldControl: this.emailFormGroup.controls['subject'],
+            type: CONTROL_TYPE.Textbox,
+            layoutDefine: {
+              row: 1,
+              column: 0
+            },
+            disabled: true
           },
-          disabled: true
-        },
-      ];
+        ];
 
-      // this.emailFormGroup.controls['toEmail'].setValue()
-      this.emailFormGroup.controls['fromEmail'].setValue(this.activity.activityType?.email?.fromEmail ?? '', { emitEvent: false })
-      this.emailFormGroup.controls['toEmail'].setValue(this.activity.activityType?.email?.toEmailUid ?? [], { emitEvent: false })
-      this.emailFormGroup.controls['subject'].setValue(this.activity.activityType?.email?.subject ?? '', { emitEvent: false })
+        // this.emailFormGroup.controls['toEmail'].setValue()
+        this.emailFormGroup.controls['fromEmail'].setValue(this.activity.activityType?.email?.fromEmail ?? '', { emitEvent: false })
+        this.emailFormGroup.controls['toEmail'].setValue(this.activity.activityType?.email?.toEmailUid ?? [], { emitEvent: false })
+        this.emailFormGroup.controls['subject'].setValue(this.activity.activityType?.email?.subject ?? '', { emitEvent: false });
+      }
+      if (this.activity.activityModuleSubCode === 'MEET') {
+        let outcomeList: OptionsModel[] = [];
+        outcomeList.push({ label: '(No value)', value: null });
+        this.activityControlList.find(control => control.moduleCode === 'OUTCOME_M')?.subActivityControl.forEach((item) => {
+          outcomeList.push({ label: item.moduleName, value: item.uid });
+        });
+        this.meetFormConfig = [
+          {
+            label: 'INPUT.TITLE',
+            type: CONTROL_TYPE.Textbox,
+            fieldControl: this.meetFormGroup.controls['subject'],
+            layoutDefine: {
+              row: 0,
+              column: 0
+            },
+          },
+          {
+            label: this.activityControlList.find(control => control.moduleCode === 'OUTCOME_M')?.moduleName,
+            type: CONTROL_TYPE.Dropdown,
+            fieldControl: this.activityFormGroup.controls['OUTCOME_M'],
+            layoutDefine: {
+              row: 1,
+              column: 0
+            },
+            options: outcomeList
+          },
+          {
+            label: 'INPUT.ATTENDEES',
+            type: CONTROL_TYPE.Multiselect,
+            fieldControl: this.meetFormGroup.controls['attendees'],
+            layoutDefine: {
+              row: 1,
+              column: 1
+            },
+            options: this.getContactedList(),
+            showChips: false
+          },
+          {
+            label: 'INPUT.START_TIME',
+            type: CONTROL_TYPE.Calendar,
+            fieldControl: this.meetFormGroup.controls['start'],
+            layoutDefine: {
+              row: 2,
+              column: 0
+            },
+            showTime: true,
+          },
+          {
+            label: 'INPUT.END_TIME',
+            type: CONTROL_TYPE.Calendar,
+            fieldControl: this.meetFormGroup.controls['end'],
+            layoutDefine: {
+              row: 2,
+              column: 1
+            },
+            showTime: true,
+          },
+          {
+            label: 'INPUT.LOCATION',
+            type: CONTROL_TYPE.Textbox,
+            fieldControl: this.meetFormGroup.controls['location'],
+            layoutDefine: {
+              row: 3,
+              column: 0
+            },
+          },
+          {
+            type: CONTROL_TYPE.Html,
+            dynamicHTML: `<label>${this.translateService.instant('INPUT.REMINDER')}</label>`,
+            layoutDefine: {
+              row: 4,
+              column: 0
+            }
+          },
+          {
+            type: CONTROL_TYPE.Textbox,
+            fieldControl: this.meetFormGroup.controls['reminder'],
+            layoutDefine: {
+              row: 5,
+              column: 0,
+              colSpan: 2
+            },
+            mode: 'number',
+            useGrouping: false,
+            min: 0,
+            minFractionDigits: 0,
+            maxFractionDigits: 0,
+          },
+          {
+            type: CONTROL_TYPE.Dropdown,
+            fieldControl: this.meetFormGroup.controls['reminderType'],
+            layoutDefine: {
+              row: 5,
+              column: 1,
+              colSpan: 3
+            },
+            options: this.reminderTypes,
+          }
+        ];
+
+        this.meetFormGroup.patchValue({
+          subject: this.activity.activityType?.meeting?.subject ?? '',
+          organizer: this.activity.activityType?.meeting?.organizer ?? '',
+          start: this.activity.activityType?.meeting?.start ? new Date(this.activity.activityType?.meeting?.start) : new Date(),
+          end: this.activity.activityType?.meeting?.end ? new Date(this.activity.activityType?.meeting?.end) : new Date(),
+          location: this.activity.activityType?.meeting?.location ?? '',
+          reminder: this.activity.activityType?.meeting?.reminder ?? 0,
+          reminderType: this.activity.activityType?.meeting?.reminderType ?? 1,
+          attendees: this.activity.activityContactedIdList ?? [],
+        }, { emitEvent: false });
+
+        this.activityFormGroup.controls['OUTCOME_M'].valueChanges.subscribe(value => {
+          this.updateAct.activityOutcomeId = value;
+          this.readonly = false;
+        });
+      }
     }
   }
 

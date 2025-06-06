@@ -1,10 +1,28 @@
-<div class="meet-template-container">
+<div class="meet-template-container tw-pb-[var(--content-gap)]">
   <div class="left-div">
     <app-base-form [formConfig]="meetFormConfig"></app-base-form>
 
-    <!-- <a
+    <!-- text editor -->
+    <div class="tw-px-[var(--content-gap)] tw-pb-[var(--content-gap)]">
+      <!-- description -->
+      <div class="tw-grid">
+        <app-base-label
+          [label]="'INPUT.DESCRIPTION' | translate"
+          class="tw-pb-[8px]"
+        ></app-base-label>
+        <p-editor
+          [formControl]="returnFormControl('description')"
+          [style]="{ height: '200px' }"
+          (onTextChange)="countTextLength($event)"
+          [placeholder]="'ACTIVITY.EDITOR_PLACEHOLDER' | translate"
+        />
+      </div>
+    </div>
+
+    <!-- association -->
+    <a
       (click)="assoPanel.toggle($event)"
-      class="asso-btn tw-flex tw-justify-end tw-self-center tw-text-[var(--primary-color)] tw-cursor-pointer"
+      class="asso-btn tw-flex tw-justify-start tw-self-center tw-text-[var(--primary-color)] tw-cursor-pointer tw-px-[var(--content-gap)] tw-pt-[var(--content-gap)]"
       >{{
         "Associated with " +
           (meetFormGroup.controls["attendees"].value?.length +
@@ -12,7 +30,7 @@
               ?.length) +
           " records"
       }}</a
-    > -->
+    >
   </div>
   <p-divider [layout]="'vertical'"></p-divider>
   <div class="right-div">

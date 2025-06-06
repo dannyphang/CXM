@@ -109,6 +109,8 @@ export class UpdateActivityDto extends BasedDto {
     associationCompanyUidList?: string[];
     attachmentUid?: string[];
     attachmentList?: AttachmentDto[];
+    activityType?: ActivityTypeDto;
+    activityContentLength?: number;
 }
 
 export class CreateActivityDto extends BasedDto {
@@ -151,7 +153,6 @@ export class MeetingDto extends BasedDto {
     end: Date;
     location?: string;
     internalNotes?: string;
-    description?: string;
     reminder?: number;
     reminderType?: number; // 1: Minutes, 2: Hours, 3: Days, 4: Weeks
 }
@@ -159,4 +160,11 @@ export class MeetingDto extends BasedDto {
 export class ActivityTypeDto {
     email?: EmailDto;
     meeting?: MeetingDto;
+}
+
+export enum ReminderTypeEnum {
+    Minutes = 1,
+    Hours = 2,
+    Days = 3,
+    Weeks = 4,
 }

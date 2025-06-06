@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, NgZone, Output, SimpleChanges } from '@angular/core';
+import { ChangeDetectorRef, Component, EventEmitter, Input, NgZone, Output, SimpleChanges } from '@angular/core';
 import { CalendarEventDto, CalendarService } from '../../../services/calendar.service';
 import { CoreAuthService } from '../../../services/core-auth.service';
 import { Subscription } from 'rxjs';
@@ -61,6 +61,7 @@ export class CalendarComponent {
     private coreAuthService: CoreAuthService,
     private translateService: TranslateService,
     private toastService: ToastService,
+    private cd: ChangeDetectorRef,
   ) { }
 
   ngOnInit() {
@@ -103,13 +104,14 @@ export class CalendarComponent {
 
   ngOnChanges(changes: SimpleChanges) {
     if (changes['newEvent'] && changes['newEvent'].currentValue) {
+      this.cd.detectChanges();
       this.insertOnlyOneNewEvent();
     }
   }
 
   insertOnlyOneNewEvent() {
-    this.fcCalendar.getEventById('new-event')?.remove();
-    this.fcCalendar.addEvent({
+    this.fcCalendar?.getEventById('new-event')?.remove();
+    this.fcCalendar?.addEvent({
       id: 'new-event',
       start: this.newEvent.startTime,
       end: this.newEvent.endTime,

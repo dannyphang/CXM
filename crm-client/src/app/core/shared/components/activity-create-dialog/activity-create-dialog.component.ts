@@ -1,6 +1,6 @@
 import { Component, EventEmitter, HostListener, Input, NgZone, Output, SimpleChanges } from '@angular/core';
 import { ContactDto, CompanyDto, ModuleDto, WindowSizeDto, CommonService, AttachmentDto } from '../../../services/common.service';
-import { ActivityService, CreateActivityDto, EmailDto } from '../../../services/activity.service';
+import { ActivityModuleDto, ActivityService, CreateActivityDto, EmailDto } from '../../../services/activity.service';
 import { ToastService } from '../../../services/toast.service';
 import { AuthService } from '../../../services/auth.service';
 import { CoreAuthService } from '../../../services/core-auth.service';
@@ -21,6 +21,7 @@ export class ActivityCreateDialogComponent {
   windowSize: WindowSizeDto = new WindowSizeDto();
 
   header: string = '';
+  activityControlList: ActivityModuleDto[] = [];
 
   // email
   emailData: EmailDto = new EmailDto();
@@ -51,7 +52,25 @@ export class ActivityCreateDialogComponent {
   }
 
   ngOnInit() {
-
+    this.activityService.getAllActivityModule().subscribe({
+      next: res => {
+        if (res.isSuccess) {
+          this.activityControlList = res.data.activityControlList;
+        }
+        else {
+          this.toastService.addSingle({
+            message: res.responseMessage,
+            severity: 'error'
+          });
+        }
+      },
+      error: err => {
+        this.toastService.addSingle({
+          message: err,
+          severity: 'error'
+        });
+      }
+    })
   }
 
   ngOnChanges(changes: SimpleChanges) {
@@ -74,12 +93,15 @@ export class ActivityCreateDialogComponent {
   }
 
   meetValueEmit(event: CreateActivityDto) {
-    console.log(this.meetData);
     this.meetData = event;
   }
 
   attachmentEmit(event: File[]) {
     this.attachmentList = event;
+  }
+
+  returnActivityControlList(moduleCode: string, subActivityModuleCode: string): string {
+    return this.activityControlList.find(m => m.moduleCode === moduleCode)?.subActivityControl.find(s => s.moduleCode === subActivityModuleCode)?.uid || '';
   }
 
   send() {
@@ -210,7 +232,6 @@ export class ActivityCreateDialogComponent {
         }
         break;
       case 'MEET':
-        console.log(this.meetData);
         if (this.authService.returnPermissionObj(this.module, 'create')) {
           this.toastService.addSingle({
             message: 'MESSAGE.CREATING_MEETING',
@@ -224,8 +245,9 @@ export class ActivityCreateDialogComponent {
             activityModuleId: this.activityModule.uid,
             activityContactedIdList: this.meetData.activityContactedIdList,
             activityDatetime: this.meetData.activityDatetime,
-            activityContent: '',
-            activityContentLength: 0,
+            activityContent: this.meetData.activityContent,
+            activityContentLength: this.meetData.activityContentLength,
+            activityOutcomeId: this.returnActivityControlList('OUTCOME_M', 'SCH'),
             associationContactUidList: this.meetData.associationContactUidList,
             associationCompanyUidList: this.meetData.associationCompanyUidList,
             activityType: {

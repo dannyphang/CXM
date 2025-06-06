@@ -1,9 +1,10 @@
-import { Component, EventEmitter, Input, Output, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, NgZone, Output, SimpleChanges } from '@angular/core';
 import { ContactDto, CompanyDto, ModuleDto } from '../../../../../services/common.service';
 import { CONTROL_TYPE, FormConfig, OptionsModel } from '../../../../../services/components.service';
 import { FormControl, FormGroup } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
-import { CreateActivityDto, MeetingDto } from '../../../../../services/activity.service';
+import { CreateActivityDto, MeetingDto, ReminderTypeEnum } from '../../../../../services/activity.service';
+import { CoreAuthService } from '../../../../../services/core-auth.service';
 
 @Component({
   selector: 'app-meet',
@@ -57,14 +58,21 @@ export class MeetComponent {
     startTime: Date;
     endTime: Date;
     subject?: string;
-  };
+  } = {
+      startTime: new Date(),
+      endTime: this.increasedEndTime(),
+      subject: ''
+    };
   assoContactFormConfig: FormConfig[] = [];
   assoCompanyFormConfig: FormConfig[] = [];
   assoCompanyList: OptionsModel[] = [];
   assoContactList: OptionsModel[] = [];
+  descriptionWordLength: number = 0;
 
   constructor(
     private translateService: TranslateService,
+    private coreAuthService: CoreAuthService,
+    private ngZone: NgZone,
   ) {
 
   }
@@ -192,24 +200,10 @@ export class MeetComponent {
         },
         options: this.reminderTypes,
       },
-      {
-        type: CONTROL_TYPE.Html,
-        layoutDefine: {
-          row: 6,
-          column: 0,
-        },
-        dynamicHTML: `<a
-      (click)="assoPanel.toggle($event)"
-      class="asso-btn tw-flex tw-justify-end tw-self-center tw-text-[var(--primary-color)] tw-cursor-pointer"
-      >${"Associated with " +
-          (this.meetFormGroup.controls["attendees"].value?.length +
-            this.meetFormGroup.controls["association"].get("company").value
-              ?.length) +
-          " records"
-          }</a
-    >`,
-      }
-    ]
+    ];
+
+    this.meetFormGroup.controls['organizer'].setValue(this.coreAuthService.userC.email, { emitEvent: false });
+    this.meetFormGroup.controls['organizer'].disable();
   }
 
   setAssociation() {
@@ -313,12 +307,13 @@ export class MeetComponent {
     let meet: CreateActivityDto = {
       activityModuleCode: this.activityModule.moduleCode,
       activityModuleSubCode: this.activityModule.moduleSubCode,
-      activityContent: '',
+      activityContent: this.meetFormGroup.controls['description'].value,
+      activityContentLength: this.descriptionWordLength,
       activityDatetime: this.meetFormGroup.controls['start'].value,
       activityContactedIdList: this.meetFormGroup.controls['attendees'].value || [],
       activityModuleId: this.activityModule.moduleId,
       associationContactUidList: this.meetFormGroup.controls['attendees'].value || [],
-      associationCompanyUidList: this.meetFormGroup.controls['association'].get('company')?.value || [], activityContentLength: 0,
+      associationCompanyUidList: this.meetFormGroup.controls['association'].get('company')?.value || [],
       activityType: {
         meeting: {
           subject: this.meetFormGroup.controls['subject'].value,
@@ -332,14 +327,16 @@ export class MeetComponent {
         }
       }
     };
-    console.log('meet', meet);
     this.meetValueEmit.emit(meet);
   }
-}
 
-enum ReminderTypeEnum {
-  Minutes = 1,
-  Hours = 2,
-  Days = 3,
-  Weeks = 4,
+  returnFormControl(controlName: string): FormControl {
+    return this.meetFormGroup.controls[controlName] as FormControl;
+  }
+
+  countTextLength(text: any) {
+    this.ngZone.run(() => {
+      this.descriptionWordLength = text.textValue.length;
+    });
+  }
 }

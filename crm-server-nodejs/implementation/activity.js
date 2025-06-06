@@ -302,7 +302,11 @@ function createMeeting({ userId, tenantId, createActivityObj, calendarEmail }) {
                     requestBody: {
                         summary: createActivityObj.activityType.meeting.subject,
                         description: createActivityObj.activityType.meeting.description,
-                        organizer: createActivityObj.activityType.meeting.organizer,
+                        organizer: createActivityObj.activityType.meeting.organizer
+                            ? {
+                                  email: createActivityObj.activityType.meeting.organizer,
+                              }
+                            : null,
                         start: {
                             dateTime: createActivityObj.activityType.meeting.start,
                             timeZone: "UTC", // Adjust as necessary
@@ -331,11 +335,10 @@ function createMeeting({ userId, tenantId, createActivityObj, calendarEmail }) {
                     },
                 })
                 .then((event) => {
-                    let { activityType, ...newAct } = createActivityObj;
                     createActivity({
                         userId: userId,
                         tenantId: tenantId,
-                        activitiesList: [newAct],
+                        activitiesList: [createActivityObj],
                     })
                         .then((activityList) => {
                             resolve(activityList);
