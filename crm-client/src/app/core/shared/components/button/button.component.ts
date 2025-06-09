@@ -34,6 +34,7 @@ export class BaseButtonComponent
   @Input() loading: boolean = false;
   @Input() raised: boolean = false;
   @Input() isSpinning: boolean = false;
+  @Input() severity: 'primary' | 'secondary' = 'primary';
 
   constructor() {
     super();

@@ -1,10 +1,10 @@
 <div class="tw-w-full">
   <p-tabView class="middle-profile-tabView tw-w-full">
-    <p-tabPanel header="Activities">
+    <p-tabPanel [header]="'ACTIVITY.ACTIVITIES' | translate">
       <div class="tw-flex tw-justify-between">
         <app-base-input
           [iconRightStyle]="searchIcon"
-          [placeholder]="'Search activities...'"
+          [placeholder]="'INPUT.SEARCH_ACTIVITY_PLACEHOLDER' | translate"
           [autoFocus]="true"
           [fieldControl]="searchControl"
           class="tw-w-[40%]"
@@ -28,7 +28,7 @@
 
       <p-tabView class="activity-tab">
         <!-- ALL Tab-->
-        <p-tabPanel header="All" [selected]="false">
+        <p-tabPanel [header]="'ACTIVITY.ALL' | translate" [selected]="false">
           <!-- Pinned -->
           <div *ngIf="returnIsPinnedActivityList('ALL').length > 0">
             <div
@@ -114,7 +114,7 @@
         <!-- Other Tab -->
         <p-tabPanel
           *ngFor="let activityTab of activityModuleList"
-          [header]="activityTab.moduleName"
+          [header]="'ACTIVITY.MODULE.' + activityTab.moduleCode | translate"
           onclick=""
         >
           <div class="">

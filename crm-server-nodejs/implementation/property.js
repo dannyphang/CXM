@@ -5,360 +5,342 @@ import * as companyRepo from "../repository/company.repository.js";
 import * as func from "../shared/function.js";
 
 function getAllModuleCodeByModuleType({ tenantId, moduleType }) {
-  return new Promise(async (resolve, reject) => {
-    try {
-      propertyRepo
-        .getAllModuleByModuleType({ tenantId: tenantId, moduleType: moduleType })
-        .then((list) => {
-          resolve(list);
-        });
-    } catch (error) {
-      reject(error);
-    }
-  });
+    return new Promise(async (resolve, reject) => {
+        try {
+            propertyRepo.getAllModuleByModuleType({ tenantId: tenantId, moduleType: moduleType }).then((list) => {
+                resolve(list);
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
 }
 
 function getAllModuleBySubModule({ tenantId, subModuleCode }) {
-  return new Promise((resolve, reject) => {
-    try {
-      propertyRepo
-        .getAllModuleBySubModule({ tenantId: tenantId, subModuleCode: subModuleCode })
-        .then((list) => {
-          resolve(list);
-        });
-    } catch (error) {
-      reject(error);
-    }
-  });
+    return new Promise((resolve, reject) => {
+        try {
+            propertyRepo.getAllModuleBySubModule({ tenantId: tenantId, subModuleCode: subModuleCode }).then((list) => {
+                resolve(list);
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
 }
 
 function createModule({ userId, moduleList }) {
-  return new Promise((resolve, reject) => {
-    try {
-      let list = [];
-      moduleList.forEach((module, index) => {
-        module.createdDate = new Date();
-        module.modifiedDate = new Date();
-        module.createdBy = userId;
-        module.modifiedBy = userId;
+    return new Promise((resolve, reject) => {
+        try {
+            let list = [];
+            moduleList.forEach((module, index) => {
+                module.createdDate = new Date();
+                module.modifiedDate = new Date();
+                module.createdBy = userId;
+                module.modifiedBy = userId;
 
-        propertyRepo.createModule({ module: module }).then((m) => {
-          list.push(m);
-          if (moduleList.length - 1 === index) {
-            resolve(list);
-          }
-        });
-      });
-    } catch (error) {
-      reject(error);
-    }
-  });
+                propertyRepo.createModule({ module: module }).then((m) => {
+                    list.push(m);
+                    if (moduleList.length - 1 === index) {
+                        resolve(list);
+                    }
+                });
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
 }
 
 // get all properties with lookup by module
 function getAllProperty({ moduleCode, tenantId }) {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let userList = await authRepo.getAllUsers();
+    return new Promise(async (resolve, reject) => {
+        try {
+            let userList = await authRepo.getAllUsers();
 
-      let propertyList = await propertyRepo.getAllPropertiesByModule({
-        moduleCode: moduleCode,
-        tenantId: tenantId,
-      });
+            let propertyList = await propertyRepo.getAllPropertiesByModule({
+                moduleCode: moduleCode,
+                tenantId: tenantId,
+            });
 
-      let moduleList = await propertyRepo.getAllModuleSub({
-        moduleCode: moduleCode,
-      });
+            let moduleList = await propertyRepo.getAllModuleSub({
+                moduleCode: moduleCode,
+            });
 
-      let propertyLookupList = await propertyRepo.getAllPropertyLookUpList({
-        moduleCode: moduleCode,
-      });
+            let propertyLookupList = await propertyRepo.getAllPropertyLookUpList({
+                moduleCode: moduleCode,
+            });
 
-      // add default value: SYSTEM
-      userList.users.push({
-        uid: "SYSTEM",
-        displayName: "SYSTEM",
-      });
+            // add default value: SYSTEM
+            userList.users.push({
+                uid: "SYSTEM",
+                displayName: "SYSTEM",
+            });
 
-      // insert lookup
-      for (let i = 0; i < propertyList.length; i++) {
-        propertyList[i].propertyLookupList = [];
+            // insert lookup
+            for (let i = 0; i < propertyList.length; i++) {
+                propertyList[i].propertyLookupList = [];
 
-        propertyList[i].createdDate = func.convertFirebaseDateFormat(propertyList[i].createdDate);
-        propertyList[i].modifiedDate = func.convertFirebaseDateFormat(propertyList[i].modifiedDate);
+                propertyList[i].createdDate = func.convertFirebaseDateFormat(propertyList[i].createdDate);
+                propertyList[i].modifiedDate = func.convertFirebaseDateFormat(propertyList[i].modifiedDate);
 
-        // assign user list into lookup property
-        if (propertyList[i].propertyType === "USR") {
-          propertyList[i].propertyLookupList = userList.users;
-        }
+                // assign user list into lookup property
+                if (propertyList[i].propertyType === "USR") {
+                    propertyList[i].propertyLookupList = userList.users;
+                }
 
-        for (let j = 0; j < propertyLookupList.length; j++) {
-          if (propertyList[i].propertyId === propertyLookupList[j].propertyId) {
-            propertyLookupList[j].createdDate = func.convertFirebaseDateFormat(
-              propertyLookupList[j].createdDate
-            );
-            propertyLookupList[i].modifiedDate = func.convertFirebaseDateFormat(
-              propertyLookupList[j].modifiedDate
-            );
-            propertyList[i].propertyLookupList.push(propertyLookupList[j]);
-          }
-          if (propertyList[i].propertyType === "CBX_S") {
-            if (propertyLookupList[j].propertyLookupCode === "true") {
-              propertyLookupList[j].createdDate = func.convertFirebaseDateFormat(
-                propertyLookupList[j].createdDate
-              );
-              propertyLookupList[j].modifiedDate = func.convertFirebaseDateFormat(
-                propertyLookupList[j].modifiedDate
-              );
-              propertyList[i].propertyLookupList.push(propertyLookupList[j]);
-            } else if (propertyLookupList[j].propertyLookupCode === "false") {
-              propertyLookupList[j].createdDate = func.convertFirebaseDateFormat(
-                propertyLookupList[j].createdDate
-              );
-              propertyLookupList[j].modifiedDate = func.convertFirebaseDateFormat(
-                propertyLookupList[j].modifiedDate
-              );
-              propertyList[i].propertyLookupList.push(propertyLookupList[j]);
+                for (let j = 0; j < propertyLookupList.length; j++) {
+                    if (propertyList[i].propertyId === propertyLookupList[j].propertyId) {
+                        propertyLookupList[j].createdDate = func.convertFirebaseDateFormat(propertyLookupList[j].createdDate);
+                        propertyLookupList[i].modifiedDate = func.convertFirebaseDateFormat(propertyLookupList[j].modifiedDate);
+                        propertyList[i].propertyLookupList.push(propertyLookupList[j]);
+                    }
+                    if (propertyList[i].propertyType === "CBX_S") {
+                        if (propertyLookupList[j].propertyLookupCode === "true") {
+                            propertyLookupList[j].createdDate = func.convertFirebaseDateFormat(propertyLookupList[j].createdDate);
+                            propertyLookupList[j].modifiedDate = func.convertFirebaseDateFormat(propertyLookupList[j].modifiedDate);
+                            propertyList[i].propertyLookupList.push(propertyLookupList[j]);
+                        } else if (propertyLookupList[j].propertyLookupCode === "false") {
+                            propertyLookupList[j].createdDate = func.convertFirebaseDateFormat(propertyLookupList[j].createdDate);
+                            propertyLookupList[j].modifiedDate = func.convertFirebaseDateFormat(propertyLookupList[j].modifiedDate);
+                            propertyList[i].propertyLookupList.push(propertyLookupList[j]);
+                        }
+                    }
+                }
             }
-          }
-        }
-      }
 
-      moduleList.forEach((module) => {
-        module.propertiesList = [];
-        module.createdDate = func.convertFirebaseDateFormat(module.createdDate);
-        module.modifiedDate = func.convertFirebaseDateFormat(module.modifiedDate);
-        for (let i = 0; i < propertyList.length; i++) {
-          if (module.moduleCode === propertyList[i].moduleCat) {
-            module.propertiesList.push(propertyList[i]);
-          }
-        }
-      });
+            moduleList.forEach((module) => {
+                module.propertiesList = [];
+                module.createdDate = func.convertFirebaseDateFormat(module.createdDate);
+                module.modifiedDate = func.convertFirebaseDateFormat(module.modifiedDate);
+                for (let i = 0; i < propertyList.length; i++) {
+                    if (module.moduleCode === propertyList[i].moduleCat) {
+                        module.propertiesList.push(propertyList[i]);
+                    }
+                }
+            });
 
-      resolve(moduleList);
-    } catch (error) {
-      reject(error);
-    }
-  });
+            resolve(moduleList);
+        } catch (error) {
+            reject(error);
+        }
+    });
 }
 
 function createProperty({ userId, tenantId, propertyList }) {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let list = [];
-      propertyList.forEach((property, index) => {
-        property.createdDate = new Date();
-        property.createdBy = userId;
-        property.modifiedDate = new Date();
-        property.modifiedBy = userId;
-        property.tenantId = tenantId;
+    return new Promise(async (resolve, reject) => {
+        try {
+            let list = [];
+            propertyList.forEach((property, index) => {
+                property.createdDate = new Date();
+                property.createdBy = userId;
+                property.modifiedDate = new Date();
+                property.modifiedBy = userId;
+                property.tenantId = tenantId;
 
-        propertyRepo.createProperty({ property: property }).then((p) => {
-          list.push(p);
-          if (propertyList.length - 1 === index) {
-            resolve(list);
-          }
-        });
-      });
-    } catch (error) {
-      reject(error);
-    }
-  });
+                propertyRepo.createProperty({ property: property }).then((p) => {
+                    list.push(p);
+                    if (propertyList.length - 1 === index) {
+                        resolve(list);
+                    }
+                });
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
 }
 
 function updateProperty({ userId, propertyList }) {
-  try {
-    propertyList.forEach((property, index) => {
-      property.modifiedDate = new Date();
-      property.modifiedBy = userId;
+    try {
+        propertyList.forEach((property, index) => {
+            property.modifiedDate = new Date();
+            property.modifiedBy = userId;
 
-      propertyRepo
-        .updateProperty({
-          property: property,
-        })
-        .then((_) => {
-          if (propertyList.length - 1 === index) {
-            resolve();
-          }
+            propertyRepo
+                .updateProperty({
+                    property: property,
+                })
+                .then((_) => {
+                    if (propertyList.length - 1 === index) {
+                        resolve();
+                    }
+                });
         });
-    });
-  } catch (error) {
-    reject(error);
-  }
+    } catch (error) {
+        reject(error);
+    }
 }
 
 function deleteProperty({ userId, propertyList }) {
-  try {
-    propertyList.forEach((property, index) => {
-      property.statusId = 2;
-      property.modifiedDate = new Date();
-      property.modifiedBy = userId;
+    try {
+        propertyList.forEach((property, index) => {
+            property.statusId = 2;
+            property.modifiedDate = new Date();
+            property.modifiedBy = userId;
 
-      propertyRepo
-        .updateProperty({
-          property: property,
-        })
-        .then((_) => {
-          if (propertyList.length - 1 === index) {
-            resolve();
-          }
+            propertyRepo
+                .updateProperty({
+                    property: property,
+                })
+                .then((_) => {
+                    if (propertyList.length - 1 === index) {
+                        resolve();
+                    }
+                });
         });
-    });
-  } catch (error) {
-    reject(error);
-  }
+    } catch (error) {
+        reject(error);
+    }
 }
 
 function createPropertyLookUp({ tenantId, userId, propertyList }) {
-  return new Promise((resolve, reject) => {
-    try {
-      propertyList.forEach((property, index) => {
-        property.tenantId = tenantId;
-        property.createdDate = new Date();
-        property.modifiedDate = new Date();
-        property.modifiedBy = userId;
-        property.createdBy = userId;
-        propertyRepo
-          .createPropertyLookUp({
-            property: property,
-          })
-          .then((p) => {
-            if (propertyList.length - 1 === index) {
-              resolve(propertyList);
-            }
-          });
-      });
-    } catch (error) {
-      reject(error);
-    }
-  });
+    return new Promise((resolve, reject) => {
+        try {
+            propertyList.forEach((property, index) => {
+                property.tenantId = tenantId;
+                property.createdDate = new Date();
+                property.modifiedDate = new Date();
+                property.modifiedBy = userId;
+                property.createdBy = userId;
+                propertyRepo
+                    .createPropertyLookUp({
+                        property: property,
+                    })
+                    .then((p) => {
+                        if (propertyList.length - 1 === index) {
+                            resolve(propertyList);
+                        }
+                    });
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
 }
 
 function updatePropertyLookUp({ userId, propertyList }) {
-  return new Promise((resolve, reject) => {
-    propertyList.forEach((property, index) => {
-      property.modifiedDate = new Date();
-      property.modifiedBy = userId;
+    return new Promise((resolve, reject) => {
+        propertyList.forEach((property, index) => {
+            property.modifiedDate = new Date();
+            property.modifiedBy = userId;
 
-      propertyRepo
-        .updatePropertyLookUp({
-          property: property,
-        })
-        .then((_) => {
-          if (propertyList.length - 1 === index) {
-            resolve();
-          }
+            propertyRepo
+                .updatePropertyLookUp({
+                    property: property,
+                })
+                .then((_) => {
+                    if (propertyList.length - 1 === index) {
+                        resolve();
+                    }
+                });
         });
     });
-  });
 }
 
 function getAllActivityModule() {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let activityModuleList = await propertyRepo.getActivityModuleList();
-      let activityControlList = await propertyRepo.getActivityControlList();
-      let subActivityControlList = await propertyRepo.getActivitySubControlList();
+    return new Promise(async (resolve, reject) => {
+        try {
+            let activityModuleList = await propertyRepo.getActivityModuleList();
+            let activityControlList = await propertyRepo.getActivityControlList();
+            let subActivityControlList = await propertyRepo.getActivitySubControlList();
 
-      activityControlList.forEach((item) => {
-        item.subActivityControl = [];
-        subActivityControlList.forEach((subItem) => {
-          if (item.moduleCode === subItem.moduleSubCode) {
-            item.subActivityControl.push(subItem);
-          }
-        });
-      });
+            activityControlList.forEach((item) => {
+                item.subActivityControl = [];
+                subActivityControlList.forEach((subItem) => {
+                    if (item.moduleCode === subItem.moduleSubCode) {
+                        item.subActivityControl.push(subItem);
+                    }
+                });
+            });
 
-      resolve({
-        activityModuleList,
-        activityControlList,
-      });
-    } catch (error) {
-      reject(error);
-    }
-  });
+            resolve({
+                activityModuleList,
+                activityControlList,
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
 }
 
 async function checkUnique({ tenantId, module, propertyDataList, propertyList }) {
-  try {
-    let notUniqueProperties = [];
+    try {
+        let notUniqueProperties = [];
 
-    for (const p of propertyList) {
-      if (p.isUnique) {
-        let profileList = [];
+        for (const p of propertyList) {
+            if (p.isUnique) {
+                let profileList = [];
 
-        // Fetch all profiles for the tenant
-        if (module === "CONT") {
-          profileList = await contactRepo.getAllContacts({ tenantId });
-        } else {
-          profileList = await companyRepo.getAllCompanies({ tenantId });
+                // Fetch all profiles for the tenant
+                if (module === "CONT") {
+                    profileList = await contactRepo.getAllContacts({ tenantId });
+                } else {
+                    profileList = await companyRepo.getAllCompanies({ tenantId });
+                }
+
+                let pCode = "";
+                if (!p.isDefaultProperty && p.isEditable) {
+                    switch (p.propertyCode) {
+                        case "first_name":
+                            pCode = "contactFirstName";
+                            break;
+                        case "last_name":
+                            pCode = "contactLastName";
+                            break;
+                        case "email":
+                            pCode = module === "CONT" ? "contactEmail" : "companyEmail";
+                            break;
+                        case "phone_number":
+                            pCode = "contactPhone";
+                            break;
+                        case "company_name":
+                            pCode = "companyName";
+                            break;
+                        case "website_url":
+                            pCode = "companyWebsite";
+                            break;
+                    }
+                } else {
+                    pCode = p.propertyCode;
+                }
+
+                const mergedProfileList = profileList.map((profile) => {
+                    const propertyObjList = JSON.parse(module === "CONT" ? profile.contactProperties : profile.companyProperties);
+                    const newPropertyObject = propertyObjList.reduce((acc, obj) => {
+                        acc[obj.propertyCode] = obj.value;
+                        return acc;
+                    }, {});
+                    return {
+                        ...profile,
+                        ...newPropertyObject,
+                    };
+                });
+
+                const propertyValue = propertyDataList.find((pdl) => pdl.uid === p.uid)?.value ?? null;
+                const isNotUnique = mergedProfileList.some((profile) => profile[pCode] === propertyValue);
+
+                if (isNotUnique) {
+                    notUniqueProperties.push(propertyDataList.find((pd) => pd.uid === p.uid));
+                }
+            }
         }
 
-        let pCode = "";
-        if (!p.isDefaultProperty && p.isEditable) {
-          switch (p.propertyCode) {
-            case "first_name":
-              pCode = "contactFirstName";
-              break;
-            case "last_name":
-              pCode = "contactLastName";
-              break;
-            case "email":
-              pCode = module === "CONT" ? "contactEmail" : "companyEmail";
-              break;
-            case "phone_number":
-              pCode = "contactPhone";
-              break;
-            case "company_name":
-              pCode = "companyName";
-              break;
-            case "website_url":
-              pCode = "companyWebsite";
-              break;
-          }
-        } else {
-          pCode = p.propertyCode;
-        }
-
-        const mergedProfileList = profileList.map((profile) => {
-          const propertyObjList = JSON.parse(
-            module === "CONT" ? profile.contactProperties : profile.companyProperties
-          );
-          const newPropertyObject = propertyObjList.reduce((acc, obj) => {
-            acc[obj.propertyCode] = obj.value;
-            return acc;
-          }, {});
-          return {
-            ...profile,
-            ...newPropertyObject,
-          };
-        });
-
-        const propertyValue = propertyDataList.find((pdl) => pdl.uid === p.uid)?.value ?? null;
-        const isNotUnique = mergedProfileList.some((profile) => profile[pCode] === propertyValue);
-
-        if (isNotUnique) {
-          notUniqueProperties.push(propertyDataList.find((pd) => pd.uid === p.uid));
-        }
-      }
+        return notUniqueProperties;
+    } catch (error) {
+        throw error;
     }
-
-    return notUniqueProperties;
-  } catch (error) {
-    throw error;
-  }
 }
 
 export {
-  getAllModuleCodeByModuleType,
-  getAllModuleBySubModule,
-  createModule,
-  getAllProperty,
-  createProperty,
-  updateProperty,
-  deleteProperty,
-  createPropertyLookUp,
-  updatePropertyLookUp,
-  getAllActivityModule,
-  checkUnique,
+    getAllModuleCodeByModuleType,
+    getAllModuleBySubModule,
+    createModule,
+    getAllProperty,
+    createProperty,
+    updateProperty,
+    deleteProperty,
+    createPropertyLookUp,
+    updatePropertyLookUp,
+    getAllActivityModule,
+    checkUnique,
 };

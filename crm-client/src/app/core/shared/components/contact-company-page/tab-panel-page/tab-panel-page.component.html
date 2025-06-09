@@ -280,7 +280,7 @@
       <app-base-button
         [label]="'BUTTON.CANCEL' | translate"
         [isTextStyle]="true"
-        severity="secondary"
+        [severity]="'secondary'"
         (click)="displayCreateDialog = false"
       />
       <app-base-button
@@ -440,7 +440,7 @@
     <div class="tw-flex tw-justify-between">
       <app-base-button
         [label]="'BUTTON.CANCEL' | translate"
-        [outlined]="true"
+        [severity]="'secondary'"
         (onClick)="closeFilter()"
       ></app-base-button>
       <app-base-button
@@ -489,7 +489,7 @@
     <div class="tw-flex tw-justify-between">
       <app-base-button
         [label]="'BUTTON.CANCEL' | translate"
-        [outlined]="true"
+        [severity]="'secondary'"
         (onClick)="closeTableColumnFilter()"
       ></app-base-button>
       <app-base-button

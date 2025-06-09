@@ -2,7 +2,7 @@
   <ng-container [ngSwitch]="type">
     <ng-template [ngSwitchDefault]>
       <p-button
-        [outlined]="outlined"
+        [outlined]="outlined || severity === 'secondary'"
         [type]="buttonType"
         [label]="isSpinning ? undefined : (label | translate)"
         [icon]="

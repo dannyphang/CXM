@@ -272,6 +272,7 @@ export interface BaseButtonFormConfig extends BaseFormConfig {
         moduleCode?: string;
         createdBy?: string;
     };
+    severity?: 'primary' | 'secondary';
 }
 
 export const BASE_UI_TOKEN = new InjectionToken('BASE_UI_TOKEN');
