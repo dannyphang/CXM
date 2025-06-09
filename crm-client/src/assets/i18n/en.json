@@ -114,7 +114,8 @@
     "ADD_USER": "Add user",
     "CREATE_USER": "Create user",
     "TODAY": "Today",
-    "UNAVAILABLE": "Unavailable"
+    "UNAVAILABLE": "Unavailable",
+    "VIEW_ALL_PROPERTIES": "'View all properties'"
   },
   "INPUT": {
     "SEARCH": "Search",
@@ -149,7 +150,8 @@
     "HOURS": "Hours",
     "DAYS": "Days",
     "WEEKS": "Weeks",
-    "ORGANIZATER": "Organizer"
+    "ORGANIZATER": "Organizer",
+    "SEARCH_ACTIVITY_PLACEHOLDER": "Search activities..."
   },
   "ACTIVITY": {
     "MODULE": {
@@ -162,6 +164,8 @@
       "NOTE": "Note",
       "MEET": "Meeting"
     },
+    "ACTIVITIES": "Activities",
+    "ALL": "All",
     "WORDS": "words",
     "EDITOR_PLACEHOLDER": "Describe the log...",
     "PINNED": "Pinned",

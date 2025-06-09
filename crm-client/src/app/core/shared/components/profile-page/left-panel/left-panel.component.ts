@@ -27,7 +27,7 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
 
   actionMenu: any[] = [
     {
-      label: 'View all properties',
+      label: this.translateService.instant('BUTTON.VIEW_ALL_PROPERTIES'),
       icon: '',
       command: () => {
         const navigationExtras: NavigationExtras = {

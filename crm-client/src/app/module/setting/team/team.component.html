@@ -57,16 +57,16 @@
     <div
       class="tw-py-[var(--content-gap)] tw-flex tw-justify-between tw-w-full"
     >
-      <p-button
+      <app-base-button
         [label]="'BUTTON.CANCEL' | translate"
-        [outlined]="true"
+        [severity]="'secondary'"
         (onClick)="initPermissionTable('', true)"
-      ></p-button>
-      <p-button
+      ></app-base-button>
+      <app-base-button
         [label]="'BUTTON.SAVE' | translate"
         (onClick)="submitPermission()"
         class="tw-ml-[var(--content-gap)]"
-      ></p-button>
+      ></app-base-button>
     </div>
   </div>
 
@@ -235,7 +235,7 @@
     <div class="tw-flex tw-justify-between">
       <app-base-button
         [label]="'BUTTON.CANCEL' | translate"
-        [outlined]="true"
+        [severity]="'secondary'"
         (onClick)="initTeamRole()"
       ></app-base-button>
 
@@ -298,16 +298,16 @@
 
   <ng-template pTemplate="footer">
     <div class="tw-flex tw-justify-between">
-      <p-button
+      <app-base-button
         [label]="'BUTTON.CANCEL' | translate"
-        [outlined]="true"
+        [severity]="'secondary'"
         (onClick)="closeCreateUserDialog()"
-      ></p-button>
+      ></app-base-button>
 
-      <p-button
+      <app-base-button
         [label]="'BUTTON.CREATE' | translate"
         (onClick)="createUser()"
-      ></p-button>
+      ></app-base-button>
     </div>
   </ng-template>
 </p-dialog>

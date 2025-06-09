@@ -201,7 +201,7 @@ export class ActivityBlockComponent implements OnChanges {
           }
         },
         {
-          label: 'Delete',
+          label: this.translateService.instant('BUTTON.DELETE'),
           icon: 'pi pi-trash',
           command: () => {
             if (this.authService.returnPermissionObj(this.module, 'remove')) {

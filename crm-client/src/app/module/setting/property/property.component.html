@@ -205,8 +205,8 @@
     <div class="tw-flex tw-justify-between">
       <app-base-button
         [label]="'BUTTON.CANCEL' | translate"
-        [isTextStyle]="true"
-        (click)="closeDialog()"
+        [severity]="'secondary'"
+        (onClick)="closeDialog()"
       />
       <app-base-button
         [label]="
@@ -214,8 +214,7 @@
             ? ('BUTTON.UPDATE' | translate)
             : ('BUTTON.CREATE' | translate)
         "
-        [outlined]="true"
-        (click)="editMode ? edit() : create()"
+        (onClick)="editMode ? edit() : create()"
       />
     </div>
   </ng-template>
