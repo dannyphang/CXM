@@ -182,8 +182,9 @@ export class CommonService {
 
     getSubModuleByModule(submoduleCode: string): Observable<ResponseModel<ModuleDto[]>> {
         let headers = {
-            'submoduleCode': submoduleCode ?? '',
+            'submoduleCode': submoduleCode,
         }
+        console.log('submoduleCode', submoduleCode);
         return this.coreService.get<ModuleDto[]>('property/moduleCode/subModule/code', {
             headers: headers
         }).pipe();

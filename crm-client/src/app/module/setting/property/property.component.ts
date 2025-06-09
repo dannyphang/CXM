@@ -587,7 +587,7 @@ export class PropertyComponent extends BaseCoreAbstract {
   }
 
   getModuleListByModuleType(moduleType: string): Observable<OptionsModel[]> {
-    return this.commonService.getAllModuleByModuleType(moduleType).pipe(
+    return this.commonService.getAllModuleByModuleType(moduleType ?? 'MODULE').pipe(
       map(res => {
         return res.data.map(val => ({
           value: val.moduleCode,
@@ -598,7 +598,7 @@ export class PropertyComponent extends BaseCoreAbstract {
   }
 
   getModuleGroupList(): Observable<any[]> {
-    return this.commonService.getSubModuleByModule(this.propertyDetailFormGroup.controls['module'].value).pipe(
+    return this.commonService.getSubModuleByModule(this.propertyDetailFormGroup.controls['module'].value.length > 0 ? this.propertyDetailFormGroup.controls['module'].value : this.moduleFormControl.value).pipe(
       map(res => {
         return res.data.map(val => ({
           value: val.moduleCode,

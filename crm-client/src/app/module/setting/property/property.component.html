@@ -48,9 +48,8 @@
           <div class="tw-flex">
             <app-base-button
               *ngIf="
-                selectedProperty.length > 0 &&
                 checkPermission(
-                  'remove',
+                  'create',
                   moduleFormControl.value,
                   permission,
                   roleId
@@ -126,7 +125,6 @@
   [header]="'SETTING.CREATE_PROPERTY' | translate"
   styleClass="tw-w-[70%]"
   [modal]="true"
-  (onHide)="closeDialog()"
 >
   <ng-template pTemplate="content">
     <app-base-form [formConfig]="propertyCreateFormConfig"></app-base-form>
