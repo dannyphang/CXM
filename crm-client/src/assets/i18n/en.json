@@ -115,7 +115,8 @@
     "CREATE_USER": "Create user",
     "TODAY": "Today",
     "UNAVAILABLE": "Unavailable",
-    "VIEW_ALL_PROPERTIES": "'View all properties'"
+    "VIEW_ALL_PROPERTIES": "'View all properties'",
+    "VERIFY_EMAIL": "Verify Email"
   },
   "INPUT": {
     "SEARCH": "Search",
@@ -192,6 +193,7 @@
     "PROFILE_FIRST_NAME": "First name",
     "PROFILE_LAST_NAME": "Last name",
     "PROFILE_EMAIL": "Email",
+    "VERIFIED_EMAIL": "Verified Email",
     "PROFILE_PHONE": "Phone number",
     "PROFILE_NICKNAME": "Nickname",
     "PROFILE_DISPLAYNAME": "Display Name",

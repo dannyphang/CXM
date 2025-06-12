@@ -1,4 +1,4 @@
-import * as calendarRepo from "../repository/calendar.repository.js";
+import * as tokenRepo from "../repository/token.repository.js";
 import { google } from "googleapis";
 import * as config from "../configuration/config.js";
 import * as envConfig from "../configuration/envConfig.js";
@@ -17,7 +17,7 @@ function createToken({ accessToken, refreshToken, expiryDate, email }) {
                 email: email,
                 statusId: 1,
             };
-            calendarRepo
+            tokenRepo
                 .createToken({ token: token })
                 .then((data) => {
                     resolve(data);
@@ -34,8 +34,8 @@ function createToken({ accessToken, refreshToken, expiryDate, email }) {
 function getTokenByEmail(email) {
     return new Promise(async (resolve, reject) => {
         try {
-            calendarRepo
-                .getTokenByEmail({ email: email })
+            tokenRepo
+                .getTokenByEmail({ email: email, module: "calendar" })
                 .then((data) => {
                     resolve(data);
                 })
@@ -93,7 +93,7 @@ function fetchCalendar({ calendarEmail }) {
                     modifiedDateTime: new Date().toISOString(),
                 };
 
-                await calendarRepo.updateToken({ token: updateToken });
+                await tokenRepo.updateToken({ token: updateToken });
             }
 
             resolve(response.data.items);
@@ -146,13 +146,13 @@ function calendarCallback({ code, userId }) {
                     module: "calendar",
                     userId: userId,
                 });
-                calendarRepo
+                tokenRepo
                     .updateToken({ token: newToken, email: email })
                     .then(() => {
                         resolve(query);
                     })
                     .catch((error) => {
-                        calendarRepo
+                        tokenRepo
                             .createToken({ token: newToken })
                             .then(() => {
                                 resolve(query);
@@ -162,14 +162,14 @@ function calendarCallback({ code, userId }) {
                             });
                     });
 
-                // calendarRepo
+                // tokenRepo
                 //     .createToken({ token: newToken })
                 //     .then(() => {
                 //         console.log("Token created successfully");
                 //         resolve(query);
                 //     })
                 //     .catch((err) => {
-                //         calendarRepo
+                //         tokenRepo
                 //             .updateToken({ token: newToken })
                 //             .then(() => {
                 //                 console.log("Token updated successfully");

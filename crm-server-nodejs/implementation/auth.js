@@ -1,6 +1,10 @@
 import * as authRepo from "../repository/auth.repository.js";
-
+import * as tokenRepo from "../repository/token.repository.js";
 import * as func from "../shared/function.js";
+import FormData from "form-data"; // form-data v4.0.1
+import Mailgun from "mailgun.js";
+import * as config from "../configuration/config.js";
+import * as envConfig from "../configuration/envConfig.js";
 
 function getAllUsers() {
     return new Promise((resolve, reject) => {
@@ -263,6 +267,109 @@ function updateUserLastActive({ user }) {
     });
 }
 
+function sentVerifyEmail({ user }) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const token = func.generateToken(32);
+            const verifyEmailUrl = `${envConfig.baseUrl}/auth/verify-email?token=${token}&email=${user.email}&uid=${user.uid}`;
+
+            // send email
+            const mailgun = new Mailgun(FormData);
+
+            const mg = mailgun.client({
+                username: "api",
+                key: config.default.mailgun.apiKey,
+            });
+
+            tokenRepo
+                .createToken({
+                    token: {
+                        email: user.email,
+                        module: "email-verification",
+                        accessToken: token,
+                        statusId: 1,
+                        createdDateTime: new Date().toISOString(),
+                        modifiedDateTime: new Date().toISOString(),
+                    },
+                })
+                .then((_) => {
+                    mg.messages
+                        .create(config.default.mailgun.domain, {
+                            from: `CRM <noreply@${config.default.mailgun.domain}>`,
+                            to: user.email,
+                            subject: "Verify your email",
+                            template: "email confirmation",
+                            "h:X-Mailgun-Variables": JSON.stringify({
+                                username: user.displayName,
+                                confirmationLink: verifyEmailUrl,
+                            }),
+                        })
+                        .then((msg) => {
+                            resolve(msg);
+                        })
+                        .catch((error) => {
+                            reject(error);
+                        });
+                })
+                .catch((error) => {
+                    console.error("Error creating token:", error);
+                    reject(error);
+                });
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+function verifyEmail({ token, email, uid }) {
+    return new Promise((resolve, reject) => {
+        try {
+            tokenRepo
+                .getTokenByEmail({ email: email, module: "email-verification" })
+                .then((t) => {
+                    if (!t || t.accessToken !== token) {
+                        reject("Invalid or expired token.");
+                    }
+
+                    // Update the token status to inactive
+                    t.statusId = 2; // Assuming 0 means inactive
+                    t.modifiedDateTime = new Date().toISOString();
+                    tokenRepo
+                        .updateToken({ token: t })
+                        .then(() => {
+                            // Update user email verified status
+                            authRepo
+                                .updateUser({
+                                    user: {
+                                        uid: uid,
+                                        emailVerified: true,
+                                        modifiedDate: new Date(),
+                                    },
+                                })
+                                .then(() => {
+                                    resolve("Email verified successfully.");
+                                })
+                                .catch((error) => {
+                                    console.log("Error updating user:", error);
+                                    reject(error);
+                                });
+                        })
+                        .catch((error) => {
+                            console.error("Error updating token:", error);
+                            reject(error);
+                        });
+                })
+                .catch((error) => {
+                    console.error("Error retrieving token:", error);
+                    reject("Token not found or invalid.");
+                });
+        } catch (error) {
+            console.error("Error verifying email:", error);
+            reject(error);
+        }
+    });
+}
+
 export {
     getAllUsers,
     createUser,
@@ -276,4 +383,6 @@ export {
     updateUserRoleAndTenant,
     getUserByTenantId,
     updateUserLastActive,
+    sentVerifyEmail,
+    verifyEmail,
 };
