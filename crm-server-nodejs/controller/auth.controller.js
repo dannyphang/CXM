@@ -440,4 +440,92 @@ router.put("/user/userLastActive", async (req, res) => {
     }
 });
 
+// send verify email
+router.post("/user/sentVerifyEmail", async (req, res) => {
+    try {
+        authImp
+            .sentVerifyEmail({
+                user: func.body(req).data.user,
+            })
+            .then((userData) => {
+                res.status(200).json(
+                    func.responseModel({
+                        data: userData,
+                        responseMessage: `Email sent successfully.`,
+                    })
+                );
+            })
+            .catch((error) => {
+                console.log("error", error);
+                API.createLog(error, req, res, 500, logModule);
+                res.status(500).json(
+                    func.responseModel({
+                        isSuccess: false,
+                        responseMessage: error,
+                    })
+                );
+            });
+    } catch (error) {
+        console.log("error", error);
+        API.createLog(error, req, res, 500, logModule);
+        res.status(500).json(
+            func.responseModel({
+                isSuccess: false,
+                responseMessage: error,
+            })
+        );
+    }
+});
+
+// verify email
+router.get("/verify-email", async (req, res) => {
+    try {
+        const token = req.query.token;
+        if (!token) {
+            return res.status(400).json(
+                func.responseModel({
+                    isSuccess: false,
+                    responseMessage: "Token is required",
+                })
+            );
+        }
+
+        const email = req.query.email;
+        const uid = req.query.uid;
+        authImp
+            .verifyEmail({
+                token: token,
+                email: email,
+                uid: uid,
+            })
+            .then((result) => {
+                res.status(200).json(
+                    func.responseModel({
+                        data: result.data,
+                        responseMessage: "Email verified successfully.",
+                    })
+                );
+            })
+            .catch((error) => {
+                console.log("error", error);
+                API.createLog(error, req, res, 500, logModule);
+                res.status(500).json(
+                    func.responseModel({
+                        isSuccess: false,
+                        responseMessage: error,
+                    })
+                );
+            });
+    } catch (error) {
+        console.log("error", error);
+        API.createLog(error, req, res, 500, logModule);
+        res.status(500).json(
+            func.responseModel({
+                isSuccess: false,
+                responseMessage: error,
+            })
+        );
+    }
+});
+
 export default router;

@@ -23,12 +23,13 @@ export class CreateComponent extends BaseCoreAbstract {
   @Input() module: string;
   userProfile: UserDto;
   createFormConfig: FormConfig[] = [];
-  createFormGroup: FormGroup = new FormGroup({
+  createFormGroup = new FormGroup({
     first_name: new FormControl(""),
     last_name: new FormControl(""),
     nickname: new FormControl(""),
     displayName: new FormControl("", Validators.required),
     email: new FormControl({ value: "", disabled: true }),
+    verified_email: new FormControl({ value: [false], disabled: true }),
     phone: new FormControl(""),
     password: new FormControl(""),
     confirm_password: new FormControl(""),
@@ -67,6 +68,7 @@ export class CreateComponent extends BaseCoreAbstract {
     this.createFormGroup.controls['last_name'].setValue(this.userProfile.lastName, { emitEvent: false });
     this.createFormGroup.controls['nickname'].setValue(this.userProfile.nickname, { emitEvent: false });
     this.createFormGroup.controls['email'].setValue(this.userProfile.email, { emitEvent: false });
+    this.createFormGroup.controls['verified_email'].setValue([this.userProfile.emailVerified], { emitEvent: false });
     this.createFormGroup.controls['phone'].setValue(this.userProfile.phoneNumber, { emitEvent: false });
     this.createFormGroup.controls['language'].setValue(this.userProfile.setting?.defaultLanguage, { emitEvent: false });
     this.createFormGroup.controls['calendarEmail'].setValue(this.userProfile.setting?.calendarEmail, { emitEvent: false });
@@ -123,12 +125,62 @@ export class CreateComponent extends BaseCoreAbstract {
         mode: 'email'
       },
       {
+        label: ' ',
+        type: CONTROL_TYPE.Checkbox,
+        fieldControl: this.createFormGroup.controls['verified_email'],
+        layoutDefine: {
+          row: 2,
+          column: 1,
+          colSpan: this.coreAuthService.userC.emailVerified ? undefined : 5
+        },
+        options: [
+          {
+            label: 'PROFILE.VERIFIED_EMAIL',
+            value: true,
+            disabled: true
+          }
+        ],
+        cssContainer: '',
+      },
+      {
+        label: 'BUTTON.VERIFY_EMAIL',
+        type: CONTROL_TYPE.Button,
+        layoutDefine: {
+          row: 2,
+          column: 1,
+        },
+        onClickFunc: (e: any) => {
+          this.authService.sentVerifyEmail(this.userProfile).subscribe({
+            next: (res) => {
+              if (res.isSuccess) {
+                this.toastService.addSingle({
+                  message: res.responseMessage,
+                });
+              } else {
+                this.toastService.addSingle({
+                  message: res.responseMessage,
+                  severity: 'error'
+                });
+              }
+            },
+            error: (err) => {
+              this.toastService.addSingle({
+                message: err.error?.responseMessage || 'ERROR.VERIFY_EMAIL_FAILED',
+                severity: 'error'
+              });
+            }
+          });
+        },
+        cssContainer: 'tw-flex tw-items-center',
+        visibility: this.coreAuthService.userC.emailVerified ? 'hidden' : 'visible',
+      },
+      {
         label: 'PROFILE.PROFILE_PHONE',
         type: CONTROL_TYPE.Textbox,
         fieldControl: this.createFormGroup.controls['phone'],
         layoutDefine: {
-          row: 2,
-          column: 1
+          row: 3,
+          column: 0
         },
         mode: 'phone'
       },
@@ -138,7 +190,7 @@ export class CreateComponent extends BaseCoreAbstract {
         fieldControl: this.createFormGroup.controls['password'],
         layoutDefine: {
           row: 3,
-          column: 0
+          column: 1
         },
         mode: 'password'
       },
@@ -148,7 +200,7 @@ export class CreateComponent extends BaseCoreAbstract {
         fieldControl: this.createFormGroup.controls['confirm_password'],
         layoutDefine: {
           row: 3,
-          column: 1
+          column: 2
         },
         mode: 'password'
       },
@@ -177,8 +229,8 @@ export class CreateComponent extends BaseCoreAbstract {
         type: CONTROL_TYPE.Textbox,
         fieldControl: this.createFormGroup.controls['calendarEmail'],
         layoutDefine: {
-          row: 4,
-          column: 1
+          row: 5,
+          column: 0
         },
         mode: 'email'
       },

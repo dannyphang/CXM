@@ -115,7 +115,8 @@
     "CREATE_USER": "创建用户",
     "TODAY": "今天",
     "UNAVAILABLE": "不可用",
-    "VIEW_ALL_PROPERTIES": "查看所有属性"
+    "VIEW_ALL_PROPERTIES": "查看所有属性",
+    "VERIFY_EMAIL": "验证邮箱"
   },
   "INPUT": {
     "SEARCH": "搜索",
@@ -192,6 +193,7 @@
     "PROFILE_FIRST_NAME": "名字",
     "PROFILE_LAST_NAME": "姓氏",
     "PROFILE_EMAIL": "邮箱",
+    "VERIFIED_EMAIL": "已验证邮箱",
     "PROFILE_PHONE": "电话号码",
     "PROFILE_NICKNAME": "昵称",
     "PROFILE_DISPLAYNAME": "显示名称",

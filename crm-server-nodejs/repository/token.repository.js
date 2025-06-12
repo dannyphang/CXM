@@ -16,13 +16,13 @@ function createToken({ token }) {
     });
 }
 
-function getTokenByEmail({ email }) {
+function getTokenByEmail({ email, module }) {
     return new Promise(async (resolve, reject) => {
         try {
             if (!email) {
                 reject(new Error("Email is required to get token"));
             }
-            const { data, error } = await supabase.from("token").select("*").eq("email", email).eq("module", "calendar").eq("statusId", 1).single();
+            const { data, error } = await supabase.from("token").select("*").eq("email", email).eq("module", module).eq("statusId", 1).single();
 
             if (error) {
                 reject(error);

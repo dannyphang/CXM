@@ -32,6 +32,8 @@ const {
     SUPABASE_SERVICE_ROLE,
     GOOGLE_CALENDAR_CLIENT_ID,
     GOOGLE_CALENDAR_CLIENT_SECRET,
+    MAILGUN_API_KEY,
+    MAILGUN_DOMAIN,
 } = process.env;
 
 export default {
@@ -74,5 +76,9 @@ export default {
             clientId: GOOGLE_CALENDAR_CLIENT_ID,
             clientSecret: GOOGLE_CALENDAR_CLIENT_SECRET,
         },
+    },
+    mailgun: {
+        apiKey: MAILGUN_API_KEY,
+        domain: MAILGUN_DOMAIN,
     },
 };

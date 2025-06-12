@@ -172,6 +172,10 @@ export class AuthService {
     updateUserLastActiveTime(user: UserDto): Observable<ResponseModel<UserDto>> {
         return this.coreService.put<UserDto>('/auth/user/userLastActive', { user }).pipe();
     }
+
+    sentVerifyEmail(user: UserDto): Observable<ResponseModel<any>> {
+        return this.coreService.post<any>('auth/user/sentVerifyEmail', { user }).pipe();
+    }
 }
 
 export class CreateUserDto extends BasedDto {
@@ -182,6 +186,7 @@ export class CreateUserDto extends BasedDto {
     displayName?: string;
     profilePhotoUrl?: string;
     email?: string;
+    emailVerified?: boolean;
     phoneNumber?: string;
     authUid?: string;
     roleId?: number;
@@ -197,6 +202,7 @@ export class UpdateUserDto extends BasedDto {
     displayName?: string;
     profilePhotoUrl?: string;
     email?: string;
+    emailVerified?: boolean;
     phoneNumber?: string;
     authUid?: string;
     roleId?: number;

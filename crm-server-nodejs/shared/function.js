@@ -1,3 +1,5 @@
+import * as crypto from "crypto";
+
 function responseModel({ data = null, isSuccess = true, responseMessage = null }) {
     return {
         data: data,
@@ -32,4 +34,8 @@ function returnParamDataUrl(params) {
     return query ? `?${query}` : "";
 }
 
-export { responseModel, body, convertFirebaseDateFormat, returnParamDataUrl };
+function generateToken(length = 32) {
+    return crypto.randomBytes(length).toString("hex").slice(0, length);
+}
+
+export { responseModel, body, convertFirebaseDateFormat, returnParamDataUrl, generateToken };
