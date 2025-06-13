@@ -156,7 +156,6 @@ function deleteActivity({ userId, activityList }) {
             const attachmentRemovals = [];
 
             for (const act of updatedActivities) {
-                console.log(`Processing activity`, act);
                 if (act.attachmentUid && act.attachmentUid.length > 0) {
                     for (const uid of act.attachmentUid) {
                         attachmentRemovals.push(attachmentImp.removeAttachmentById({ attachmentId: uid, userId: userId }));
