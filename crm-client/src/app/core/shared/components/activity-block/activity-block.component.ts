@@ -206,9 +206,9 @@ export class ActivityBlockComponent implements OnChanges {
           icon: 'pi pi-trash',
           command: () => {
             if (this.authService.returnPermissionObj(this.module, 'remove')) {
-              this.activityService.updateActivity([{
+              this.activityService.deleteActivity([{
                 uid: this.activity.uid,
-                statusId: 2
+                attachmentUid: this.activity.attachmentUid,
               }]).subscribe(res => {
                 if (res.isSuccess) {
                   this.toastService.addSingle({

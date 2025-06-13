@@ -41,6 +41,10 @@ export class ActivityService {
         return this.coreService.put<ActivityDto>('activity', { updateActivityList }).pipe();
     }
 
+    deleteActivity(updateActivityList: UpdateActivityDto[]): Observable<ResponseModel<ActivityDto>> {
+        return this.coreService.put<ActivityDto>('activity/delete', { updateActivityList }).pipe();
+    }
+
     sendEmail(data: EmailDto, createActivity: CreateActivityDto): Observable<ResponseModel<any>> {
         return this.coreService.post<any>('activity/email', { data, createActivity }).pipe();
     }
