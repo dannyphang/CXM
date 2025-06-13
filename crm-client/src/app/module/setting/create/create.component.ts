@@ -229,7 +229,8 @@ export class CreateComponent extends BaseCoreAbstract {
             )
           );
         },
-        defaultValue: this.coreAuthService.userC.setting?.defaultLanguage ?? 1
+        defaultValue: this.coreAuthService.userC.setting?.defaultLanguage ?? 1,
+        showClear: false,
       },
       {
         label: 'PROFILE.CALENDAR_EMAIL',

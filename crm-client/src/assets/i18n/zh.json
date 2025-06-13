@@ -178,7 +178,14 @@
     "DIRECT": "方向",
     "PIN": "置顶",
     "UNPIN": "取消置顶",
-    "AT": "在"
+    "AT": "在",
+    "SEARCH_TOOLTIP": "结果是根据以下字段中找到的词语: {{searchFields}}.",
+    "EMAIL_SUBJECT": "邮件主题",
+    "TASK_SUBJECT": "任务主题",
+    "TASK_BODY": "任务内容",
+    "NOTE_BODY": "笔记内容",
+    "CALL_BODY": "电话内容",
+    "MEETING_BODY": "会议内容"
   },
   "PROFILE": {
     "AVATAR_EDIT": "编辑头像",

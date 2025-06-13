@@ -49,7 +49,7 @@ export class SettingComponent extends BaseCoreAbstract {
     this.userC = this.coreAuthService.userC;
     this.settingMenuItem = [
       {
-        label: this.translateService.instant('SETTING.GENERAL'),
+        label: 'SETTING.GENERAL',
         icon: '',
         command: () => {
           const element = document.getElementById('general');
@@ -59,7 +59,7 @@ export class SettingComponent extends BaseCoreAbstract {
         }
       },
       {
-        label: this.translateService.instant('SETTING.TEAM_MANAGEMENT'),
+        label: 'SETTING.TEAM_MANAGEMENT',
         icon: '',
         command: () => {
           const element = document.getElementById('team');
@@ -70,7 +70,7 @@ export class SettingComponent extends BaseCoreAbstract {
         visible: this.userC?.roleId === 1,
       },
       {
-        label: this.translateService.instant('SETTING.PROPERTY'),
+        label: 'SETTING.PROPERTY',
         icon: '',
         command: () => {
           const element = document.getElementById('property');

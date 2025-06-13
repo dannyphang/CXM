@@ -178,7 +178,14 @@
     "DIRECT": "Direction",
     "PIN": "Pin",
     "UNPIN": "Unpin",
-    "AT": "at"
+    "AT": "at",
+    "SEARCH_TOOLTIP": "Results are based on terms found in the following fields: {{searchFields}}.",
+    "EMAIL_SUBJECT": "Email Subject",
+    "TASK_SUBJECT": "Task Subject",
+    "TASK_BODY": "Task Body",
+    "NOTE_BODY": "Note Body",
+    "CALL_BODY": "Call Body",
+    "MEETING_BODY": "Meeting Body"
   },
   "PROFILE": {
     "AVATAR_EDIT": "Edit profile picture",

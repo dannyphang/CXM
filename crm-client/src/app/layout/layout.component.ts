@@ -20,6 +20,7 @@ export class LayoutComponent {
   tenantList: TenantDto[] = [];
   tenantOptionsList: OptionsModel[] = [];
   permission: UserPermissionDto[] = [];
+  langLoaded = false;
 
   constructor(
     private authService: AuthService,
@@ -43,6 +44,11 @@ export class LayoutComponent {
     this.coreAuthService.getCurrentAuthUser().then(async userC => {
       if (userC) {
         this.user = userC;
+        this.commonService.getLanguageOptions().subscribe(res => {
+          let lang = res.data.find(l => l.id === this.user.setting?.defaultLanguage).code || 'en';
+          this.translateService.setDefaultLang(lang);
+          this.translateService.use(lang);
+        });
 
         this.commonService.getParamsUrl().then(params => {
           if (params.calendarEmail) {
@@ -73,13 +79,14 @@ export class LayoutComponent {
           }
         });
         this.permission = this.authService.returnPermission(this.user.permission);
+        this.langLoaded = true;
         await this.fetchCalendar();
       }
       else {
         // this.router.navigate(["/signin"]);
       }
     }).catch(error => {
-      // this.router.navigate(["/signin"]);
+      this.router.navigate(["/signin"]);
     });
   }
 

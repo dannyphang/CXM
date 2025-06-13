@@ -2,13 +2,27 @@
   <p-tabView class="middle-profile-tabView tw-w-full">
     <p-tabPanel [header]="'ACTIVITY.ACTIVITIES' | translate">
       <div class="tw-flex tw-justify-between">
-        <app-base-input
-          [iconRightStyle]="searchIcon"
-          [placeholder]="'INPUT.SEARCH_ACTIVITY_PLACEHOLDER' | translate"
-          [autoFocus]="true"
-          [fieldControl]="searchControl"
-          class="tw-w-[40%]"
-        ></app-base-input>
+        <div class="tw-flex tw-items-center tw-gap-[var(--content-gap)]">
+          <app-base-input
+            [iconRightStyle]="searchIcon"
+            [placeholder]="'INPUT.SEARCH_ACTIVITY_PLACEHOLDER' | translate"
+            [autoFocus]="true"
+            [fieldControl]="searchControl"
+            class="tw-w-full"
+          ></app-base-input>
+          <i
+            class="pi pi-info-circle"
+            [pTooltip]="
+              'ACTIVITY.SEARCH_TOOLTIP'
+                | translate
+                  : {
+                      searchFields: searchFields.join(', ')
+                    }
+            "
+            tooltipEvent="hover"
+            tooltipPosition="top"
+          ></i>
+        </div>
 
         <!-- middle panel action button -->
         <div>
