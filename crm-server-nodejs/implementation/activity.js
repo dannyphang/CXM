@@ -4,12 +4,13 @@ import * as companyRepo from "../repository/company.repository.js";
 import * as propertyRepo from "../repository/property.repository.js";
 import * as attachmentRepo from "../repository/attachment.repository.js";
 import config from "../configuration/config.js";
-import emailjs from "@emailjs/nodejs";
 import * as func from "../shared/function.js";
 import { google } from "googleapis";
 import * as calendarImpl from "../implementation/calendar.js";
 import * as contactImp from "../implementation/contact.js";
 import * as companyImp from "../implementation/company.js";
+import FormData from "form-data"; // form-data v4.0.1
+import Mailgun from "mailgun.js";
 
 function getAllActivityByProfileId({ tenantId, profileUid }) {
     return new Promise(async (resolve, reject) => {
@@ -184,12 +185,12 @@ function updateActivity({ userId, activityList }) {
 function sendEmail({ tenantId, createActivity, userId }) {
     return new Promise(async (resolve, reject) => {
         try {
-            const emailConfig = config.emailjs;
+            // send email
+            const mailgun = new Mailgun(FormData);
 
-            // Initialize emailjs
-            emailjs.init({
-                publicKey: emailConfig.publicKey,
-                privateKey: emailConfig.privateKey,
+            const mg = mailgun.client({
+                username: "api",
+                key: config.mailgun.apiKey,
             });
 
             // Extract and validate the toEmail array
@@ -210,13 +211,31 @@ function sendEmail({ tenantId, createActivity, userId }) {
                 createActivity.tenantId = tenantId;
                 await actRepo.createActivity({ activity: createActivity });
 
-                // send email
-                return emailjs.send(emailConfig.serviceId, emailConfig.templateId, {
-                    toEmail: email,
-                    fromEmail: createActivity.activityType.email.fromEmail,
-                    subject: createActivity.activityType.email.subject,
-                    content: createActivity.activityType.email.content,
-                });
+                // send email (emailjs)
+                // return emailjs.send(emailConfig.serviceId, emailConfig.templateId, {
+                //     toEmail: email,
+                //     fromEmail: createActivity.activityType.email.fromEmail,
+                //     subject: createActivity.activityType.email.subject,
+                //     content: createActivity.activityType.email.content,
+                // });
+
+                // mailgun
+                return mg.messages
+                    .create(config.mailgun.domain, {
+                        from: createActivity.activityType.email.fromEmail,
+                        to: email,
+                        subject: createActivity.activityType.email.subject,
+                        template: "activity_email",
+                        "h:X-Mailgun-Variables": JSON.stringify({
+                            content: createActivity.activityType.email.content,
+                        }),
+                    })
+                    .then((msg) => {
+                        resolve(msg);
+                    })
+                    .catch((error) => {
+                        reject(error);
+                    });
             });
 
             // Execute all promises and wait for them to complete
