@@ -213,4 +213,39 @@ router.post("/meeting", async (req, res) => {
     }
 });
 
+// router.post("/search", async (req, res) => {
+//     try{
+//         const searchText = func.body(req).data.searchText;
+//         const tenantId = func.body(req).tenantId;
+//         activityImp
+//             .searchActivitiesText({
+//                 tenantId: tenantId,
+//                 searchText: searchText,
+//             })
+//             .then((list) => {
+//                 res.status(200).json(func.responseModel({ data: list }));
+//             })
+//             .catch((error) => {
+//                 console.log("error", error);
+//                 API.createLog(error, req, res, 500, logModule);
+//                 res.status(500).json(
+//                     func.responseModel({
+//                         isSuccess: false,
+//                         responseMessage: error,
+//                     })
+//                 );
+//             });
+//     }
+//     catch(error){
+//         console.log("error", error);
+//         API.createLog(error, req, res, 500, logModule);
+//         res.status(500).json(
+//             func.responseModel({
+//                 isSuccess: false,
+//                 responseMessage: error,
+//             })
+//         );
+//     }
+// });
+
 export default router;

@@ -60,6 +60,10 @@ export class ActivityService {
     removeAttachments(attachmentList: AttachmentDto[]): Observable<ResponseModel<AttachmentDto[]>> {
         return this.coreService.put<AttachmentDto[]>('attachment/remove', { attachmentList: attachmentList }).pipe();
     }
+
+    searchActivities(searchText: string): Observable<ResponseModel<ActivityDto[]>> {
+        return this.coreService.post<ActivityDto[]>('activity/search', { searchText }).pipe();
+    }
 }
 
 export class ActivityModuleDto extends ModuleDto {

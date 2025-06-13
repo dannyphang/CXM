@@ -78,7 +78,7 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
     if (changes['permission'] && changes['permission'].currentValue) {
       this.menuItem = [
         {
-          label: this.translateService.instant("COMMON.CONTACT"),
+          label: "COMMON.CONTACT",
           icon: '',
           tooltip: "COMMON.CONTACT",
           command: () => {
@@ -87,7 +87,7 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
           visible: this.checkPermission('display', 'CONT', this.permission, this.coreAuthService.userC?.roleId)
         },
         {
-          label: this.translateService.instant('COMMON.COMPANY'),
+          label: "COMMON.COMPANY",
           icon: '',
           tooltip: "COMMON.COMPANY",
           command: () => {
@@ -105,25 +105,25 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
         label: '',
       },
       {
-        label: this.translateService.instant('HEADER.SETTING'),
+        label: 'HEADER.SETTING',
         icon: 'pi pi-cog',
         command: () => {
           this.router.navigate(['/setting']);
         }
       },
       {
-        label: this.translateService.instant('COMMON.LANGUAGE'),
+        label: 'COMMON.LANGUAGE',
         icon: 'pi pi-language',
         items: [
           {
-            label: this.translateService.instant('HEADER.LANGUAGE.EN'),
+            label: "HEADER.LANGUAGE.EN",
             command: () => {
               this.translateService.use('en');
               this.commonService.setLanguage('en');
             }
           },
           {
-            label: this.translateService.instant('HEADER.LANGUAGE.CN'),
+            label: 'HEADER.LANGUAGE.CN',
             command: () => {
               this.translateService.use('zh');
               this.commonService.setLanguage('zh');
@@ -136,7 +136,7 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
         separator: true
       },
       {
-        label: this.translateService.instant('BUTTON.LOGOUT'),
+        label: 'BUTTON.LOGOUT',
         icon: 'pi pi-sign-out',
         command: () => {
           this.authService.signOutUserAuth().subscribe(res => {
@@ -148,7 +148,7 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
         visible: this.currentUser ? true : false
       },
       {
-        label: this.translateService.instant('BUTTON.LOGIN'),
+        label: 'BUTTON.LOGIN',
         icon: "pi pi-sign-in",
         command: () => {
           this.redirectToSignIn();
@@ -183,20 +183,22 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
   ngOnInit() {
     this.menuItem = [
       {
-        label: 'Contact',
+        label: "COMMON.CONTACT",
         icon: '',
         tooltip: "COMMON.CONTACT",
         command: () => {
           this.router.navigate(["/contact"]);
-        }
+        },
+        visible: this.checkPermission('display', 'CONT', this.permission, this.coreAuthService.userC?.roleId)
       },
       {
-        label: 'Company',
+        label: "COMMON.COMPANY",
         icon: '',
         tooltip: "COMMON.COMPANY",
         command: () => {
           this.router.navigate(["/company"]);
-        }
+        },
+        visible: this.checkPermission('display', 'COMP', this.permission, this.coreAuthService.userC?.roleId)
       },
     ];
 
@@ -207,7 +209,7 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
 
     this.userMenuItem = [
       {
-        label: this.translateService.instant('BUTTON.LOGIN'),
+        label: 'BUTTON.LOGIN',
         icon: "pi pi-sign-in",
         command: () => {
           this.redirectToSignIn();

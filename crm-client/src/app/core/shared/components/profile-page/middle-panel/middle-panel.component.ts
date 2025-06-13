@@ -4,6 +4,8 @@ import { FormControl } from '@angular/forms';
 import { ActivityDto, ActivityModuleDto, ActivityService } from '../../../../services/activity.service';
 import { ToastService } from '../../../../services/toast.service';
 import { UserPermissionDto } from '../../../../services/core-http.service';
+import { TranslateService } from '@ngx-translate/core';
+import { debounce, debounceTime } from 'rxjs';
 
 @Component({
   selector: 'app-middle-panel',
@@ -26,6 +28,8 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
   subActivityModuleList: ModuleDto[] = [];
   searchControl: FormControl = new FormControl();
   searchIcon: string = "pi pi-search";
+  searchFields: string[] = [];
+  filteredActivities: ActivityDto[] = [];
 
   actionMenu: any[] = [
     {
@@ -52,16 +56,13 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
 
   constructor(
     private activityService: ActivityService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private translateService: TranslateService
   ) {
 
   }
 
   ngOnInit() {
-    this.searchControl.valueChanges.subscribe((value) => {
-      console.log(value);
-    });
-
     this.activityService.getAllActivityModule().subscribe((res) => {
       if (res.isSuccess) {
         this.activityModuleList = res.data.activityModuleList;
@@ -76,11 +77,24 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
       }
     });
 
+    this.searchFields = [
+      this.translateService.instant('ACTIVITY.EMAIL_SUBJECT'),
+      this.translateService.instant('ACTIVITY.NOTE_BODY'),
+      this.translateService.instant('ACTIVITY.CALL_BODY'),
+      this.translateService.instant('ACTIVITY.MEETING_BODY'),
+    ];
 
+    this.searchControl.valueChanges.pipe(
+      debounceTime(500)
+    ).subscribe((value) => {
+      this.filterActivitiesBySearchTerm(value);
+    });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-
+    if (changes['activitiesList'] && changes['activitiesList'].currentValue) {
+      this.filteredActivities = this.activitiesList;
+    }
   }
 
   returnLogActivityLable(module: ModuleDto) {
@@ -117,23 +131,23 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
 
   returnUpComingActivityList(code: string): ActivityDto[] {
     if (code === 'ALL') {
-      return this.activitiesList.filter(act => !act.isPinned && new Date(act.activityDatetime) >= new Date());
+      return this.filteredActivities.filter(act => !act.isPinned && new Date(act.activityDatetime) >= new Date());
     }
-    return this.activitiesList.filter(act => act.activityModuleSubCode === code && !act.isPinned && new Date(act.activityDatetime) >= new Date());
+    return this.filteredActivities.filter(act => act.activityModuleSubCode === code && !act.isPinned && new Date(act.activityDatetime) >= new Date());
   }
 
   returnPastActivityList(code: string): ActivityDto[] {
     if (code === 'ALL') {
-      return this.activitiesList.filter(act => !act.isPinned && new Date(act.activityDatetime) < new Date());
+      return this.filteredActivities.filter(act => !act.isPinned && new Date(act.activityDatetime) < new Date());
     }
-    return this.activitiesList.filter(act => act.activityModuleSubCode === code && !act.isPinned && new Date(act.activityDatetime) < new Date());
+    return this.filteredActivities.filter(act => act.activityModuleSubCode === code && !act.isPinned && new Date(act.activityDatetime) < new Date());
   }
 
   returnIsPinnedActivityList(code: string): ActivityDto[] {
     if (code === 'ALL') {
-      return this.activitiesList.filter(act => act.isPinned);
+      return this.filteredActivities.filter(act => act.isPinned);
     }
-    return this.activitiesList.filter(act => act.activityModuleSubCode === code && act.isPinned);
+    return this.filteredActivities.filter(act => act.activityModuleSubCode === code && act.isPinned);
   }
 
   returnModule(activity: ActivityDto) {
@@ -146,5 +160,35 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
 
   isIncludedActivity(activityTab: ModuleDto, type: string): boolean {
     return this.subActivityModuleList.some(sam => sam.moduleCode === type && sam.moduleSubCode === activityTab.moduleCode);
+  }
+
+  filterActivitiesBySearchTerm(searchTerm: string) {
+    let filteredActivities: ActivityDto[] = [];
+    this.activitiesList.forEach(activity => {
+      // email subject
+      if (activity.activityType?.email && activity.activityType?.email?.subject && activity.activityType?.email?.subject.toLowerCase().includes(searchTerm.toLowerCase())) {
+        filteredActivities.push(activity);
+      }
+
+      // note body
+      if (activity.activityModuleSubCode === "NOTE" && activity.activityContent.toLowerCase().includes(searchTerm.toLowerCase())) {
+        filteredActivities.push(activity);
+      }
+
+      // call body
+      if (activity.activityModuleSubCode === "CALL" && activity.activityContent.toLowerCase().includes(searchTerm.toLowerCase())) {
+        filteredActivities.push(activity);
+      }
+
+      // meeting body
+      if (activity.activityModuleSubCode === "MEET") {
+        if (activity.activityContent.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (activity.activityType?.meeting && activity.activityType?.meeting?.subject && activity.activityType?.meeting?.subject.toLowerCase().includes(searchTerm.toLowerCase()))) {
+          filteredActivities.push(activity);
+        }
+      }
+    });
+
+    this.filteredActivities = filteredActivities;
   }
 }
