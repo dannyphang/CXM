@@ -342,7 +342,7 @@ function verifyEmail({ token, email, uid }) {
                                 .updateUser({
                                     user: {
                                         uid: uid,
-                                        emailVerified: true,
+                                        emailVerified: 1,
                                         modifiedDate: new Date(),
                                     },
                                 })

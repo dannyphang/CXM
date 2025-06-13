@@ -77,7 +77,8 @@
     "FILE_TYPE_NOT_SUPPORT": "File type is not supported on {{file_name}}.",
     "FILE_ALREADY_EXISTS": "File already exists on {{file_name}}.",
     "FILE_NOT_READABLE_OR_PREVIEW": "File is not readable or preview URL is not available.",
-    "CREATING_MEETING": "Creating meeting..."
+    "CREATING_MEETING": "Creating meeting...",
+    "CONNECT_EMAIL_FAILED": "Failed to connect email. Please check your email settings."
   },
   "BUTTON": {
     "SAVE": "Save",
@@ -116,7 +117,8 @@
     "TODAY": "Today",
     "UNAVAILABLE": "Unavailable",
     "VIEW_ALL_PROPERTIES": "'View all properties'",
-    "VERIFY_EMAIL": "Verify Email"
+    "VERIFY_EMAIL": "Verify Email",
+    "CONNECT_EMAIL": "Connect Email"
   },
   "INPUT": {
     "SEARCH": "Search",
@@ -193,7 +195,8 @@
     "PROFILE_FIRST_NAME": "First name",
     "PROFILE_LAST_NAME": "Last name",
     "PROFILE_EMAIL": "Email",
-    "VERIFIED_EMAIL": "Verified Email",
+    "VERIFIED": "Verified",
+    "UNVERIFIED": "Unverified",
     "PROFILE_PHONE": "Phone number",
     "PROFILE_NICKNAME": "Nickname",
     "PROFILE_DISPLAYNAME": "Display Name",
