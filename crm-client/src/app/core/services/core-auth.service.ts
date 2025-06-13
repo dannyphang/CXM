@@ -125,7 +125,7 @@ export class UserDto extends BasedDto {
     phoneNumber: string;
     profilePhotoUrl: string;
     email: string;
-    emailVerified: boolean;
+    emailVerified: number;
     roleId: number;
     permission: string;
     setting: SettingDto;

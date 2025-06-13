@@ -186,7 +186,7 @@ export class CreateUserDto extends BasedDto {
     displayName?: string;
     profilePhotoUrl?: string;
     email?: string;
-    emailVerified?: boolean;
+    emailVerified?: number;
     phoneNumber?: string;
     authUid?: string;
     roleId?: number;
@@ -202,7 +202,7 @@ export class UpdateUserDto extends BasedDto {
     displayName?: string;
     profilePhotoUrl?: string;
     email?: string;
-    emailVerified?: boolean;
+    emailVerified?: number;
     phoneNumber?: string;
     authUid?: string;
     roleId?: number;

@@ -108,6 +108,8 @@ function calendarCallback({ code, userId }) {
         try {
             const oauth2Client = new google.auth.OAuth2(config.default.calendar.google.clientId, config.default.calendar.google.clientSecret, `${envConfig.baseUrl}/calendar/callback`);
 
+            console.log("Received code:", code);
+
             oauth2Client.getToken(code, async (err, tokens) => {
                 if (err) {
                     console.error("Error retrieving access token", err);

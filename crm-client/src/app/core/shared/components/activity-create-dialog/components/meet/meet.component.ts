@@ -3,8 +3,9 @@ import { ContactDto, CompanyDto, ModuleDto } from '../../../../../services/commo
 import { CONTROL_TYPE, FormConfig, OptionsModel } from '../../../../../services/components.service';
 import { FormControl, FormGroup } from '@angular/forms';
 import { TranslateService } from '@ngx-translate/core';
-import { CreateActivityDto, MeetingDto, ReminderTypeEnum } from '../../../../../services/activity.service';
+import { CreateActivityDto, MeetingDto } from '../../../../../services/activity.service';
 import { CoreAuthService } from '../../../../../services/core-auth.service';
+import { ReminderTypeEnum } from '../../../../constants/property.constant';
 
 @Component({
   selector: 'app-meet',

@@ -161,10 +161,3 @@ export class ActivityTypeDto {
     email?: EmailDto;
     meeting?: MeetingDto;
 }
-
-export enum ReminderTypeEnum {
-    Minutes = 1,
-    Hours = 2,
-    Days = 3,
-    Weeks = 4,
-}

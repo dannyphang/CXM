@@ -1,5 +1,5 @@
 import { Component, ElementRef, EventEmitter, HostListener, Input, NgZone, OnChanges, Output, SimpleChanges, ViewChild } from '@angular/core';
-import { ActivityDto, ActivityModuleDto, ActivityService, ReminderTypeEnum, UpdateActivityDto } from '../../../services/activity.service';
+import { ActivityDto, ActivityModuleDto, ActivityService, UpdateActivityDto } from '../../../services/activity.service';
 import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms';
 import { AttachmentDto, CommonService, CompanyDto, ContactDto, ModuleDto, WindowSizeDto } from '../../../services/common.service';
 import { CONTROL_TYPE, FormConfig, OptionsModel } from '../../../services/components.service';
@@ -10,6 +10,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { ToastService } from '../../../services/toast.service';
 import { AuthService } from '../../../services/auth.service';
 import { trigger, transition, style, animate } from '@angular/animations';
+import { ReminderTypeEnum } from '../../constants/property.constant';
 
 @Component({
   selector: 'app-activity-block',

@@ -12,6 +12,8 @@ import { CoreHttpService, UserPermissionDto } from '../../../core/services/core-
 import { CoreAuthService, UserDto } from '../../../core/services/core-auth.service';
 import { CommonService } from '../../../core/services/common.service';
 import { map } from 'rxjs';
+import { VerifiedEnum } from '../../../core/shared/constants/property.constant';
+import { CalendarService } from '../../../core/services/calendar.service';
 
 @Component({
   selector: 'app-create',
@@ -29,7 +31,7 @@ export class CreateComponent extends BaseCoreAbstract {
     nickname: new FormControl(""),
     displayName: new FormControl("", Validators.required),
     email: new FormControl({ value: "", disabled: true }),
-    verified_email: new FormControl({ value: [false], disabled: true }),
+    verified_email: new FormControl({ value: 2, disabled: true }),
     phone: new FormControl(""),
     password: new FormControl(""),
     confirm_password: new FormControl(""),
@@ -51,7 +53,8 @@ export class CreateComponent extends BaseCoreAbstract {
     private toastService: ToastService,
     private coreService: CoreHttpService,
     private coreAuthService: CoreAuthService,
-    private commonService: CommonService
+    private commonService: CommonService,
+    private calendarService: CalendarService,
   ) {
     super()
   }
@@ -68,7 +71,7 @@ export class CreateComponent extends BaseCoreAbstract {
     this.createFormGroup.controls['last_name'].setValue(this.userProfile.lastName, { emitEvent: false });
     this.createFormGroup.controls['nickname'].setValue(this.userProfile.nickname, { emitEvent: false });
     this.createFormGroup.controls['email'].setValue(this.userProfile.email, { emitEvent: false });
-    this.createFormGroup.controls['verified_email'].setValue([this.userProfile.emailVerified], { emitEvent: false });
+    this.createFormGroup.controls['verified_email'].setValue(this.userProfile.emailVerified ?? 2, { emitEvent: false });
     this.createFormGroup.controls['phone'].setValue(this.userProfile.phoneNumber, { emitEvent: false });
     this.createFormGroup.controls['language'].setValue(this.userProfile.setting?.defaultLanguage, { emitEvent: false });
     this.createFormGroup.controls['calendarEmail'].setValue(this.userProfile.setting?.calendarEmail, { emitEvent: false });
@@ -126,7 +129,7 @@ export class CreateComponent extends BaseCoreAbstract {
       },
       {
         label: ' ',
-        type: CONTROL_TYPE.Checkbox,
+        type: CONTROL_TYPE.Dropdown,
         fieldControl: this.createFormGroup.controls['verified_email'],
         layoutDefine: {
           row: 2,
@@ -135,19 +138,23 @@ export class CreateComponent extends BaseCoreAbstract {
         },
         options: [
           {
-            label: 'PROFILE.VERIFIED_EMAIL',
-            value: true,
-            disabled: true
+            label: 'PROFILE.VERIFIED',
+            value: VerifiedEnum.Verified
+          },
+          {
+            label: 'PROFILE.UNVERIFIED',
+            value: VerifiedEnum.Unverified
           }
         ],
         cssContainer: '',
+        disabled: true,
       },
       {
         label: 'BUTTON.VERIFY_EMAIL',
         type: CONTROL_TYPE.Button,
         layoutDefine: {
           row: 2,
-          column: 1,
+          column: 2,
         },
         onClickFunc: (e: any) => {
           this.authService.sentVerifyEmail(this.userProfile).subscribe({
@@ -171,8 +178,8 @@ export class CreateComponent extends BaseCoreAbstract {
             }
           });
         },
-        cssContainer: 'tw-flex tw-items-center',
-        visibility: this.coreAuthService.userC.emailVerified ? 'hidden' : 'visible',
+        cssContainer: 'tw-flex tw-items-end',
+        visibility: this.coreAuthService.userC.emailVerified === 1 ? 'hidden' : 'visible',
       },
       {
         label: 'PROFILE.PROFILE_PHONE',
@@ -232,7 +239,37 @@ export class CreateComponent extends BaseCoreAbstract {
           row: 5,
           column: 0
         },
-        mode: 'email'
+        mode: 'email',
+        disabled: true,
+      },
+      {
+        label: 'BUTTON.CONNECT_EMAIL',
+        type: CONTROL_TYPE.Button,
+        layoutDefine: {
+          row: 5,
+          column: 1,
+        },
+        onClickFunc: (e: any) => {
+          this.calendarService.callCalendarApi().subscribe({
+            next: (res) => {
+              if (res.isSuccess) {
+                window.location.href = res.data;
+              } else {
+                this.toastService.addSingle({
+                  message: res.responseMessage,
+                  severity: 'error'
+                });
+              }
+            },
+            error: (err) => {
+              this.toastService.addSingle({
+                message: err.error?.responseMessage || 'ERROR.CONNECT_EMAIL_FAILED',
+                severity: 'error'
+              });
+            }
+          });
+        },
+        cssContainer: 'tw-flex tw-items-end',
       },
     ]
   }

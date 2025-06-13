@@ -77,7 +77,8 @@
     "FILE_TYPE_NOT_SUPPORT": "文件类型不受支持（文件：{{file_name}}）。",
     "FILE_ALREADY_EXISTS": "文件已存在（文件：{{file_name}}）。",
     "FILE_NOT_READABLE_OR_PREVIEW": "文件不可读或预览链接不可用。",
-    "CREATING_MEETING": "正在创建会议..."
+    "CREATING_MEETING": "正在创建会议...",
+    "CONNECT_EMAIL_FAILED": "连接邮箱失败，请检查您的邮箱设置。"
   },
   "BUTTON": {
     "SAVE": "保存",
@@ -116,7 +117,8 @@
     "TODAY": "今天",
     "UNAVAILABLE": "不可用",
     "VIEW_ALL_PROPERTIES": "查看所有属性",
-    "VERIFY_EMAIL": "验证邮箱"
+    "VERIFY_EMAIL": "验证邮箱",
+    "CONNECT_EMAIL": "连接邮箱"
   },
   "INPUT": {
     "SEARCH": "搜索",
@@ -193,7 +195,8 @@
     "PROFILE_FIRST_NAME": "名字",
     "PROFILE_LAST_NAME": "姓氏",
     "PROFILE_EMAIL": "邮箱",
-    "VERIFIED_EMAIL": "已验证邮箱",
+    "VERIFIED": "已验证",
+    "UNVERIFIED": "未验证",
     "PROFILE_PHONE": "电话号码",
     "PROFILE_NICKNAME": "昵称",
     "PROFILE_DISPLAYNAME": "显示名称",
