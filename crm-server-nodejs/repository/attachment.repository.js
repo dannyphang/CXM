@@ -67,6 +67,7 @@ function getAttachmentByProfileId({ module, profileUid }) {
 function updateAttachment({ attachment }) {
     return new Promise(async (resolve, reject) => {
         try {
+            console.log("updateAttachment", attachment);
             let actRef = firebase.db.collection(attachmentCollection).doc(attachment.uid);
 
             await actRef.update(attachment);

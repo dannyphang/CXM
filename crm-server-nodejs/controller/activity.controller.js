@@ -139,6 +139,39 @@ router.put("/", async (req, res) => {
     }
 });
 
+// delete activity
+router.put("/delete", async (req, res) => {
+    try {
+        activityImp
+            .deleteActivity({
+                userId: func.body(req).userId,
+                activityList: func.body(req).data.updateActivityList,
+            })
+            .then((list) => {
+                res.status(200).json(func.responseModel({ data: list }));
+            })
+            .catch((error) => {
+                console.log("error", error);
+                API.createLog(error, req, res, 500, logModule);
+                res.status(500).json(
+                    func.responseModel({
+                        isSuccess: false,
+                        responseMessage: error,
+                    })
+                );
+            });
+    } catch (error) {
+        console.log("error", error);
+        API.createLog(error, req, res, 500, logModule);
+        res.status(500).json(
+            func.responseModel({
+                isSuccess: false,
+                responseMessage: error,
+            })
+        );
+    }
+});
+
 // send email
 router.post("/email", async (req, res) => {
     try {

@@ -8,7 +8,7 @@ import * as func from "../shared/function.js";
 import { google } from "googleapis";
 import * as calendarImpl from "../implementation/calendar.js";
 import * as contactImp from "../implementation/contact.js";
-import * as companyImp from "../implementation/company.js";
+import * as attachmentImp from "../implementation/attachment.js";
 import FormData from "form-data"; // form-data v4.0.1
 import Mailgun from "mailgun.js";
 
@@ -142,20 +142,38 @@ function createActivity({ userId, tenantId, activitiesList }) {
 function deleteActivity({ userId, activityList }) {
     return new Promise(async (resolve, reject) => {
         try {
-            let list = [];
-            activityList.forEach((activity, index) => {
-                activity.modifiedDate = new Date();
-                activity.modifiedBy = userId;
-                activity.statusId = 2;
+            // Step 1: Update all activities
+            const updatedActivities = await Promise.all(
+                activityList.map((activity) => {
+                    activity.modifiedDate = new Date();
+                    activity.modifiedBy = userId;
+                    activity.statusId = 2;
+                    return actRepo.updateActivity({ activity });
+                })
+            );
 
-                actRepo.updateActivity({ activity: activity }).then((a) => {
-                    list.push(a);
-                    if (activityList.length - 1 === index) {
-                        resolve(list);
+            // Step 2: Remove all attachments (if any)
+            const attachmentRemovals = [];
+
+            for (const act of updatedActivities) {
+                console.log(`Processing activity`, act);
+                if (act.attachmentUid && act.attachmentUid.length > 0) {
+                    for (const uid of act.attachmentUid) {
+                        attachmentRemovals.push(attachmentImp.removeAttachmentById({ attachmentId: uid, userId: userId }));
                     }
+                }
+            }
+
+            Promise.all(attachmentRemovals)
+                .then((result) => {
+                    resolve(result);
+                })
+                .catch((error) => {
+                    console.error("Error removing attachments:", error);
+                    reject(error);
                 });
-            });
         } catch (error) {
+            console.error("Error deleting activity:", error);
             reject(error);
         }
     });
