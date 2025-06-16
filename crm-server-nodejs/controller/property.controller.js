@@ -62,10 +62,12 @@ router.post("/" + propertiesCollection, async (req, res) => {
                 propertyList: list,
             })
             .then((l) => {
-                func.responseModel({
-                    data: createDoc,
-                    responseMessage: `Created ${l.length} record(s) successfully.`,
-                });
+                res.status(200).json(
+                    func.responseModel({
+                        data: l,
+                        responseMessage: `Created ${l.length} record(s) successfully.`,
+                    })
+                );
             })
             .catch((error) => {
                 API.createLog(error, req, res, 500, logModule);
@@ -174,7 +176,7 @@ router.post("/" + propertiesLookupCollection, async (req, res) => {
             .then((l) => {
                 res.status(200).json(
                     func.responseModel({
-                        data: createDoc,
+                        data: l,
                         responseMessage: `Created ${l.length} record(s) successfully.`,
                     })
                 );
