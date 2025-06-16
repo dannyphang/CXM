@@ -7,7 +7,9 @@ html {
 }
 
 .setting-content {
-  width: 100%;
+  width: 70%;
+  margin: var(--content-gap) 0 var(--content-gap) 50px;
+  background-color: var(--surface-0);
 }
 
 ::ng-deep .p-menuitem.active-menu-item {

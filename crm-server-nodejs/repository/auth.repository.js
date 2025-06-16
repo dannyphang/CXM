@@ -1,7 +1,8 @@
 import * as firebase from "../configuration/firebase-admin.js";
+import { supabase } from "../configuration/supabase.js";
 
 const userCollectionName = "user";
-const roleCollectionName = "role";
+const roleTable = "role";
 const tenantCollectionName = "tenant";
 const userTenantCollectionName = "userTenantAsso";
 
@@ -115,10 +116,30 @@ function createTenant({ tenant }) {
 
 function getAllRoles() {
     return new Promise(async (resolve, reject) => {
-        let snapshot = await firebase.db.collection(roleCollectionName).where("statusId", "==", 1).get();
+        // let snapshot = await firebase.db.collection(roleCollectionName).where("statusId", "==", 1).get();
 
-        const list = snapshot.docs.map((doc) => doc.data());
-        resolve(list);
+        // const list = snapshot.docs.map((doc) => doc.data());
+        // resolve(list);
+
+        try {
+            const { data, error } = await supabase
+                .from(roleTable)
+                .select("*")
+                .eq("statusId", 1)
+                // .or(`tenantId.eq.${tenantId},tenantId.eq.${DEFAULT_SYSTEM_TENANT}`)
+                .order("roleId");
+
+            if (error) {
+                if (!data) {
+                    reject("Data not found");
+                }
+                reject(error);
+            } else {
+                resolve(data);
+            }
+        } catch (error) {
+            reject(error);
+        }
     });
 }
 

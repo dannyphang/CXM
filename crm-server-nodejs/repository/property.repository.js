@@ -82,17 +82,22 @@ function createModule({ module }) {
 function getAllPropertiesByModule({ moduleCode, tenantId }) {
     return new Promise(async (resolve, reject) => {
         try {
-            const snapshot = await firebase.db
-                .collection(propertiesCollection)
-                .where("moduleCode", "==", moduleCode)
-                .where("statusId", "==", 1)
-                .where(Filter.or(Filter.where("tenantId", "==", tenantId), Filter.where("tenantId", "==", DEFAULT_SYSTEM_TENANT)))
-                .orderBy("order")
-                .get();
+            const { data, error } = await supabase
+                .from(propertiesCollection)
+                .select("*")
+                .eq("moduleCode", moduleCode)
+                .eq("statusId", 1)
+                .or(`tenantId.eq.${tenantId},tenantId.eq.${DEFAULT_SYSTEM_TENANT}`)
+                .order("order");
 
-            const propertyList = snapshot.docs.map((doc) => doc.data());
-
-            resolve(propertyList);
+            if (error) {
+                if (!data) {
+                    reject("Data not found");
+                }
+                reject(error);
+            } else {
+                resolve(data);
+            }
         } catch (error) {
             reject(error);
         }
@@ -113,26 +118,56 @@ function getModuleByModuleType({ moduleType }) {
     });
 }
 
-function getAllModuleSub({ moduleCode }) {
+function getAllModuleSub({ moduleCode, tenantId }) {
     return new Promise(async (resolve, reject) => {
         try {
-            const snapshotModule = await firebase.db.collection(moduleCodeCollection).where("moduleSubCode", "==", moduleCode).where("statusId", "==", 1).get();
+            // const snapshotModule = await firebase.db.collection(moduleCodeCollection).where("moduleSubCode", "==", moduleCode).where("statusId", "==", 1).get();
 
-            const moduleList = snapshotModule.docs.map((doc) => doc.data());
+            // const moduleList = snapshotModule.docs.map((doc) => doc.data());
 
-            resolve(moduleList);
+            // resolve(moduleList);
+
+            const { data, error } = await supabase
+                .from(moduleCodeCollection)
+                .select("*")
+                .eq("moduleSubCode", moduleCode)
+                .eq("statusId", 1)
+                .or(`tenantId.eq.${tenantId},tenantId.eq.${DEFAULT_SYSTEM_TENANT}`)
+                .order("moduleId");
+
+            if (error) {
+                if (!data) {
+                    reject("Data not found");
+                }
+                reject(error);
+            } else {
+                resolve(data);
+            }
         } catch (error) {
             reject(error);
         }
     });
 }
 
-function getAllPropertyLookUpList({ moduleCode }) {
+function getAllPropertyLookUpList({ moduleCode, tenantId }) {
     return new Promise(async (resolve, reject) => {
         try {
-            const snapshotPL = await firebase.db.collection(propertiesLookupCollection).where("moduleCode", "==", moduleCode).where("statusId", "==", 1).get();
-            const propertyLookupList = snapshotPL.docs.map((doc) => doc.data());
-            resolve(propertyLookupList);
+            const { data, error } = await supabase
+                .from(propertiesLookupCollection)
+                .select("*")
+                .eq("moduleCode", moduleCode)
+                .eq("statusId", 1)
+                .or(`tenantId.eq.${tenantId},tenantId.eq.${DEFAULT_SYSTEM_TENANT}`)
+                .order("propertyLookupId");
+
+            if (error) {
+                if (!data) {
+                    reject("Data not found");
+                }
+                reject(error);
+            } else {
+                resolve(data);
+            }
         } catch (error) {
             reject(error);
         }
@@ -142,17 +177,23 @@ function getAllPropertyLookUpList({ moduleCode }) {
 function createProperty({ property }) {
     return new Promise(async (resolve, reject) => {
         try {
-            const snapshot = await firebase.db.collection(propertiesCollection).orderBy("propertyId", "desc").limit(1).get();
+            // const snapshot = await firebase.db.collection(propertiesCollection).orderBy("propertyId", "desc").limit(1).get();
 
-            let newId = (snapshot.docs.map((doc) => doc.data())[0].propertyId ?? 0) + 1;
+            // let newId = (snapshot.docs.map((doc) => doc.data())[0].propertyId ?? 0) + 1;
 
-            let newRef = firebase.db.collection(propertiesCollection).doc();
-            property.propertyId = newId;
-            property.uid = newRef.id;
-            property.order = newId;
+            // let newRef = firebase.db.collection(propertiesCollection).doc();
+            // property.propertyId = newId;
+            // property.uid = newRef.id;
+            // property.order = newId;
 
-            await newRef.set(property);
-            resolve(property);
+            // await newRef.set(property);
+            const { data, error } = await supabase.from(propertiesCollection).insert([property]).select();
+
+            if (error) {
+                reject(error);
+            } else {
+                resolve(data);
+            }
         } catch (error) {
             reject(error);
         }
@@ -162,10 +203,13 @@ function createProperty({ property }) {
 function updateProperty({ property }) {
     return new Promise(async (resolve, reject) => {
         try {
-            let newRef = firebase.db.collection(propertiesCollection).doc(property.uid);
+            const { data, error } = await supabase.from(propertiesCollection).update(property).eq("uid", property.uid).select();
 
-            await newRef.update(property);
-            resolve(property);
+            if (error) {
+                reject(error);
+            } else {
+                resolve(data);
+            }
         } catch (error) {
             reject(error);
         }
@@ -175,16 +219,24 @@ function updateProperty({ property }) {
 function createPropertyLookUp({ property }) {
     return new Promise(async (resolve, reject) => {
         try {
-            const snapshot = await firebase.db.collection(propertiesLookupCollection).orderBy("propertyLookupId", "desc").limit(1).get();
+            // const snapshot = await firebase.db.collection(propertiesLookupCollection).orderBy("propertyLookupId", "desc").limit(1).get();
 
-            let newId = (snapshot.docs.map((doc) => doc.data())[0].propertyLookupId ?? 0) + 1;
+            // let newId = (snapshot.docs.map((doc) => doc.data())[0].propertyLookupId ?? 0) + 1;
 
-            let newRef = firebase.db.collection(propertiesLookupCollection).doc();
-            property.propertyLookupId = newId;
-            property.uid = newRef.id;
+            // let newRef = firebase.db.collection(propertiesLookupCollection).doc();
+            // property.propertyLookupId = newId;
+            // property.uid = newRef.id;
 
-            await newRef.set(property);
-            resolve(property);
+            // await newRef.set(property);
+            // resolve(property);
+
+            const { data, error } = await supabase.from(propertiesLookupCollection).insert([property]).select();
+
+            if (error) {
+                reject(error);
+            } else {
+                resolve(data);
+            }
         } catch (error) {
             reject(error);
         }

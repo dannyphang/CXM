@@ -64,10 +64,12 @@ function getAllProperty({ moduleCode, tenantId }) {
 
             let moduleList = await propertyRepo.getAllModuleSub({
                 moduleCode: moduleCode,
+                tenantId: tenantId,
             });
 
             let propertyLookupList = await propertyRepo.getAllPropertyLookUpList({
                 moduleCode: moduleCode,
+                tenantId: tenantId,
             });
 
             // add default value: SYSTEM
@@ -121,6 +123,7 @@ function getAllProperty({ moduleCode, tenantId }) {
 
             resolve(moduleList);
         } catch (error) {
+            console.error("Error fetching properties:", error);
             reject(error);
         }
     });
@@ -129,7 +132,6 @@ function getAllProperty({ moduleCode, tenantId }) {
 function createProperty({ userId, tenantId, propertyList }) {
     return new Promise(async (resolve, reject) => {
         try {
-            let list = [];
             propertyList.forEach((property, index) => {
                 property.createdDate = new Date();
                 property.createdBy = userId;
@@ -137,12 +139,15 @@ function createProperty({ userId, tenantId, propertyList }) {
                 property.modifiedBy = userId;
                 property.tenantId = tenantId;
 
-                propertyRepo.createProperty({ property: property }).then((p) => {
-                    list.push(p);
-                    if (propertyList.length - 1 === index) {
-                        resolve(list);
-                    }
-                });
+                propertyRepo
+                    .createProperty({ property: property })
+                    .then((p) => {
+                        resolve(p);
+                    })
+                    .catch((error) => {
+                        console.error("Error creating property:", error);
+                        reject(error);
+                    });
             });
         } catch (error) {
             reject(error);
@@ -172,25 +177,27 @@ function updateProperty({ userId, propertyList }) {
 }
 
 function deleteProperty({ userId, propertyList }) {
-    try {
-        propertyList.forEach((property, index) => {
-            property.statusId = 2;
-            property.modifiedDate = new Date();
-            property.modifiedBy = userId;
+    return new Promise((resolve, reject) => {
+        try {
+            propertyList.forEach((property, index) => {
+                property.statusId = 2;
+                property.modifiedDate = new Date();
+                property.modifiedBy = userId;
 
-            propertyRepo
-                .updateProperty({
-                    property: property,
-                })
-                .then((_) => {
-                    if (propertyList.length - 1 === index) {
-                        resolve();
-                    }
-                });
-        });
-    } catch (error) {
-        reject(error);
-    }
+                propertyRepo
+                    .updateProperty({
+                        property: property,
+                    })
+                    .then((_) => {
+                        if (propertyList.length - 1 === index) {
+                            resolve();
+                        }
+                    });
+            });
+        } catch (error) {
+            reject(error);
+        }
+    });
 }
 
 function createPropertyLookUp({ tenantId, userId, propertyList }) {
@@ -210,6 +217,10 @@ function createPropertyLookUp({ tenantId, userId, propertyList }) {
                         if (propertyList.length - 1 === index) {
                             resolve(propertyList);
                         }
+                    })
+                    .catch((error) => {
+                        console.error("Error creating property lookup:", error);
+                        reject(error);
                     });
             });
         } catch (error) {

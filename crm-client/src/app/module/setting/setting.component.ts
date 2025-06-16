@@ -98,12 +98,12 @@ export class SettingComponent extends BaseCoreAbstract {
   onScroll(event: any) {
     if (this.windowSize.desktop) {
       if (window.scrollY > 116) {
-        document.getElementById("setting_left")!.style.width = "280px";
+        // document.getElementById("setting_left")!.style.width = "280px";
         document.getElementById("setting_menu_panel")!.style.position = "fixed";
         document.getElementById("setting_menu_panel")!.style.top = "10px";
       }
       else {
-        document.getElementById("setting_left")!.style.width = "280px";
+        // document.getElementById("setting_left")!.style.width = "280px";
         document.getElementById("setting_menu_panel")!.style.position = "relative";
         document.getElementById("setting_menu_panel")!.style.top = "0";
       }
