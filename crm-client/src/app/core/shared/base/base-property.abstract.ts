@@ -160,7 +160,7 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
                             },
                             options: propertyLookupList,
                             required: prop.isMandatory,
-                            switchInput: CONTROL_TYPE.Checkbox ? true : false
+                            switchInput: prop.propertyType === CONTROL_TYPE_CODE.Checkbox,
                         }
                     }
                     else if (prop.propertyType === CONTROL_TYPE_CODE.DateTime || prop.propertyType === CONTROL_TYPE_CODE.Date || prop.propertyType === CONTROL_TYPE_CODE.Time) {

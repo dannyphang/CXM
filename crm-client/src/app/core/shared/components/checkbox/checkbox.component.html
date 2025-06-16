@@ -16,7 +16,10 @@
       <app-input-switch [fieldControl]="fieldControl"></app-input-switch>
     </div>
 
-    <div *ngIf="!switchInput">
+    <div
+      *ngIf="!switchInput"
+      class="tw-gap-[var(--content-gap)] tw-flex tw-flex-wrap"
+    >
       <div class="input-container mr-4" *ngFor="let item of options">
         <p-checkbox
           [name]="item.value"
