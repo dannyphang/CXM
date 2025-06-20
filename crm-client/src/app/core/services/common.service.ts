@@ -553,32 +553,33 @@ export class CountryDto extends BasedDto {
     timezones: string;
     translations: string;
     latitude: number;
-    longtitude: number;
+    longitude: number;
 }
 
 export class StateDto extends BasedDto {
     uid: string;
-    countryId: number;
     stateId: number;
     name: string;
+    stateCode: string;
+    countryId: number;
     countryCode: string;
-    fipsCode: number;
-    iso2: string;
     type: string;
     latitude: number;
-    longtitude: number;
+    longitude: number;
 }
 
 export class CityDto extends BasedDto {
     uid: string;
     cityId: number;
-    countryId: number;
-    stateId: number;
     name: string;
-    countryCode: string;
+    stateId: number;
     stateCode: string;
+    stateName: string;
+    countryId: number;
+    countryCode: string;
+    countryName: string;
     latitude: number;
-    longtitude: number;
+    longitude: number;
 }
 
 export class profileUpdateDto {

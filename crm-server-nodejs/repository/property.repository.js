@@ -1,6 +1,6 @@
 import * as firebase from "../configuration/firebase-admin.js";
 import { Filter } from "firebase-admin/firestore";
-import { DEFAULT_SYSTEM_TENANT } from "../shared/constant.js";
+import { DEFAULT_SYSTEM_TENANT } from "../shared/constant/constant.js";
 import { supabase } from "../configuration/supabase.js";
 
 const propertiesCollection = "properties";

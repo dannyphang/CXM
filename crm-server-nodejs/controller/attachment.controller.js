@@ -5,6 +5,7 @@ import * as func from "../shared/function.js";
 import * as attachmentImp from "../implementation/attachment.js";
 import multer from "multer";
 import * as API from "../shared/service.js";
+import * as lang from "../shared/constant/language.js";
 
 router.use(express.json());
 
@@ -27,6 +28,7 @@ router.post("/file", upload, async (req, res) => {
                 res.status(200).json(
                     func.responseModel({
                         data: data,
+                        responseMessage: lang.UPLOADED_SUCCESSFULLY,
                     })
                 );
             })
@@ -63,7 +65,7 @@ router.post("/upload", async (req, res) => {
                 attachmentList: list,
             })
             .then((data) => {
-                res.status(200).json(func.responseModel({ data: data }));
+                res.status(200).json(func.responseModel({ data: data, responseMessage: lang.UPLOADED_SUCCESSFULLY }));
             })
             .catch((error) => {
                 API.createLog(error, req, res, 500, logModule);
@@ -126,7 +128,7 @@ router.put("/remove", async (req, res) => {
         attachmentImp
             .removeAttachment({ attachmentList: attachmentList, userId: userId })
             .then((data) => {
-                res.status(200).json(func.responseModel({ data: data }));
+                res.status(200).json(func.responseModel({ data: data, responseMessage: lang.ATTACTMENT_DELETED_SUCCESSFULLY }));
             })
             .catch((error) => {
                 API.createLog(error, req, res, 500, logModule);

@@ -4,6 +4,7 @@ const router = Router();
 import * as func from "../shared/function.js";
 import * as activityImp from "../implementation/activity.js";
 import * as API from "../shared/service.js";
+import * as lang from "../shared/constant/language.js";
 
 router.use(express.json());
 
@@ -82,7 +83,7 @@ router.post("/", async (req, res) => {
                 activitiesList: JSON.parse(JSON.stringify(func.body(req).data.createdActivitiesList)),
             })
             .then((list) => {
-                res.status(200).json(func.responseModel({ data: list }));
+                res.status(200).json(func.responseModel({ data: list, responseMessage: lang.CREATED_SUCCESSFULLY }));
             })
             .catch((error) => {
                 console.log("error", error);
@@ -115,7 +116,7 @@ router.put("/", async (req, res) => {
                 activityList: func.body(req).data.updateActivityList,
             })
             .then((list) => {
-                res.status(200).json(func.responseModel({ data: list }));
+                res.status(200).json(func.responseModel({ data: list, responseMessage: lang.UPDATED_SUCCESSFULLY }));
             })
             .catch((error) => {
                 console.log("error", error);
@@ -148,7 +149,7 @@ router.put("/delete", async (req, res) => {
                 activityList: func.body(req).data.updateActivityList,
             })
             .then((list) => {
-                res.status(200).json(func.responseModel({ data: list }));
+                res.status(200).json(func.responseModel({ data: list, responseMessage: lang.DELETED_SUCCESSFULLY }));
             })
             .catch((error) => {
                 console.log("error", error);
@@ -182,7 +183,7 @@ router.post("/email", async (req, res) => {
                 userId: func.body(req).userId,
             })
             .then((list) => {
-                res.status(200).json(func.responseModel({ data: list }));
+                res.status(200).json(func.responseModel({ data: list, responseMessage: lang.EMAIL_SENT }));
             })
             .catch((error) => {
                 console.log("error", error);
@@ -220,7 +221,7 @@ router.post("/meeting", async (req, res) => {
                 res.status(200).json(
                     func.responseModel({
                         data: data,
-                        responseMessage: "Meeting created successfully",
+                        responseMessage: lang.MEETING_CREATED,
                     })
                 );
             })
