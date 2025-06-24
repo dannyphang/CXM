@@ -37,7 +37,7 @@ router.get("/allUser", async (req, res) => {
     }
 });
 
-// create user in firestore
+// create user
 router.post("/user", async (req, res) => {
     try {
         authImp

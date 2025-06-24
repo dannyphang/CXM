@@ -1,211 +1,262 @@
 import * as contactResp from "../repository/contact.repository.js";
 import * as companyResp from "../repository/company.repository.js";
 import * as func from "../shared/function.js";
+import { supabase } from "../configuration/supabase.js";
+
+const contactTableName = "contact";
 
 // get all contacts
 function getAllContacts({ tenantId }) {
-  return new Promise(async (resolve, reject) => {
-    try {
-      contactResp
-        .getAllContacts({ tenantId: tenantId })
-        .then((contactList) => {
-          contactList.forEach((item) => {
-            item.createdDate = func.convertFirebaseDateFormat(item.createdDate);
-            item.modifiedDate = func.convertFirebaseDateFormat(item.modifiedDate);
-          });
-
-          resolve(contactList);
-        })
-        .catch((error) => {
-          console.log("error", error);
-          reject(error);
-        });
-    } catch (error) {
-      console.log("error", error);
-      reject(error);
-    }
-  });
+    return new Promise(async (resolve, reject) => {
+        try {
+            contactResp
+                .getAllContacts({ tenantId: tenantId })
+                .then((contactList) => {
+                    resolve(contactList);
+                })
+                .catch((error) => {
+                    console.log("error", error);
+                    reject(error);
+                });
+        } catch (error) {
+            console.log("error", error);
+            reject(error);
+        }
+    });
 }
 
 // get contact by id
 function getContactById({ tenantId, contactUid }) {
-  return new Promise(async (resolve, reject) => {
-    let contactData = {};
+    return new Promise(async (resolve, reject) => {
+        let contactData = {};
+        try {
+            contactResp
+                .getContactById({
+                    tenantId: tenantId,
+                    contactUid: contactUid,
+                })
+                .then((c) => {
+                    contactData = c;
+                    contactResp
+                        .getContactAssoList({
+                            contactUid: contactUid,
+                        })
+                        .then(async (asso) => {
+                            contactData.association = {};
+
+                            let companyAssoList = await Promise.all(
+                                asso.map((item) => {
+                                    return companyResp.getCompanyById({
+                                        tenantId: tenantId,
+                                        companyUid: item.companyUid,
+                                    });
+                                })
+                            );
+                            contactData.association.companyList = companyAssoList;
+
+                            resolve(contactData);
+                        })
+                        .catch((error) => {
+                            reject(error);
+                        });
+                })
+                .catch((error) => {
+                    console.log(error);
+                    reject();
+                });
+        } catch (error) {
+            console.log(error);
+            reject();
+        }
+    });
+}
+
+// TODO: filter
+// get contact by filter
+async function getContactByFilter({ tenantId, filterList }) {
+    let query = supabase.from(contactTableName).select("*").eq("statusId", 1);
+    let rpcFilters = [];
+
     try {
-      contactResp
-        .getContactById({
-          tenantId: tenantId,
-          contactUid: contactUid,
-        })
-        .then((c) => {
-          contactData = c;
-          contactResp
-            .getContactAssoList({
-              contactUid: contactUid,
-            })
-            .then((assoObj) => {
-              const assoList = assoObj.assoList;
-              const assoList2 = assoObj.assoList2;
-
-              if (assoList.length > 0 || assoList2.length > 0) {
-                contactData.association = {};
-                contactData.association.companyList = [];
-
-                let p1 = new Promise((resolve, reject) => {
-                  if (assoList.length == 0) {
-                    resolve(contactData);
-                  }
-
-                  assoList.forEach(async (item, index) => {
-                    companyResp
-                      .getCompanyById({
-                        tenantId: tenantId,
-                        companyUid: item.assoProfileUid,
-                      })
-                      .then((comp) => {
-                        // check if the company is inside the contactData.association.companyList
-                        if (!contactData.association.companyList.find((c) => c.uid === comp.uid)) {
-                          contactData.association.companyList.push(comp);
-                        }
-                        if (assoList.length - 1 == index) {
-                          resolve(contactData);
-                        }
-                      })
-                      .catch((error) => {
-                        console.log(error);
-                        reject();
-                      });
-                  });
-                });
-
-                let p2 = new Promise((resolve, reject) => {
-                  if (assoList2.length == 0) {
-                    resolve(contactData);
-                  }
-
-                  assoList2.forEach(async (item, index) => {
-                    companyResp
-                      .getCompanyById({
-                        tenantId: tenantId,
-                        companyUid: item.profileUid,
-                      })
-                      .then((comp) => {
-                        // check if the company is inside the contactData.association.companyList
-                        if (!contactData.association.companyList.find((c) => c.uid === comp.uid)) {
-                          contactData.association.companyList.push(comp);
-                        }
-                        if (assoList2.length - 1 == index) {
-                          resolve(contactData);
-                        }
-                      })
-                      .catch((error) => {
-                        console.log(error);
-                        reject();
-                      });
-                  });
-                });
-
-                Promise.all([p1, p2]).then((_) => {
-                  resolve(contactData);
-                });
-              } else {
-                resolve(contactData);
-              }
-            })
-            .catch((error) => {
-              console.log(error);
-              reject();
+        // Apply each filter
+        for (const filter of filterList) {
+            const result = await returnFilter({
+                property: filter.property,
+                query,
+                filter,
             });
-        })
-        .catch((error) => {
-          console.log(error);
-          reject();
-        });
+
+            if (result?.rpc) {
+                rpcFilters.push(result); // Store RPC filters for later
+            } else {
+                query = result; // Chain standard query
+            }
+        }
+
+        // Case 1: No RPC filters, just run the query
+        if (rpcFilters.length === 0) {
+            const { data, error } = await query;
+            if (error) throw error;
+            return data;
+        }
+
+        // Case 2: Only RPC filters (or mixed): run each RPC and intersect results
+        const rpcResults = await Promise.all(rpcFilters.map((rpcFilter) => supabase.rpc(rpcFilter.function, rpcFilter.params)));
+
+        // Intersect by `uid` (only those who match ALL RPC filters)
+        const intersected = rpcResults.reduce((acc, list, idx) => {
+            const currentSet = new Set(list?.data?.map((c) => c.uid));
+            if (idx === 0) return currentSet;
+            return new Set([...acc].filter((uid) => currentSet.has(uid)));
+        }, new Set());
+
+        // Get final contact list matching all RPC filters
+        const finalRpcContacts = rpcResults[0].data.filter((c) => intersected.has(c.uid));
+
+        // Case 3: Mixed RPC + standard query: match both sets
+        if (query) {
+            const { data: defaultData, error } = await query;
+            if (error) throw error;
+            const uidSet = new Set(defaultData.map((c) => c.uid));
+            return finalRpcContacts.filter((c) => uidSet.has(c.uid));
+        }
+
+        return finalRpcContacts;
     } catch (error) {
-      console.log(error);
-      reject();
+        console.error("getContactByFilter error", error);
+        throw error;
     }
-  });
+}
+
+async function returnFilter({ property, query, filter }) {
+    let column = property.propertyCode;
+    const value = filter.filter;
+
+    if (!property.isDefaultProperty) {
+        switch (property.propertyCode) {
+            case "contact_owner":
+                column = "contactOwnerUid";
+                break;
+            case "first_name":
+                column = "contactFirstName";
+                break;
+            case "last_name":
+                column = "contactLastName";
+                break;
+            case "email":
+                column = "contactEmail";
+                break;
+            case "phone_number":
+                column = "contactPhone";
+                break;
+            case "lead_status":
+                column = "contactLeadStatusUid";
+                break;
+            case "created_date":
+                column = "createdDate";
+                break;
+            case "created_by":
+                column = "createdBy";
+                break;
+            case "last_modified_date":
+                column = "modifiedDate";
+                break;
+            case "last_modified_by":
+                column = "modifiedBy";
+                break;
+        }
+
+        switch (filter.condition) {
+            case "equal_to":
+                return query.eq(column, value);
+            case "not_equal_to":
+                return query.neq(column, value);
+            case "more_than":
+                return query.gt(column, value);
+            case "more_than_equal_to":
+                return query.gte(column, value);
+            case "less_than":
+                return query.lt(column, value);
+            case "less_than_equal_to":
+                return query.lte(column, value);
+            case "is_known":
+                return query.not(column, "is", null);
+            case "is_not_known":
+                return query.is(column, null);
+            default:
+                return query;
+        }
+    }
+
+    // ✅ Custom property stored in contactProperties JSONB
+    return {
+        rpc: true,
+        function: "filter_contacts_by_property",
+        params: {
+            prop_code: column,
+            condition: filter.condition,
+            target_value: value ?? null,
+        },
+    };
 }
 
 // create new contact
 function createContact({ tenantId, userId, contactDataList }) {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let cList = [];
-      contactDataList.forEach((contactData, index) => {
-        contactData.createdDate = new Date();
-        contactData.createdBy = userId;
-        contactData.modifiedDate = new Date();
-        contactData.modifiedBy = userId;
-        contactData.statusId = 1;
-        contactData.tenantId = tenantId;
+    return new Promise(async (resolve, reject) => {
+        try {
+            let contactList = await Promise.all(
+                contactDataList.map((contactData) => {
+                    contactData.createdBy = userId;
+                    contactData.modifiedBy = userId;
+                    contactData.tenantId = tenantId;
 
-        contactResp.createContact({ contactData: contactData }).then((contact) => {
-          cList.push(contact);
-          if (contactDataList.length - 1 === index) {
-            resolve(cList);
-          }
-        });
-      });
-    } catch (error) {
-      console.log("error", error);
-      reject(error);
-    }
-  });
+                    return contactResp.createContact({ contact: contactData });
+                })
+            );
+            resolve(contactList);
+        } catch (error) {
+            console.log("error", error);
+            reject(error);
+        }
+    });
 }
 
 function deleteContact({ userId, contactDataList }) {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let cList = [];
-      contactDataList.forEach((contact, index) => {
-        contact.statusId = 2;
-        contact.modifiedDate = new Date();
-        contact.modifiedBy = userId;
+    return new Promise(async (resolve, reject) => {
+        try {
+            let contactList = await Promise.all(
+                contactDataList.map((contactData) => {
+                    contactData.statusId = 2;
+                    contactData.modifiedBy = userId;
+                    contactData.modifiedDate = new Date().toISOString();
 
-        contactResp
-          .updateContact({
-            contact: contact,
-          })
-          .then((contactData) => {
-            cList.push(contactData);
-
-            if (contactDataList.length - 1 === index) {
-              resolve(cList);
-            }
-          });
-      });
-    } catch (error) {
-      reject(error);
-    }
-  });
+                    return contactResp.deleteContact({ contact: contactData });
+                })
+            );
+            resolve(contactList);
+        } catch (error) {
+            console.log("error", error);
+            reject(error);
+        }
+    });
 }
 
 function updateContact({ userId, contactDataList }) {
-  return new Promise(async (resolve, reject) => {
-    try {
-      let cList = [];
-      contactDataList.forEach((contact, index) => {
-        contact.modifiedDate = new Date();
-        contact.modifiedBy = userId;
+    return new Promise(async (resolve, reject) => {
+        try {
+            let contactList = await Promise.all(
+                contactDataList.map((contactData) => {
+                    contactData.modifiedBy = userId;
+                    contactData.modifiedDate = new Date().toISOString();
 
-        contactResp
-          .updateContact({
-            contact: contact,
-          })
-          .then((contactData) => {
-            cList.push(contactData);
-
-            if (contactDataList.length - 1 === index) {
-              resolve(cList);
-            }
-          });
-      });
-    } catch (error) {
-      reject(error);
-    }
-  });
+                    return contactResp.updateContact({ contact: contactData });
+                })
+            );
+            resolve(contactList);
+        } catch (error) {
+            reject(error);
+        }
+    });
 }
 
-export { getAllContacts, getContactById, createContact, deleteContact, updateContact };
+export { getAllContacts, getContactById, getContactByFilter, createContact, deleteContact, updateContact };

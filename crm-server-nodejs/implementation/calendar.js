@@ -8,8 +8,8 @@ function createToken({ accessToken, refreshToken, expiryDate, email }) {
     return new Promise(async (resolve, reject) => {
         try {
             let token = {
-                createdDateTime: new Date().toISOString(),
-                modifiedDateTime: new Date().toISOString(),
+                createdDate: new Date().toISOString(),
+                modifiedDate: new Date().toISOString(),
                 module: "calendar",
                 accessToken: accessToken,
                 refreshToken: refreshToken,
@@ -90,7 +90,7 @@ function fetchCalendar({ calendarEmail }) {
                     email: calendarEmail,
                     module: "calendar",
                     statusId: 1,
-                    modifiedDateTime: new Date().toISOString(),
+                    modifiedDate: new Date().toISOString(),
                 };
 
                 await tokenRepo.updateToken({ token: updateToken });

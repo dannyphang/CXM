@@ -69,7 +69,7 @@ router.get("/:id", async (req, res) => {
 // create new company
 router.post("/", async (req, res) => {
     try {
-        const contactList = JSON.parse(JSON.stringify(func.body(req).data.companyList));
+        const companyList = JSON.parse(JSON.stringify(func.body(req).data.companyList));
         let tenantId = func.body(req).tenantId;
         let userId = func.body(req).userId;
 

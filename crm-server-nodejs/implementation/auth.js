@@ -15,23 +15,17 @@ function getAllUsers() {
 }
 
 function createUser({ userId, createUserList }) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
         try {
-            let list = [];
-            createUserList.forEach((user, index) => {
-                user.statusId = 1;
-                user.createdBy = userId;
-                user.modifiedBy = userId;
-                user.createdDate = new Date();
-                user.modifiedDate = new Date();
+            let userList = await Promise.all(
+                createUserList.map(async (user) => {
+                    user.createdBy = userId;
+                    user.modifiedBy = userId;
 
-                authRepo.createUser({ user: user }).then((c) => {
-                    list.push(c);
-                    if (createUserList.length - 1 === index) {
-                        resolve(list);
-                    }
-                });
-            });
+                    return authRepo.createUser({ user: user });
+                })
+            );
+            resolve(userList);
         } catch (error) {
             reject(error);
         }
@@ -83,10 +77,9 @@ function getUserByAuthId({ uid }) {
         try {
             authRepo
                 .getUserByAuthId({ uid: uid })
-                .then((user) => {
+                .then(async (user) => {
                     let userData = user;
-                    userData.createdDate = func.convertFirebaseDateFormat(userData.createdDate);
-                    userData.modifiedDate = func.convertFirebaseDateFormat(userData.modifiedDate);
+                    user.setting = await getUserSetting({ uid: user.uid });
                     resolve(userData);
                 })
                 .catch((error) => {
@@ -98,20 +91,48 @@ function getUserByAuthId({ uid }) {
     });
 }
 
-function updateUser({ userId, updateUserList }) {
+function getUserSetting({ uid }) {
     return new Promise((resolve, reject) => {
         try {
-            let list = [];
-            updateUserList.forEach((user, index) => {
-                user.modifiedDate = new Date();
-                user.modifiedBy = userId;
-                authRepo.updateUser({ user }).then((u) => {
-                    list.push(u);
-                    if (updateUserList.length - 1 === index) {
-                        resolve(list);
-                    }
+            authRepo
+                .getUserSetting({ uid: uid })
+                .then((setting) => {
+                    let settingData = {
+                        ...setting,
+                        tableFilter: JSON.parse(setting.tableFilter),
+                    };
+                    resolve(settingData);
+                })
+                .catch((error) => {
+                    reject(error);
                 });
-            });
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+function updateUser({ userId, updateUserList }) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let updatedUserList = await Promise.all(
+                updateUserList.map(async (user) => {
+                    let { setting, ...userData } = user;
+                    userData.modifiedDate = new Date().toISOString();
+                    userData.modifiedBy = userId;
+
+                    let userSetting = {
+                        ...setting,
+                        tableFilter: JSON.stringify(setting.tableFilter),
+                    };
+
+                    await authRepo.updateUserSetting({
+                        userSetting: userSetting,
+                    });
+                    return authRepo.updateUser({ user: userData });
+                })
+            );
+            resolve(updatedUserList);
         } catch (error) {
             reject(error);
         }
@@ -123,20 +144,13 @@ function getTenantByUserId({ userId }) {
         try {
             authRepo
                 .getUserTenantAssoByUserId({ uid: userId })
-                .then((userTenantAssoList) => {
-                    let list = [];
-                    if (userTenantAssoList.length === 0) {
-                        resolve();
-                    } else {
-                        userTenantAssoList.forEach((t, index) => {
-                            authRepo.getTenantById({ uid: t.tenantId }).then((tenant) => {
-                                list.push(tenant);
-                                if (userTenantAssoList.length - 1 === index) {
-                                    resolve(list);
-                                }
-                            });
-                        });
-                    }
+                .then(async (userTenantAssoList) => {
+                    let tenantPromises = await Promise.all(
+                        userTenantAssoList.map(async (asso) => {
+                            return await authRepo.getTenantById({ uid: asso.tenantUid });
+                        })
+                    );
+                    resolve(tenantPromises);
                 })
                 .catch((error) => {
                     reject(error);
@@ -288,8 +302,8 @@ function sentVerifyEmail({ user }) {
                         module: "email-verification",
                         accessToken: token,
                         statusId: 1,
-                        createdDateTime: new Date().toISOString(),
-                        modifiedDateTime: new Date().toISOString(),
+                        createdDate: new Date().toISOString(),
+                        modifiedDate: new Date().toISOString(),
                     },
                 })
                 .then((_) => {
@@ -333,7 +347,7 @@ function verifyEmail({ token, email, uid }) {
 
                     // Update the token status to inactive
                     t.statusId = 2; // Assuming 0 means inactive
-                    t.modifiedDateTime = new Date().toISOString();
+                    t.modifiedDate = new Date().toISOString();
                     tokenRepo
                         .updateToken({ token: t })
                         .then(() => {
