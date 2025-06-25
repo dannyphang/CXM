@@ -188,4 +188,38 @@ function deleteCompany({ company }) {
     });
 }
 
-export { getAllCompanies, getCompanyById, getCompanyAssoList, createCompany, updateCompany, deleteCompany };
+async function getCompanyByQuery({ tenantId, query }) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const { data, error } = await query;
+            if (error) {
+                console.log("error while getting company by query", error);
+                reject(error);
+            } else {
+                resolve(data);
+            }
+        } catch (error) {
+            console.log("error", error);
+            reject(error);
+        }
+    });
+}
+
+async function getCompanyByRPC({ tenantId, rpcFilter }) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const { data, error } = await supabase.rpc(rpcFilter.function, rpcFilter.params);
+            if (error) {
+                console.log("error while getting company by rpc", error);
+                reject(error);
+            } else {
+                resolve(data);
+            }
+        } catch (error) {
+            console.log("error", error);
+            reject(error);
+        }
+    });
+}
+
+export { getAllCompanies, getCompanyById, getCompanyAssoList, createCompany, updateCompany, deleteCompany, getCompanyByQuery, getCompanyByRPC };

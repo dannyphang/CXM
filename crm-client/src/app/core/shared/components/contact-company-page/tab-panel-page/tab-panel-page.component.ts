@@ -100,12 +100,12 @@ export class TabPanelPageComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if ((changes['panel'] && changes['panel'].currentValue) && (changes['module'] && changes['module'].currentValue) && (changes['propertiesList'] && changes['propertiesList'].currentValue) && (changes['propertiesList2'] && changes['propertiesList2'].currentValue) && (changes['modulePropertyList'] && changes['modulePropertyList'].currentValue)) {
-      if (this.module === 'CONT') {
-        this.getContact();
-      }
-      else {
-        this.getCompany();
-      }
+      // if (this.module === 'CONT') {
+      //   this.getContact();
+      // }
+      // else {
+      //   this.getCompany();
+      // }
       this.initCreateFormConfig();
     }
   }
@@ -414,199 +414,6 @@ export class TabPanelPageComponent implements OnChanges {
       }
       else {
         this.updateLoading('contactWithFilter', true);
-        // this.commonService.getAllContact().subscribe(res => {
-        //   if (res.isSuccess) {
-        //     console.log(this.tabFilterList)
-        //     this.tabFilterList.forEach((item: Filter) => {
-        //       // get state and city uid from input name 
-        //       if (item.property.propertyCode === 'state') {
-        //         this.commonService.getStateByStateName(item.filterFieldControl.value).subscribe(res => {
-        //           if (res.isSuccess) {
-        //             if (res.data.length == 1) {
-        //               item.filterFieldControl.setValue(res.data[0].uid);
-        //             }
-        //             else {
-        //               this.toastService.addSingle({
-        //                 message: 'Something wrong on searching of State',
-        //                 severity: 'error'
-        //               });
-        //             }
-        //           }
-        //           else {
-        //             this.toastService.addSingle({
-        //               message: res.responseMessage,
-        //               severity: 'error'
-        //             });
-        //           }
-        //         });
-        //       }
-        //       else if (item.property.propertyCode === 'city') {
-        //         this.commonService.getCityByCityName(item.filterFieldControl.value).subscribe(res => {
-        //           if (res.isSuccess) {
-        //             if (res.data.length == 1) {
-        //               item.filterFieldControl.setValue(res.data[0].uid);
-        //             }
-        //             else {
-        //               this.toastService.addSingle({
-        //                 message: 'Something wrong on searching of City',
-        //                 severity: 'error'
-        //               });
-        //             }
-        //           }
-        //           else {
-        //             this.toastService.addSingle({
-        //               message: res.responseMessage,
-        //               severity: 'error'
-        //             });
-        //           }
-        //         });
-        //       }
-
-        //       res.data.forEach(cont => {
-        //         let proProp: PropertyDataDto[] = JSON.parse(cont.contactProperties);
-        //         proProp.forEach(p => {
-        //           cont[p.propertyCode] = p.value;
-        //         });
-
-        //         proProp.push(
-        //           {
-        //             uid: this.propertiesList.find(i => i.propertyCode === 'first_name')!.uid,
-        //             propertyCode: 'first_name',
-        //             value: cont.contactFirstName,
-        //           },
-        //           {
-        //             uid: this.propertiesList.find(i => i.propertyCode === 'last_name')!.uid,
-        //             propertyCode: 'last_name',
-        //             value: cont.contactLastName,
-        //           },
-        //           {
-        //             uid: this.propertiesList.find(i => i.propertyCode === 'email')!.uid,
-        //             propertyCode: 'email',
-        //             value: cont.contactEmail ?? '',
-        //           },
-        //           {
-        //             uid: this.propertiesList.find(i => i.propertyCode === 'phone_number')!.uid,
-        //             propertyCode: 'phone_number',
-        //             value: cont.contactPhone ?? '',
-        //           },
-        //           {
-        //             uid: this.propertiesList.find(i => i.propertyCode === 'created_date')!.uid,
-        //             propertyCode: 'created_date',
-        //             value: cont.createdDate!.toString(),
-        //           },
-        //           {
-        //             uid: this.propertiesList.find(i => i.propertyCode === 'last_modified_date')!.uid,
-        //             propertyCode: 'last_modified_date',
-        //             value: cont.modifiedDate!.toString(),
-        //           },
-        //           {
-        //             uid: this.propertiesList.find(i => i.propertyCode === 'created_by')!.uid,
-        //             propertyCode: 'created_by',
-        //             value: cont.createdBy ?? "",
-        //           },
-        //           {
-        //             uid: this.propertiesList.find(i => i.propertyCode === 'last_modified_by')!.uid,
-        //             propertyCode: 'last_modified_by',
-        //             value: cont.modifiedBy ?? "",
-        //           },
-        //           {
-        //             uid: this.propertiesList.find(i => i.propertyCode === 'lead_status')!.uid,
-        //             propertyCode: 'lead_status',
-        //             value: this.returnLeadStatusLabelFromId(cont.contactLeadStatusUid ?? ''),
-        //           },
-        //           {
-        //             uid: this.propertiesList.find(i => i.propertyCode === 'contact_owner')!.uid,
-        //             propertyCode: 'contact_owner',
-        //             value: cont.contactOwnerUid ?? "",
-        //           },
-        //         );
-
-        //         if (item.conditionFieldControl.value === 'is_not_known') {
-        //           // for properties
-        //           if (!proProp.find(p => p.uid === item.property.uid)) {
-        //             tempProfileList.push(cont);
-        //           }
-        //           // for default object like contact owner
-        //           else if (!proProp.find(p => p.uid === item.property.uid)?.value) {
-        //             tempProfileList.push(cont);
-        //           }
-        //         }
-        //         else if (item.conditionFieldControl.value === 'not_equal_to') {
-        //           if (!proProp.find(p => p.uid === item.property.uid) || !proProp.find(p => p.uid === item.property.uid)?.value.toLowerCase().includes(item.filterFieldControl.value.toString().toLowerCase())) {
-        //             tempProfileList.push(cont);
-        //           }
-        //         }
-        //         else {
-        //           proProp.forEach(propData => {
-        //             let propValue: any;
-        //             let itemValue: any;
-
-        //             switch (item.mode) {
-        //               case 'date':
-        //               case 'datetime':
-        //               case 'time':
-        //                 itemValue = new Date(item.filterFieldControl.value);
-        //                 propValue = new Date(propData.value);
-        //                 break;
-        //               default:
-        //                 itemValue = item.filterFieldControl.value;
-        //                 propValue = propData.value;
-        //                 break;
-        //             }
-
-        //             switch (item.conditionFieldControl.value) {
-        //               case 'equal_to':
-        //                 if (propData.uid === item.property.uid && propData.value.toLowerCase().includes(item.filterFieldControl.value.toString().toLowerCase())) {
-        //                   tempProfileList.push(cont);
-        //                 }
-        //                 break;
-        //               case 'is_known':
-        //                 if (propData.uid === item.property.uid && propData.value) {
-        //                   tempProfileList.push(cont);
-        //                 }
-        //                 break;
-        //               case 'more_than_equal_to':
-        //                 if (propData.uid === item.property.uid && propValue >= itemValue) {
-        //                   tempProfileList.push(cont);
-        //                 }
-        //                 break;
-        //               case 'less_than_equal_to':
-        //                 if (propData.uid === item.property.uid && propValue <= itemValue) {
-        //                   tempProfileList.push(cont);
-        //                 }
-        //                 break;
-        //               case 'more_than':
-        //                 if (propData.uid === item.property.uid && propValue > itemValue) {
-        //                   tempProfileList.push(cont);
-        //                 }
-        //                 break;
-        //               case 'less_than':
-        //                 if (propData.uid === item.property.uid && propValue < itemValue) {
-        //                   tempProfileList.push(cont);
-        //                 }
-        //                 break;
-        //             }
-        //           });
-        //         }
-        //       });
-        //     });
-        //     this.contactList = [];
-        //     tempProfileList.forEach(cont => {
-        //       if (!this.contactList.includes(cont)) {
-        //         this.contactList.push(cont);
-        //       }
-        //     });
-        //     this.updateLoading('contactWithFilter');
-        //   }
-        //   else {
-        //     this.toastService.addSingle({
-        //       message: res.responseMessage,
-        //       severity: 'error'
-        //     });
-        //   }
-        // });
-
-        // console.log(this.tabFilterList);
         this.filterList = this.tabFilterList.map(item => {
           return {
             property: item.property,
@@ -617,7 +424,6 @@ export class TabPanelPageComponent implements OnChanges {
         this.commonService.getContactByFilter(this.filterList).subscribe({
           next: res => {
             if (res.isSuccess) {
-              console.log(res.data);
               this.contactList = res.data;
               this.updateLoading('contactWithFilter');
             }

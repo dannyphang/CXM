@@ -38,4 +38,12 @@ function generateToken(length = 32) {
     return crypto.randomBytes(length).toString("hex").slice(0, length);
 }
 
-export { responseModel, body, convertFirebaseDateFormat, returnParamDataUrl, generateToken };
+function isValidDate(value) {
+    return !isNaN(Date.parse(value));
+}
+
+function isNumeric(value) {
+    return !isNaN(parseFloat(value)) && isFinite(value);
+}
+
+export { responseModel, body, convertFirebaseDateFormat, returnParamDataUrl, generateToken, isValidDate, isNumeric };

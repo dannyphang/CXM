@@ -7,9 +7,14 @@ import * as func from "../shared/function.js";
 function getAllModuleCodeByModuleType({ tenantId, moduleType }) {
     return new Promise(async (resolve, reject) => {
         try {
-            propertyRepo.getAllModuleByModuleType({ tenantId: tenantId, moduleType: moduleType }).then((list) => {
-                resolve(list);
-            });
+            propertyRepo
+                .getAllModuleByModuleType({ tenantId: tenantId, moduleType: moduleType })
+                .then((list) => {
+                    resolve(list);
+                })
+                .catch((error) => {
+                    reject(error);
+                });
         } catch (error) {
             reject(error);
         }
@@ -19,9 +24,14 @@ function getAllModuleCodeByModuleType({ tenantId, moduleType }) {
 function getAllModuleBySubModule({ tenantId, subModuleCode }) {
     return new Promise((resolve, reject) => {
         try {
-            propertyRepo.getAllModuleBySubModule({ tenantId: tenantId, subModuleCode: subModuleCode }).then((list) => {
-                resolve(list);
-            });
+            propertyRepo
+                .getAllModuleBySubModule({ tenantId: tenantId, subModuleCode: subModuleCode })
+                .then((list) => {
+                    resolve(list);
+                })
+                .catch((error) => {
+                    reject(error);
+                });
         } catch (error) {
             reject(error);
         }
@@ -53,79 +63,54 @@ function createModule({ userId, moduleList }) {
 
 // get all properties with lookup by module
 function getAllProperty({ moduleCode, tenantId }) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            let userList = await authRepo.getAllUsers();
+    return new Promise((resolve, reject) => {
+        Promise.all([
+            authRepo.getAllUsers(),
+            propertyRepo.getAllPropertiesByModule({ moduleCode, tenantId }),
+            propertyRepo.getAllModuleSub({ moduleCode, tenantId }),
+            propertyRepo.getAllPropertyLookUpList({ moduleCode, tenantId }),
+        ])
+            .then(([userListRes, propertyList, moduleList, propertyLookupList]) => {
+                const userList = [...userListRes.users, { uid: "SYSTEM", displayName: "SYSTEM" }];
 
-            let propertyList = await propertyRepo.getAllPropertiesByModule({
-                moduleCode: moduleCode,
-                tenantId: tenantId,
-            });
-
-            let moduleList = await propertyRepo.getAllModuleSub({
-                moduleCode: moduleCode,
-                tenantId: tenantId,
-            });
-
-            let propertyLookupList = await propertyRepo.getAllPropertyLookUpList({
-                moduleCode: moduleCode,
-                tenantId: tenantId,
-            });
-
-            // add default value: SYSTEM
-            userList.users.push({
-                uid: "SYSTEM",
-                displayName: "SYSTEM",
-            });
-
-            // insert lookup
-            for (let i = 0; i < propertyList.length; i++) {
-                propertyList[i].propertyLookupList = [];
-
-                propertyList[i].createdDate = func.convertFirebaseDateFormat(propertyList[i].createdDate);
-                propertyList[i].modifiedDate = func.convertFirebaseDateFormat(propertyList[i].modifiedDate);
-
-                // assign user list into lookup property
-                if (propertyList[i].propertyType === "USR") {
-                    propertyList[i].propertyLookupList = userList.users;
-                }
-
-                for (let j = 0; j < propertyLookupList.length; j++) {
-                    if (propertyList[i].propertyId === propertyLookupList[j].propertyId) {
-                        propertyLookupList[j].createdDate = func.convertFirebaseDateFormat(propertyLookupList[j].createdDate);
-                        propertyLookupList[i].modifiedDate = func.convertFirebaseDateFormat(propertyLookupList[j].modifiedDate);
-                        propertyList[i].propertyLookupList.push(propertyLookupList[j]);
+                const lookupMap = new Map();
+                propertyLookupList.forEach((lookup) => {
+                    if (!lookupMap.has(lookup.propertyId)) {
+                        lookupMap.set(lookup.propertyId, []);
                     }
-                    if (propertyList[i].propertyType === "CBX_S") {
-                        if (propertyLookupList[j].propertyLookupCode === "true") {
-                            propertyLookupList[j].createdDate = func.convertFirebaseDateFormat(propertyLookupList[j].createdDate);
-                            propertyLookupList[j].modifiedDate = func.convertFirebaseDateFormat(propertyLookupList[j].modifiedDate);
-                            propertyList[i].propertyLookupList.push(propertyLookupList[j]);
-                        } else if (propertyLookupList[j].propertyLookupCode === "false") {
-                            propertyLookupList[j].createdDate = func.convertFirebaseDateFormat(propertyLookupList[j].createdDate);
-                            propertyLookupList[j].modifiedDate = func.convertFirebaseDateFormat(propertyLookupList[j].modifiedDate);
-                            propertyList[i].propertyLookupList.push(propertyLookupList[j]);
-                        }
-                    }
-                }
-            }
+                    lookupMap.get(lookup.propertyId).push(lookup);
+                });
 
-            moduleList.forEach((module) => {
-                module.propertiesList = [];
-                module.createdDate = func.convertFirebaseDateFormat(module.createdDate);
-                module.modifiedDate = func.convertFirebaseDateFormat(module.modifiedDate);
-                for (let i = 0; i < propertyList.length; i++) {
-                    if (module.moduleCode === propertyList[i].moduleCat) {
-                        module.propertiesList.push(propertyList[i]);
+                propertyList.forEach((property) => {
+                    const lookups = lookupMap.get(property.propertyId) || [];
+
+                    if (property.propertyType === "USR") {
+                        property.propertyLookupList = userList;
+                    } else if (property.propertyType === "CBX_S") {
+                        property.propertyLookupList = lookups.filter((l) => l.propertyLookupCode === "true" || l.propertyLookupCode === "false");
+                    } else {
+                        property.propertyLookupList = lookups;
                     }
-                }
+                });
+
+                const propertyByModule = new Map();
+                propertyList.forEach((property) => {
+                    if (!propertyByModule.has(property.moduleCat)) {
+                        propertyByModule.set(property.moduleCat, []);
+                    }
+                    propertyByModule.get(property.moduleCat).push(property);
+                });
+
+                moduleList.forEach((module) => {
+                    module.propertiesList = propertyByModule.get(module.moduleCode) || [];
+                });
+
+                resolve(moduleList);
+            })
+            .catch((error) => {
+                console.error("Error fetching properties:", error);
+                reject(error);
             });
-
-            resolve(moduleList);
-        } catch (error) {
-            console.error("Error fetching properties:", error);
-            reject(error);
-        }
     });
 }
 
