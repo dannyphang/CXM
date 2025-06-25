@@ -8,6 +8,7 @@ import { HttpClient } from "@angular/common/http";
 import { MessageService } from "primeng/api";
 import { BasedDto, CoreAuthService } from "./core-auth.service";
 import { ActivatedRoute } from "@angular/router";
+import { FilterDto } from "../shared/components/contact-company-page/contact-company-page.component";
 
 @Injectable({ providedIn: 'root' })
 export class CommonService {
@@ -159,6 +160,10 @@ export class CommonService {
         return this.coreService.get<ContactDto>('contact/' + id).pipe();
     }
 
+    getContactByFilter(filterList: FilterDto[]): Observable<ResponseModel<ContactDto[]>> {
+        return this.coreService.post<ContactDto[]>('contact/filter', { filterList }).pipe();
+    }
+
     createContact(contactList: ContactDto[]): Observable<ResponseModel<ContactDto[]>> {
         return this.coreService.post<ContactDto[]>('contact', { contactList }).pipe();
     }
@@ -230,7 +235,6 @@ export class CommonService {
             responseType: 'json',
         }).pipe();
     }
-
 
     /**
      * set form control init value
@@ -430,7 +434,7 @@ export class PropertiesDto extends BasedDto {
 export class PropertyLookupDto extends BasedDto {
     uid: string;
     propertyLookupId: string;
-    propertyId: string;
+    propertyId: number;
     propertyLookupLabel: string;
     propertyLookupCode: string;
     moduleCode: string;
@@ -448,7 +452,7 @@ export class ContactDto extends BasedDto {
     contactPhone: string;
     contactOwnerUid?: string;
     contactLeadStatusUid?: string;
-    contactProperties: string;
+    contactProperties: PropertyDataDto[];
     contactProfilePhotoUrl?: string;
     association?: AssociationDto;
     [key: string]: any;
@@ -462,7 +466,7 @@ export class UpdateContactDto {
     contactPhone?: string;
     contactOwnerUid?: string;
     contactLeadStatusUid?: string;
-    contactProperties?: string;
+    contactProperties?: PropertyDataDto[];
     contactProfilePhotoUrl?: string;
     modifiedBy: string;
 }
@@ -493,8 +497,8 @@ export class CompanyDto extends BasedDto {
     companyEmail: string;
     companyWebsite: string;
     companyOwnerUid?: string;
-    companyLeadStatusId?: string;
-    companyProperties: string;
+    companyLeadStatusUid?: string;
+    companyProperties: PropertyDataDto[];
     companyProfilePhotoUrl?: string;
     association?: AssociationDto;
     [key: string]: any;
@@ -507,7 +511,7 @@ export class UpdateCompanyDto {
     companyWebsite?: string;
     companyOwnerUid?: string;
     companyLeadStatusId?: string;
-    companyProperties?: string;
+    companyProperties?: PropertyDataDto[];
     companyProfilePhotoUrl?: string;
     modifiedBy: string;
 }

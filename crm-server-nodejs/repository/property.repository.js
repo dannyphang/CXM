@@ -1,5 +1,4 @@
 import * as firebase from "../configuration/firebase-admin.js";
-import { Filter } from "firebase-admin/firestore";
 import { DEFAULT_SYSTEM_TENANT } from "../shared/constant.js";
 import { supabase } from "../configuration/supabase.js";
 
@@ -48,17 +47,33 @@ function getAllModuleByModuleType({ tenantId, moduleType }) {
 function getAllModuleBySubModule({ tenantId, subModuleCode }) {
     return new Promise(async (resolve, reject) => {
         try {
-            const snapshot = await firebase.db
-                .collection(moduleCodeCollection)
-                // .where(Filter.or(Filter.where("tenantId", "==", tenantId), Filter.where("tenantId", "==", DEFAULT_SYSTEM_TENANT)))
-                .where("statusId", "==", 1)
-                .where("moduleType", "==", "SUBMODULE")
-                .where("moduleSubCode", "==", subModuleCode)
-                .orderBy("moduleId")
-                .get();
+            // const snapshot = await firebase.db
+            //     .collection(moduleCodeCollection)
+            //     // .where(Filter.or(Filter.where("tenantId", "==", tenantId), Filter.where("tenantId", "==", DEFAULT_SYSTEM_TENANT)))
+            //     .where("statusId", "==", 1)
+            //     .where("moduleType", "==", "SUBMODULE")
+            //     .where("moduleSubCode", "==", subModuleCode)
+            //     .orderBy("moduleId")
+            //     .get();
 
-            const list = snapshot.docs.map((doc) => doc.data());
-            resolve(list);
+            // const list = snapshot.docs.map((doc) => doc.data());
+            // resolve(list);
+
+            const { data, error } = await supabase
+                .from(moduleCodeCollection)
+                .select("*")
+                .eq("moduleSubCode", subModuleCode)
+                .eq("statusId", 1)
+                .or(`tenantId.eq.${tenantId},tenantId.eq.${DEFAULT_SYSTEM_TENANT}`)
+                .order("moduleId");
+            if (error) {
+                if (!data) {
+                    reject("Data not found");
+                }
+                reject(error);
+            } else {
+                resolve(data);
+            }
         } catch (error) {
             reject(error);
         }
@@ -107,11 +122,22 @@ function getAllPropertiesByModule({ moduleCode, tenantId }) {
 function getModuleByModuleType({ moduleType }) {
     return new Promise(async (resolve, reject) => {
         try {
-            const snapshotModule = await firebase.db.collection(moduleCodeCollection).where("moduleType", "==", moduleType).where("statusId", "==", 1).orderBy("moduleId").get();
+            // const snapshotModule = await firebase.db.collection(moduleCodeCollection).where("moduleType", "==", moduleType).where("statusId", "==", 1).orderBy("moduleId").get();
 
-            const moduleList = snapshotModule.docs.map((doc) => doc.data());
+            // const moduleList = snapshotModule.docs.map((doc) => doc.data());
 
-            resolve(moduleList);
+            // resolve(moduleList);
+
+            const { data, error } = await supabase.from(moduleCodeCollection).select("*").eq("moduleType", moduleType).eq("statusId", 1).order("moduleId");
+
+            if (error) {
+                if (!data) {
+                    reject("Data not found");
+                }
+                reject(error);
+            } else {
+                resolve(data);
+            }
         } catch (error) {
             reject(error);
         }
@@ -259,11 +285,21 @@ function updatePropertyLookUp({ property }) {
 function getActivityModuleList() {
     return new Promise(async (resolve, reject) => {
         try {
-            const snapshot = firebase.db.collection(moduleCodeCollection).where("moduleType", "==", "ACTIVITY_TYPE").where("statusId", "==", 1).orderBy("moduleId").get();
+            // const snapshot = firebase.db.collection(moduleCodeCollection).where("moduleType", "==", "ACTIVITY_TYPE").where("statusId", "==", 1).orderBy("moduleId").get();
 
-            const activityModuleList = snapshot.docs.map((doc) => doc.data());
+            // const activityModuleList = snapshot.docs.map((doc) => doc.data());
 
-            resolve(activityModuleList);
+            // resolve(activityModuleList);
+
+            const { data, error } = await supabase.from(moduleCodeCollection).select("*").eq("moduleType", "ACTIVITY_TYPE").eq("statusId", 1).order("moduleId");
+            if (error) {
+                if (!data) {
+                    reject("Data not found");
+                }
+                reject(error);
+            } else {
+                resolve(data);
+            }
         } catch (error) {
             reject(error);
         }
@@ -273,11 +309,21 @@ function getActivityModuleList() {
 function getActivityControlList() {
     return new Promise(async (resolve, reject) => {
         try {
-            const snapshot = firebase.db.collection(moduleCodeCollection).where("moduleType", "==", "ACTIVITY_CONTROL").where("statusId", "==", 1).orderBy("moduleId").get();
+            // const snapshot = firebase.db.collection(moduleCodeCollection).where("moduleType", "==", "ACTIVITY_CONTROL").where("statusId", "==", 1).orderBy("moduleId").get();
 
-            const activityControlList = snapshot.docs.map((doc) => doc.data());
+            // const activityControlList = snapshot.docs.map((doc) => doc.data());
 
-            resolve(activityControlList);
+            // resolve(activityControlList);
+
+            const { data, error } = await supabase.from(moduleCodeCollection).select("*").eq("moduleType", "ACTIVITY_CONTROL").eq("statusId", 1).order("moduleId");
+            if (error) {
+                if (!data) {
+                    reject("Data not found");
+                }
+                reject(error);
+            } else {
+                resolve(data);
+            }
         } catch (error) {
             reject(error);
         }
@@ -287,11 +333,20 @@ function getActivityControlList() {
 function getActivitySubControlList() {
     return new Promise(async (resolve, reject) => {
         try {
-            const snapshot = firebase.db.collection(moduleCodeCollection).where("moduleType", "==", "SUB_ACTIVITY_CONTROL").where("statusId", "==", 1).get();
+            // const snapshot = firebase.db.collection(moduleCodeCollection).where("moduleType", "==", "SUB_ACTIVITY_CONTROL").where("statusId", "==", 1).get();
 
-            const subActivityControlList = snapshot.docs.map((doc) => doc.data());
+            // const subActivityControlList = snapshot.docs.map((doc) => doc.data());
 
-            resolve(subActivityControlList);
+            // resolve(subActivityControlList);
+            const { data, error } = await supabase.from(moduleCodeCollection).select("*").eq("moduleType", "SUB_ACTIVITY_CONTROL").eq("statusId", 1).order("moduleId");
+            if (error) {
+                if (!data) {
+                    reject("Data not found");
+                }
+                reject(error);
+            } else {
+                resolve(data);
+            }
         } catch (error) {
             reject(error);
         }

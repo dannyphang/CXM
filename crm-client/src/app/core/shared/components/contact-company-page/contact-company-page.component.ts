@@ -439,6 +439,12 @@ export class Filter {
   mode: any;
 }
 
+export class FilterDto {
+  property: PropertiesDto;
+  filter: any | any[];
+  condition: string;
+}
+
 export class Panel {
   headerLabel: string;
   closable: boolean;

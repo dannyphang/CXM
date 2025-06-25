@@ -300,7 +300,7 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
                     case 'last_modified_by':
                         return contactProfile.modifiedBy ?? null;
                     default:
-                        let contactProp: PropertyDataDto[] = JSON.parse(contactProfile.contactProperties ?? '[]');
+                        let contactProp: PropertyDataDto[] = contactProfile.contactProperties ?? [];
                         if (contactProp.find(item => item.uid === prop.uid) && (prop.propertyType === CONTROL_TYPE_CODE.Date || prop.propertyType === CONTROL_TYPE_CODE.DateTime || prop.propertyType === CONTROL_TYPE_CODE.Time)) {
                             return new Date(contactProp.find(item => item.uid === prop.uid)!.value);
                         }
@@ -326,7 +326,7 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
                     case 'last_modified_by':
                         return companyProfile.modifiedBy ?? null;
                     default:
-                        let companyProp: PropertyDataDto[] = JSON.parse(companyProfile.companyProperties ?? "[]");
+                        let companyProp: PropertyDataDto[] = companyProfile.companyProperties ?? [];
                         if (companyProp.find(item => item.uid === prop.uid) && (prop.propertyType === CONTROL_TYPE_CODE.Date || prop.propertyType === CONTROL_TYPE_CODE.DateTime || prop.propertyType === CONTROL_TYPE_CODE.Time)) {
                             console.log(new Date(companyProp.find(item => item.uid === prop.uid)!.value))
                             return new Date(companyProp.find(item => item.uid === prop.uid)!.value);
@@ -386,7 +386,6 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
                         debounceTime(2000),
                         distinctUntilChanged()
                     ).forEach(value => {
-                        console.log(value);
                         this.showFormUpdateSidebar = true;
 
                         let profileUpdateObj: profileUpdateDto = {
@@ -417,7 +416,7 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
             // cast property value into contact/company object
             if (module === 'CONT') {
                 let updateContact: UpdateContactDto = new UpdateContactDto();
-                let profileProperty: PropertyDataDto[] = JSON.parse(contactProfile.contactProperties);
+                let profileProperty: PropertyDataDto[] = contactProfile.contactProperties;
                 let profilePropertyCheckUnique: PropertyDataDto[] = [];
                 let updatePropertyList: PropertiesDto[] = [];
 
@@ -454,7 +453,7 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
                             else {
                                 profileProperty.find(item => item.uid === prop.property.uid)!.value = this.commonService.setPropertyDataValue(prop.property, prop.value);
                             }
-                            updateContact.contactProperties = JSON.stringify(profileProperty);
+                            updateContact.contactProperties = profileProperty;
                     }
                     profilePropertyCheckUnique.push({
                         uid: prop.property.uid,
@@ -486,7 +485,7 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
             }
             else {
                 let updateCompany: UpdateCompanyDto = new UpdateCompanyDto();
-                let profileProperty: PropertyDataDto[] = JSON.parse(companyProfile.companyProperties);
+                let profileProperty: PropertyDataDto[] = companyProfile.companyProperties;
                 let profilePropertyCheckUnique: PropertyDataDto[] = [];
                 let updatePropertyList: PropertiesDto[] = [];
 
@@ -520,7 +519,7 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
                             else {
                                 profileProperty.find(item => item.uid === prop.property.uid)!.value = this.commonService.setPropertyDataValue(prop.property, prop.value);
                             }
-                            updateCompany.companyProperties = JSON.stringify(profileProperty);
+                            updateCompany.companyProperties = profileProperty;
                     }
 
                     profilePropertyCheckUnique.push({
