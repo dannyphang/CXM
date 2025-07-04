@@ -54,6 +54,10 @@ const routes: Routes = [
     loadChildren: () => import('./module/login/login.module').then(m => m.LoginModule),
   },
   {
+    path: 'short',
+    loadChildren: () => import('./module/short-url/short-url.module').then(m => m.ShortUrlModule),
+  },
+  {
     path: 'callback',
     loadChildren: () => import('./module/callback/callback.module').then(m => m.CallbackModule),
   },
