@@ -375,6 +375,17 @@ export class CommonService {
     getLanguageOptions(): Observable<ResponseModel<LanguageDto[]>> {
         return this.coreService.get<LanguageDto[]>('general/language', {});
     }
+
+    urlShortener(url: string): Observable<ResponseModel<string>> {
+        return this.coreService.post<string>('short', { url }).pipe();
+    }
+
+    getUrlShortener(path: string): Observable<ResponseModel<any>> {
+        let headers = {
+            'path': path
+        }
+        return this.coreService.get<any>('short/', { headers: headers }).pipe();
+    }
 }
 
 export class WindowSizeDto {
