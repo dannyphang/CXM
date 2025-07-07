@@ -118,7 +118,8 @@
     "UNAVAILABLE": "Unavailable",
     "VIEW_ALL_PROPERTIES": "'View all properties'",
     "VERIFY_EMAIL": "Verify Email",
-    "CONNECT_EMAIL": "Connect Email"
+    "CONNECT_EMAIL": "Connect Email",
+    "DOWNLOAD": "Download"
   },
   "INPUT": {
     "SEARCH": "Search",

@@ -51,6 +51,8 @@ import { NoteComponent } from './activity-create-dialog/components/note/note.com
 import { MeetComponent } from './activity-create-dialog/components/meet/meet.component';
 import { CalendarComponent } from './calendar/calendar.component';
 import { FullCalendarModule } from '@fullcalendar/angular';
+import { QrCodeComponent } from './qr-code/qr-code.component';
+import { QRCodeModule } from 'angularx-qrcode';
 
 const components = [
   BaseInputComponent,
@@ -96,6 +98,7 @@ const components = [
   NoteComponent,
   MeetComponent,
   CalendarComponent,
+  QrCodeComponent,
 ];
 
 @NgModule({
@@ -112,6 +115,7 @@ const components = [
     OnlyNumberDirective,
     PasswordValidator,
     FullCalendarModule,
+    QRCodeModule,
   ],
   exports: [
     components
