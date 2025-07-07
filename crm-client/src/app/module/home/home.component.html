@@ -1,1 +1,10 @@
-<app-calendar></app-calendar>
+<div class="tw-grid">
+  <app-calendar></app-calendar>
+  <app-qr-code
+    [qrData]="
+      'https://supabase.com/dashboard/project/thzgezxvmgekayxgxhzu/editor/18374'
+    "
+    [showButton]="true"
+    [buttonText]="'BUTTON.DOWNLOAD'"
+  ></app-qr-code>
+</div>

@@ -31,6 +31,7 @@
     "@ngx-translate/core": "^15.0.0",
     "@ngx-translate/http-loader": "^8.0.0",
     "@types/file-saver": "^2.0.7",
+    "angularx-qrcode": "^17.0.1",
     "blobity": "^0.2.3",
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.11",

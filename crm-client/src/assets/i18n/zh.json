@@ -118,7 +118,8 @@
     "UNAVAILABLE": "不可用",
     "VIEW_ALL_PROPERTIES": "查看所有属性",
     "VERIFY_EMAIL": "验证邮箱",
-    "CONNECT_EMAIL": "连接邮箱"
+    "CONNECT_EMAIL": "连接邮箱",
+    "DOWNLOAD": "下载"
   },
   "INPUT": {
     "SEARCH": "搜索",
