@@ -31,8 +31,12 @@ export class CalendarService {
         return this.coreService.get<any>('calendar/events').pipe();
     }
 
-    fetchCalendar(calendarEmail: string) {
-        return this.coreService.get<any>('calendar/fetch', { headers: { calendarEmail: calendarEmail } }).pipe();
+    fetchCalendar(calendarEmail: string, calendarId?: string) {
+        return this.coreService.get<any>('calendar/fetch', { headers: { calendarEmail: calendarEmail, calendarId: calendarId } }).pipe();
+    }
+
+    fetchCalendarList(calendarEmail: string) {
+        return this.coreService.get<any>('calendar/list', { headers: { calendarEmail: calendarEmail } }).pipe();
     }
 
 }

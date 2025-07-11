@@ -210,7 +210,8 @@
     "PROFILE_DISPLAYNAME": "Display Name",
     "ATTACHMENTS": "Attachments",
     "CALENDAR_EMAIL": "Calendar Email",
-    "LANGUAGE": "Language"
+    "LANGUAGE": "Language",
+    "CALENDAR": "Calendar"
   },
   "SETTING": {
     "GENERAL": "General",

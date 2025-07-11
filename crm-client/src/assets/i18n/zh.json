@@ -210,7 +210,8 @@
     "PROFILE_DISPLAYNAME": "显示名称",
     "ATTACHMENTS": "附件",
     "CALENDAR_EMAIL": "日历邮箱",
-    "LANGUAGE": "语言"
+    "LANGUAGE": "语言",
+    "CALENDAR": "日历"
   },
   "SETTING": {
     "GENERAL": "通用",

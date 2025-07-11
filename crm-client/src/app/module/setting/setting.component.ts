@@ -56,7 +56,8 @@ export class SettingComponent extends BaseCoreAbstract {
           if (element) {
             element.scrollIntoView({ behavior: 'smooth', block: 'start' });
           }
-        }
+        },
+        visible: true,
       },
       {
         label: 'SETTING.TEAM_MANAGEMENT',
@@ -67,7 +68,7 @@ export class SettingComponent extends BaseCoreAbstract {
             element.scrollIntoView({ behavior: 'smooth', block: 'start' });
           }
         },
-        visible: this.userC?.roleId === 1,
+        visible: this.userC?.roleId === 1 || this.returnPermissionObj('TEAM', 'display')
       },
       {
         label: 'SETTING.PROPERTY',
@@ -77,7 +78,8 @@ export class SettingComponent extends BaseCoreAbstract {
           if (element) {
             element.scrollIntoView({ behavior: 'smooth', block: 'start' });
           }
-        }
+        },
+        visible: this.userC?.roleId === 1 || this.returnPermissionObj('PROPERTY', 'display')
       },
     ];
     this.permission = JSON.parse(this.userC.permission);

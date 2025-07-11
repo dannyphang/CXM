@@ -36,7 +36,8 @@ export class CreateComponent extends BaseCoreAbstract {
     password: new FormControl(""),
     confirm_password: new FormControl(""),
     language: new FormControl(0),
-    calendarEmail: new FormControl("", Validators.email)
+    calendarEmail: new FormControl("", Validators.email),
+    calendarId: new FormControl(""),
   });
   // profile pic
   isShowAvatarEditDialog: boolean = false;
@@ -75,6 +76,7 @@ export class CreateComponent extends BaseCoreAbstract {
     this.createFormGroup.controls['phone'].setValue(this.userProfile.phoneNumber, { emitEvent: false });
     this.createFormGroup.controls['language'].setValue(this.userProfile.setting?.defaultLanguage, { emitEvent: false });
     this.createFormGroup.controls['calendarEmail'].setValue(this.userProfile.setting?.calendarEmail, { emitEvent: false });
+    this.createFormGroup.controls['calendarId'].setValue(this.userProfile.setting?.calendarId ?? this.userProfile.setting?.calendarEmail, { emitEvent: false });
 
     this.profilePhotoUrl = this.userProfile.profilePhotoUrl;
   }
@@ -244,11 +246,30 @@ export class CreateComponent extends BaseCoreAbstract {
         disabled: true,
       },
       {
+        label: 'PROFILE.CALENDAR',
+        type: CONTROL_TYPE.Dropdown,
+        fieldControl: this.createFormGroup.controls.calendarId,
+        layoutDefine: {
+          row: 5,
+          column: 1
+        },
+        dataSourceAction: () => {
+          return this.calendarService.fetchCalendarList(this.coreAuthService.userC.setting?.calendarEmail).pipe(
+            map(
+              (res) => res.data.map(cal => ({
+                label: cal.summary,
+                value: cal.id
+              }))
+            )
+          );
+        },
+      },
+      {
         label: 'BUTTON.CONNECT_EMAIL',
         type: CONTROL_TYPE.Button,
         layoutDefine: {
           row: 5,
-          column: 1,
+          column: 2,
         },
         onClickFunc: (e: any) => {
           this.calendarService.callCalendarApi().subscribe({
@@ -361,7 +382,8 @@ export class CreateComponent extends BaseCoreAbstract {
           setting: {
             tableFilter: this.userProfile.setting?.tableFilter,
             defaultLanguage: this.createFormGroup.controls['language'].value,
-            calendarEmail: this.createFormGroup.controls['calendarEmail'].value
+            calendarEmail: this.createFormGroup.controls['calendarEmail'].value,
+            calendarId: this.createFormGroup.controls['calendarId'].value,
           }
         }
 

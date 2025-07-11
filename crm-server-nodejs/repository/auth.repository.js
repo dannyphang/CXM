@@ -96,6 +96,9 @@ function getUserByAuthId({ uid }) {
             const { data, error } = await supabase.from(userCollectionName).select("*").eq("authUid", uid).eq("statusId", 1).single();
 
             if (error) {
+                if (!data) {
+                    resolve(null);
+                }
                 reject(error);
             } else if (data) {
                 resolve(data);
@@ -148,10 +151,26 @@ function updateUser({ user }) {
     });
 }
 
+function createUserSetting({ userSetting }) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const { data, error } = await supabase.from(userSettingTableName).insert(userSetting).select("*").single();
+
+            if (error) {
+                reject(error);
+            } else {
+                resolve(data);
+            }
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
 function updateUserSetting({ userSetting }) {
     return new Promise(async (resolve, reject) => {
         try {
-            const { data, error } = await supabase.from(userSettingTableName).update(userSetting).eq("uid", userSetting.uid).select("*").single();
+            const { data, error } = await supabase.from(userSettingTableName).update(userSetting).eq("userUid", userSetting.userUid).select("*").single();
 
             if (error) {
                 reject(error);
@@ -325,6 +344,7 @@ export {
     getUserByEmail,
     getUserById,
     getUserByAuthId,
+    createUserSetting,
     getUserSetting,
     updateUser,
     getTenantById,
