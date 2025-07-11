@@ -31,7 +31,7 @@ export class AuthService {
                 this.coreAuthService.post<any>('auth/login', { email, password, project: 'CRM' }).pipe().subscribe({
                     next: res => {
                         if (res.isSuccess) {
-                            this.coreAuthService.getUserByAuthUid(res.data.uid).subscribe(res2 => {
+                            this.coreAuthService.getUserByAuthUid(res.data.uid, res.data.email).subscribe(res2 => {
                                 resolve(res2.data);
                             })
                         }

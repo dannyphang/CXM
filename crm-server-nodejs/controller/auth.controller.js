@@ -43,6 +43,7 @@ router.post("/user", async (req, res) => {
         authImp
             .createUser({
                 userId: func.body(req).userId,
+                tenantId: func.body(req).tenantId,
                 createUserList: JSON.parse(JSON.stringify(func.body(req).data.user)),
             })
             .then((list) => {
@@ -153,6 +154,7 @@ router.get("/authUser/:id", async (req, res) => {
         authImp
             .getUserByAuthId({
                 uid: req.params.id,
+                email: func.body(req).headers.email,
             })
             .then((userData) => {
                 res.status(200).json(
@@ -382,7 +384,7 @@ router.get("/user/tenant/:id", async (req, res) => {
                 );
             })
             .catch((error) => {
-                console.log("error", error);
+                console.log("error during get user by tenantId", error);
                 API.createLog(error, req, res, 500, logModule);
                 res.status(500).json(
                     func.responseModel({

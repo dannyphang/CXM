@@ -38,6 +38,7 @@
           pRipple
           class="flex align-items-center p-menuitem-link"
           [pTooltip]="item.tooltip | translate"
+          *ngIf="item.visible"
         >
           <span [class]="item.icon"></span>
           <span class="">{{ item.label | translate }}</span>

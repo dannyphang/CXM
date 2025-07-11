@@ -71,8 +71,12 @@ export class CoreAuthService {
             })
     }
 
-    getUserByAuthUid(uid: string): Observable<ResponseModel<UserDto>> {
-        return this.http.get<ResponseModel<UserDto>>(apiConfig.baseUrl + '/auth/authUser/' + uid).pipe();
+    getUserByAuthUid(uid: string, email: string): Observable<ResponseModel<UserDto>> {
+        return this.http.get<ResponseModel<UserDto>>(apiConfig.baseUrl + '/auth/authUser/' + uid, {
+            headers: {
+                email: email
+            }
+        }).pipe();
     }
 
     getCurrentAuthUser(): Promise<UserDto> {
@@ -80,9 +84,9 @@ export class CoreAuthService {
             try {
                 this.http.get<any>(`${this.AUTH_URL}/auth/user`, { withCredentials: true }).subscribe({
                     next: res => {
-                        // TODO: add new variable (authUID) to link the supabase (JWT project) user to firebase (CRM project) user
                         let authUid = res.data.uid;
-                        this.getUserByAuthUid(authUid).subscribe(res2 => {
+                        let email = res.data.email;
+                        this.getUserByAuthUid(authUid, email).subscribe(res2 => {
                             this.userC = res2.data;
                             resolve(res2.data);
                         });
@@ -141,6 +145,7 @@ export class SettingDto {
     }
     defaultLanguage?: number;
     calendarEmail?: string;
+    calendarId?: string;
 }
 
 export class UpdateSettingDto {
@@ -152,6 +157,7 @@ export class UpdateSettingDto {
     }
     defaultLanguage?: number;
     calendarEmail?: string;
+    calendarId?: string;
 }
 
 export class TableFilterDto {

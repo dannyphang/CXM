@@ -4,6 +4,30 @@ import * as config from "../configuration/config.js";
 import * as envConfig from "../configuration/envConfig.js";
 import * as func from "../shared/function.js";
 
+const oauth2Client = new google.auth.OAuth2(config.default.calendar.google.clientId, config.default.calendar.google.clientSecret, `${envConfig.baseUrl}/calendar/callback`);
+
+function callingCalendarApi({ customParams }) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const url = oauth2Client.generateAuthUrl({
+                access_type: "offline",
+                prompt: "consent",
+                scope: [
+                    "https://www.googleapis.com/auth/calendar",
+                    "https://www.googleapis.com/auth/calendar.events",
+                    "https://www.googleapis.com/auth/calendar.readonly",
+                    "https://www.googleapis.com/auth/userinfo.email",
+                ],
+                state: encodeURIComponent(JSON.stringify(customParams)),
+            });
+
+            resolve(url);
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
 function createToken({ accessToken, refreshToken, expiryDate, email }) {
     return new Promise(async (resolve, reject) => {
         try {
@@ -48,7 +72,7 @@ function getTokenByEmail(email) {
     });
 }
 
-function fetchCalendar({ calendarEmail }) {
+function fetchCalendar({ calendarEmail, calendarId }) {
     return new Promise(async (resolve, reject) => {
         try {
             const token = await getTokenByEmail(calendarEmail);
@@ -56,8 +80,6 @@ function fetchCalendar({ calendarEmail }) {
             if (!token) {
                 return reject(new Error("Token not found for the provided email."));
             }
-
-            const oauth2Client = new google.auth.OAuth2(config.default.calendar.google.clientId, config.default.calendar.google.clientSecret, `${envConfig.baseUrl}/calendar/callback`);
 
             oauth2Client.setCredentials({
                 access_token: token.accessToken,
@@ -73,7 +95,7 @@ function fetchCalendar({ calendarEmail }) {
             startOfMonth.setHours(0, 0, 0, 0);
 
             const response = await calendar.events.list({
-                calendarId: "primary",
+                calendarId: calendarId ?? calendarEmail, // Default to primary calendar if no ID is provided
                 timeMin: startOfMonth.toISOString(),
                 maxResults: 2500, // (optional) increase limit if needed
                 singleEvents: true,
@@ -103,13 +125,36 @@ function fetchCalendar({ calendarEmail }) {
     });
 }
 
+function fetchCalendarList({ calendarEmail }) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const token = await getTokenByEmail(calendarEmail);
+
+            if (!token) {
+                return reject(new Error("Token not found for the provided email."));
+            }
+
+            oauth2Client.setCredentials({
+                access_token: token.accessToken,
+                refresh_token: token.refreshToken,
+                expiry_date: token.expiryDate,
+            });
+
+            const calendar = google.calendar({ version: "v3", auth: oauth2Client });
+
+            const response = await calendar.calendarList.list();
+
+            resolve(response.data.items);
+        } catch (error) {
+            console.log(error);
+            reject(error);
+        }
+    });
+}
+
 function calendarCallback({ code, userId }) {
     return new Promise(async (resolve, reject) => {
         try {
-            const oauth2Client = new google.auth.OAuth2(config.default.calendar.google.clientId, config.default.calendar.google.clientSecret, `${envConfig.baseUrl}/calendar/callback`);
-
-            console.log("Received code:", code);
-
             oauth2Client.getToken(code, async (err, tokens) => {
                 if (err) {
                     console.error("Error retrieving access token", err);
@@ -164,23 +209,22 @@ function calendarCallback({ code, userId }) {
                             });
                     });
 
-                // tokenRepo
-                //     .createToken({ token: newToken })
-                //     .then(() => {
-                //         console.log("Token created successfully");
-                //         resolve(query);
-                //     })
-                //     .catch((err) => {
-                //         tokenRepo
-                //             .updateToken({ token: newToken })
-                //             .then(() => {
-                //                 console.log("Token updated successfully");
-                //                 resolve(query);
-                //             })
-                //             .catch((err) => {
-                //                 reject(err);
-                //             });
-                //     });
+                tokenRepo
+                    .createToken({ token: newToken })
+                    .then(() => {
+                        resolve(query);
+                    })
+                    .catch((err) => {
+                        tokenRepo
+                            .updateToken({ token: newToken })
+                            .then(() => {
+                                console.log("Token updated successfully");
+                                resolve(query);
+                            })
+                            .catch((err) => {
+                                reject(err);
+                            });
+                    });
             });
         } catch (error) {
             reject(error);
@@ -188,4 +232,4 @@ function calendarCallback({ code, userId }) {
     });
 }
 
-export { createToken, getTokenByEmail, fetchCalendar, calendarCallback };
+export { callingCalendarApi, createToken, getTokenByEmail, fetchCalendar, calendarCallback, fetchCalendarList };

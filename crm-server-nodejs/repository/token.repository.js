@@ -25,6 +25,9 @@ function getTokenByEmail({ email, module }) {
             const { data, error } = await supabase.from("token").select("*").eq("email", email).eq("module", module).eq("statusId", 1).single();
 
             if (error) {
+                if (!data) {
+                    resolve(null);
+                }
                 reject(error);
             } else {
                 resolve(data);

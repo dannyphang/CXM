@@ -51,11 +51,16 @@ export class LayoutComponent {
         });
 
         this.commonService.getParamsUrl().then(params => {
+          // update calendar email and calendarId if they are provided in the URL
           if (params.calendarEmail) {
+            if (this.user.setting.calendarEmail !== params.calendarEmail) {
+              this.user.setting.calendarId = params.calendarEmail;
+            }
             this.user.setting.calendarEmail = params.calendarEmail;
             this.authService.updateUserFirestore([this.user]).subscribe({});
           }
         })
+        // loading tenant toast
         this.toastService.addSingle({
           key: 'tenant',
           message: this.translateService.instant('COMMON.LOADING',
@@ -66,6 +71,7 @@ export class LayoutComponent {
           severity: 'info',
           isLoading: true
         });
+        // fetch tenant list
         this.coreService.getTenantsByUserId(this.user.uid).subscribe(res3 => {
           if (res3.isSuccess) {
             this.tenantList = res3.data;
@@ -133,7 +139,7 @@ export class LayoutComponent {
   fetchCalendar(): Promise<void> {
     return new Promise<void>((resolve, reject) => {
       try {
-        this.calendarService.fetchCalendar(this.coreAuthService.userC.setting?.calendarEmail).subscribe({
+        this.calendarService.fetchCalendar(this.coreAuthService.userC.setting?.calendarEmail, this.coreAuthService.userC.setting?.calendarId).subscribe({
           next: calendar => {
             let events: CalendarEventDto[] = calendar.data.map(event => ({
               id: event.id,
@@ -147,7 +153,8 @@ export class LayoutComponent {
               recurrenceID: event.recurrence ? event.recurrence.id : null,
               iCalUid: event.iCalUid || '',
             }));
-            this.calendarService.calendarSettingEvents = events
+            this.calendarService.calendarSettingEvents = events;
+            resolve();
           },
           error: error => {
             console.error('Error fetching Calendar:', error);

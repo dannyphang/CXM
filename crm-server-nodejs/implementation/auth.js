@@ -14,15 +14,33 @@ function getAllUsers() {
     });
 }
 
-function createUser({ userId, createUserList }) {
+function createUser({ userId, tenantId, createUserList }) {
     return new Promise(async (resolve, reject) => {
         try {
             let userList = await Promise.all(
                 createUserList.map(async (user) => {
-                    user.createdBy = userId;
-                    user.modifiedBy = userId;
+                    let { setting, ...userData } = user;
+                    userData.createdBy = userId;
+                    userData.modifiedBy = userId;
 
-                    return authRepo.createUser({ user: user });
+                    let userSetting = {
+                        ...setting,
+                        tableFilter: JSON.stringify(setting?.tableFilter),
+                    };
+                    userSetting.userUid = userData.uid;
+
+                    let createdUser = await authRepo.createUser({ user: userData });
+                    userSetting.userUid = createdUser.uid;
+                    await authRepo.createUserSetting({ userSetting: userSetting });
+                    let asso = {
+                        tenantUid: tenantId,
+                        userUid: createdUser.uid,
+                        statusId: 1, // Assuming 1 means active
+                    };
+
+                    await authRepo.createUserTenantAsso({ asso: asso });
+
+                    return;
                 })
             );
             resolve(userList);
@@ -39,8 +57,6 @@ function getUserByEmail({ email }) {
                 .getUserByEmail({ email })
                 .then((user) => {
                     let userData = user;
-                    userData.createdDate = func.convertFirebaseDateFormat(userData.createdDate);
-                    userData.modifiedDate = func.convertFirebaseDateFormat(userData.modifiedDate);
                     resolve(userData);
                 })
                 .catch((error) => {
@@ -72,15 +88,28 @@ function getUserById({ uid }) {
     });
 }
 
-function getUserByAuthId({ uid }) {
+function getUserByAuthId({ uid, email }) {
     return new Promise((resolve, reject) => {
         try {
             authRepo
                 .getUserByAuthId({ uid: uid })
                 .then(async (user) => {
-                    let userData = user;
-                    user.setting = await getUserSetting({ uid: user.uid });
-                    resolve(userData);
+                    if (user) {
+                        let userData = user;
+                        user.setting = await getUserSetting({ uid: user.uid });
+                        resolve(userData);
+                    } else {
+                        let tempUser = await getUserByEmail({ email });
+                        tempUser.authUid = uid;
+
+                        let userSetting = await authRepo.getUserSetting({ uid: tempUser.uid });
+                        tempUser.setting = {
+                            ...userSetting,
+                            tableFilter: JSON.parse(userSetting.tableFilter),
+                        };
+
+                        resolve(await updateUser({ userId: tempUser.uid, updateUserList: [tempUser] }));
+                    }
                 })
                 .catch((error) => {
                     reject(error);
@@ -123,9 +152,9 @@ function updateUser({ userId, updateUserList }) {
 
                     let userSetting = {
                         ...setting,
-                        tableFilter: JSON.stringify(setting.tableFilter),
+                        tableFilter: JSON.stringify(setting?.tableFilter),
                     };
-
+                    userSetting.userUid = userData.uid;
                     await authRepo.updateUserSetting({
                         userSetting: userSetting,
                     });
@@ -250,9 +279,7 @@ function getUserByTenantId({ tenantId }) {
 
             // Use `map` to create an array of Promises
             const userPromises = userTenantAssoList.map(async (u) => {
-                const user = await authRepo.getUserById({ uid: u.userId });
-                user.createdDate = func.convertFirebaseDateFormat(user.createdDate);
-                user.modifiedDate = func.convertFirebaseDateFormat(user.modifiedDate);
+                const user = await authRepo.getUserById({ uid: u.userUid });
                 return user;
             });
 
