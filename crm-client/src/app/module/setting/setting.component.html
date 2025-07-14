@@ -1,4 +1,8 @@
-<div class="setting-container" (scroll)="onScroll($event)" *ngIf="userC">
+<div
+  class="setting-container"
+  (scroll)="onScroll($event)"
+  *ngIf="userC && permission.length > 0"
+>
   <div class="setting-content">
     <div class="general-content" id="general">
       <app-general [permission]="permission" [module]="module"></app-general>

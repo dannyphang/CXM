@@ -44,6 +44,12 @@ export class LayoutComponent {
     this.coreAuthService.getCurrentAuthUser().then(async userC => {
       if (userC) {
         this.user = userC;
+        // get permission
+        this.authService.getUserPermission(this.user.uid).then(permission => {
+          this.user.permission = permission;
+          this.permission = permission;
+        })
+
         this.commonService.getLanguageOptions().subscribe(res => {
           let lang = res.data.find(l => l.id === this.user.setting?.defaultLanguage).code || 'en';
           this.translateService.setDefaultLang(lang);
@@ -84,7 +90,7 @@ export class LayoutComponent {
             this.toastService.clear('tenant');
           }
         });
-        this.permission = this.authService.returnPermission(this.user.permission);
+
         this.langLoaded = true;
         await this.fetchCalendar();
       }

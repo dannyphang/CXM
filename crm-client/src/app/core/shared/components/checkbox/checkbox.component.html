@@ -30,7 +30,7 @@
           (onChange)="handleChange($event, item.value)"
         >
         </p-checkbox>
-        <label *ngIf="!!item.label" [for]="item.value" class="fz-14_lh-16"
+        <label *ngIf="item.label" [for]="item.value" class="fz-14_lh-16"
           >{{ item.label | translate }}
           <span class="asterisk" *ngIf="item.required">*</span></label
         >

@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import apiConfig from "../../../environments/apiConfig";
 import { HttpClient } from "@angular/common/http";
-import { ResponseModel } from "./core-http.service";
+import { ResponseModel, UserPermissionDto } from "./core-http.service";
 import { ToastService } from "./toast.service";
 import { Observable } from "rxjs";
 
@@ -131,7 +131,7 @@ export class UserDto extends BasedDto {
     email: string;
     emailVerified: number;
     roleId: number;
-    permission: string;
+    permission: UserPermissionDto[];
     setting: SettingDto;
     lastActiveDateTime: Date;
 }

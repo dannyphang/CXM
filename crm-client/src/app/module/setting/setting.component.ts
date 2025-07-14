@@ -45,7 +45,7 @@ export class SettingComponent extends BaseCoreAbstract {
     this.windowSize = this.commonService.windowSize;
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     this.userC = this.coreAuthService.userC;
     this.settingMenuItem = [
       {
@@ -82,7 +82,9 @@ export class SettingComponent extends BaseCoreAbstract {
         visible: this.userC?.roleId === 1 || this.returnPermissionObj('PROPERTY', 'display')
       },
     ];
-    this.permission = JSON.parse(this.userC.permission);
+    this.authService.getUserPermission(this.userC?.uid ?? '').then(permission => {
+      this.permission = permission;
+    })
     this.titleService.setTitle(this.translateService.instant('COMMON.SETTING'));
 
     this.route.fragment.subscribe((fragment: string | null) => {
@@ -162,6 +164,6 @@ export class SettingComponent extends BaseCoreAbstract {
   }
 
   returnPermissionObj(module: string, action: string): boolean {
-    return this.permission.find(p => p.module === module)?.permission[action];
+    return this.permission?.find(p => p.module === module).permission[action];
   }
 }

@@ -150,6 +150,25 @@ export class AuthService {
         return this.coreService.put<any>('auth/userRole/update', { updateList }).pipe();
     }
 
+    getUserPermission(uid: string): Promise<UserPermissionDto[]> {
+        return new Promise((resolve, reject) => {
+            this.coreService.get<UserPermissionDto[]>('auth/permission/' + uid, {
+                headers: {
+                    'tenantId': this.coreService.tenant?.uid,
+                }
+            }).pipe().subscribe({
+                next: res => {
+                    if (res.isSuccess) {
+                        resolve(res.data);
+                    }
+                },
+                error: error => {
+                    reject(error);
+                }
+            });
+        })
+    }
+
     returnPermission(pString: string): UserPermissionDto[] {
         return JSON.parse(pString ?? '[]');
     }
@@ -161,12 +180,16 @@ export class AuthService {
         if (this.coreAuthService.userC.roleId === 1) {
             return true
         }
-        let permission: UserPermissionDto[] = JSON.parse(this.coreAuthService.userC.permission);
+        let permission: UserPermissionDto[] = this.coreAuthService.userC.permission;
         return permission.find(p => p.module === module)?.permission[action];
     }
 
     getAllUserByTenant(tenantId: string): Observable<ResponseModel<UserDto[]>> {
         return this.coreService.get<UserDto[]>('auth/user/tenant/' + tenantId).pipe();
+    }
+
+    getAllUserPermissionByTenant(tenantId: string): Observable<ResponseModel<UserPermissionDto[]>> {
+        return this.coreService.get<UserPermissionDto[]>('auth/permission/tenant/' + tenantId).pipe();
     }
 
     updateUserLastActiveTime(user: UserDto): Observable<ResponseModel<UserDto>> {
@@ -175,6 +198,10 @@ export class AuthService {
 
     sentVerifyEmail(user: UserDto): Observable<ResponseModel<any>> {
         return this.coreService.post<any>('auth/user/sentVerifyEmail', { user }).pipe();
+    }
+
+    updateUserPermission(uid: string, permission: UserPermissionDto[]): Observable<ResponseModel<any>> {
+        return this.coreService.put<any>('auth/permission', { userUid: uid, permission: permission }).pipe();
     }
 }
 
@@ -206,7 +233,6 @@ export class UpdateUserDto extends BasedDto {
     phoneNumber?: string;
     authUid?: string;
     roleId?: number;
-    permission?: string;
     setting?: UpdateSettingDto;
 }
 
