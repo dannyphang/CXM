@@ -258,11 +258,12 @@ export class CreateComponent extends BaseCoreAbstract {
             map(
               (res) => res.data.map(cal => ({
                 label: cal.summary,
-                value: cal.id
+                value: cal.id,
               }))
             )
           );
         },
+        searchable: true,
       },
       {
         label: 'BUTTON.CONNECT_EMAIL',
