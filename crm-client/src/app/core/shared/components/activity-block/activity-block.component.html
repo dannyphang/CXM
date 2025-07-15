@@ -30,6 +30,7 @@
 
       <!-- action button -->
       <app-base-button
+        *ngIf="showActionMenu"
         [iconName]="'pi pi-sort-down-fill action-icon'"
         [rightIcon]="true"
         [isTextStyle]="true"

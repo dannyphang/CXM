@@ -6,13 +6,15 @@ import { ToastService } from '../../../../services/toast.service';
 import { UserPermissionDto } from '../../../../services/core-http.service';
 import { TranslateService } from '@ngx-translate/core';
 import { debounce, debounceTime } from 'rxjs';
+import { BaseCoreAbstract } from '../../../base/base-core.abstract';
+import { CoreAuthService } from '../../../../services/core-auth.service';
 
 @Component({
   selector: 'app-middle-panel',
   templateUrl: './middle-panel.component.html',
   styleUrl: './middle-panel.component.scss'
 })
-export class MiddlePanelComponent implements OnInit, OnChanges {
+export class MiddlePanelComponent extends BaseCoreAbstract implements OnInit, OnChanges {
   @Input() propertiesList: ModuleDto[] = [];
   @Input() module: 'CONT' | 'COMP' = 'CONT';
   @Input() contactProfile: ContactDto = new ContactDto();
@@ -57,9 +59,10 @@ export class MiddlePanelComponent implements OnInit, OnChanges {
   constructor(
     private activityService: ActivityService,
     private toastService: ToastService,
-    private translateService: TranslateService
+    private translateService: TranslateService,
+    protected override authCoreService: CoreAuthService
   ) {
-
+    super(authCoreService);
   }
 
   ngOnInit() {

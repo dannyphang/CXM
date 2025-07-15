@@ -60,7 +60,7 @@
         (onClick)="imageUploader.click()"
         class=""
         [pTooltip]="'BUTTON.ATTACH_FILE' | translate"
-        *ngIf="checkPermission('update', module, permission, roleId)"
+        *ngIf="checkPermission('update', module, permission)"
       ></app-base-button>
 
       <app-chip
@@ -73,7 +73,7 @@
       <app-base-button
         [label]="'BUTTON.UPLOAD' | translate"
         (onClick)="imageFileUploadBtn()"
-        *ngIf="checkPermission('update', module, permission, roleId)"
+        *ngIf="checkPermission('update', module, permission)"
       ></app-base-button>
     </div>
   </div>
@@ -96,14 +96,18 @@
     >
       <div
         class="avatar-div"
-        (mouseenter)="isAvatarEdit = true"
+        (mouseenter)="
+          checkPermission('update', module, permission)
+            ? (isAvatarEdit = true)
+            : (isAvatarEdit = false)
+        "
         (mouseleave)="isAvatarEdit = false"
       >
         <app-base-button
           [iconName]="'pi pi-file-edit'"
           [buttonStyleClass]="'tw-w-[80px] tw-h-[80px] avatar-edit'"
           [rounded]="true"
-          *ngIf="isAvatarEdit"
+          *ngIf="isAvatarEdit && checkPermission('update', module, permission)"
           [isTextStyle]="true"
           (onClick)="editPic()"
           [pTooltip]="'PROFILE.AVATAR_EDIT' | translate"
@@ -196,6 +200,7 @@
       class="action-btn-div tw-flex tw-flex-wrap tw-w-full tw-justify-between tw-p-[var(--content-gap)] tw-border-solid tw-border-[var(--primary-color)] tw-border-x tw-border-t-0 tw-border-b"
     >
       <app-base-button
+        *ngIf="checkPermission('create', module, permission)"
         [iconName]="'pi pi-file-edit'"
         [rounded]="true"
         [isTextStyle]="true"
@@ -206,6 +211,7 @@
         pTooltip="Create a note"
       />
       <app-base-button
+        *ngIf="checkPermission('create', module, permission)"
         [iconName]="'pi pi-envelope'"
         [rounded]="true"
         [isTextStyle]="true"
@@ -216,6 +222,7 @@
         pTooltip="Create an email"
       />
       <app-base-button
+        *ngIf="checkPermission('create', module, permission)"
         [iconName]="'pi pi-phone'"
         [rounded]="true"
         [isTextStyle]="true"
@@ -226,6 +233,7 @@
         pTooltip="Make a phone call"
       />
       <app-base-button
+        *ngIf="checkPermission('create', module, permission)"
         [iconName]="'pi pi-list-check'"
         [rounded]="true"
         [isTextStyle]="true"
@@ -236,6 +244,7 @@
         pTooltip="Create a task"
       />
       <app-base-button
+        *ngIf="checkPermission('create', module, permission)"
         [iconName]="'pi pi-calendar-plus'"
         [rounded]="true"
         [isTextStyle]="true"

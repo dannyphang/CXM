@@ -3,17 +3,21 @@ import { ContactDto, CompanyDto, CommonService, AttachmentDto } from '../../../.
 import { ActivityDto, ActivityService } from '../../../../../services/activity.service';
 import { AuthService } from '../../../../../services/auth.service';
 import { ToastService } from '../../../../../services/toast.service';
+import { BaseCoreAbstract } from '../../../../base/base-core.abstract';
+import { CoreAuthService } from '../../../../../services/core-auth.service';
+import { UserPermissionDto } from '../../../../../services/core-http.service';
 
 @Component({
   selector: 'app-attachment',
   templateUrl: './attachment.component.html',
   styleUrl: './attachment.component.scss'
 })
-export class AttachmentComponent {
+export class AttachmentComponent extends BaseCoreAbstract {
   @Input() module: 'CONT' | 'COMP' = 'CONT';
   @Input() contactProfile: ContactDto = new ContactDto();
   @Input() companyProfile: CompanyDto = new CompanyDto();
   @Input() activitiesList: ActivityDto[] = [];
+  @Input() permission: UserPermissionDto[] = [];
   @Output() updateAttachmentEmit: EventEmitter<any> = new EventEmitter();
 
   attachPanelExpand: boolean = false;
@@ -23,9 +27,10 @@ export class AttachmentComponent {
     private commonService: CommonService,
     private activityService: ActivityService,
     private authService: AuthService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private coreAuthService: CoreAuthService
   ) {
-
+    super(coreAuthService)
   }
 
   ngOnChanges(changes: SimpleChanges) {

@@ -1,12 +1,9 @@
 import { Component } from '@angular/core';
-import { AuthService, CreateUserDto } from '../../core/services/auth.service';
+import { AuthService } from '../../core/services/auth.service';
 import { CONTROL_TYPE, FormConfig } from '../../core/services/components.service';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { Location } from '@angular/common'
-import { TranslateService } from '@ngx-translate/core';
-import { PERMISSION_LIST } from '../../core/shared/constants/common.constants';
-import { CoreHttpService, UserPermissionDto } from '../../core/services/core-http.service';
 import { CoreAuthService } from '../../core/services/core-auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import { EventService } from '../../core/services/event.service';
@@ -18,7 +15,6 @@ import { EventService } from '../../core/services/event.service';
 })
 export class LoginComponent {
   isIntegrated: boolean = true;
-  PERMISSION_LIST = PERMISSION_LIST;
   loginFormConfig: FormConfig[] = [];
   loginFormGroup: FormGroup = new FormGroup({
     email: new FormControl("", Validators.required),

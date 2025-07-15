@@ -13,12 +13,13 @@ const routes: Routes = [
       {
         path: '',
         loadChildren: () => import('./module/home/home.module').then(m => m.HomeModule),
+        canActivate: [AuthGuard],
         data: { breadcrumb: '', title: 'Home' }
       },
       {
         path: 'contact',
         loadChildren: () => import('./module/contact/contact.module').then(m => m.ContactModule),
-        canActivate: [AuthGuard, PermissionGuard],
+        canActivate: [PermissionGuard],
         data: {
           breadcrumb: 'Contact',
           title: 'Contact',
@@ -29,7 +30,7 @@ const routes: Routes = [
       {
         path: 'company',
         loadChildren: () => import('./module/company/company.module').then(m => m.CompanyModule),
-        canActivate: [AuthGuard, PermissionGuard],
+        canActivate: [PermissionGuard],
         data: {
           breadcrumb: 'Company',
           title: 'Company',
@@ -40,7 +41,7 @@ const routes: Routes = [
       {
         path: 'setting',
         loadChildren: () => import('./module/setting/setting.module').then(m => m.SettingModule),
-        canActivate: [AuthGuard, PermissionGuard],
+        canActivate: [PermissionGuard],
         data: {
           breadcrumb: 'Setting', title: 'Setting',
           action: 'display',

@@ -136,7 +136,10 @@
               class="tw-flex tw-justify-end tw-mb-[var(--content-gap)] tw-gap-[var(--content-gap)]"
             >
               <app-base-button
-                *ngIf="isIncludedActivity(activityTab, 'LOG')"
+                *ngIf="
+                  isIncludedActivity(activityTab, 'LOG') &&
+                  checkPermission('create', module, permission)
+                "
                 [outlined]="true"
                 [label]="returnLogActivityLable(activityTab)"
                 class=""
@@ -144,7 +147,10 @@
               ></app-base-button>
 
               <app-base-button
-                *ngIf="isIncludedActivity(activityTab, 'CREATE')"
+                *ngIf="
+                  isIncludedActivity(activityTab, 'CREATE') &&
+                  checkPermission('create', module, permission)
+                "
                 [label]="returnCreateActivityLable(activityTab)"
                 (onClick)="activityCreateButtonOnClick(activityTab)"
               ></app-base-button>

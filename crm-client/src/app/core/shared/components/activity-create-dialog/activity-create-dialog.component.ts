@@ -105,15 +105,15 @@ export class ActivityCreateDialogComponent {
   }
 
   send() {
-    switch (this.activityModule.moduleSubCode) {
-      case 'EMAIL':
-        if (this.authService.returnPermissionObj(this.module, 'create')) {
+    if (this.authService.returnPermissionObj(this.module, 'create')) {
+      switch (this.activityModule.moduleSubCode) {
+        case 'EMAIL':
           this.toastService.addSingle({
             message: 'MESSAGE.SENDING_EMAIL',
             isLoading: true,
             severity: 'info'
           })
-          let newActivity: CreateActivityDto = {
+          let newEmailActivity: CreateActivityDto = {
             activityModuleCode: this.activityModule.moduleCode,
             activityModuleSubCode: this.activityModule.moduleSubCode,
             activityModuleId: this.activityModule.uid,
@@ -127,7 +127,7 @@ export class ActivityCreateDialogComponent {
               email: this.emailData
             }
           }
-          this.activityService.sendEmail(this.emailData, newActivity).subscribe(res => {
+          this.activityService.sendEmail(this.emailData, newEmailActivity).subscribe(res => {
             this.toastService.clear();
             if (res.isSuccess) {
               this.closeDialog()
@@ -137,13 +137,8 @@ export class ActivityCreateDialogComponent {
               severity: res.isSuccess ? 'success' : 'error'
             });
           });
-        }
-        else {
-          // TODO
-        }
-        break;
-      case 'NOTE':
-        if (this.authService.returnPermissionObj(this.module, 'create')) {
+          break;
+        case 'NOTE':
           this.toastService.addSingle({
             key: 'activity',
             message: 'MESSAGE.CREATING_ACTIVITY',
@@ -226,13 +221,8 @@ export class ActivityCreateDialogComponent {
               });
             }
           });
-        }
-        else {
-          // TODO
-        }
-        break;
-      case 'MEET':
-        if (this.authService.returnPermissionObj(this.module, 'create')) {
+          break;
+        case 'MEET':
           this.toastService.addSingle({
             message: 'MESSAGE.CREATING_MEETING',
             isLoading: true,
@@ -264,11 +254,14 @@ export class ActivityCreateDialogComponent {
               severity: res.isSuccess ? 'success' : 'error'
             });
           });
-        }
-        else {
-          // TODO
-        }
-        break;
+          break;
+      }
+    }
+    else {
+      this.toastService.addSingle({
+        message: 'MESSAGE.PERMISSION_DENIED',
+        severity: 'error'
+      });
     }
   }
 

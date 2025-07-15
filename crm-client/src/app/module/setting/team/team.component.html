@@ -131,14 +131,7 @@
 
             <!-- add usr -role btn -->
             <p-button
-              *ngIf="
-                checkPermission(
-                  'create',
-                  'SETTING',
-                  permission,
-                  currentUser.roleId
-                )
-              "
+              *ngIf="checkPermission('create', 'SETTING', permission)"
               [icon]="'pi pi-plus'"
               [text]="true"
               [pTooltip]="'COMMON.USER' | translate"

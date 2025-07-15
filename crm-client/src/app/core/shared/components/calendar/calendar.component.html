@@ -7,6 +7,14 @@
 
     <div class="date-page-div">
       <app-base-button
+        (onClick)="refreshCalendar()"
+        [rounded]="true"
+        [outlined]="true"
+        [iconName]="'pi pi-refresh'"
+      >
+      </app-base-button>
+
+      <app-base-button
         (onClick)="today()"
         [outlined]="true"
         [iconName]="'pi pi-calendar'"

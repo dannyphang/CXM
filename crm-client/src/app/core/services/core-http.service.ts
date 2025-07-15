@@ -124,7 +124,7 @@ export class PermissionObjDto {
     remove: boolean;
     update: boolean;
     display: boolean;
-    download: boolean;
+    import: boolean;
     export: boolean;
 }
 

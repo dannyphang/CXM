@@ -9,6 +9,7 @@ import { Observable } from "rxjs";
 export class CoreAuthService {
     private AUTH_URL = apiConfig.authUrl;
     userC: UserDto;
+    permission: UserPermissionDto[] = [];
     JWT_TOKEN: string = '';
 
     constructor(
@@ -16,12 +17,28 @@ export class CoreAuthService {
         private toastService: ToastService
     ) { }
 
+    set user(user: UserDto) {
+        this.userC = user;
+    }
+
+    get user() {
+        return this.userC;
+    }
+
     set jwt_token(token: string) {
         this.JWT_TOKEN = token;
     }
 
     get jwt_token() {
         return this.JWT_TOKEN || '';
+    }
+
+    set userPermission(permission: UserPermissionDto[]) {
+        this.permission = permission;
+    }
+
+    get userPermission() {
+        return this.permission;
     }
 
     buildHeader(option?: AuthHttpOption) {

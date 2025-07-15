@@ -38,10 +38,10 @@ export class SettingComponent extends BaseCoreAbstract {
     private commonService: CommonService,
     private titleService: Title,
     private route: ActivatedRoute,
-    private coreAuthService: CoreAuthService,
+    protected coreAuthService: CoreAuthService,
     private location: Location,
   ) {
-    super();
+    super(coreAuthService);
     this.windowSize = this.commonService.windowSize;
   }
 
@@ -164,6 +164,6 @@ export class SettingComponent extends BaseCoreAbstract {
   }
 
   returnPermissionObj(module: string, action: string): boolean {
-    return this.permission?.find(p => p.module === module).permission[action];
+    return this.permission?.find(p => p.module === module)?.permission[action];
   }
 }

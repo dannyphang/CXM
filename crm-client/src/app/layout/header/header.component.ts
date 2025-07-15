@@ -53,7 +53,7 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
     private coreAuthService: CoreAuthService,
     private eventService: EventService,
   ) {
-    super();
+    super(coreAuthService);
     this.tenantFormControl.valueChanges.subscribe(val => {
       let selectedTenant = this.tenantList.find(t => t.uid === val)!;
       this.coreService.tenant = selectedTenant;
@@ -76,6 +76,7 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
     }
 
     if (changes['permission'] && changes['permission'].currentValue) {
+      console.log("Permission changed", this.permission);
       this.menuItem = [
         {
           label: "COMMON.CONTACT",
@@ -84,7 +85,7 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
           command: () => {
             this.router.navigate(["/contact"]);
           },
-          visible: this.checkPermission('display', 'CONT', this.permission, this.coreAuthService.userC?.roleId)
+          visible: this.checkPermission('display', 'CONT', this.permission)
         },
         {
           label: "COMMON.COMPANY",
@@ -93,7 +94,7 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
           command: () => {
             this.router.navigate(["/company"]);
           },
-          visible: this.checkPermission('display', 'COMP', this.permission, this.coreAuthService.userC?.roleId)
+          visible: this.checkPermission('display', 'COMP', this.permission)
         },
       ];
     }
@@ -162,17 +163,19 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
     this.isDarkMode = isDark;
     this.themeService.switchTheme(isDark ? this.darkThemeFile : this.lightThemeFile);
     if (!isInit) {
-      this.authService.updateUserFirestore([{
-        uid: this.coreAuthService.userC.uid,
-        setting: {
-          ...this.coreAuthService.userC.setting,
-          darkMode: isDark
-        }
-      }]).subscribe(res => {
-        if (res.isSuccess) {
+      if (this.authService.returnPermissionObj('SETTING', 'update')) {
+        this.authService.updateUserFirestore([{
+          uid: this.coreAuthService.userC.uid,
+          setting: {
+            ...this.coreAuthService.userC.setting,
+            darkMode: isDark
+          }
+        }]).subscribe(res => {
+          if (res.isSuccess) {
 
-        }
-      })
+          }
+        });
+      }
     }
     this.coreAuthService.getCurrentAuthUser().then(res => {
       this.currentUser = res;
@@ -189,7 +192,7 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
         command: () => {
           this.router.navigate(["/contact"]);
         },
-        visible: this.checkPermission('display', 'CONT', this.permission, this.coreAuthService.userC?.roleId)
+        visible: this.checkPermission('display', 'CONT', this.permission)
       },
       {
         label: "COMMON.COMPANY",
@@ -198,7 +201,7 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
         command: () => {
           this.router.navigate(["/company"]);
         },
-        visible: this.checkPermission('display', 'COMP', this.permission, this.coreAuthService.userC?.roleId)
+        visible: this.checkPermission('display', 'COMP', this.permission)
       },
     ];
 

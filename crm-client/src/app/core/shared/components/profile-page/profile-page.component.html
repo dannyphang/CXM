@@ -45,6 +45,7 @@
               returnEvent($event) === 'CONT' ? getContact() : getCompany()
             "
             (getActivityEmit)="getActivities()"
+            [permission]="permission"
           ></app-right-panel>
         </ng-template>
       </p-splitter>
@@ -108,6 +109,7 @@
             returnEvent($event) === 'CONT' ? getContact() : getCompany()
           "
           (getActivityEmit)="getActivities()"
+          [permission]="permission"
         ></app-right-panel>
       </p-tabPanel>
     </p-tabView>

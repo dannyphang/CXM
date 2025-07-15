@@ -369,6 +369,20 @@ export class CalendarComponent {
     }
   }
 
+  refreshCalendar() {
+    this.toastService.addSingle({
+      key: 'calendar',
+      message: this.translateService.instant('COMMON.LOADING', {
+        module: this.translateService.instant('COMMON.CALENDAR'),
+      }),
+      severity: 'info',
+      isLoading: true,
+    });
+    this.calendarService.getCalendarEvent(this.coreAuthService.userC.setting?.calendarEmail, this.coreAuthService.userC.setting?.calendarId).then(() => {
+      this.toastService.clear('calendar');
+    });
+  }
+
   next() {
     if (this.fcCalendar) this.fcCalendar.next();
   }

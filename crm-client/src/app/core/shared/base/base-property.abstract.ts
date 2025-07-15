@@ -31,7 +31,7 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
         protected coreAuthService: CoreAuthService,
 
     ) {
-        super()
+        super(coreAuthService)
     }
 
     /**  
@@ -46,7 +46,7 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
             let formsConfig: FormConfig[] = [];
             item.propertiesList.forEach(prop => {
                 let propProfileValue = this.returnProfileValue(prop, module, contactProfile, companyProfile);
-                let control = new FormControl({ value: propProfileValue ? propProfileValue : this.commonService.returnControlTypeEmptyValue(prop), disabled: !this.checkPermission('update', module, permission, this.coreAuthService.userC.roleId) || !prop.isEditable });
+                let control = new FormControl({ value: propProfileValue ? propProfileValue : this.commonService.returnControlTypeEmptyValue(prop), disabled: !this.checkPermission('update', module, permission) || !prop.isEditable });
 
                 this.profileFormGroup.addControl(prop.propertyCode, control);
 
@@ -539,7 +539,10 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
             }
         }
         else {
-            // TODO
+            this.toastService.addSingle({
+                message: this.translateService.instant('MESSAGE.PERMISSION_DENIED'),
+                severity: 'error'
+            });
         }
     }
 }

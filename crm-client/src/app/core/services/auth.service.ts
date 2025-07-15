@@ -1,9 +1,9 @@
 import { Injectable } from "@angular/core";
 import apiConfig from "../../../environments/apiConfig";
 import { Observable } from "rxjs";
-import { CoreHttpService, ResponseModel, RoleDto, UserPermissionDto } from "./core-http.service";
+import { CoreHttpService, PermissionObjDto, ResponseModel, RoleDto, UserPermissionDto } from "./core-http.service";
 import { BasedDto, CoreAuthService, SettingDto, UpdateSettingDto, UserDto } from "./core-auth.service";
-import { PERMISSION_LIST } from "../shared/constants/common.constants";
+import { PERMISSION_LIST, PermissionTypeList } from "../shared/constants/common.constants";
 import { ToastService } from "./toast.service";
 
 @Injectable({ providedIn: 'root' })
@@ -68,7 +68,7 @@ export class AuthService {
                                     remove: false,
                                     update: false,
                                     display: false,
-                                    download: false,
+                                    import: false,
                                     export: false
                                 }
                             })
@@ -173,15 +173,15 @@ export class AuthService {
         return JSON.parse(pString ?? '[]');
     }
 
-    returnPermissionObj(module: string, action: string): boolean {
+    returnPermissionObj(module: PermissionTypeList, action: keyof PermissionObjDto): boolean {
         if (!this.coreAuthService.userC) {
             return false;
         }
         if (this.coreAuthService.userC.roleId === 1) {
             return true
         }
-        let permission: UserPermissionDto[] = this.coreAuthService.userC.permission;
-        return permission.find(p => p.module === module)?.permission[action];
+
+        return this.coreAuthService.permission?.find(p => p.module === module)?.permission[action];
     }
 
     getAllUserByTenant(tenantId: string): Observable<ResponseModel<UserDto[]>> {

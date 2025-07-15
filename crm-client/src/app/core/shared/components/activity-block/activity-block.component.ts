@@ -69,6 +69,7 @@ export class ActivityBlockComponent implements OnChanges {
   assoContactForm: FormControl = new FormControl([]);
   updateAct: UpdateActivityDto = new UpdateActivityDto();
   actionMenu: any[] = [];
+  showActionMenu: boolean = true;
 
   emailFormGroup: FormGroup = new FormGroup({
     toEmail: new FormControl([], Validators.required),
@@ -199,7 +200,8 @@ export class ActivityBlockComponent implements OnChanges {
             else {
               // TODO
             }
-          }
+          },
+          visible: this.authService.returnPermissionObj(this.module, 'update'),
         },
         {
           label: this.translateService.instant('BUTTON.DELETE'),
@@ -229,9 +231,13 @@ export class ActivityBlockComponent implements OnChanges {
             else {
               // TODO
             }
-          }
+          },
+          visible: this.authService.returnPermissionObj(this.module, 'remove'),
         }
       ];
+      if (!this.authService.returnPermissionObj(this.module, 'update') && !this.authService.returnPermissionObj(this.module, 'remove')) {
+        this.showActionMenu = false;
+      }
     }
 
     if (changes['contactProfile'] && changes['contactProfile'].currentValue) {
@@ -830,7 +836,10 @@ export class ActivityBlockComponent implements OnChanges {
       });
     }
     else {
-      // TODO: add message 
+      this.toastService.addSingle({
+        message: this.translateService.instant('MESSAGE.PERMISSION_DENIED'),
+        severity: 'error'
+      });
     }
   }
 
@@ -844,8 +853,6 @@ export class ActivityBlockComponent implements OnChanges {
       this.readonly = false;
       this.contentReadonly = false;
     }
-    console.log(this.activity);
-    console.log(this.assoCompanyFormConfig);
   }
 
   returnModuleInfo(code: string, id: string): string {

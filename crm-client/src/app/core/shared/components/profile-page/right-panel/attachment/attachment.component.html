@@ -22,8 +22,9 @@
         }}
       </div>
 
-      <!-- add asso -->
+      <!-- add attachment -->
       <app-base-button
+        *ngIf="checkPermission('create', module, permission)"
         [isTextStyle]="true"
         [label]="'BUTTON.ADD' | translate"
         [rightIcon]="false"
