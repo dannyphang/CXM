@@ -1,5 +1,5 @@
 const DEFAULT_SYSTEM_TENANT = "SYSTEM_TENANT";
 const USER_PERMISSION_MODULE = ["CONT", "COMP", "TEAM", "SETTING", "PROPERTY"];
-const USER_PERMISSION_FIELD = ["create", "remove", "update", "display", "export", "download"];
+const USER_PERMISSION_FIELD = ["create", "remove", "update", "display", "export", "import"];
 
 export { DEFAULT_SYSTEM_TENANT, USER_PERMISSION_MODULE, USER_PERMISSION_FIELD };

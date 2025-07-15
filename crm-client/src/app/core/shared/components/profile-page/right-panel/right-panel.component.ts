@@ -3,6 +3,7 @@ import { ActivityDto, ActivityService } from '../../../../services/activity.serv
 import { PropertyGroupDto, ContactDto, CompanyDto, CommonService } from '../../../../services/common.service';
 import { AuthService } from '../../../../services/auth.service';
 import { ToastService } from '../../../../services/toast.service';
+import { UserPermissionDto } from '../../../../services/core-http.service';
 
 @Component({
   selector: 'app-right-panel',
@@ -15,6 +16,7 @@ export class RightPanelComponent {
   @Input() contactProfile: ContactDto = null;
   @Input() companyProfile: CompanyDto = null;
   @Input() activitiesList: ActivityDto[] = [];
+  @Input() permission: UserPermissionDto[] = [];
   @Output() getProfileEmit: EventEmitter<any> = new EventEmitter();
   @Output() getActivityEmit: EventEmitter<any> = new EventEmitter();
 

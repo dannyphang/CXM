@@ -40,66 +40,60 @@ export class LayoutComponent {
     this.onResize();
 
     // this.initBlobity(true);
-
-    this.coreAuthService.getCurrentAuthUser().then(async userC => {
-      if (userC) {
-        this.user = userC;
-        // get permission
-        this.authService.getUserPermission(this.user.uid).then(permission => {
-          this.user.permission = permission;
-          this.permission = permission;
-        })
-
-        this.commonService.getLanguageOptions().subscribe(res => {
-          let lang = res.data.find(l => l.id === this.user.setting?.defaultLanguage).code || 'en';
-          this.translateService.setDefaultLang(lang);
-          this.translateService.use(lang);
-        });
-
-        this.commonService.getParamsUrl().then(params => {
-          // update calendar email and calendarId if they are provided in the URL
-          if (params.calendarEmail) {
-            if (this.user.setting.calendarEmail !== params.calendarEmail) {
-              this.user.setting.calendarId = params.calendarEmail;
-            }
-            this.user.setting.calendarEmail = params.calendarEmail;
-            this.authService.updateUserFirestore([this.user]).subscribe({});
-          }
-        })
-        // loading tenant toast
-        this.toastService.addSingle({
-          key: 'tenant',
-          message: this.translateService.instant('COMMON.LOADING',
-            {
-              module: this.translateService.instant('COMMON.TENANT')
-            }
-          ),
-          severity: 'info',
-          isLoading: true
-        });
-        // fetch tenant list
-        this.coreService.getTenantsByUserId(this.user.uid).subscribe(res3 => {
-          if (res3.isSuccess) {
-            this.tenantList = res3.data;
-            this.tenantOptionsList = this.tenantList.map(t => {
-              return {
-                label: t.tenantName,
-                value: t.uid
-              }
-            });
-            this.toastService.clear('tenant');
-          }
-        });
-
-        this.langLoaded = true;
-        await this.fetchCalendar();
-      }
-      else {
-        // this.router.navigate(["/signin"]);
-      }
-    }).catch(error => {
+    this.user = this.coreAuthService.userC;
+    if (!this.user) {
       this.router.navigate(["/signin"]);
+    }
+
+    // get permission
+    this.permission = this.coreAuthService.permission;
+    this.user.permission = this.coreAuthService.permission;
+
+    // get language
+    this.commonService.getLanguageOptions().subscribe(res => {
+      let lang = res.data.find(l => l.id === this.user.setting?.defaultLanguage).code || 'en';
+      this.translateService.setDefaultLang(lang);
+      this.translateService.use(lang);
     });
+
+    this.commonService.getParamsUrl().then(params => {
+      // update calendar email and calendarId if they are provided in the URL
+      if (params.calendarEmail) {
+        if (this.user.setting.calendarEmail !== params.calendarEmail) {
+          this.user.setting.calendarId = params.calendarEmail;
+        }
+        this.user.setting.calendarEmail = params.calendarEmail;
+        this.authService.updateUserFirestore([this.user]).subscribe({});
+      }
+    })
+
+    // loading tenant toast
+    this.toastService.addSingle({
+      key: 'tenant',
+      message: this.translateService.instant('COMMON.LOADING',
+        {
+          module: this.translateService.instant('COMMON.TENANT')
+        }
+      ),
+      severity: 'info',
+      isLoading: true
+    });
+    // fetch tenant list
+    this.coreService.getTenantsByUserId(this.user.uid).subscribe(res3 => {
+      if (res3.isSuccess) {
+        this.tenantList = res3.data;
+        this.tenantOptionsList = this.tenantList.map(t => {
+          return {
+            label: t.tenantName,
+            value: t.uid
+          }
+        });
+        this.toastService.clear('tenant');
+      }
+    });
+
+    this.langLoaded = true;
+    await this.calendarService.getCalendarEvent(this.coreAuthService.userC.setting?.calendarEmail, this.coreAuthService.userC.setting?.calendarId);
   }
 
   @HostListener('window:resize', ['$event'])
@@ -140,37 +134,5 @@ export class LayoutComponent {
 
   blobityFunc(isOn: boolean) {
     this.initBlobity(isOn);
-  }
-
-  fetchCalendar(): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-      try {
-        this.calendarService.fetchCalendar(this.coreAuthService.userC.setting?.calendarEmail, this.coreAuthService.userC.setting?.calendarId).subscribe({
-          next: calendar => {
-            let events: CalendarEventDto[] = calendar.data.map(event => ({
-              id: event.id,
-              subject: event.summary,
-              isAllDay: event.start.dateTime ? false : true,
-              startTime: new Date(event.start.dateTime || event.start.date),
-              endTime: new Date(event.end.dateTime || event.end.date),
-              location: event.location || '',
-              description: event.description || '',
-              recurrenceRule: event.recurrence ? event.recurrence.rule : '',
-              recurrenceID: event.recurrence ? event.recurrence.id : null,
-              iCalUid: event.iCalUid || '',
-            }));
-            this.calendarService.calendarSettingEvents = events;
-            resolve();
-          },
-          error: error => {
-            console.error('Error fetching Calendar:', error);
-          }
-        });
-      }
-      catch (error) {
-        console.error('Error in fetchCalendar:', error);
-        reject(error);
-      }
-    });
   }
 }

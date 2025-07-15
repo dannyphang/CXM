@@ -52,8 +52,8 @@ export class TeamComponent extends BaseCoreAbstract implements OnChanges {
       header: 'Display'
     },
     {
-      field: 'download',
-      header: 'Download'
+      field: 'import',
+      header: 'Import'
     },
     {
       field: 'export',
@@ -108,7 +108,7 @@ export class TeamComponent extends BaseCoreAbstract implements OnChanges {
     private commonService: CommonService,
     private toastService: ToastService
   ) {
-    super();
+    super(coreAuthService);
     this.windowSize = this.commonService.windowSize;
   }
 
@@ -183,7 +183,7 @@ export class TeamComponent extends BaseCoreAbstract implements OnChanges {
           remove: new FormControl(permi.remove),
           update: new FormControl(permi.update),
           display: new FormControl(permi.display),
-          download: new FormControl(permi.download),
+          import: new FormControl(permi.import),
           export: new FormControl(permi.export),
         }
       });
@@ -294,12 +294,6 @@ export class TeamComponent extends BaseCoreAbstract implements OnChanges {
   }
 
   submitPermission() {
-    // this.authService.updateUserFirestore(this.updateUserList).subscribe(res => {
-    //   if (res.isSuccess) {
-    //     console.log(res)
-    //   }
-    // })
-
     this.authService.updateUserPermission(this.selectedUserFormGroup.controls['user'].value, this.updatePermissionList).subscribe({
       next: res => {
         if (res.isSuccess) {
@@ -339,7 +333,7 @@ export class TeamComponent extends BaseCoreAbstract implements OnChanges {
           remove: p.permission.remove.value ?? false,
           update: p.permission.update.value ?? false,
           display: p.permission.display.value ?? false,
-          download: p.permission.download.value ?? false,
+          import: p.permission.import.value ?? false,
           export: p.permission.export.value ?? false,
         }
       })

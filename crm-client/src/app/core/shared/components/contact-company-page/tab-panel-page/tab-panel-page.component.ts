@@ -9,7 +9,7 @@ import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms'
 import { NavigationExtras, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { AuthService, CreateUserDto } from '../../../../services/auth.service';
-import { CoreHttpService } from '../../../../services/core-http.service';
+import { CoreHttpService, UserPermissionDto } from '../../../../services/core-http.service';
 import { ToastService } from '../../../../services/toast.service';
 import { MenuItem } from 'primeng/api';
 import { CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../../../../services/components.service';
@@ -84,12 +84,13 @@ export class TabPanelPageComponent implements OnChanges {
   tempColumnFilterList: PropertiesDto[] = [];
   //#endregion
 
+
   constructor(
     private commonService: CommonService,
     private router: Router,
     private formBuilder: FormBuilder,
     private translateService: TranslateService,
-    private authService: AuthService,
+    public authService: AuthService,
     private toastService: ToastService,
     private coreService: CoreHttpService,
     private coreAuthService: CoreAuthService
@@ -1072,7 +1073,7 @@ export class TabPanelPageComponent implements OnChanges {
   }
 
   downloadTemplate() {
-    if (this.authService.returnPermissionObj(this.module, 'download')) {
+    if (this.authService.returnPermissionObj(this.module, 'import')) {
       // Create a workbook and worksheet
       const workbook = new ExcelJS.Workbook();
       const worksheet = workbook.addWorksheet(this.panel.headerLabel);
@@ -1295,17 +1296,21 @@ export class TabPanelPageComponent implements OnChanges {
   }
 
   toProfile(profile: ContactDto | CompanyDto) {
-    const navigationExtras: NavigationExtras = {
-      state: {
-        module: this.module
-      }
-    };
+    console.log(this.coreAuthService.userC);
+    console.log(this.authService.returnPermissionObj(this.module, 'display'));
+    if (this.authService.returnPermissionObj(this.module, 'display')) {
+      const navigationExtras: NavigationExtras = {
+        state: {
+          module: this.module
+        }
+      };
 
-    if (this.module === 'CONT') {
-      this.router.navigate(['contact/profile/' + profile.uid], navigationExtras);
-    }
-    else {
-      this.router.navigate(['company/profile/' + profile.uid], navigationExtras);
+      if (this.module === 'CONT') {
+        this.router.navigate(['contact/profile/' + profile.uid], navigationExtras);
+      }
+      else {
+        this.router.navigate(['company/profile/' + profile.uid], navigationExtras);
+      }
     }
   }
   //#endregion

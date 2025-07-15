@@ -53,11 +53,11 @@ export class CreateComponent extends BaseCoreAbstract {
     private authService: AuthService,
     private toastService: ToastService,
     private coreService: CoreHttpService,
-    private coreAuthService: CoreAuthService,
+    protected coreAuthService: CoreAuthService,
     private commonService: CommonService,
     private calendarService: CalendarService,
   ) {
-    super()
+    super(coreAuthService)
   }
 
   ngOnInit() {
@@ -298,7 +298,7 @@ export class CreateComponent extends BaseCoreAbstract {
   }
 
   imageFileUploadBtn() {
-    if (this.checkPermission('update', this.module, this.permission, this.coreAuthService.userC.roleId)) {
+    if (this.checkPermission('update', this.module, this.permission)) {
       if (this.profileImg !== DEFAULT_PROFILE_PIC_URL && this.profilePhotoFile) {
         this.storageService.uploadImage(this.profilePhotoFile, "Image/User/").then(url => {
           this.profileImg = url;
@@ -356,7 +356,7 @@ export class CreateComponent extends BaseCoreAbstract {
   }
 
   update() {
-    if (this.checkPermission('update', this.module, this.permission, this.coreAuthService.userC.roleId)) {
+    if (this.checkPermission('update', this.module, this.permission)) {
       if (this.createFormGroup.controls['password'].value && this.createFormGroup.controls['confirm_password'].value) {
         if (this.createFormGroup.controls['password'].value === this.createFormGroup.controls['confirm_password'].value) {
           this.authService.updateUserAuthPassword(this.createFormGroup.controls['password'].value, this.userProfile.authUid).subscribe(res => {

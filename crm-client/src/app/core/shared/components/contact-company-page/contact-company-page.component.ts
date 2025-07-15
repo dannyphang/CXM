@@ -48,11 +48,6 @@ export class ContactCompanyPageComponent implements OnChanges {
   tabLabelArr: FormArray = this.formBuilder.array([]);
   closeDialogVisible: boolean = false;
   selectedPanel: number = -1;
-
-  canDownload: boolean = false;
-  canExport: boolean = false;
-  canDelete: boolean = false;
-  canCreate: boolean = false;
   //#endregion
 
   constructor(
@@ -60,7 +55,7 @@ export class ContactCompanyPageComponent implements OnChanges {
     private router: Router,
     private formBuilder: FormBuilder,
     private translateService: TranslateService,
-    private authService: AuthService,
+    public authService: AuthService,
     private toastService: ToastService,
     private coreService: CoreHttpService,
     private coreAuthService: CoreAuthService,
@@ -100,24 +95,6 @@ export class ContactCompanyPageComponent implements OnChanges {
 
     // assign active tab panel from userC
     this.getPanelListFromSetting();
-
-    Promise.all([]).then(_ => {
-      if (this.coreAuthService.userC.permission) {
-        console.log(this.coreAuthService.userC.permission);
-        this.canDownload = this.coreAuthService.userC.permission.find(p => p.module === this.module)?.permission.download ?? false;
-        this.canExport = this.coreAuthService.userC.permission.find(p => p.module === this.module)?.permission.export ?? false;
-        this.canDelete = this.coreAuthService.userC.permission.find(p => p.module === this.module)?.permission.remove ?? false;
-        this.canCreate = this.coreAuthService.userC.permission.find(p => p.module === this.module)?.permission.create ?? false;
-      }
-
-      // this.getTabLabelArr.valueChanges.subscribe((value: any) => {
-      //   this.getTabLabelArr.controls.find((item: any) => item.value.index === this.activeTabPanel).valueChanges.subscribe((value: any) => {
-      //     this.getTabLabelArr.controls.find((item: any) => item.value.index === this.activeTabPanel).setValue(value, { emitEvent: false });
-      //     this.panelList.find(p => p.panelUid === this.activeTabPanel)!.headerLabel = value.tabLabel;
-      //   });
-      // });
-
-    });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -258,7 +235,7 @@ export class ContactCompanyPageComponent implements OnChanges {
   }
 
   tabViewOnClose() {
-    if (this.authService.returnPermissionObj(this.module, 'update')) {
+    if (this.authService.returnPermissionObj("SETTING", 'update')) {
       this.updateUserfilterSetting([], true, this.panelList[this.selectedPanel].panelUid);
       this.updateUserColumnSetting(null, true, this.panelList[this.selectedPanel].panelUid);
       this.panelList = this.panelList.filter((p, index) => index !== this.selectedPanel);
@@ -266,7 +243,10 @@ export class ContactCompanyPageComponent implements OnChanges {
       this.closeDialogVisible = false;
     }
     else {
-      // TODO
+      this.toastService.addSingle({
+        message: this.translateService.instant('MESSAGE.PERMISSION_DENIED'),
+        severity: 'error'
+      });
     }
   }
 
@@ -276,7 +256,7 @@ export class ContactCompanyPageComponent implements OnChanges {
   }
 
   updateUserSetting(setting: SettingDto) {
-    if (this.authService.returnPermissionObj(this.module, 'update')) {
+    if (this.authService.returnPermissionObj('SETTING', 'update')) {
       let updateUser: UpdateUserDto = {
         uid: this.coreAuthService.userC.uid,
         setting: setting
@@ -296,7 +276,11 @@ export class ContactCompanyPageComponent implements OnChanges {
       });
     }
     else {
-      // TODO
+      console.log('Permission denied for updating user setting');
+      this.toastService.addSingle({
+        message: this.translateService.instant('MESSAGE.PERMISSION_DENIED'),
+        severity: 'error'
+      });
     }
   }
 

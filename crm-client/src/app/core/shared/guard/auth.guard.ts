@@ -20,8 +20,13 @@ export class AuthGuard implements CanActivate {
 
     getUser(): Promise<UserDto | null> {
         return new Promise((resolve, reject) => {
-            this.coreAuthService.getCurrentAuthUser().then(res => {
-                resolve(res)
+            this.coreAuthService.getCurrentAuthUser().then(user => {
+                this.coreAuthService.user = user;
+                this.authService.getUserPermission(user.uid).then(permission => {
+                    this.coreAuthService.userPermission = permission;
+                }).finally(() => {
+                    resolve(user)
+                });
             }).catch(err => {
                 console.log(err);
                 resolve(null);

@@ -3,7 +3,7 @@
     "CONTACT": "联系人",
     "COMPANY": "公司",
     "DATA_LOADING": "数据加载中...",
-    "LOADING": "正在加载 {{module}}",
+    "LOADING": "正在加载 {{module}} ...",
     "SEARCH": "搜索",
     "ACTIVITY": "活动",
     "TENANT": "租户",
@@ -13,7 +13,8 @@
     "OTHERS": "其他",
     "SETTING": "设定",
     "ROLE": "角色",
-    "LANGUAGE": "语言"
+    "LANGUAGE": "语言",
+    "CALENDAR": "日历"
   },
   "HEADER": {
     "SETTING": "设定",
@@ -78,7 +79,8 @@
     "FILE_ALREADY_EXISTS": "文件已存在（文件：{{file_name}}）。",
     "FILE_NOT_READABLE_OR_PREVIEW": "文件不可读或预览链接不可用。",
     "CREATING_MEETING": "正在创建会议...",
-    "CONNECT_EMAIL_FAILED": "连接邮箱失败，请检查您的邮箱设置。"
+    "CONNECT_EMAIL_FAILED": "连接邮箱失败，请检查您的邮箱设置。",
+    "PERMISSION_DENIED": "您没有执行此操作的权限。"
   },
   "BUTTON": {
     "SAVE": "保存",

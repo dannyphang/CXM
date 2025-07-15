@@ -55,6 +55,7 @@
       <!-- desktop/tablet action div -->
       <div class="tw-flex">
         <app-base-button
+          *ngIf="authService.returnPermissionObj(module, 'export')"
           [iconName]="'pi pi-upload'"
           [rounded]="true"
           [isTextStyle]="true"
@@ -62,6 +63,7 @@
           (onClick)="exportFile(dt.processedData)"
         ></app-base-button>
         <app-base-button
+          *ngIf="authService.returnPermissionObj(module, 'import')"
           [iconName]="'pi pi-download'"
           [rounded]="true"
           [isTextStyle]="true"
@@ -69,6 +71,7 @@
           (onClick)="uploader.click()"
         ></app-base-button>
         <app-base-button
+          *ngIf="authService.returnPermissionObj(module, 'import')"
           [iconName]="'pi pi-cloud-download'"
           [rounded]="true"
           [isTextStyle]="true"
@@ -76,6 +79,7 @@
           (onClick)="downloadTemplate()"
         ></app-base-button>
         <app-base-button
+          *ngIf="authService.returnPermissionObj(module, 'create')"
           [iconName]="'pi pi-plus'"
           [rounded]="true"
           [isTextStyle]="true"
@@ -87,7 +91,10 @@
           [rounded]="true"
           [isTextStyle]="true"
           (onClick)="delete()"
-          *ngIf="selectedProfile.length > 0"
+          *ngIf="
+            selectedProfile.length > 0 &&
+            authService.returnPermissionObj(module, 'remove')
+          "
           [pTooltip]="'BUTTON.DELETE' | translate"
         />
       </div>

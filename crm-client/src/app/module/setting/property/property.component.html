@@ -48,12 +48,7 @@
           <div class="tw-flex">
             <app-base-button
               *ngIf="
-                checkPermission(
-                  'create',
-                  moduleFormControl.value,
-                  permission,
-                  roleId
-                )
+                checkPermission('create', moduleFormControl.value, permission)
               "
               [iconName]="'pi pi-plus'"
               [rounded]="true"
@@ -64,12 +59,7 @@
             <app-base-button
               *ngIf="
                 selectedProperty.length > 0 &&
-                checkPermission(
-                  'remove',
-                  moduleFormControl.value,
-                  permission,
-                  roleId
-                )
+                checkPermission('remove', moduleFormControl.value, permission)
               "
               [iconName]="'pi pi-trash'"
               [rounded]="true"

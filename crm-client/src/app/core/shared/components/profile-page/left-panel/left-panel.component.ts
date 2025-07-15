@@ -206,8 +206,3 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
     this.profilePhotoFile = null;
   }
 }
-
-class profileUpdateDto {
-  property: PropertiesDto;
-  value: string;
-}

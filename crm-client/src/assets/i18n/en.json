@@ -3,7 +3,7 @@
     "CONTACT": "Contact",
     "COMPANY": "Company",
     "DATA_LOADING": "Data loading...",
-    "LOADING": "Loading {{module}}",
+    "LOADING": "Loading {{module}} ...",
     "SEARCH": "Search",
     "ACTIVITY": "Activity",
     "TENANT": "Tenant",
@@ -13,7 +13,8 @@
     "OTHERS": "Others",
     "SETTING": "Setting",
     "ROLE": "Role",
-    "LANGUAGE": "Language"
+    "LANGUAGE": "Language",
+    "CALENDAR": "Calendar"
   },
   "HEADER": {
     "SETTING": "Setting",
@@ -78,7 +79,8 @@
     "FILE_ALREADY_EXISTS": "File already exists on {{file_name}}.",
     "FILE_NOT_READABLE_OR_PREVIEW": "File is not readable or preview URL is not available.",
     "CREATING_MEETING": "Creating meeting...",
-    "CONNECT_EMAIL_FAILED": "Failed to connect email. Please check your email settings."
+    "CONNECT_EMAIL_FAILED": "Failed to connect email. Please check your email settings.",
+    "PERMISSION_DENIED": "You do not have permission to perform this action."
   },
   "BUTTON": {
     "SAVE": "Save",

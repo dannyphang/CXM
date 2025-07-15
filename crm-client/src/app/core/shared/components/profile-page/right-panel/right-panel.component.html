@@ -5,6 +5,7 @@
     [contactProfile]="contactProfile"
     [companyProfile]="companyProfile"
     (getProfileEmit)="getProfileEmit.emit($event)"
+    [permission]="permission"
   ></app-association>
   <app-attachment
     [module]="module"
@@ -12,5 +13,6 @@
     [companyProfile]="companyProfile"
     [activitiesList]="activitiesList"
     (updateAttachmentEmit)="getActivityEmit.emit()"
+    [permission]="permission"
   ></app-attachment>
 </div>
