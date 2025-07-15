@@ -530,4 +530,164 @@ router.get("/verify-email", async (req, res) => {
     }
 });
 
+// get permission by userId
+router.get("/permission/:id", async (req, res) => {
+    try {
+        const userUid = req.params.id;
+        const tenantId = func.body(req).tenantId;
+
+        if (!userUid || !tenantId) {
+            res.status(400).json(
+                func.responseModel({
+                    isSuccess: false,
+                    responseMessage: "User UID and Tenant ID are required.",
+                })
+            );
+            return;
+        }
+
+        authImp
+            .getPermissionByUserId({
+                userUid: userUid,
+                tenantId: tenantId,
+            })
+            .then((permissionData) => {
+                res.status(200).json(
+                    func.responseModel({
+                        data: permissionData,
+                        responseMessage: "Permission retrieved successfully.",
+                    })
+                );
+            })
+            .catch((error) => {
+                console.log("error", error);
+                API.createLog(error, req, res, 500, logModule);
+                res.status(500).json(
+                    func.responseModel({
+                        isSuccess: false,
+                        responseMessage: error,
+                    })
+                );
+            });
+    } catch (error) {
+        console.log("error", error);
+        API.createLog(error, req, res, 500, logModule);
+        res.status(500).json(
+            func.responseModel({
+                isSuccess: false,
+                responseMessage: error,
+            })
+        );
+    }
+});
+
+// create permission
+router.post("/permission", async (req, res) => {
+    try {
+        const userId = func.body(req).userId;
+        const tenantId = func.body(req).tenantId;
+        const permissionList = JSON.parse(JSON.stringify(func.body(req).data.permission));
+        if (!userId || !tenantId || !permissionList) {
+            res.status(400).json(
+                func.responseModel({
+                    isSuccess: false,
+                    responseMessage: "User ID, Tenant ID, and Permission List are required.",
+                })
+            );
+            return;
+        }
+        authImp
+            .createPermission({
+                userId: userId,
+                tenantId: tenantId,
+                permissionList: permissionList,
+            })
+            .then((permissionData) => {
+                res.status(200).json(
+                    func.responseModel({
+                        data: permissionData,
+                        responseMessage: `Created ${permissionData.length} permission record(s) successfully.`,
+                    })
+                );
+            })
+            .catch((error) => {
+                console.log("error", error);
+                API.createLog(error, req, res, 500, logModule);
+                res.status(500).json(
+                    func.responseModel({
+                        isSuccess: false,
+                        responseMessage: error,
+                    })
+                );
+            });
+    } catch (error) {
+        console.log("error", error);
+        API.createLog(error, req, res, 500, logModule);
+        res.status(500).json(
+            func.responseModel({
+                isSuccess: false,
+                responseMessage: error,
+            })
+        );
+    }
+});
+
+// get permission by tenantId
+
+// update permission
+router.put("/permission", async (req, res) => {
+    try {
+        const permissionList = func.body(req).data.permission;
+        const userUid = func.body(req).data.userUid;
+        const tenantId = func.body(req).tenantId;
+        const userId = func.body(req).userId;
+
+        if (!permissionList || !userUid || !tenantId || !userId) {
+            console.log(permissionList, userUid, tenantId, userId);
+            res.status(400).json(
+                func.responseModel({
+                    isSuccess: false,
+                    responseMessage: "Permission List, User UID, Tenant ID, and User ID are required.",
+                })
+            );
+            return;
+        }
+
+        authImp
+            .updatePermission({
+                userUid: userUid,
+                tenantId: tenantId,
+                userId: userId,
+                permissionList: permissionList,
+            })
+            .then((permissionData) => {
+                res.status(200).json(
+                    func.responseModel({
+                        data: permissionData,
+                        responseMessage: `Updated ${permissionData.length} permission record(s).`,
+                    })
+                );
+            })
+            .catch((error) => {
+                console.log("error", error);
+                API.createLog(error, req, res, 500, logModule);
+                res.status(500).json(
+                    func.responseModel({
+                        isSuccess: false,
+                        responseMessage: error,
+                    })
+                );
+            });
+    } catch (error) {
+        console.log("error", error);
+        API.createLog(error, req, res, 500, logModule);
+        res.status(500).json(
+            func.responseModel({
+                isSuccess: false,
+                responseMessage: error,
+            })
+        );
+    }
+});
+
 export default router;

@@ -10,7 +10,7 @@ import { Observable, takeUntil } from 'rxjs';
 export class BaseCheckboxComponent
   extends BaseFieldDataSourceControl
   implements OnInit {
-  @Input() override options: { label: any; value: any; required?: boolean; disabled?: boolean }[] = [];
+  @Input() override options: { label?: any; value: any; required?: boolean; disabled?: boolean }[] = [];
   @Input() direction: 'row' | 'column' = 'row';
   @Input() optionsContainerClass = '';
   @Input() singleSelect = false;

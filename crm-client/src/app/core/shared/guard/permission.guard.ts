@@ -32,8 +32,7 @@ export class PermissionGuard extends BaseCoreAbstract implements CanActivate {
 
                 let permit: boolean = true;
                 if (user?.roleId !== 1) {
-                    permit = this.checkPermission(route.data['action'], route.data['module'], this.authService.returnPermission(this.coreAuthService.userC.permission), this.coreAuthService.userC.roleId);
-                    console.log("permit: " + permit)
+                    permit = this.checkPermission(route.data['action'], route.data['module'], await this.authService.getUserPermission(this.coreAuthService.userC.uid), this.coreAuthService.userC.roleId);
                 }
                 if (!permit) {
                     this.router.navigate([]);

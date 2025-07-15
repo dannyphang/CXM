@@ -338,6 +338,67 @@ function getAllRoles() {
     });
 }
 
+function getPermissionByUserId({ userUid, tenantId }) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const { data, error } = await supabase.from("permission").select("*").eq("userUid", userUid).eq("tenantId", tenantId).eq("statusId", 1).order("module");
+
+            if (error) {
+                reject(error);
+            }
+            if (data && data.length > 0) {
+                resolve(data);
+            } else {
+                reject("Permission not found for the user and tenant");
+            }
+        } catch (error) {
+            console.error("Error fetching permission by user ID:", error);
+            reject(error);
+        }
+    });
+}
+
+function createPermission({ permission }) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const { data, error } = await supabase.from("permission").insert(permission).select("*").single();
+            if (error) {
+                reject(error);
+            } else {
+                resolve(data);
+            }
+        } catch (error) {
+            console.error("Error creating permission:", error);
+            reject(error);
+        }
+    });
+}
+
+function updatePermission({ permission }) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const { data, error } = await supabase
+                .from("permission")
+                .update(permission)
+                .eq("userUid", permission.userUid)
+                .eq("tenantId", permission.tenantId)
+                .eq("module", permission.module)
+                .eq("statusId", 1)
+                .select("*")
+                .single();
+
+            if (error) {
+                reject(error);
+            } else {
+                resolve(data);
+            }
+        } catch (error) {
+            // console.error("Error updating permission:", error);
+            reject(error);
+        }
+    });
+}
+
 export {
     getAllUsers,
     createUser,
@@ -355,4 +416,7 @@ export {
     createTenant,
     getAllRoles,
     updateUserSetting,
+    getPermissionByUserId,
+    createPermission,
+    updatePermission,
 };

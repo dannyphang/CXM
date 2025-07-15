@@ -102,10 +102,13 @@ export class ContactCompanyPageComponent implements OnChanges {
     this.getPanelListFromSetting();
 
     Promise.all([]).then(_ => {
-      this.canDownload = this.authService.returnPermission(this.coreAuthService.userC.permission).find(p => p.module === this.module)?.permission.download ?? false;
-      this.canExport = this.authService.returnPermission(this.coreAuthService.userC.permission).find(p => p.module === this.module)?.permission.export ?? false;
-      this.canDelete = this.authService.returnPermission(this.coreAuthService.userC.permission).find(p => p.module === this.module)?.permission.remove ?? false;
-      this.canCreate = this.authService.returnPermission(this.coreAuthService.userC.permission).find(p => p.module === this.module)?.permission.create ?? false;
+      if (this.coreAuthService.userC.permission) {
+        console.log(this.coreAuthService.userC.permission);
+        this.canDownload = this.coreAuthService.userC.permission.find(p => p.module === this.module)?.permission.download ?? false;
+        this.canExport = this.coreAuthService.userC.permission.find(p => p.module === this.module)?.permission.export ?? false;
+        this.canDelete = this.coreAuthService.userC.permission.find(p => p.module === this.module)?.permission.remove ?? false;
+        this.canCreate = this.coreAuthService.userC.permission.find(p => p.module === this.module)?.permission.create ?? false;
+      }
 
       // this.getTabLabelArr.valueChanges.subscribe((value: any) => {
       //   this.getTabLabelArr.controls.find((item: any) => item.value.index === this.activeTabPanel).valueChanges.subscribe((value: any) => {

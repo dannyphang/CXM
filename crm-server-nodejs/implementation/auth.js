@@ -1,6 +1,7 @@
 import * as authRepo from "../repository/auth.repository.js";
 import * as tokenRepo from "../repository/token.repository.js";
 import * as func from "../shared/function.js";
+import * as constant from "../shared/constant.js";
 import FormData from "form-data"; // form-data v4.0.1
 import Mailgun from "mailgun.js";
 import * as config from "../configuration/config.js";
@@ -30,6 +31,14 @@ function createUser({ userId, tenantId, createUserList }) {
                     userSetting.userUid = userData.uid;
 
                     let createdUser = await authRepo.createUser({ user: userData });
+
+                    // create user permission
+                    await createPermission({
+                        userId: userId,
+                        tenantId: tenantId,
+                        newUserUid: createdUser.uid,
+                    });
+
                     userSetting.userUid = createdUser.uid;
                     await authRepo.createUserSetting({ userSetting: userSetting });
                     let asso = {
@@ -37,7 +46,6 @@ function createUser({ userId, tenantId, createUserList }) {
                         userUid: createdUser.uid,
                         statusId: 1, // Assuming 1 means active
                     };
-
                     await authRepo.createUserTenantAsso({ asso: asso });
 
                     return;
@@ -75,8 +83,6 @@ function getUserById({ uid }) {
                 .getUserById({ uid: uid })
                 .then((user) => {
                     let userData = user;
-                    userData.createdDate = func.convertFirebaseDateFormat(userData.createdDate);
-                    userData.modifiedDate = func.convertFirebaseDateFormat(userData.modifiedDate);
                     resolve(userData);
                 })
                 .catch((error) => {
@@ -299,7 +305,6 @@ function updateUserLastActive({ user }) {
             user.lastActiveDateTime = new Date();
 
             authRepo.updateUser({ user }).then((u) => {
-                user.lastActiveDateTime = func.convertFirebaseDateFormat(user.lastActiveDateTime);
                 resolve(user);
             });
         } catch (error) {
@@ -411,6 +416,97 @@ function verifyEmail({ token, email, uid }) {
     });
 }
 
+function getPermissionByUserId({ userUid, tenantId }) {
+    return new Promise((resolve, reject) => {
+        try {
+            authRepo
+                .getPermissionByUserId({ userUid: userUid, tenantId: tenantId })
+                .then((permissionList) => {
+                    if (!permissionList) {
+                        return reject("Permission not found for this user.");
+                    }
+
+                    const result = permissionList.map((permit) => {
+                        // Convert field array to single object
+                        const permissions = constant.USER_PERMISSION_FIELD.reduce((acc, field) => {
+                            acc[field] = permit[field];
+                            return acc;
+                        }, {});
+
+                        return {
+                            module: permit.module,
+                            permission: permissions,
+                        };
+                    });
+
+                    resolve(result);
+                })
+                .catch((error) => {
+                    console.error("Error retrieving permission:", error);
+                    reject(error);
+                });
+        } catch (error) {
+            console.error("Error in getPermissionByUserId:", error);
+            reject(error);
+        }
+    });
+}
+
+function createPermission({ userId, tenantId, newUserUid }) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let permissionAsync = await Promise.all(
+                constant.USER_PERMISSION_MODULE.map(async (permission) => {
+                    let p = {
+                        userUid: newUserUid,
+                        module: permission,
+                        tenantId: tenantId,
+                        createdBy: userId,
+                        modifiedBy: userId,
+                    };
+                    return authRepo.createPermission({ permission: p });
+                })
+            );
+
+            resolve(permissionAsync);
+        } catch (error) {
+            console.error("Error creating permission:", error);
+            reject(error);
+        }
+    });
+}
+
+function updatePermission({ userId, tenantId, userUid, permissionList }) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            let updatedPermissionList = await Promise.all(
+                permissionList.map(async (permission) => {
+                    let p = {
+                        userUid: userUid,
+                        module: permission.module,
+                        tenantId: tenantId,
+                        statusId: permission.statusId,
+                        modifiedBy: userId,
+                    };
+
+                    constant.USER_PERMISSION_FIELD.forEach((field) => {
+                        console.log("field", field);
+                        p[field] = permission.permission[field];
+                    });
+
+                    console.log(p);
+                    return authRepo.updatePermission({ permission: p });
+                })
+            );
+
+            resolve(updatedPermissionList);
+        } catch (error) {
+            console.error("Error updating permission:", error);
+            reject(error);
+        }
+    });
+}
+
 export {
     getAllUsers,
     createUser,
@@ -426,4 +522,7 @@ export {
     updateUserLastActive,
     sentVerifyEmail,
     verifyEmail,
+    getPermissionByUserId,
+    createPermission,
+    updatePermission,
 };

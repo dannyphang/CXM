@@ -42,12 +42,19 @@
               *ngIf="col.field !== 'module'"
               class="tw-flex tw-justify-center"
             >
-              <p-inputSwitch
+              <!-- <p-inputSwitch
                 [ngModel]="rowData.permission[col.field].value"
                 (onChange)="
                   permissionSwitchOnChange(rowData, col.field, $event)
                 "
-              />
+              /> -->
+              <p-checkbox
+                [ngModel]="rowData.permission[col.field].value"
+                [binary]="true"
+                (onChange)="
+                  permissionSwitchOnChange(rowData, col.field, $event)
+                "
+              ></p-checkbox>
             </div>
           </td>
         </tr>
@@ -60,7 +67,7 @@
       <app-base-button
         [label]="'BUTTON.CANCEL' | translate"
         [severity]="'secondary'"
-        (onClick)="initPermissionTable('', true)"
+        (onClick)="initPermissionTable(null)"
       ></app-base-button>
       <app-base-button
         [label]="'BUTTON.SAVE' | translate"

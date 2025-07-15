@@ -69,7 +69,7 @@ export class ProfilePageComponent implements OnChanges {
   }
 
   getPermission() {
-    this.permission = this.authService.returnPermission(this.coreAuthService.userC.permission);
+    this.permission = this.coreAuthService.userC?.permission || [];
   }
 
   getProperties() {
