@@ -33,6 +33,7 @@
     "INVALID_DATE_RANGE": "开始日期必须早于结束日期。",
     "INVALID_EMAIL": "无效的邮箱。",
     "INVALID_PASSWORD": "无效的密码。",
+    "INVALID_PASSWORD_FORMAT": "密码格式无效。",
     "INVALID_URL": "无效的链接。",
     "NO_PROFILE_RECORD_FOUND": "没有匹配当前筛选条件的{{module}}。",
     "INVALID_SELECTION": "无效的选择",

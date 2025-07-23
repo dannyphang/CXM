@@ -66,6 +66,17 @@ export class BaseInputComponent
       });
     }
 
+    // validate password 
+    if (this.mode === 'password') {
+      this.fieldControl.valueChanges.subscribe(val => {
+        if (val?.length === 0 && this.required) {
+          this.fieldControl.setErrors({
+            require: true
+          });
+        }
+      });
+    }
+
     this.paddingForPrefix = this.prefix_content?.nativeElement.clientWidth;
   }
 

@@ -66,3 +66,8 @@ a {
   width: 70% !important;
   height: 70% !important;
 }
+
+::selection {
+  background-color: var(--highlight-bg);
+  color: var(--highlight-text-color);
+}
