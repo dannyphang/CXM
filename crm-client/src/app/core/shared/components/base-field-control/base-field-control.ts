@@ -8,7 +8,7 @@ export abstract class BaseFieldControlComponent {
     required: 'ERROR.YOU_CANNOT_LEAVE_IT_BLANK',
     passwordConfirmNotSame: 'ERROR.PASSWORD_MUST_BE_SAME',
     invalidEmail: 'ERROR.INVALID_EMAIL',
-    invalidPassword: 'ERROR.INVALID_PASSWORD',
+    invalidPassword: 'ERROR.INVALID_PASSWORD_FORMAT',
     invalidUrl: 'ERROR.INVALID_URL',
   };
   @Input() id?: string;

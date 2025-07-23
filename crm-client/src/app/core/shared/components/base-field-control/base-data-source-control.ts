@@ -37,12 +37,7 @@ export abstract class BaseFieldDataSourceControl
     | ((event?: BaseDataSourceActionEvent) => Observable<any>)
     | null = null;
   @Input() sortOption: boolean = false;
-  @Input() options: {
-    label?: any;
-    value: any;
-    disabled?: boolean;
-    preIcon?: string;
-  }[] = [];
+  @Input() options: OptionsModel[] = [];
   @Input() virtualScroll?: VirtualScrollConfig | true = undefined;
   @Input() totalRecords: number = 0;
 

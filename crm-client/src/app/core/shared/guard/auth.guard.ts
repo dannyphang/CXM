@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { CoreHttpService } from '../../services/core-http.service';
 import { CoreAuthService, UserDto } from '../../services/core-auth.service';
+import { CanActivate, Router } from '@angular/router';
 
 @Injectable({
     providedIn: 'root'
@@ -29,6 +29,7 @@ export class AuthGuard implements CanActivate {
                 });
             }).catch(err => {
                 console.log(err);
+                this.router.navigate(["/signin"]);
                 resolve(null);
             })
         })
@@ -36,13 +37,11 @@ export class AuthGuard implements CanActivate {
 
     async canActivate(): Promise<boolean> {
         return new Promise(async (resolve, reject) => {
-            if (await this.getUser()) {
-                return resolve(true); // Allow access to the route
-            } else {
-                // Redirect to the login page
-                this.router.navigate(['/']);
+            this.getUser().then(user => {
+                return resolve(true);
+            }).catch(error => {
                 return resolve(false);
-            }
+            })
         });
     }
 }

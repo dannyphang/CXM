@@ -25,6 +25,11 @@
   .dropdown-item {
     width: 100%;
   }
+
+  .dropdown-item-icon {
+    display: flex;
+    align-items: center;
+  }
 }
 
 .dropdow-spinner {

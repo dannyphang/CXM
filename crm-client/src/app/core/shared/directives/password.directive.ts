@@ -51,7 +51,7 @@ export class PasswordValidator implements Validator {
             }
         }
 
-        if (counter < 4) {
+        if (counter < 4 && password?.length > 0) {
             return { invalidPassword: true }
         }
     }

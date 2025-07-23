@@ -10,6 +10,7 @@ import {
 import { BaseFieldDataSourceControl } from '../base-field-control/base-data-source-control';
 import { Dropdown } from 'primeng/dropdown';
 import { Subject, debounceTime, distinctUntilChanged } from 'rxjs';
+import { IconStyle } from '../../../services/components.service';
 @Component({
   selector: 'app-base-dropdown',
   templateUrl: './dropdown.component.html',
@@ -90,5 +91,9 @@ export class BaseDropdownComponent
   onClick(event: any) {
     let element = <HTMLElement>event.target.closest('p-dropdown');
     this.overlayWidth = element.offsetWidth;
+  }
+
+  isObject(val: any): val is { icon: string, style?: IconStyle } {
+    return typeof val === 'object' && val !== null && 'icon' in val;
   }
 }

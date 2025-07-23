@@ -85,9 +85,16 @@ interface ErrorMessageList {
 export interface OptionsModel {
     label?: string;
     value: any;
-    preIcon?: string;
+    preIcon?: string | {
+        icon?: string;
+        style?: IconStyle;
+    };
     disabled?: boolean;
     required?: boolean;
+}
+
+export interface IconStyle {
+    [key: string]: string;
 }
 
 export interface TreeOptionsModel {

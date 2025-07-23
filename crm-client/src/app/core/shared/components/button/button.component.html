@@ -16,7 +16,8 @@
         [ngClass]="{
           'border-none': !outlined,
           'bg-red-400': color === 'red',
-          oneline: labelOneLine
+          oneline: labelOneLine,
+          'outline-hover': outlined || severity === 'secondary' || isTextStyle,
         }"
         [disabled]="disabled"
         (click)="click($event)"

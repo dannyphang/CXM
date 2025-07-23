@@ -111,7 +111,7 @@
             ></app-base-input>
           </div>
 
-          <div class="tw-flex">
+          <div class="tw-flex tw-gap-[var(--content-gap)]">
             <!-- create tenant btn -->
             <!-- <p-button
               *ngIf="
@@ -130,24 +130,26 @@
             ></p-button> -->
 
             <!-- add usr -role btn -->
-            <p-button
-              *ngIf="checkPermission('create', 'SETTING', permission)"
-              [icon]="'pi pi-plus'"
-              [text]="true"
-              [pTooltip]="'COMMON.USER' | translate"
+            <app-base-button
               [label]="'COMMON.USER' | translate"
+              [iconName]="'pi pi-plus'"
+              [isTextStyle]="true"
+              *ngIf="checkPermission('create', 'SETTING', permission)"
+              [pTooltip]="'COMMON.USER' | translate"
+              [outlined]="true"
               (onClick)="isAddRoleDialogVisible = true"
-            ></p-button>
+            ></app-base-button>
 
             <!-- create user btn -->
-            <p-button
+            <app-base-button
               *ngIf="coreAuthService.userC.roleId === 1"
-              [icon]="'pi pi-plus'"
-              [text]="true"
-              [pTooltip]="'BUTTON.CREATE_USER' | translate"
               [label]="'BUTTON.CREATE_USER' | translate"
+              [iconName]="'pi pi-plus'"
+              [isTextStyle]="true"
+              [outlined]="true"
+              [pTooltip]="'BUTTON.CREATE_USER' | translate"
               (onClick)="isCreateUserDialogVisible = true"
-            ></p-button>
+            ></app-base-button>
           </div>
         </div>
       </ng-template>
