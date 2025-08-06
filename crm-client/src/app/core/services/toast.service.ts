@@ -40,7 +40,7 @@ export class ToastService {
         const messageData = toastConfig.messageData || [];
 
         this.toasts.push({
-            severity: toastConfig.severity,
+            severity: toastConfig.severity ?? 'success',
             message:
                 typeof toastConfig.message === 'string'
                     ? this.translateService.instant(

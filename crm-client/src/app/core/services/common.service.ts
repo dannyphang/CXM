@@ -459,6 +459,7 @@ export class ContactDto extends BasedDto {
     contactId?: number;
     contactFirstName: string;
     contactLastName: string;
+    contactDisplayName?: string;
     contactEmail: string;
     contactPhone: string;
     contactOwnerUid?: string;
@@ -505,6 +506,7 @@ export class CompanyDto extends BasedDto {
     uid: string;
     companyId?: number;
     companyName: string;
+    companyDisplayName: string;
     companyEmail: string;
     companyWebsite: string;
     companyOwnerUid?: string;
