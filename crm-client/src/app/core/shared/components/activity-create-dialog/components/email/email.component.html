@@ -1,13 +1,11 @@
 <div class="email-template-container">
   <app-base-form [formConfig]="createEmailFormConfig"></app-base-form>
   <div class="text-editor tw-px-[var(--content-gap)]">
-    <p-editor
-      [formControl]="editorFormControl"
-      [style]="{ height: '200px' }"
-      [readonly]="false"
-      (onTextChange)="countTextLength($event)"
-      [placeholder]="'ACTIVITY.EDITOR_PLACEHOLDER' | translate"
-    />
+    <app-editor
+      [editorFormControl]="editorFormControl"
+      [placeholder]="'ACTIVITY.EDITOR_PLACEHOLDER'"
+      (onTextChangeEmit)="countTextLength($event)"
+    ></app-editor>
   </div>
   <app-base-button
     [label]="

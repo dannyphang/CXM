@@ -124,7 +124,29 @@
     "VIEW_ALL_PROPERTIES": "View all properties",
     "VERIFY_EMAIL": "Verify Email",
     "CONNECT_EMAIL": "Connect Email",
-    "DOWNLOAD": "Download"
+    "DOWNLOAD": "Download",
+    "EDITOR": {
+      "BOLD": "Bold",
+      "ITALIC": "Italic",
+      "UNDERLINE": "Underline",
+      "STRIKE": "Strike",
+      "BLOCKQUOTE": "Blockquote",
+      "CODE_BLOCK": "Code Block",
+      "HEADER": "Header",
+      "SIZE": "Size",
+      "COLOR": "Color",
+      "BACKGROUND_COLOR": "Highlight",
+      "ALIGNMENT": "Alignment",
+      "LINK": "Link",
+      "IMAGE": "Image",
+      "FORMULA": "Formula",
+      "CLEAN": "Clean Formatting",
+      "FONT": "Font",
+      "ORDERED_LIST": "Ordered List",
+      "BULLET_LIST": "Bullet List",
+      "CHECKLIST": "Checklist",
+      "VIDEO": "Video"
+    }
   },
   "INPUT": {
     "SEARCH": "Search",

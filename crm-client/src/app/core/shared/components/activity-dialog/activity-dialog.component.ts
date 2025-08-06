@@ -373,10 +373,8 @@ export class ActivityDialogComponent implements OnChanges {
     return durations;
   }
 
-  countTextLength(text: any) {
-    this.ngZone.run(() => {
-      this.contentWordLength = text.textValue.length;
-    });
+  countTextLength(length: number) {
+    this.contentWordLength = length;
   }
 
   fileUpload(event: any) {

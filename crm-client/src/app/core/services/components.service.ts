@@ -349,3 +349,26 @@ export interface TableConfig {
     code: string;
     icon?: string;
 }
+
+export interface EditorToolbarSetupDto {
+    bold?: boolean;
+    italic?: boolean;
+    underline?: boolean;
+    strike?: boolean;
+    orderedList?: boolean;
+    bulletList?: boolean;
+    checklist?: boolean;
+    link?: boolean;
+    image?: boolean;
+    video?: boolean;
+    clean?: boolean;
+    blockquote?: boolean;
+    codeBlock?: boolean;
+    align?: boolean;
+    size?: boolean;
+    font?: boolean;
+    color?: boolean;
+    backgroundColor?: boolean;
+    header?: boolean;
+    formula?: boolean;
+}
