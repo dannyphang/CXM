@@ -12,6 +12,11 @@ function getAllContacts({ tenantId }) {
             contactResp
                 .getAllContacts({ tenantId: tenantId })
                 .then((contactList) => {
+                    // concat contact first name and last name and store into contactDisplayName
+                    contactList = contactList.map((contact) => {
+                        contact.contactDisplayName = `${contact.contactFirstName} ${contact.contactLastName}`;
+                        return contact;
+                    });
                     resolve(contactList);
                 })
                 .catch((error) => {
@@ -42,6 +47,7 @@ function getContactById({ tenantId, contactUid }) {
                             contactUid: contactUid,
                         })
                         .then(async (asso) => {
+                            contactData.contactDisplayName = `${contactData.contactFirstName} ${contactData.contactLastName}`;
                             contactData.association = {};
 
                             let companyAssoList = await Promise.all(

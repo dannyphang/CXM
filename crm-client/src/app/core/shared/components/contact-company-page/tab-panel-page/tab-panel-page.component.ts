@@ -101,12 +101,12 @@ export class TabPanelPageComponent implements OnChanges {
 
   ngOnChanges(changes: SimpleChanges): void {
     if ((changes['panel'] && changes['panel'].currentValue) && (changes['module'] && changes['module'].currentValue) && (changes['propertiesList'] && changes['propertiesList'].currentValue) && (changes['propertiesList2'] && changes['propertiesList2'].currentValue) && (changes['modulePropertyList'] && changes['modulePropertyList'].currentValue)) {
-      // if (this.module === 'CONT') {
-      //   this.getContact();
-      // }
-      // else {
-      //   this.getCompany();
-      // }
+      if (this.module === 'CONT') {
+        this.getContact();
+      }
+      else {
+        this.getCompany();
+      }
       this.initCreateFormConfig();
     }
   }
@@ -152,7 +152,7 @@ export class TabPanelPageComponent implements OnChanges {
       if (res.isSuccess) {
         res.data.forEach(comp => {
           let prop: PropertyDataDto[] = comp.companyProperties;
-
+          console.log(prop);
           prop.forEach(p => {
             comp[p.propertyCode] = p.value;
           });
@@ -203,7 +203,7 @@ export class TabPanelPageComponent implements OnChanges {
         // only display property that is system property which is not storing inside the properties column
         if (!prop.isDefaultProperty) {
           this.profileProperty.push(prop);
-          if (prop.isVisible) {
+          if (prop.isVisible && (prop.propertyCode !== 'first_name' && prop.propertyCode !== 'last_name' && prop.propertyCode !== 'company_name')) {
             let config: TableConfigProperty = {
               header: prop.propertyName,
               code: this.bindCode(prop.propertyCode),
@@ -643,12 +643,23 @@ export class TabPanelPageComponent implements OnChanges {
         code: "contactProfilePhotoUrl",
         order: 0
       });
+      this.tableConfig.push({
+        header: this.translateService.instant('PROFILE.CONTACT_NAME'),
+        code: "contactDisplayName",
+        order: 0
+      });
     }
     else {
       this.tableConfig = [];
       this.tableConfig.push({
         header: "companyProfilePhotoUrl",
         code: "companyProfilePhotoUrl",
+        order: 0
+      });
+
+      this.tableConfig.push({
+        header: this.translateService.instant('PROFILE.COMPANY_NAME'),
+        code: "companyDisplayName",
         order: 0
       });
     }
@@ -1343,6 +1354,7 @@ export class TabPanelPageComponent implements OnChanges {
         this.propertyValueUpdate(this.createFormConfig);
       }
       else {
+        console.log(this.createFormGroup)
         this.toastService.addSingle({
           message: 'MESSAGE.PROFILE_NOT_CREATED',
           severity: 'error'

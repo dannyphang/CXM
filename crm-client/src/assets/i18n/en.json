@@ -81,7 +81,9 @@
     "FILE_NOT_READABLE_OR_PREVIEW": "File is not readable or preview URL is not available.",
     "CREATING_MEETING": "Creating meeting...",
     "CONNECT_EMAIL_FAILED": "Failed to connect email. Please check your email settings.",
-    "PERMISSION_DENIED": "You do not have permission to perform this action."
+    "PERMISSION_DENIED": "You do not have permission to perform this action.",
+    "UPDATING": "Updating...",
+    "SAVING": "Saving..."
   },
   "BUTTON": {
     "SAVE": "Save",
@@ -119,7 +121,7 @@
     "CREATE_USER": "Create user",
     "TODAY": "Today",
     "UNAVAILABLE": "Unavailable",
-    "VIEW_ALL_PROPERTIES": "'View all properties'",
+    "VIEW_ALL_PROPERTIES": "View all properties",
     "VERIFY_EMAIL": "Verify Email",
     "CONNECT_EMAIL": "Connect Email",
     "DOWNLOAD": "Download"
@@ -214,7 +216,9 @@
     "ATTACHMENTS": "Attachments",
     "CALENDAR_EMAIL": "Calendar Email",
     "LANGUAGE": "Language",
-    "CALENDAR": "Calendar"
+    "CALENDAR": "Calendar",
+    "CONTACT_NAME": "Contact Name",
+    "COMPANY_NAME": "Company Name"
   },
   "SETTING": {
     "GENERAL": "General",

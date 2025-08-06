@@ -26,6 +26,10 @@ function getAllCompanies({ tenantId }) {
             companyResp
                 .getAllCompanies({ tenantId: tenantId })
                 .then((companyList) => {
+                    companyList = companyList.map((item) => {
+                        item.companyDisplayName = item.companyName;
+                        return item;
+                    });
                     resolve(companyList);
                 })
                 .catch((error) => {
@@ -57,6 +61,7 @@ function getCompanyById({ tenantId, companyUid }) {
                             companyUid: companyUid,
                         })
                         .then(async (asso) => {
+                            companyData.companyDisplayName = companyData.companyName;
                             companyData.association = {};
 
                             let contactAssoList = await Promise.all(

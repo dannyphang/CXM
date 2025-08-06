@@ -81,7 +81,9 @@
     "FILE_NOT_READABLE_OR_PREVIEW": "文件不可读或预览链接不可用。",
     "CREATING_MEETING": "正在创建会议...",
     "CONNECT_EMAIL_FAILED": "连接邮箱失败，请检查您的邮箱设置。",
-    "PERMISSION_DENIED": "您没有执行此操作的权限。"
+    "PERMISSION_DENIED": "您没有执行此操作的权限。",
+    "UPDATING": "正在更新...",
+    "SAVING": "正在保存..."
   },
   "BUTTON": {
     "SAVE": "保存",
@@ -214,7 +216,9 @@
     "ATTACHMENTS": "附件",
     "CALENDAR_EMAIL": "日历邮箱",
     "LANGUAGE": "语言",
-    "CALENDAR": "日历"
+    "CALENDAR": "日历",
+    "CONTACT_NAME": "联系人姓名",
+    "COMPANY_NAME": "公司名称"
   },
   "SETTING": {
     "GENERAL": "通用",

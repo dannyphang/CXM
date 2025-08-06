@@ -7,8 +7,25 @@ const roleTable = "role";
 const tenantCollectionName = "tenant";
 const userTenantCollectionName = "userTenant";
 
-function getAllUsers() {
-    return firebase.auth.listUsers();
+function getAllUsers({ tenantId }) {
+    // return firebase.auth.listUsers();
+    return new Promise(async (resolve, reject) => {
+        try {
+            const { data, error } = await supabase
+                .from(userTenantCollectionName)
+                .select(`user:${userCollectionName}(*)`) // get related user data
+                .eq("tenantUid", tenantId); // filter by tenantId
+
+            if (error) {
+                reject(error);
+            } else {
+                resolve(data);
+            }
+        } catch (error) {
+            console.error("Error fetching all users:", error);
+            reject(error);
+        }
+    });
 }
 
 function createUser({ user }) {

@@ -65,13 +65,13 @@ function createModule({ userId, moduleList }) {
 function getAllProperty({ moduleCode, tenantId }) {
     return new Promise((resolve, reject) => {
         Promise.all([
-            authRepo.getAllUsers(),
+            authRepo.getAllUsers({ tenantId: tenantId }),
             propertyRepo.getAllPropertiesByModule({ moduleCode, tenantId }),
             propertyRepo.getAllModuleSub({ moduleCode, tenantId }),
             propertyRepo.getAllPropertyLookUpList({ moduleCode, tenantId }),
         ])
             .then(([userListRes, propertyList, moduleList, propertyLookupList]) => {
-                const userList = [...userListRes.users, { uid: "SYSTEM", displayName: "SYSTEM" }];
+                const userList = userListRes.map((record) => record.user);
 
                 const lookupMap = new Map();
                 propertyLookupList.forEach((lookup) => {
@@ -301,7 +301,7 @@ async function checkUnique({ tenantId, module, propertyDataList, propertyList })
                 }
 
                 const mergedProfileList = profileList.map((profile) => {
-                    const propertyObjList = JSON.parse(module === "CONT" ? profile.contactProperties : profile.companyProperties);
+                    const propertyObjList = module === "CONT" ? profile.contactProperties : profile.companyProperties;
                     const newPropertyObject = propertyObjList.reduce((acc, obj) => {
                         acc[obj.propertyCode] = obj.value;
                         return acc;
