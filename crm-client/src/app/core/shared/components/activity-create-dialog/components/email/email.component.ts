@@ -28,10 +28,8 @@ export class EmailComponent {
   editorFormControl: FormControl = new FormControl(null, Validators.required);
   contentWordLength: number = 0;
 
-  countTextLength(text: any) {
-    this.ngZone.run(() => {
-      this.contentWordLength = text.textValue.length;
-    });
+  countTextLength(length: number) {
+    this.contentWordLength = length;
   }
 
   assoContactFormConfig: FormConfig[] = [];

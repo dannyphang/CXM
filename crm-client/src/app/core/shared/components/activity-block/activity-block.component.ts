@@ -111,7 +111,6 @@ export class ActivityBlockComponent implements OnChanges {
 
   constructor(
     private activityService: ActivityService,
-    private ngZone: NgZone,
     private translateService: TranslateService,
     private commonService: CommonService,
     private toastService: ToastService,
@@ -687,10 +686,8 @@ export class ActivityBlockComponent implements OnChanges {
     return durations;
   }
 
-  countTextLength(text: any) {
-    this.ngZone.run(() => {
-      this.activity.activityContentLength = text.textValue.length;
-    });
+  countTextLength(length: number) {
+    this.activity.activityContentLength = length;
   }
 
   fileUpload(event: any) {

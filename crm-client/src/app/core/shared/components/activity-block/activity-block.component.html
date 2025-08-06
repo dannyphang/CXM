@@ -77,14 +77,13 @@
 
         <p-divider *ngIf="contentReadonly"></p-divider>
 
-        <p-editor
-          *ngIf="!contentReadonly"
-          [formControl]="editorFormControl"
-          [style]="{ height: '200px' }"
-          (onTextChange)="countTextLength($event)"
-          [placeholder]="'ACTIVITY.EDITOR_PLACEHOLDER' | translate"
+        <app-editor
           class="tw-px-[var(--content-gap)]"
-        />
+          *ngIf="!contentReadonly"
+          [editorFormControl]="editorFormControl"
+          [placeholder]="'ACTIVITY.EDITOR_PLACEHOLDER'"
+          (onTextChangeEmit)="countTextLength($event)"
+        ></app-editor>
       </div>
 
       <div class="tw-flex tw-justify-between tw-items-center">

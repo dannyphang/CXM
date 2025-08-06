@@ -10,12 +10,11 @@
           [label]="'INPUT.DESCRIPTION' | translate"
           class="tw-pb-[8px]"
         ></app-base-label>
-        <p-editor
-          [formControl]="returnFormControl('description')"
-          [style]="{ height: '200px' }"
-          (onTextChange)="countTextLength($event)"
-          [placeholder]="'ACTIVITY.EDITOR_PLACEHOLDER' | translate"
-        />
+        <app-editor
+          [editorFormControl]="returnFormControl('description')"
+          [placeholder]="'ACTIVITY.EDITOR_PLACEHOLDER'"
+          (onTextChangeEmit)="countTextLength($event)"
+        ></app-editor>
       </div>
     </div>
 

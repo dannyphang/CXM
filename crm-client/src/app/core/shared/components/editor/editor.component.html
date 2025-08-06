@@ -1,7 +1,210 @@
 <p-editor
-  [(ngModel)]="editorModel"
-  [style]="{ height: '200px' }"
+  id="editor"
+  [style]="editorStyle"
   [readonly]="readOnly"
   [formControl]="editorFormControl"
   (onTextChange)="countTextLength($event)"
-/>
+  [placeholder]="placeholder | translate"
+>
+  <ng-template pTemplate="header">
+    <span
+      class="ql-formats"
+      *ngIf="
+        editorToolbarSetup.header ||
+        editorToolbarSetup.font ||
+        editorToolbarSetup.size
+      "
+    >
+      <span
+        *ngIf="editorToolbarSetup.header"
+        pTooltip="{{ 'BUTTON.EDITOR.HEADER' | translate }}"
+      >
+        <select class="ql-header" aria-label="Header"></select>
+      </span>
+      <span
+        *ngIf="editorToolbarSetup.font"
+        pTooltip="{{ 'BUTTON.EDITOR.FONT' | translate }}"
+      >
+        <select class="ql-font" aria-label="Font"></select>
+      </span>
+      <span
+        *ngIf="editorToolbarSetup.size"
+        pTooltip="{{ 'BUTTON.EDITOR.SIZE' | translate }}"
+      >
+        <select class="ql-size" aria-label="Size"></select>
+      </span>
+      <div class="divider-div"></div>
+    </span>
+
+    <span
+      class="ql-formats"
+      *ngIf="
+        editorToolbarSetup.bold ||
+        editorToolbarSetup.italic ||
+        editorToolbarSetup.underline ||
+        editorToolbarSetup.strike
+      "
+    >
+      <button
+        type="button"
+        class="ql-bold"
+        aria-label="Bold"
+        *ngIf="editorToolbarSetup.bold"
+        [pTooltip]="'BUTTON.EDITOR.BOLD' | translate"
+      ></button>
+      <button
+        type="button"
+        class="ql-italic"
+        aria-label="Italic"
+        *ngIf="editorToolbarSetup.italic"
+        [pTooltip]="'BUTTON.EDITOR.ITALIC' | translate"
+      ></button>
+      <button
+        type="button"
+        class="ql-underline"
+        aria-label="Underline"
+        *ngIf="editorToolbarSetup.underline"
+        [pTooltip]="'BUTTON.EDITOR.UNDERLINE' | translate"
+      ></button>
+      <button
+        type="button"
+        class="ql-strike"
+        aria-label="Strike"
+        *ngIf="editorToolbarSetup.strike"
+        [pTooltip]="'BUTTON.EDITOR.STRIKE' | translate"
+      ></button>
+      <div class="divider-div"></div>
+    </span>
+
+    <span
+      class="ql-formats"
+      *ngIf="editorToolbarSetup.color || editorToolbarSetup.backgroundColor"
+    >
+      <span
+        *ngIf="editorToolbarSetup.color"
+        pTooltip="{{ 'BUTTON.EDITOR.COLOR' | translate }}"
+      >
+        <select class="ql-color" aria-label="Color"></select>
+      </span>
+      <span
+        *ngIf="editorToolbarSetup.backgroundColor"
+        pTooltip="{{ 'BUTTON.EDITOR.BACKGROUND_COLOR' | translate }}"
+      >
+        <select class="ql-background" aria-label="Background"></select>
+      </span>
+      <div class="divider-div"></div>
+    </span>
+
+    <span
+      class="ql-formats"
+      *ngIf="
+        editorToolbarSetup.orderedList ||
+        editorToolbarSetup.bulletList ||
+        editorToolbarSetup.checklist ||
+        editorToolbarSetup.align
+      "
+    >
+      <button
+        *ngIf="editorToolbarSetup.orderedList"
+        type="button"
+        class="ql-list"
+        aria-label="List"
+        value="ordered"
+        [pTooltip]="'BUTTON.EDITOR.ORDERED_LIST' | translate"
+      ></button>
+      <button
+        *ngIf="editorToolbarSetup.bulletList"
+        type="button"
+        class="ql-list"
+        aria-label="List"
+        value="bullet"
+        [pTooltip]="'BUTTON.EDITOR.BULLET_LIST' | translate"
+      ></button>
+      <button
+        *ngIf="editorToolbarSetup.checklist"
+        type="button"
+        class="ql-list"
+        aria-label="List"
+        value="check"
+        [pTooltip]="'BUTTON.EDITOR.CHECKLIST' | translate"
+      ></button>
+      <span
+        *ngIf="editorToolbarSetup.align"
+        pTooltip="{{ 'BUTTON.EDITOR.ALIGNMENT' | translate }}"
+      >
+        <select class="ql-align" aria-label="Alignment"></select>
+      </span>
+      <div class="divider-div"></div>
+    </span>
+
+    <span
+      class="ql-formats"
+      *ngIf="editorToolbarSetup.codeBlock || editorToolbarSetup.blockquote"
+    >
+      <button
+        type="button"
+        class="ql-code-block"
+        aria-label="Code Block"
+        *ngIf="editorToolbarSetup.codeBlock"
+        [pTooltip]="'BUTTON.EDITOR.CODE_BLOCK' | translate"
+      ></button>
+      <button
+        type="button"
+        class="ql-blockquote"
+        aria-label="Blockquote"
+        *ngIf="editorToolbarSetup.blockquote"
+        [pTooltip]="'BUTTON.EDITOR.BLOCKQUOTE' | translate"
+      ></button>
+      <div class="divider-div"></div>
+    </span>
+
+    <span
+      class="ql-formats"
+      *ngIf="
+        editorToolbarSetup.link ||
+        editorToolbarSetup.image ||
+        editorToolbarSetup.formula
+      "
+    >
+      <button
+        type="button"
+        class="ql-link"
+        aria-label="Link"
+        *ngIf="editorToolbarSetup.link"
+        [pTooltip]="'BUTTON.EDITOR.LINK' | translate"
+      ></button>
+      <button
+        type="button"
+        class="ql-image"
+        aria-label="Image"
+        *ngIf="editorToolbarSetup.image"
+        [pTooltip]="'BUTTON.EDITOR.IMAGE' | translate"
+      ></button>
+      <button
+        type="button"
+        class="ql-video"
+        aria-label="Video"
+        *ngIf="editorToolbarSetup.video"
+        [pTooltip]="'BUTTON.EDITOR.VIDEO' | translate"
+      ></button>
+      <button
+        type="button"
+        class="ql-formula"
+        aria-label="Formula"
+        *ngIf="editorToolbarSetup.formula"
+        [pTooltip]="'BUTTON.EDITOR.FORMULA' | translate"
+      ></button>
+      <div class="divider-div"></div>
+    </span>
+
+    <span class="ql-formats" *ngIf="editorToolbarSetup.clean">
+      <button
+        type="button"
+        class="ql-clean"
+        aria-label="Clean"
+        *ngIf="editorToolbarSetup.clean"
+        [pTooltip]="'BUTTON.EDITOR.CLEAN' | translate"
+      ></button>
+    </span>
+  </ng-template>
+</p-editor>

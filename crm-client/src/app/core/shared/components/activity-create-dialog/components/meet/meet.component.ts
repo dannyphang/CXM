@@ -335,9 +335,7 @@ export class MeetComponent {
     return this.meetFormGroup.controls[controlName] as FormControl;
   }
 
-  countTextLength(text: any) {
-    this.ngZone.run(() => {
-      this.descriptionWordLength = text.textValue.length;
-    });
+  countTextLength(length: number) {
+    this.descriptionWordLength = length;
   }
 }

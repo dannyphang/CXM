@@ -124,7 +124,29 @@
     "VIEW_ALL_PROPERTIES": "查看所有属性",
     "VERIFY_EMAIL": "验证邮箱",
     "CONNECT_EMAIL": "连接邮箱",
-    "DOWNLOAD": "下载"
+    "DOWNLOAD": "下载",
+    "EDITOR": {
+      "BOLD": "粗体",
+      "ITALIC": "斜体",
+      "UNDERLINE": "下划线",
+      "STRIKE": "删除线",
+      "BLOCKQUOTE": "引用",
+      "CODE_BLOCK": "代码块",
+      "HEADER": "标题",
+      "SIZE": "大小",
+      "COLOR": "颜色",
+      "BACKGROUND_COLOR": "高亮",
+      "ALIGNMENT": "对齐方式",
+      "LINK": "链接",
+      "IMAGE": "图片",
+      "FORMULA": "公式",
+      "CLEAN": "清除格式",
+      "FONT": "字体",
+      "ORDERED_LIST": "有序列表",
+      "BULLET_LIST": "无序列表",
+      "CHECKLIST": "复选框",
+      "VIDEO": "视频"
+    }
   },
   "INPUT": {
     "SEARCH": "搜索",
