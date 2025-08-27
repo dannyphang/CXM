@@ -4,7 +4,7 @@ import { FormGroup, FormControl, Validators, FormBuilder } from '@angular/forms'
 import { AttachmentDto, CommonService, CompanyDto, ContactDto, ModuleDto, WindowSizeDto } from '../../../services/common.service';
 import { CONTROL_TYPE, FormConfig, OptionsModel } from '../../../services/components.service';
 import { MessageService } from 'primeng/api';
-import { EDITOR_CONTENT_LIMIT, ATTACHMENT_MAX_SIZE } from '../../constants/common.constants';
+import { EDITOR_CONTENT_LIMIT, ATTACHMENT_MAX_SIZE, DEFAULT_FORMAT_DATE, HOUR_MINUTES } from '../../constants/common.constants';
 import { BaseCoreAbstract } from '../../base/base-core.abstract';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastService } from '../../../services/toast.service';
@@ -70,6 +70,8 @@ export class ActivityBlockComponent implements OnChanges {
   updateAct: UpdateActivityDto = new UpdateActivityDto();
   actionMenu: any[] = [];
   showActionMenu: boolean = true;
+  dateFormat = DEFAULT_FORMAT_DATE;
+  timeFormat = HOUR_MINUTES;
 
   emailFormGroup: FormGroup = new FormGroup({
     toEmail: new FormControl([], Validators.required),

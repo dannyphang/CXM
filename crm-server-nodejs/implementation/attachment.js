@@ -50,20 +50,25 @@ function uploadFile({ folderName, fileOriginalname, file }) {
 function getAttachmentByProfileId({ module, profileUid }) {
     return new Promise(async (resolve, reject) => {
         try {
-            attachmentRepo.getAttachmentByProfileId({ module: module, profileUid: profileUid }).then((list) => {
-                if (list.length > 0) {
-                    list.forEach((att, index) => {
-                        att.createdDate = func.convertFirebaseDateFormat(att.createdDate);
-                        att.modifiedDate = func.convertFirebaseDateFormat(att.modifiedDate);
+            attachmentRepo
+                .getAttachmentByProfileId({ module: module, profileUid: profileUid })
+                .then((list) => {
+                    if (list.length > 0) {
+                        list.forEach((att, index) => {
+                            att.createdDate = func.convertFirebaseDateFormat(att.createdDate);
+                            att.modifiedDate = func.convertFirebaseDateFormat(att.modifiedDate);
 
-                        if (list.length - 1 === index) {
-                            resolve(list);
-                        }
-                    });
-                } else {
-                    resolve();
-                }
-            });
+                            if (list.length - 1 === index) {
+                                resolve(list);
+                            }
+                        });
+                    } else {
+                        resolve();
+                    }
+                })
+                .catch((error) => {
+                    reject(error);
+                });
         } catch (error) {
             reject(error);
         }

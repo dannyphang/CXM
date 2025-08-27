@@ -62,13 +62,13 @@ function getUserByEmail({ email }) {
     return new Promise((resolve, reject) => {
         try {
             authRepo
-                .getUserByEmail({ email })
+                .getUserByEmail({ email: email })
                 .then((user) => {
                     let userData = user;
                     resolve(userData);
                 })
                 .catch((error) => {
-                    reject("User not found");
+                    reject("User not found at getUserByEmail impl");
                 });
         } catch (error) {
             reject(error);

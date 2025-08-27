@@ -66,7 +66,7 @@ function getUserByEmail({ email }) {
             } else if (data) {
                 resolve(data);
             } else {
-                reject("User not found");
+                reject("User not found at getUserByEmail");
             }
         } catch (error) {
             reject(error);
@@ -91,7 +91,7 @@ function getUserById({ uid }) {
             } else if (data) {
                 resolve(data);
             } else {
-                reject("User not found");
+                reject("User not found at getUserById");
             }
         } catch (error) {
             reject(error);
@@ -120,7 +120,8 @@ function getUserByAuthId({ uid }) {
             } else if (data) {
                 resolve(data);
             } else {
-                reject("User not found");
+                console.log(data);
+                reject("User not found at getUserByAuthId");
             }
         } catch (error) {
             console.error("Error fetching user by auth ID:", error);
@@ -139,7 +140,7 @@ function getUserSetting({ uid }) {
             } else if (data) {
                 resolve(data);
             } else {
-                reject("User not found");
+                reject("User not found at getUserSetting");
             }
         } catch (error) {
             reject(error);

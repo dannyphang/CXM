@@ -26,6 +26,8 @@ const port = 1113;
 
 global.__basedir = __dirname;
 
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
+
 app.all("/*", function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Credentials", "true");
