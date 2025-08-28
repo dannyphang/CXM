@@ -1,0 +1,59 @@
+<p-tabView class="">
+  <p-tabPanel header="Bingo">
+    <div class="name-input-div">
+      <app-base-input
+        [placeholder]="'Your name'"
+        [fieldControl]="usernameFormControl"
+        [required]="true"
+        class="tw-w-full"
+      ></app-base-input>
+      <app-base-button [label]="'Submit'" [outlined]="true"></app-base-button>
+    </div>
+
+    <div class="bingo-container">
+      <div
+        *ngFor="let row of user.bingo; let i = index"
+        class="tw-flex tw-justify-center"
+      >
+        <div *ngFor="let item of row; let j = index" class="bingo-box">
+          <div>{{ item.bingo?.id }}</div>
+        </div>
+      </div>
+    </div>
+  </p-tabPanel>
+
+  <p-tabPanel header="QR">
+    <div class="tw-grid tw-gap-[var(--content-gap)]">
+      <div class="qr-camera-div">
+        <zxing-scanner
+          [enable]="scannerEnable"
+          [formats]="allowedFormats"
+          (scanComplete)="onScanComplete($event)"
+          (scanSuccess)="onScanSuccess($event)"
+          (onScanError)="onScanError($event)"
+          class="scanner"
+          *ngIf="scannerEnable"
+        ></zxing-scanner>
+
+        <app-qr-code *ngIf="qrEnable" [qrData]="qrValue"></app-qr-code>
+      </div>
+
+      <div class="action-div tw-shadow">
+        <app-base-button
+          [outlined]="true"
+          [rounded]="true"
+          [iconName]="'pi pi-camera'"
+          (onClick)="cameraClick()"
+        ></app-base-button>
+        <app-base-button
+          [outlined]="true"
+          [rounded]="true"
+          [iconName]="'pi pi-qrcode'"
+          (onClick)="qrCodeClick()"
+        ></app-base-button>
+      </div>
+
+      <div class="detail-div"></div>
+    </div>
+  </p-tabPanel>
+</p-tabView>

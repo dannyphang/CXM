@@ -52,7 +52,7 @@ export class ToastService {
                     ) || toastConfig.message
                     : '',
             key: toastConfig.key,
-            sticky: toastConfig.isLoading || toastConfig.sticky,
+            sticky: toastConfig.sticky || toastConfig.isLoading,
             icon: toastConfig.isLoading ? 'pi pi-spin pi-spinner' : toastConfig.icon,
         });
         this.toastListSubject.next([...this.toasts]);

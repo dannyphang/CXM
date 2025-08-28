@@ -12,6 +12,7 @@ import authController from "./controller/auth.controller.js";
 import generalController from "./controller/general.controller.js";
 import calendarController from "./controller/calendar.controller.js";
 import shortController from "./controller/short.controller.js";
+import bingoController from "./controller/bingo.controller.js";
 import cors from "cors";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
@@ -60,6 +61,7 @@ app.use("/location", locationController);
 app.use("/general", generalController);
 app.use("/calendar", calendarController);
 app.use("/short", shortController);
+app.use("/bingo", bingoController);
 
 app.listen(port, () => {
     console.log(`server is running at port: ${port}... (${new Date()})`);
