@@ -9,10 +9,10 @@
       padding: 0px;
       min-width: 100px;
 
-      &.outlined {
+      .p-button-outlined {
         background: var(--surface-card);
-        border-radius: var(--border-radius);
-        border: 1px solid var(--primary-color);
+        // border-radius: var(--border-radius);
+        border: 1px solid var(--surface-border);
         color: var(--primary-color);
       }
 
@@ -35,6 +35,13 @@
       }
     }
 
+    .outline-hover button:hover {
+      background: var(--surface-card);
+      // border-radius: var(--border-radius);
+      border: 1px solid var(--primary-color) !important;
+      color: var(--primary-color);
+    }
+
     .p-splitbutton .p-button {
       background-color: var(--primary-color);
       color: var(--primary-color-text);
@@ -48,7 +55,7 @@
     .outlined {
       .p-splitbutton .p-button {
         background: var(--surface-card);
-        border-radius: 6px;
+        // border-radius: 6px;
         border: 1px solid var(--primary-color);
         color: var(--primary-color);
 
@@ -66,8 +73,6 @@
       }
     }
 
-    // }
-    // }
     .p-button-label {
       font-weight: var(--font-weight-semibold);
     }

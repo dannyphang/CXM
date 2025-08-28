@@ -9,14 +9,17 @@
   >
   </app-base-label>
   <div
-    [class]="'flex flex-wrap' + optionsContainerClass"
+    [class]="'flex flex-wrap ' + optionsContainerClass"
     [ngClass]="{ 'flex-column': direction === 'column' }"
   >
     <div *ngIf="switchInput">
       <app-input-switch [fieldControl]="fieldControl"></app-input-switch>
     </div>
 
-    <div *ngIf="!switchInput">
+    <div
+      *ngIf="!switchInput"
+      class="tw-gap-[var(--content-gap)] tw-flex tw-flex-wrap"
+    >
       <div class="input-container mr-4" *ngFor="let item of options">
         <p-checkbox
           [name]="item.value"
@@ -27,7 +30,7 @@
           (onChange)="handleChange($event, item.value)"
         >
         </p-checkbox>
-        <label *ngIf="!!item.label" [for]="item.value" class="fz-14_lh-16"
+        <label *ngIf="item.label" [for]="item.value" class="fz-14_lh-16"
           >{{ item.label | translate }}
           <span class="asterisk" *ngIf="item.required">*</span></label
         >

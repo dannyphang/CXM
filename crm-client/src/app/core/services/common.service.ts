@@ -1,13 +1,14 @@
 import { Injectable, Injector } from "@angular/core";
 import { Observable } from "rxjs"; import apiConfig from "../../../environments/apiConfig";
-import { CONTROL_TYPE_CODE } from "./components.service";
+import { CONTROL_TYPE_CODE, OptionsModel } from "./components.service";
 import { TranslateService } from "@ngx-translate/core";
-import { CoreHttpService, ResponseModel } from "./core-http.service";
+import { CoreHttpService, LanguageDto, ResponseModel } from "./core-http.service";
 import { ToastService } from "./toast.service";
 import { HttpClient } from "@angular/common/http";
 import { MessageService } from "primeng/api";
 import { BasedDto, CoreAuthService } from "./core-auth.service";
 import { ActivatedRoute } from "@angular/router";
+import { FilterDto } from "../shared/components/contact-company-page/contact-company-page.component";
 
 @Injectable({ providedIn: 'root' })
 export class CommonService {
@@ -17,6 +18,8 @@ export class CommonService {
         token: null,
         project: null,
         redirect_uri: null,
+        module: null,
+        calendarEmail: null
     };
 
     constructor(
@@ -64,10 +67,16 @@ export class CommonService {
                     const redirectUri = params['redirect_uri'];
                     const project = params['project'];
                     const token = params['token'];
+                    const module = params['module'];
+                    const calendarEmail = params['calendarEmail'];
+                    const userId = params['userId'];
                     this.params = {
                         redirect_uri: redirectUri,
                         project: project,
                         token: token,
+                        module: module,
+                        calendarEmail: calendarEmail,
+                        userId: userId,
                     }
                     this.authCoreService.jwt_token = token;
                     console.log(this.params);
@@ -151,6 +160,10 @@ export class CommonService {
         return this.coreService.get<ContactDto>('contact/' + id).pipe();
     }
 
+    getContactByFilter(filterList: FilterDto[]): Observable<ResponseModel<ContactDto[]>> {
+        return this.coreService.post<ContactDto[]>('contact/filter', { filterList }).pipe();
+    }
+
     createContact(contactList: ContactDto[]): Observable<ResponseModel<ContactDto[]>> {
         return this.coreService.post<ContactDto[]>('contact', { contactList }).pipe();
     }
@@ -174,8 +187,9 @@ export class CommonService {
 
     getSubModuleByModule(submoduleCode: string): Observable<ResponseModel<ModuleDto[]>> {
         let headers = {
-            'submoduleCode': submoduleCode ?? '',
+            'submoduleCode': submoduleCode,
         }
+        console.log('submoduleCode', submoduleCode);
         return this.coreService.get<ModuleDto[]>('property/moduleCode/subModule/code', {
             headers: headers
         }).pipe();
@@ -221,7 +235,6 @@ export class CommonService {
             responseType: 'json',
         }).pipe();
     }
-
 
     /**
      * set form control init value
@@ -358,6 +371,21 @@ export class CommonService {
             });
         });
     }
+
+    getLanguageOptions(): Observable<ResponseModel<LanguageDto[]>> {
+        return this.coreService.get<LanguageDto[]>('general/language', {});
+    }
+
+    urlShortener(url: string): Observable<ResponseModel<string>> {
+        return this.coreService.post<string>('short', { url }).pipe();
+    }
+
+    getUrlShortener(path: string): Observable<ResponseModel<any>> {
+        let headers = {
+            'path': path
+        }
+        return this.coreService.get<any>('short/', { headers: headers }).pipe();
+    }
 }
 
 export class WindowSizeDto {
@@ -417,7 +445,7 @@ export class PropertiesDto extends BasedDto {
 export class PropertyLookupDto extends BasedDto {
     uid: string;
     propertyLookupId: string;
-    propertyId: string;
+    propertyId: number;
     propertyLookupLabel: string;
     propertyLookupCode: string;
     moduleCode: string;
@@ -431,11 +459,12 @@ export class ContactDto extends BasedDto {
     contactId?: number;
     contactFirstName: string;
     contactLastName: string;
+    contactDisplayName?: string;
     contactEmail: string;
     contactPhone: string;
     contactOwnerUid?: string;
     contactLeadStatusUid?: string;
-    contactProperties: string;
+    contactProperties: PropertyDataDto[];
     contactProfilePhotoUrl?: string;
     association?: AssociationDto;
     [key: string]: any;
@@ -449,7 +478,7 @@ export class UpdateContactDto {
     contactPhone?: string;
     contactOwnerUid?: string;
     contactLeadStatusUid?: string;
-    contactProperties?: string;
+    contactProperties?: PropertyDataDto[];
     contactProfilePhotoUrl?: string;
     modifiedBy: string;
 }
@@ -465,21 +494,24 @@ export class AttachmentDto extends BasedDto {
     folderName: string;
     fullPath: string;
     fileName: string;
+    fileType: string;
     activityUid: string;
     fileSize: number;
     contactUid: string[];
     companyUid: string[];
+    url?: string;
 }
 
 export class CompanyDto extends BasedDto {
     uid: string;
     companyId?: number;
     companyName: string;
+    companyDisplayName: string;
     companyEmail: string;
     companyWebsite: string;
     companyOwnerUid?: string;
-    companyLeadStatusId?: string;
-    companyProperties: string;
+    companyLeadStatusUid?: string;
+    companyProperties: PropertyDataDto[];
     companyProfilePhotoUrl?: string;
     association?: AssociationDto;
     [key: string]: any;
@@ -492,7 +524,7 @@ export class UpdateCompanyDto {
     companyWebsite?: string;
     companyOwnerUid?: string;
     companyLeadStatusId?: string;
-    companyProperties?: string;
+    companyProperties?: PropertyDataDto[];
     companyProfilePhotoUrl?: string;
     modifiedBy: string;
 }

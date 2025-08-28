@@ -48,7 +48,21 @@
       {{ getLabelByValue(fieldControl.value) | translate }}
     </ng-template>
     <ng-template let-option pTemplate="item">
-      <div>{{ option.label | translate }}</div>
+      <div class="dropdown-item-div tw-flex tw-gap-[var(--content-gap)]">
+        <div *ngIf="option.preIcon" class="dropdown-item-icon">
+          <i
+            *ngIf="isObject(option.preIcon); else stringIcon"
+            [class]="option.preIcon.icon"
+            [ngStyle]="option.preIcon.style"
+          ></i>
+          <ng-template #stringIcon>
+            <i [class]="option.preIcon"></i>
+          </ng-template>
+        </div>
+        <div class="dropdown-label">
+          {{ option.label | translate }}
+        </div>
+      </div>
     </ng-template>
   </p-dropdown>
   <app-base-label

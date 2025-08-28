@@ -31,7 +31,7 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
         protected coreAuthService: CoreAuthService,
 
     ) {
-        super()
+        super(coreAuthService)
     }
 
     /**  
@@ -46,7 +46,7 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
             let formsConfig: FormConfig[] = [];
             item.propertiesList.forEach(prop => {
                 let propProfileValue = this.returnProfileValue(prop, module, contactProfile, companyProfile);
-                let control = new FormControl({ value: propProfileValue ? propProfileValue : this.commonService.returnControlTypeEmptyValue(prop), disabled: !this.checkPermission('update', module, permission, this.coreAuthService.userC.roleId) || !prop.isEditable });
+                let control = new FormControl({ value: propProfileValue ? propProfileValue : this.commonService.returnControlTypeEmptyValue(prop), disabled: !this.checkPermission('update', module, permission) || !prop.isEditable });
 
                 this.profileFormGroup.addControl(prop.propertyCode, control);
 
@@ -160,7 +160,7 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
                             },
                             options: propertyLookupList,
                             required: prop.isMandatory,
-                            switchInput: CONTROL_TYPE.Checkbox ? true : false
+                            switchInput: prop.propertyType === CONTROL_TYPE_CODE.Checkbox,
                         }
                     }
                     else if (prop.propertyType === CONTROL_TYPE_CODE.DateTime || prop.propertyType === CONTROL_TYPE_CODE.Date || prop.propertyType === CONTROL_TYPE_CODE.Time) {
@@ -300,7 +300,7 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
                     case 'last_modified_by':
                         return contactProfile.modifiedBy ?? null;
                     default:
-                        let contactProp: PropertyDataDto[] = JSON.parse(contactProfile.contactProperties ?? '[]');
+                        let contactProp: PropertyDataDto[] = contactProfile.contactProperties ?? [];
                         if (contactProp.find(item => item.uid === prop.uid) && (prop.propertyType === CONTROL_TYPE_CODE.Date || prop.propertyType === CONTROL_TYPE_CODE.DateTime || prop.propertyType === CONTROL_TYPE_CODE.Time)) {
                             return new Date(contactProp.find(item => item.uid === prop.uid)!.value);
                         }
@@ -326,7 +326,7 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
                     case 'last_modified_by':
                         return companyProfile.modifiedBy ?? null;
                     default:
-                        let companyProp: PropertyDataDto[] = JSON.parse(companyProfile.companyProperties ?? "[]");
+                        let companyProp: PropertyDataDto[] = companyProfile.companyProperties ?? [];
                         if (companyProp.find(item => item.uid === prop.uid) && (prop.propertyType === CONTROL_TYPE_CODE.Date || prop.propertyType === CONTROL_TYPE_CODE.DateTime || prop.propertyType === CONTROL_TYPE_CODE.Time)) {
                             console.log(new Date(companyProp.find(item => item.uid === prop.uid)!.value))
                             return new Date(companyProp.find(item => item.uid === prop.uid)!.value);
@@ -380,13 +380,13 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
             debounceTime(2000),
             distinctUntilChanged()
         ).subscribe(changedValue => {
+            console.log(propertyList)
             propertyList.forEach(item => {
                 item.propertiesList.forEach(prop => {
                     this.profileFormGroup.controls[prop.propertyCode].valueChanges.pipe(
                         debounceTime(2000),
                         distinctUntilChanged()
                     ).forEach(value => {
-                        console.log(value);
                         this.showFormUpdateSidebar = true;
 
                         let profileUpdateObj: profileUpdateDto = {
@@ -413,11 +413,17 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
     }
 
     saveButton(module: 'CONT' | 'COMP', contactProfile: ContactDto, companyProfile: CompanyDto) {
+        this.toastService.addSingle({
+            message: this.translateService.instant('MESSAGE.UPDATING_ACTIVITY'),
+            severity: 'info',
+            isLoading: true,
+            key: 'propertyUpdate'
+        })
         if (this.authService.returnPermissionObj(module, 'update')) {
             // cast property value into contact/company object
             if (module === 'CONT') {
                 let updateContact: UpdateContactDto = new UpdateContactDto();
-                let profileProperty: PropertyDataDto[] = JSON.parse(contactProfile.contactProperties);
+                let profileProperty: PropertyDataDto[] = contactProfile.contactProperties;
                 let profilePropertyCheckUnique: PropertyDataDto[] = [];
                 let updatePropertyList: PropertiesDto[] = [];
 
@@ -454,7 +460,7 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
                             else {
                                 profileProperty.find(item => item.uid === prop.property.uid)!.value = this.commonService.setPropertyDataValue(prop.property, prop.value);
                             }
-                            updateContact.contactProperties = JSON.stringify(profileProperty);
+                            updateContact.contactProperties = profileProperty;
                     }
                     profilePropertyCheckUnique.push({
                         uid: prop.property.uid,
@@ -469,8 +475,9 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
                         this.commonService.updateContact([updateContact]).subscribe(res => {
                             if (res.isSuccess) {
                                 this.propUpdateList = [];
+                                this.toastService.clear('propertyUpdate');
                                 this.toastService.addSingle({
-                                    message: res.responseMessage,
+                                    message: 'MESSAGE.UPDATED_SUCCESSFULLY',
                                 });
                                 this.showFormUpdateSidebar = false;
                             }
@@ -486,7 +493,7 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
             }
             else {
                 let updateCompany: UpdateCompanyDto = new UpdateCompanyDto();
-                let profileProperty: PropertyDataDto[] = JSON.parse(companyProfile.companyProperties);
+                let profileProperty: PropertyDataDto[] = companyProfile.companyProperties;
                 let profilePropertyCheckUnique: PropertyDataDto[] = [];
                 let updatePropertyList: PropertiesDto[] = [];
 
@@ -520,7 +527,7 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
                             else {
                                 profileProperty.find(item => item.uid === prop.property.uid)!.value = this.commonService.setPropertyDataValue(prop.property, prop.value);
                             }
-                            updateCompany.companyProperties = JSON.stringify(profileProperty);
+                            updateCompany.companyProperties = profileProperty;
                     }
 
                     profilePropertyCheckUnique.push({
@@ -533,14 +540,29 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
 
                 this.commonService.checkPropertyUnique(module, updatePropertyList, profilePropertyCheckUnique).then(isValid => {
                     this.commonService.updateCompany([updateCompany]).subscribe(res => {
-                        this.propUpdateList = [];
-                        this.showFormUpdateSidebar = false;
+                        if (res.isSuccess) {
+                            this.propUpdateList = [];
+                            this.toastService.clear('propertyUpdate');
+                            this.toastService.addSingle({
+                                message: 'MESSAGE.UPDATED_SUCCESSFULLY',
+                            });
+                            this.showFormUpdateSidebar = false;
+                        }
+                        else {
+                            this.toastService.addSingle({
+                                message: res.responseMessage,
+                                severity: 'error'
+                            });
+                        }
                     });
                 });
             }
         }
         else {
-            // TODO
+            this.toastService.addSingle({
+                message: this.translateService.instant('MESSAGE.PERMISSION_DENIED'),
+                severity: 'error'
+            });
         }
     }
 }

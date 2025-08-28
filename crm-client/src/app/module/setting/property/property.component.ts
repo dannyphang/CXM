@@ -97,9 +97,9 @@ export class PropertyComponent extends BaseCoreAbstract {
     private authService: AuthService,
     private toastService: ToastService,
     private coreService: CoreHttpService,
-    private coreAuthService: CoreAuthService,
+    protected coreAuthService: CoreAuthService,
   ) {
-    super();
+    super(coreAuthService);
   }
 
   ngOnInit() {
@@ -587,7 +587,7 @@ export class PropertyComponent extends BaseCoreAbstract {
   }
 
   getModuleListByModuleType(moduleType: string): Observable<OptionsModel[]> {
-    return this.commonService.getAllModuleByModuleType(moduleType).pipe(
+    return this.commonService.getAllModuleByModuleType(moduleType ?? 'MODULE').pipe(
       map(res => {
         return res.data.map(val => ({
           value: val.moduleCode,
@@ -598,7 +598,7 @@ export class PropertyComponent extends BaseCoreAbstract {
   }
 
   getModuleGroupList(): Observable<any[]> {
-    return this.commonService.getSubModuleByModule(this.propertyDetailFormGroup.controls['module'].value).pipe(
+    return this.commonService.getSubModuleByModule(this.propertyDetailFormGroup.controls['module'].value.length > 0 ? this.propertyDetailFormGroup.controls['module'].value : this.moduleFormControl.value).pipe(
       map(res => {
         return res.data.map(val => ({
           value: val.moduleCode,
@@ -701,7 +701,7 @@ export class PropertyComponent extends BaseCoreAbstract {
   }
 
   delete() {
-    if (this.checkPermission('remove', this.moduleFormControl.value, this.permission, this.coreAuthService.userC.roleId)) {
+    if (this.checkPermission('remove', this.moduleFormControl.value, this.permission)) {
       if (this.selectedProperty.find(p => p.isSystem)) {
         this.toastService.addSingle({
           message: "MESSAGE.CANNOT_DELETE_SYSTEM_PROPERTY",
@@ -854,7 +854,7 @@ export class PropertyComponent extends BaseCoreAbstract {
   }
 
   edit() {
-    if (this.checkPermission('update', this.moduleFormControl.value, this.permission, this.coreAuthService.userC.roleId)) {
+    if (this.checkPermission('update', this.moduleFormControl.value, this.permission)) {
       if (this.editable) {
         this.propertyDetailFormGroup.markAllAsTouched();
         if (this.propertyDetailFormGroup.valid) {

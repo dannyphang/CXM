@@ -1,5 +1,7 @@
-import { Component, Input } from '@angular/core';
+import { Component, EventEmitter, Input, NgZone, Output, SimpleChanges } from '@angular/core';
 import { FormControl } from '@angular/forms';
+import { E } from '@fullcalendar/core/internal-common';
+import { EditorToolbarSetupDto } from '../../../services/components.service';
 
 @Component({
   selector: 'app-editor',
@@ -7,11 +9,46 @@ import { FormControl } from '@angular/forms';
   styleUrl: './editor.component.scss'
 })
 export class EditorComponent {
-  @Input() editorModel: string = '';
+  @Input() editorFormControl: FormControl = new FormControl();
   @Input() readOnly: boolean = false;
-  @Input() editorFormControl: FormControl = new FormControl(this.editorModel);
+  @Input() placeholder: string = '';
+  @Input() editorStyle: any = { height: '200px' };
+  @Output() onTextChangeEmit: EventEmitter<number> = new EventEmitter<number>();
+  @Input() set toolbarSetup(value: EditorToolbarSetupDto | undefined) {
+    this.editorToolbarSetup = {
+      ...this.defaultToolbarSetup,
+      ...(value ?? {})
+    };
+  }
+
+  defaultToolbarSetup: EditorToolbarSetupDto = {
+    header: true,
+    font: true,
+    italic: true,
+    bold: true,
+    underline: true,
+    color: true,
+    backgroundColor: true,
+    orderedList: true,
+    bulletList: true,
+    link: true,
+    clean: true,
+    blockquote: true,
+    strike: true,
+    align: true,
+  };
+  editorToolbarSetup: EditorToolbarSetupDto = {
+    ...this.defaultToolbarSetup
+  };
+
+  constructor(
+    private ngZone: NgZone,
+  ) {
+  }
 
   countTextLength(text: any) {
-    console.log(text.textValue.length)
+    this.ngZone.run(() => {
+      this.onTextChangeEmit.emit(text.textValue.length);
+    });
   }
 }

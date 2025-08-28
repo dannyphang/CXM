@@ -1,0 +1,18 @@
+<div class="tw-grid tw-gap-[var(--content-gap)] tw-justify-center">
+  <qrcode
+    [qrdata]="qrData"
+    [cssClass]="'qrcode ' + cssClass"
+    [errorCorrectionLevel]="errorCorrectionLevel"
+    [scale]="scale"
+    [title]="title"
+    (qrCodeURL)="onQrCodeUrl($event)"
+    [elementType]="'canvas'"
+    [imageSrc]="imageSrc"
+  ></qrcode>
+  <div class="tw-flex tw-justify-center" *ngIf="showButton">
+    <app-base-button
+      [label]="buttonText"
+      (onClick)="downloadMyFile()"
+    ></app-base-button>
+  </div>
+</div>

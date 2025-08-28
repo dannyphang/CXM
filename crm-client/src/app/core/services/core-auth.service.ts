@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import apiConfig from "../../../environments/apiConfig";
 import { HttpClient } from "@angular/common/http";
-import { ResponseModel } from "./core-http.service";
+import { ResponseModel, UserPermissionDto } from "./core-http.service";
 import { ToastService } from "./toast.service";
 import { Observable } from "rxjs";
 
@@ -9,6 +9,7 @@ import { Observable } from "rxjs";
 export class CoreAuthService {
     private AUTH_URL = apiConfig.authUrl;
     userC: UserDto;
+    permission: UserPermissionDto[] = [];
     JWT_TOKEN: string = '';
 
     constructor(
@@ -16,12 +17,28 @@ export class CoreAuthService {
         private toastService: ToastService
     ) { }
 
+    set user(user: UserDto) {
+        this.userC = user;
+    }
+
+    get user() {
+        return this.userC;
+    }
+
     set jwt_token(token: string) {
         this.JWT_TOKEN = token;
     }
 
     get jwt_token() {
         return this.JWT_TOKEN || '';
+    }
+
+    set userPermission(permission: UserPermissionDto[]) {
+        this.permission = permission;
+    }
+
+    get userPermission() {
+        return this.permission;
     }
 
     buildHeader(option?: AuthHttpOption) {
@@ -71,25 +88,35 @@ export class CoreAuthService {
             })
     }
 
-    getUserByAuthUid(uid: string): Observable<ResponseModel<UserDto>> {
-        return this.http.get<ResponseModel<UserDto>>(apiConfig.baseUrl + '/auth/authUser/' + uid).pipe();
+    getUserByAuthUid(uid: string, email: string): Observable<ResponseModel<UserDto>> {
+        return this.http.get<ResponseModel<UserDto>>(apiConfig.baseUrl + '/auth/authUser/' + uid, {
+            headers: {
+                email: email
+            }
+        }).pipe();
     }
 
     getCurrentAuthUser(): Promise<UserDto> {
         return new Promise(async (resolve, reject) => {
-            this.http.get<any>(`${this.AUTH_URL}/auth/user`, { withCredentials: true }).subscribe({
-                next: res => {
-                    // TODO: add new variable (authUID) to link the supabase (JWT project) user to firebase (CRM project) user
-                    let authUid = res.data.uid;
-                    this.getUserByAuthUid(authUid).subscribe(res2 => {
-                        this.userC = res2.data;
-                        resolve(res2.data);
-                    });
-                },
-                error: err => {
-                    reject(err)
-                }
-            })
+            try {
+                this.http.get<any>(`${this.AUTH_URL}/auth/user`, { withCredentials: true }).subscribe({
+                    next: res => {
+                        let authUid = res.data.uid;
+                        let email = res.data.email;
+                        this.getUserByAuthUid(authUid, email).subscribe(res2 => {
+                            this.userC = res2.data;
+                            resolve(res2.data);
+                        });
+                    },
+                    error: err => {
+                        reject(err)
+                    }
+                })
+            } catch (error) {
+                console.error('Error getting current auth user:', error);
+
+                reject(error);
+            }
         })
     }
 }
@@ -119,8 +146,9 @@ export class UserDto extends BasedDto {
     phoneNumber: string;
     profilePhotoUrl: string;
     email: string;
+    emailVerified: number;
     roleId: number;
-    permission: string;
+    permission: UserPermissionDto[];
     setting: SettingDto;
     lastActiveDateTime: Date;
 }
@@ -132,6 +160,21 @@ export class SettingDto {
         contact: TableFilterDto;
         company: TableFilterDto;
     }
+    defaultLanguage?: number;
+    calendarEmail?: string;
+    calendarId?: string;
+}
+
+export class UpdateSettingDto {
+    darkMode?: boolean;
+    defaultTenantId?: string;
+    tableFilter?: {
+        contact: TableFilterDto;
+        company: TableFilterDto;
+    }
+    defaultLanguage?: number;
+    calendarEmail?: string;
+    calendarId?: string;
 }
 
 export class TableFilterDto {

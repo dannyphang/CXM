@@ -92,4 +92,31 @@ function removeAttachment({ attachmentList, userId }) {
     });
 }
 
-export { uploadAttachment, uploadFile, getAttachmentByProfileId, removeAttachment };
+function removeAttachmentById({ attachmentId, userId }) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            attachmentRepo
+                .getAttachmentByUid({ uid: attachmentId })
+                .then((attachment) => {
+                    if (attachment) {
+                        attachment.statusId = 2;
+                        attachment.modifiedDate = new Date();
+                        attachment.modifiedBy = userId;
+
+                        attachmentRepo.updateAttachment({ attachment: attachment }).then((al) => {
+                            resolve(al);
+                        });
+                    } else {
+                        resolve();
+                    }
+                })
+                .catch((error) => {
+                    reject(error);
+                });
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+export { uploadAttachment, uploadFile, getAttachmentByProfileId, removeAttachment, removeAttachmentById };

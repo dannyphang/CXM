@@ -48,6 +48,11 @@ import { TabPanelPageComponent } from './contact-company-page/tab-panel-page/tab
 import { AssociationComponent } from './profile-page/right-panel/association/association.component';
 import { AttachmentComponent } from './profile-page/right-panel/attachment/attachment.component';
 import { NoteComponent } from './activity-create-dialog/components/note/note.component';
+import { MeetComponent } from './activity-create-dialog/components/meet/meet.component';
+import { CalendarComponent } from './calendar/calendar.component';
+import { FullCalendarModule } from '@fullcalendar/angular';
+import { QrCodeComponent } from './qr-code/qr-code.component';
+import { QRCodeModule } from 'angularx-qrcode';
 
 const components = [
   BaseInputComponent,
@@ -91,6 +96,9 @@ const components = [
   AssociationComponent,
   AttachmentComponent,
   NoteComponent,
+  MeetComponent,
+  CalendarComponent,
+  QrCodeComponent,
 ];
 
 @NgModule({
@@ -105,7 +113,9 @@ const components = [
     ReactiveFormsModule,
     TranslateModule,
     OnlyNumberDirective,
-    PasswordValidator
+    PasswordValidator,
+    FullCalendarModule,
+    QRCodeModule,
   ],
   exports: [
     components

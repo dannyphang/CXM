@@ -69,7 +69,7 @@ export class ProfilePageComponent implements OnChanges {
   }
 
   getPermission() {
-    this.permission = this.authService.returnPermission(this.coreAuthService.userC.permission);
+    this.permission = this.coreAuthService.userC?.permission || [];
   }
 
   getProperties() {
@@ -81,11 +81,12 @@ export class ProfilePageComponent implements OnChanges {
       ),
       severity: 'info',
       isLoading: true,
-      key: 'property'
+      key: 'property_loading'
     });
     this.commonService.getAllPropertiesByModule(this.module).subscribe((res) => {
       if (res.isSuccess) {
         this.propertiesList = res.data;
+        this.toastService.clear('property_loading');
       }
       else {
         this.toastService.addSingle({
@@ -105,13 +106,13 @@ export class ProfilePageComponent implements OnChanges {
       ),
       severity: 'info',
       isLoading: true,
-      key: 'contact'
+      key: 'contact_loading'
     });
     this.commonService.getContactById(this.profileUid).subscribe((res) => {
       if (res.isSuccess) {
         this.contactProfile = res.data;
         this.titleService.setTitle(`${this.contactProfile.contactFirstName} ${this.contactProfile.contactLastName}`);
-        this.toastService.clear();
+        this.toastService.clear('contact_loading');
       }
       else {
         this.toastService.addSingle({
@@ -131,10 +132,11 @@ export class ProfilePageComponent implements OnChanges {
       ),
       severity: 'info',
       isLoading: true,
-      key: 'company'
+      key: 'company_loading'
     });
     this.commonService.getCompanyById(this.profileUid).subscribe((res) => {
       if (res.isSuccess) {
+        this.toastService.clear('company_loading');
         this.companyProfile = res.data;
         this.titleService.setTitle(`${this.companyProfile.companyName}`);
       }
@@ -157,7 +159,7 @@ export class ProfilePageComponent implements OnChanges {
         ),
         severity: 'info',
         isLoading: true,
-        key: 'activity'
+        key: 'activity_loading'
       });
       this.activityService.getAllActivitiesByProfileId(this.profileUid).subscribe(res => {
         if (res.isSuccess) {
@@ -169,7 +171,7 @@ export class ProfilePageComponent implements OnChanges {
             severity: 'error'
           });
         }
-        this.toastService.clear('activity');
+        this.toastService.clear('activity_loading');
       })
     }
   }

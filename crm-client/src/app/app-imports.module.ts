@@ -43,5 +43,5 @@ export const imports = [
       useFactory: HttpLoaderFactory,
       deps: [HttpClient]
     }
-  }),
+  })
 ];

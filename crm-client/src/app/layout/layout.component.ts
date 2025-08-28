@@ -3,14 +3,12 @@ import { TranslateService } from '@ngx-translate/core';
 import * as Blobity from 'blobity';
 import { AuthService } from '../core/services/auth.service';
 import { OptionsModel } from '../core/services/components.service';
-import { BaseCoreAbstract } from '../core/shared/base/base-core.abstract';
-import { Message, MessageService } from 'primeng/api';
-import { Subscription } from 'rxjs';
 import { ToastService } from '../core/services/toast.service';
 import { CoreHttpService, TenantDto, UserPermissionDto } from '../core/services/core-http.service';
 import { CommonService } from '../core/services/common.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CoreAuthService, UserDto } from '../core/services/core-auth.service';
+import { CalendarEventDto, CalendarService } from '../core/services/calendar.service';
 
 @Component({
   selector: 'app-layout',
@@ -22,6 +20,7 @@ export class LayoutComponent {
   tenantList: TenantDto[] = [];
   tenantOptionsList: OptionsModel[] = [];
   permission: UserPermissionDto[] = [];
+  langLoaded = false;
 
   constructor(
     private authService: AuthService,
@@ -31,49 +30,70 @@ export class LayoutComponent {
     private toastService: ToastService,
     private coreService: CoreHttpService,
     private router: Router,
-    private coreAuthService: CoreAuthService
+    private coreAuthService: CoreAuthService,
+    private route: ActivatedRoute,
+    private calendarService: CalendarService
   ) {
-
   }
 
   async ngOnInit() {
     this.onResize();
 
     // this.initBlobity(true);
+    this.user = this.coreAuthService.userC;
+    if (!this.user) {
+      this.router.navigate(["/signin"]);
+    }
 
-    this.coreAuthService.getCurrentAuthUser().then(userC => {
-      if (userC) {
-        this.user = userC;
-        this.toastService.addSingle({
-          key: 'tenant',
-          message: this.translateService.instant('COMMON.LOADING',
-            {
-              module: this.translateService.instant('COMMON.TENANT')
-            }
-          ),
-          severity: 'info',
-          isLoading: true
-        });
-        this.coreService.getTenantsByUserId(this.user.uid).subscribe(res3 => {
-          if (res3.isSuccess) {
-            this.tenantList = res3.data;
-            this.tenantOptionsList = this.tenantList.map(t => {
-              return {
-                label: t.tenantName,
-                value: t.uid
-              }
-            });
-            this.toastService.clear('tenant');
+    // get permission
+    this.permission = this.coreAuthService.permission;
+    this.user.permission = this.coreAuthService.permission;
+
+    // get language
+    this.commonService.getLanguageOptions().subscribe(res => {
+      let lang = res.data.find(l => l.id === this.user.setting?.defaultLanguage).code || 'en';
+      this.translateService.setDefaultLang(lang);
+      this.translateService.use(lang);
+    });
+
+    this.commonService.getParamsUrl().then(params => {
+      // update calendar email and calendarId if they are provided in the URL
+      if (params.calendarEmail) {
+        if (this.user.setting.calendarEmail !== params.calendarEmail) {
+          this.user.setting.calendarId = params.calendarEmail;
+        }
+        this.user.setting.calendarEmail = params.calendarEmail;
+        this.authService.updateUserFirestore([this.user]).subscribe({});
+      }
+    })
+
+    // loading tenant toast
+    this.toastService.addSingle({
+      key: 'tenant',
+      message: this.translateService.instant('COMMON.LOADING',
+        {
+          module: this.translateService.instant('COMMON.TENANT')
+        }
+      ),
+      severity: 'info',
+      isLoading: true
+    });
+    // fetch tenant list
+    this.coreService.getTenantsByUserId(this.user.uid).subscribe(res3 => {
+      if (res3.isSuccess) {
+        this.tenantList = res3.data;
+        this.tenantOptionsList = this.tenantList.map(t => {
+          return {
+            label: t.tenantName,
+            value: t.uid
           }
         });
-        this.permission = this.authService.returnPermission(this.user.permission);
+        this.toastService.clear('tenant');
       }
-      else {
-        // this.router.navigate(["/signin"]);
-      }
-    }).catch(error => {
-      // this.router.navigate(["/signin"]);
     });
+
+    this.langLoaded = true;
+    await this.calendarService.getCalendarEvent(this.coreAuthService.userC.setting?.calendarEmail, this.coreAuthService.userC.setting?.calendarId);
   }
 
   @HostListener('window:resize', ['$event'])

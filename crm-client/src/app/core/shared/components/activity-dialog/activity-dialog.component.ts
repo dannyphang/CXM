@@ -373,10 +373,8 @@ export class ActivityDialogComponent implements OnChanges {
     return durations;
   }
 
-  countTextLength(text: any) {
-    this.ngZone.run(() => {
-      this.contentWordLength = text.textValue.length;
-    });
+  countTextLength(length: number) {
+    this.contentWordLength = length;
   }
 
   fileUpload(event: any) {
@@ -428,6 +426,7 @@ export class ActivityDialogComponent implements OnChanges {
           activityModuleSubCode: this.activityModule.moduleSubCode,
           activityModuleId: this.activityModule.uid,
           activityContent: this.editorFormControl.value,
+          activityContentLength: this.contentWordLength,
           activityContactedIdList: this.activityFormGroup.controls['CONT'].value,
           activityDatetime: this.convertDateAndTime(this.activityFormGroup.controls['DATE'].value, this.activityFormGroup.controls['TIME'].value),
           activityDirectionId: this.activityFormGroup.controls['DIRECT'].value,
@@ -460,6 +459,8 @@ export class ActivityDialogComponent implements OnChanges {
                       fileSize: res2.data.metadata.size,
                       contactUid: this.assoContactForm.value ?? [],
                       companyUid: this.assoCompanyForm.value ?? [],
+                      url: res2.data.downloadUrl,
+                      fileType: res2.data.metadata.contentType,
                     }
 
                     this.activityService.uploadAttachment([uploadAttach]).subscribe(res3 => {

@@ -1,14 +1,28 @@
 <div class="tw-w-full">
   <p-tabView class="middle-profile-tabView tw-w-full">
-    <p-tabPanel header="Activities">
+    <p-tabPanel [header]="'ACTIVITY.ACTIVITIES' | translate">
       <div class="tw-flex tw-justify-between">
-        <app-base-input
-          [iconRightStyle]="searchIcon"
-          [placeholder]="'Search activities...'"
-          [autoFocus]="true"
-          [fieldControl]="searchControl"
-          class="tw-w-[40%]"
-        ></app-base-input>
+        <div class="tw-flex tw-items-center tw-gap-[var(--content-gap)]">
+          <app-base-input
+            [iconRightStyle]="searchIcon"
+            [placeholder]="'INPUT.SEARCH_ACTIVITY_PLACEHOLDER' | translate"
+            [autoFocus]="true"
+            [fieldControl]="searchControl"
+            class="tw-w-full"
+          ></app-base-input>
+          <i
+            class="pi pi-info-circle"
+            [pTooltip]="
+              'ACTIVITY.SEARCH_TOOLTIP'
+                | translate
+                  : {
+                      searchFields: searchFields.join(', ')
+                    }
+            "
+            tooltipEvent="hover"
+            tooltipPosition="top"
+          ></i>
+        </div>
 
         <!-- middle panel action button -->
         <div>
@@ -28,7 +42,7 @@
 
       <p-tabView class="activity-tab">
         <!-- ALL Tab-->
-        <p-tabPanel header="All" [selected]="false">
+        <p-tabPanel [header]="'ACTIVITY.ALL' | translate" [selected]="false">
           <!-- Pinned -->
           <div *ngIf="returnIsPinnedActivityList('ALL').length > 0">
             <div
@@ -114,7 +128,7 @@
         <!-- Other Tab -->
         <p-tabPanel
           *ngFor="let activityTab of activityModuleList"
-          [header]="activityTab.moduleName"
+          [header]="'ACTIVITY.MODULE.' + activityTab.moduleCode | translate"
           onclick=""
         >
           <div class="">
@@ -122,7 +136,10 @@
               class="tw-flex tw-justify-end tw-mb-[var(--content-gap)] tw-gap-[var(--content-gap)]"
             >
               <app-base-button
-                *ngIf="isIncludedActivity(activityTab, 'LOG')"
+                *ngIf="
+                  isIncludedActivity(activityTab, 'LOG') &&
+                  checkPermission('create', module, permission)
+                "
                 [outlined]="true"
                 [label]="returnLogActivityLable(activityTab)"
                 class=""
@@ -130,7 +147,10 @@
               ></app-base-button>
 
               <app-base-button
-                *ngIf="isIncludedActivity(activityTab, 'CREATE')"
+                *ngIf="
+                  isIncludedActivity(activityTab, 'CREATE') &&
+                  checkPermission('create', module, permission)
+                "
                 [label]="returnCreateActivityLable(activityTab)"
                 (onClick)="activityCreateButtonOnClick(activityTab)"
               ></app-base-button>

@@ -85,9 +85,16 @@ interface ErrorMessageList {
 export interface OptionsModel {
     label?: string;
     value: any;
-    preIcon?: string;
+    preIcon?: string | {
+        icon?: string;
+        style?: IconStyle;
+    };
     disabled?: boolean;
     required?: boolean;
+}
+
+export interface IconStyle {
+    [key: string]: string;
 }
 
 export interface TreeOptionsModel {
@@ -131,6 +138,7 @@ export interface BaseDatepickerFormConfig extends BaseFormConfig {
     view?: string;
     showTime?: boolean;
     timeOnly?: boolean;
+    showSeconds?: boolean;
 }
 
 export interface BaseTextAreaFormConfig extends BaseFormConfig, BaseInputTextConfig {
@@ -198,6 +206,7 @@ export type BaseMultiselectFormConfig = BaseSelectFormConfig & {
     sortOption?: boolean;
     group?: boolean;
     showClear?: boolean;
+    showChips?: boolean;
 };
 
 export type BaseCheckBoxFormConfig = BaseSelectFormConfig & {
@@ -270,6 +279,7 @@ export interface BaseButtonFormConfig extends BaseFormConfig {
         moduleCode?: string;
         createdBy?: string;
     };
+    severity?: 'primary' | 'secondary';
 }
 
 export const BASE_UI_TOKEN = new InjectionToken('BASE_UI_TOKEN');
@@ -338,4 +348,27 @@ export interface TableConfig {
     header?: string;
     code: string;
     icon?: string;
+}
+
+export interface EditorToolbarSetupDto {
+    bold?: boolean;
+    italic?: boolean;
+    underline?: boolean;
+    strike?: boolean;
+    orderedList?: boolean;
+    bulletList?: boolean;
+    checklist?: boolean;
+    link?: boolean;
+    image?: boolean;
+    video?: boolean;
+    clean?: boolean;
+    blockquote?: boolean;
+    codeBlock?: boolean;
+    align?: boolean;
+    size?: boolean;
+    font?: boolean;
+    color?: boolean;
+    backgroundColor?: boolean;
+    header?: boolean;
+    formula?: boolean;
 }

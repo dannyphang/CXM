@@ -27,7 +27,7 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
 
   actionMenu: any[] = [
     {
-      label: 'View all properties',
+      label: this.translateService.instant('BUTTON.VIEW_ALL_PROPERTIES'),
       icon: '',
       command: () => {
         const navigationExtras: NavigationExtras = {
@@ -205,9 +205,4 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
     this.profileImg = this.contactProfile.contactProfilePhotoUrl ? this.contactProfile.contactProfilePhotoUrl : DEFAULT_PROFILE_PIC_URL;
     this.profilePhotoFile = null;
   }
-}
-
-class profileUpdateDto {
-  property: PropertiesDto;
-  value: string;
 }

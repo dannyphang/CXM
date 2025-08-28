@@ -53,6 +53,7 @@
     <p-tabPanel>
       <ng-template pTemplate="header" class="tw-p-0">
         <app-base-button
+          *ngIf="authService.returnPermissionObj('SETTING', 'update')"
           [iconName]="'pi pi-plus'"
           (click)="addTab(); $event.stopPropagation()"
           styleClass="tw-w-[52px] tw-h-[52px] "
@@ -80,7 +81,7 @@
       <app-base-button
         [label]="'BUTTON.CANCEL'"
         (onClick)="closeDialogVisible = false"
-        [outlined]="true"
+        [severity]="'secondary'"
       ></app-base-button>
       <app-base-button
         [label]="'BUTTON.CONFIRM'"

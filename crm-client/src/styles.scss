@@ -15,6 +15,9 @@
 @import "../node_modules/quill/dist/quill.snow.css";
 
 :root {
+  --content-gap-xxl: 24px;
+  --content-gap-xl: 20px;
+  --content-gap-l: 18px;
   --content-gap: 15px;
   --content-gap-s: 8px;
   --content-gap-xs: 6px;
@@ -60,4 +63,14 @@ a {
 /* Handle on hover */
 ::-webkit-scrollbar-thumb:hover {
   background: var(--gray-300);
+}
+
+.nfp-modal__content {
+  width: 70% !important;
+  height: 70% !important;
+}
+
+::selection {
+  background-color: var(--highlight-bg);
+  color: var(--highlight-text-color);
 }

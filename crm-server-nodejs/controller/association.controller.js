@@ -11,12 +11,14 @@ const logModule = "association";
 
 // add association
 router.post("/add", async (req, res) => {
-    const body = req.body.asso;
+    const asso = func.body(req).data.asso;
+    const userId = func.body(req).userId;
 
     try {
         assoImp
             .createAssociation({
-                associate: body,
+                associate: asso,
+                userId: userId,
             })
             .then((list) => {
                 res.status(200).json(func.responseModel({ data: list }));

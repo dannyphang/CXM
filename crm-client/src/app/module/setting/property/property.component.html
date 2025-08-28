@@ -48,13 +48,7 @@
           <div class="tw-flex">
             <app-base-button
               *ngIf="
-                selectedProperty.length > 0 &&
-                checkPermission(
-                  'remove',
-                  moduleFormControl.value,
-                  permission,
-                  roleId
-                )
+                checkPermission('create', moduleFormControl.value, permission)
               "
               [iconName]="'pi pi-plus'"
               [rounded]="true"
@@ -65,12 +59,7 @@
             <app-base-button
               *ngIf="
                 selectedProperty.length > 0 &&
-                checkPermission(
-                  'remove',
-                  moduleFormControl.value,
-                  permission,
-                  roleId
-                )
+                checkPermission('remove', moduleFormControl.value, permission)
               "
               [iconName]="'pi pi-trash'"
               [rounded]="true"
@@ -126,7 +115,6 @@
   [header]="'SETTING.CREATE_PROPERTY' | translate"
   styleClass="tw-w-[70%]"
   [modal]="true"
-  (onHide)="closeDialog()"
 >
   <ng-template pTemplate="content">
     <app-base-form [formConfig]="propertyCreateFormConfig"></app-base-form>
@@ -205,8 +193,8 @@
     <div class="tw-flex tw-justify-between">
       <app-base-button
         [label]="'BUTTON.CANCEL' | translate"
-        [isTextStyle]="true"
-        (click)="closeDialog()"
+        [severity]="'secondary'"
+        (onClick)="closeDialog()"
       />
       <app-base-button
         [label]="
@@ -214,8 +202,7 @@
             ? ('BUTTON.UPDATE' | translate)
             : ('BUTTON.CREATE' | translate)
         "
-        [outlined]="true"
-        (click)="editMode ? edit() : create()"
+        (onClick)="editMode ? edit() : create()"
       />
     </div>
   </ng-template>

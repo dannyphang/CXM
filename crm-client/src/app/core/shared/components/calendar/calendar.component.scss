@@ -1,0 +1,85 @@
+::ng-deep .fc-header-toolbar {
+  display: none !important;
+}
+
+.calendar-div {
+  padding: var(--content-gap);
+  background-color: var(--surface-0);
+}
+
+.calendar-hear-toolbar-div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: var(--content-gap);
+}
+
+.date-page-div {
+  display: flex;
+  align-items: center;
+  gap: var(--content-gap);
+  justify-content: end;
+}
+
+::ng-deep {
+  .calendar-div .fc-direction-ltr {
+    max-height: 45vh !important;
+  }
+
+  .fc .fc-daygrid-day-frame {
+    padding: 1px !important;
+  }
+
+  .fc-timegrid-event .fc-event-main {
+    padding: var(--content-gap-xs) !important;
+  }
+
+  .hover-box {
+    font-size: 12px;
+  }
+
+  .fc .fc-timegrid-now-indicator-line {
+    border-color: var(--primary-color) !important;
+    border-width: 1px;
+  }
+
+  .fc .fc-timegrid-now-indicator-arrow {
+    border-color: var(--primary-color) !important;
+    border-top-color: transparent !important;
+    border-bottom-color: transparent !important;
+  }
+
+  .fc-scroller {
+    overflow: hidden auto !important;
+  }
+
+  .fc-daygrid-body {
+    max-height: 50px !important;
+  }
+
+  .fc-scrollgrid-section-header col,
+  .fc-daygrid-body col,
+  .fc-scrollgrid-section-body col {
+    width: 100px !important;
+  }
+
+  .fc .fc-timegrid-slot-label {
+    display: flex;
+    justify-content: center;
+  }
+
+  .fc .fc-timegrid-slot {
+    height: 40px !important;
+  }
+
+  .fc .fc-col-header-cell {
+    padding: 4px !important;
+    text-align: center;
+
+    .fc-col-header-cell-cushion {
+      padding: 0 !important;
+      font-size: 14px;
+      font-weight: 500;
+    }
+  }
+}

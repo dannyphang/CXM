@@ -66,10 +66,45 @@ router.get("/:id", async (req, res) => {
     }
 });
 
+// get contact by filter
+router.post("/filter", async (req, res) => {
+    try {
+        const filterList = func.body(req).data.filterList;
+        let tenantId = func.body(req).tenantId;
+        companyImp
+            .getCompanyByFilter({
+                tenantId: tenantId,
+                filterList: filterList,
+            })
+            .then((companyList) => {
+                res.status(200).json(func.responseModel({ data: companyList }));
+            })
+            .catch((error) => {
+                console.log("error", error);
+                API.createLog(error, req, res, 500, logModule);
+                res.status(500).json(
+                    func.responseModel({
+                        isSuccess: false,
+                        responseMessage: error,
+                    })
+                );
+            });
+    } catch (error) {
+        console.log("error", error);
+        API.createLog(error, req, res, 500, logModule);
+        res.status(500).json(
+            func.responseModel({
+                isSuccess: false,
+                responseMessage: error,
+            })
+        );
+    }
+});
+
 // create new company
 router.post("/", async (req, res) => {
     try {
-        const contactList = JSON.parse(JSON.stringify(func.body(req).data.companyList));
+        const companyList = JSON.parse(JSON.stringify(func.body(req).data.companyList));
         let tenantId = func.body(req).tenantId;
         let userId = func.body(req).userId;
 

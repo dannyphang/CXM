@@ -12,6 +12,7 @@ export class BaseMultiselectComponent
   extends BaseFieldDataSourceControl
   implements OnInit {
   @Input() showClear: boolean = true;
+  @Input() showChips: boolean = true;
   @ViewChild('multiselect') multiselect!: MultiSelect;
   filterChange = new Subject<string>();
 

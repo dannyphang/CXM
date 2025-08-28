@@ -5,12 +5,14 @@ import { RouterModule } from '@angular/router';
 import { MaterialModule } from './material.module';
 import { HttpClientModule } from '@angular/common/http';
 import { BrowserModule } from '@angular/platform-browser';
+import { ZXingScannerModule } from '@zxing/ngx-scanner';
 
 @NgModule({
     imports: [
-
+        ZXingScannerModule
     ],
     exports: [
+        ZXingScannerModule,
         FormsModule,
         ReactiveFormsModule,
         CommonModule,

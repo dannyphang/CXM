@@ -1,7 +1,11 @@
 <p-dialog
   [(visible)]="visible"
   [style]="{
-    width: windowSize.desktop ? '70%' : '100%',
+    width: windowSize.desktop
+      ? activityModule.moduleSubCode === 'MEET'
+        ? '95%'
+        : '70%'
+      : '100%',
     maxHeight: windowSize.desktop ? '90%' : '100vh',
     height: windowSize.desktop ? 'auto' : '100vh'
   }"
@@ -37,12 +41,22 @@
       (noteValueEmit)="noteValueEmit($event)"
       (attachmentEmit)="attachmentEmit($event)"
     ></app-note>
+
+    <!-- meet -->
+    <app-meet
+      *ngIf="activityModule.moduleSubCode === 'MEET'"
+      [module]="module"
+      [contactProfile]="contactProfile"
+      [companyProfile]="companyProfile"
+      [activityModule]="activityModule"
+      (meetValueEmit)="meetValueEmit($event)"
+    ></app-meet>
   </ng-template>
 
   <ng-template pTemplate="footer">
     <div class="tw-flex tw-justify-between tw-p-[var(--content-gap)]">
       <app-base-button
-        [outlined]="true"
+        [severity]="'secondary'"
         [label]="'BUTTON.CANCEL'"
         (onClick)="closeDialog()"
       ></app-base-button>

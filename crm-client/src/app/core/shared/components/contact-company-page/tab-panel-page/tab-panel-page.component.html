@@ -55,6 +55,7 @@
       <!-- desktop/tablet action div -->
       <div class="tw-flex">
         <app-base-button
+          *ngIf="authService.returnPermissionObj(module, 'export')"
           [iconName]="'pi pi-upload'"
           [rounded]="true"
           [isTextStyle]="true"
@@ -62,6 +63,7 @@
           (onClick)="exportFile(dt.processedData)"
         ></app-base-button>
         <app-base-button
+          *ngIf="authService.returnPermissionObj(module, 'import')"
           [iconName]="'pi pi-download'"
           [rounded]="true"
           [isTextStyle]="true"
@@ -69,6 +71,7 @@
           (onClick)="uploader.click()"
         ></app-base-button>
         <app-base-button
+          *ngIf="authService.returnPermissionObj(module, 'import')"
           [iconName]="'pi pi-cloud-download'"
           [rounded]="true"
           [isTextStyle]="true"
@@ -76,6 +79,7 @@
           (onClick)="downloadTemplate()"
         ></app-base-button>
         <app-base-button
+          *ngIf="authService.returnPermissionObj(module, 'create')"
           [iconName]="'pi pi-plus'"
           [rounded]="true"
           [isTextStyle]="true"
@@ -87,7 +91,10 @@
           [rounded]="true"
           [isTextStyle]="true"
           (onClick)="delete()"
-          *ngIf="selectedProfile.length > 0"
+          *ngIf="
+            selectedProfile.length > 0 &&
+            authService.returnPermissionObj(module, 'remove')
+          "
           [pTooltip]="'BUTTON.DELETE' | translate"
         />
       </div>
@@ -187,7 +194,7 @@
           </div>
 
           <!-- profile name -->
-          <div *ngSwitchCase="'contactFirstName'">
+          <div *ngSwitchCase="'contactDisplayName'">
             <a
               class="tw-cursor-pointer hover:tw-underline tw-text-[var(--primary-color)]"
               (click)="toProfile(profile)"
@@ -196,16 +203,7 @@
               {{ profile[col.code] }}
             </a>
           </div>
-          <div *ngSwitchCase="'contactLastName'">
-            <a
-              class="tw-cursor-pointer hover:tw-underline tw-text-[var(--primary-color)]"
-              (click)="toProfile(profile)"
-              [pTooltip]="profile[col.code]"
-            >
-              {{ profile[col.code] }}
-            </a>
-          </div>
-          <div *ngSwitchCase="'companyName'">
+          <div *ngSwitchCase="'companyDisplayName'">
             <a
               class="tw-cursor-pointer hover:tw-underline tw-text-[var(--primary-color)]"
               (click)="toProfile(profile)"
@@ -280,7 +278,7 @@
       <app-base-button
         [label]="'BUTTON.CANCEL' | translate"
         [isTextStyle]="true"
-        severity="secondary"
+        [severity]="'secondary'"
         (click)="displayCreateDialog = false"
       />
       <app-base-button
@@ -440,7 +438,7 @@
     <div class="tw-flex tw-justify-between">
       <app-base-button
         [label]="'BUTTON.CANCEL' | translate"
-        [outlined]="true"
+        [severity]="'secondary'"
         (onClick)="closeFilter()"
       ></app-base-button>
       <app-base-button
@@ -468,7 +466,6 @@
     [dragdrop]="true"
     [responsive]="true"
     filterBy="propertyName"
-    showTargetFilter="false"
     [sourceStyle]="{ height: windowSize.mobile ? '30vh' : '30rem' }"
     [targetStyle]="{ height: windowSize.mobile ? '30vh' : '30rem' }"
     (onMoveToTarget)="onMoveToTarget($event)"
@@ -483,13 +480,24 @@
     <ng-template let-prop pTemplate="item">
       <div>{{ prop?.propertyName }}</div>
     </ng-template>
+    <ng-template pTemplate="targetFilter">
+      <div class="tw-cursor-not-allowed">
+        <div *ngIf="module === 'CONT'">
+          {{ "PROFILE.CONTACT_NAME" | translate }}
+        </div>
+        <div *ngIf="module === 'COMP'">
+          {{ "PROFILE.COMPANY_NAME" | translate }}
+        </div>
+        <p-divider></p-divider>
+      </div>
+    </ng-template>
   </p-pickList>
 
   <ng-template pTemplate="footer">
     <div class="tw-flex tw-justify-between">
       <app-base-button
         [label]="'BUTTON.CANCEL' | translate"
-        [outlined]="true"
+        [severity]="'secondary'"
         (onClick)="closeTableColumnFilter()"
       ></app-base-button>
       <app-base-button

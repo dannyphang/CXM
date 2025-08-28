@@ -7,7 +7,7 @@
     "authClient": "http://localhost:1118"
   },
   "server": {
-    "client": "https://crm-psi-six.vercel.app",
+    "client": "https://www.cxi.onl",
     "base": "https://crm-six-mauve.vercel.app",
     "auth": "https://jwt-authentication-fawn.vercel.app",
     "log": "https://log-five-theta.vercel.app",

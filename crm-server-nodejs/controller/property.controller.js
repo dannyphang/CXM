@@ -62,10 +62,12 @@ router.post("/" + propertiesCollection, async (req, res) => {
                 propertyList: list,
             })
             .then((l) => {
-                func.responseModel({
-                    data: createDoc,
-                    responseMessage: `Created ${l.length} record(s) successfully.`,
-                });
+                res.status(200).json(
+                    func.responseModel({
+                        data: l,
+                        responseMessage: `Created ${l.length} record(s) successfully.`,
+                    })
+                );
             })
             .catch((error) => {
                 API.createLog(error, req, res, 500, logModule);
@@ -174,7 +176,7 @@ router.post("/" + propertiesLookupCollection, async (req, res) => {
             .then((l) => {
                 res.status(200).json(
                     func.responseModel({
-                        data: createDoc,
+                        data: l,
                         responseMessage: `Created ${l.length} record(s) successfully.`,
                     })
                 );
@@ -372,13 +374,15 @@ router.post("/" + moduleCodeCollection, async (req, res) => {
 // check property unique
 router.post("/checkUnique", async (req, res) => {
     try {
-        const userId = func.body(req).userId;
-        const list = JSON.parse(JSON.stringify(func.body(req).data));
+        const tenantId = func.body(req).tenantId;
+        const data = JSON.parse(JSON.stringify(func.body(req).data));
 
         propertyImp
-            .createModule({
-                userId: userId,
-                moduleList: list,
+            .checkUnique({
+                tenantId: tenantId,
+                module: data.data.module,
+                propertyDataList: data.data.propertyDataList,
+                propertyList: data.data.propertyList,
             })
             .then((notUniqueProperties) => {
                 res.status(200).json(
@@ -389,6 +393,7 @@ router.post("/checkUnique", async (req, res) => {
                 );
             })
             .catch((error) => {
+                console.log("error", error);
                 API.createLog(error, req, res, 500, logModule);
                 res.status(500).json(
                     func.responseModel({

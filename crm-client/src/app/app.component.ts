@@ -1,5 +1,7 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component, ViewChild, viewChild, ViewContainerRef } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
+import { MessageService, PrimeNGConfig } from 'primeng/api';
+import { Toast } from 'primeng/toast';
 
 @Component({
   selector: 'app-root',
@@ -10,7 +12,7 @@ export class AppComponent {
   title = 'component-portal';
 
   constructor(
-    private translateService: TranslateService
+    private translateService: TranslateService,
   ) {
     this.translateService.use('en');
   }

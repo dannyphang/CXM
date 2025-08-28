@@ -1,0 +1,77 @@
+<p-tabView class="">
+  <!-- bingo tab -->
+  <p-tabPanel header="Bingo">
+    <div class="name-input-div">
+      <app-base-input
+        [placeholder]="'Your name'"
+        [fieldControl]="usernameFormControl"
+        [required]="true"
+        class="tw-w-full"
+      ></app-base-input>
+      <app-base-button
+        [label]="'Submit'"
+        [outlined]="true"
+        (onClick)="onSubmit()"
+      ></app-base-button>
+    </div>
+
+    <div class="bingo-container">
+      <div
+        *ngFor="let row of user.bingo; let i = index"
+        class="tw-flex tw-justify-center"
+      >
+        <div
+          *ngFor="let item of row; let j = index"
+          class="bingo-box"
+          (click)="onBingoClick(item)"
+          [ngClass]="{ 'bingo-done': item.done }"
+        >
+          <div>{{ item.bingo?.id }}</div>
+        </div>
+      </div>
+    </div>
+  </p-tabPanel>
+
+  <!-- qr tab -->
+  <p-tabPanel header="QR">
+    <div class="tw-grid tw-gap-[var(--content-gap)]">
+      <div class="qr-camera-div">
+        <zxing-scanner
+          [enable]="scannerEnable"
+          [(device)]="currentDevice"
+          [formats]="allowedFormats"
+          (scanComplete)="onScanComplete($event)"
+          (scanSuccess)="onScanSuccess($event)"
+          (onScanError)="onScanError($event)"
+          (camerasFound)="cameraFound($event)"
+          class="scanner"
+          *ngIf="scannerEnable"
+        ></zxing-scanner>
+
+        <app-qr-code
+          *ngIf="qrEnable"
+          [qrData]="user.hiddenMission"
+        ></app-qr-code>
+      </div>
+
+      <div class="action-div tw-shadow">
+        <app-base-button
+          [outlined]="true"
+          [rounded]="true"
+          [iconName]="'pi pi-camera'"
+          (onClick)="cameraClick()"
+        ></app-base-button>
+        <app-base-button
+          [outlined]="true"
+          [rounded]="true"
+          [iconName]="'pi pi-qrcode'"
+          (onClick)="qrCodeClick()"
+        ></app-base-button>
+      </div>
+
+      <div class="detail-div" *ngIf="scannedResult">
+        <div>{{ scannedResult?.description }}</div>
+      </div>
+    </div>
+  </p-tabPanel>
+</p-tabView>

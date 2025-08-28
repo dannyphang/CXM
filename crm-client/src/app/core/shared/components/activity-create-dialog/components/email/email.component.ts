@@ -28,10 +28,8 @@ export class EmailComponent {
   editorFormControl: FormControl = new FormControl(null, Validators.required);
   contentWordLength: number = 0;
 
-  countTextLength(text: any) {
-    this.ngZone.run(() => {
-      this.contentWordLength = text.textValue.length;
-    });
+  countTextLength(length: number) {
+    this.contentWordLength = length;
   }
 
   assoContactFormConfig: FormConfig[] = [];
@@ -71,7 +69,8 @@ export class EmailComponent {
         content: this.editorFormControl.value,
         emailDateTime: new Date(),
         contactAssoList: this.assoContactForm.value,
-        companyAssoList: this.assoCompanyForm.value
+        companyAssoList: this.assoCompanyForm.value,
+        textLength: this.contentWordLength
       });
     });
 
@@ -84,7 +83,8 @@ export class EmailComponent {
         content: change,
         emailDateTime: new Date(),
         contactAssoList: this.assoContactForm.value,
-        companyAssoList: this.assoCompanyForm.value
+        companyAssoList: this.assoCompanyForm.value,
+        textLength: this.contentWordLength
       });
     });
 
@@ -97,7 +97,8 @@ export class EmailComponent {
         content: this.editorFormControl.value,
         emailDateTime: new Date(),
         contactAssoList: change,
-        companyAssoList: this.assoCompanyForm.value
+        companyAssoList: this.assoCompanyForm.value,
+        textLength: this.contentWordLength
       });
     });
 
@@ -110,7 +111,8 @@ export class EmailComponent {
         content: this.editorFormControl.value,
         emailDateTime: new Date(),
         contactAssoList: this.assoContactForm.value,
-        companyAssoList: change
+        companyAssoList: change,
+        textLength: this.contentWordLength
       });
     });
   }

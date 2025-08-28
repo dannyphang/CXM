@@ -53,7 +53,7 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
     private coreAuthService: CoreAuthService,
     private eventService: EventService,
   ) {
-    super();
+    super(coreAuthService);
     this.tenantFormControl.valueChanges.subscribe(val => {
       let selectedTenant = this.tenantList.find(t => t.uid === val)!;
       this.coreService.tenant = selectedTenant;
@@ -76,24 +76,25 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
     }
 
     if (changes['permission'] && changes['permission'].currentValue) {
+      console.log("Permission changed", this.permission);
       this.menuItem = [
         {
-          label: this.translateService.instant("COMMON.CONTACT"),
+          label: "COMMON.CONTACT",
           icon: '',
           tooltip: "COMMON.CONTACT",
           command: () => {
             this.router.navigate(["/contact"]);
           },
-          visible: this.checkPermission('display', 'CONT', this.permission, this.coreAuthService.userC?.roleId)
+          visible: this.checkPermission('display', 'CONT', this.permission)
         },
         {
-          label: this.translateService.instant('COMMON.COMPANY'),
+          label: "COMMON.COMPANY",
           icon: '',
           tooltip: "COMMON.COMPANY",
           command: () => {
             this.router.navigate(["/company"]);
           },
-          visible: this.checkPermission('display', 'COMP', this.permission, this.coreAuthService.userC?.roleId)
+          visible: this.checkPermission('display', 'COMP', this.permission)
         },
       ];
     }
@@ -105,25 +106,25 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
         label: '',
       },
       {
-        label: this.translateService.instant('HEADER.SETTING'),
+        label: 'HEADER.SETTING',
         icon: 'pi pi-cog',
         command: () => {
           this.router.navigate(['/setting']);
         }
       },
       {
-        label: this.translateService.instant('COMMON.LANGUAGE'),
+        label: 'COMMON.LANGUAGE',
         icon: 'pi pi-language',
         items: [
           {
-            label: this.translateService.instant('HEADER.LANGUAGE.EN'),
+            label: "HEADER.LANGUAGE.EN",
             command: () => {
               this.translateService.use('en');
               this.commonService.setLanguage('en');
             }
           },
           {
-            label: this.translateService.instant('HEADER.LANGUAGE.CN'),
+            label: 'HEADER.LANGUAGE.CN',
             command: () => {
               this.translateService.use('zh');
               this.commonService.setLanguage('zh');
@@ -136,7 +137,7 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
         separator: true
       },
       {
-        label: this.translateService.instant('BUTTON.LOGOUT'),
+        label: 'BUTTON.LOGOUT',
         icon: 'pi pi-sign-out',
         command: () => {
           this.authService.signOutUserAuth().subscribe(res => {
@@ -148,7 +149,7 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
         visible: this.currentUser ? true : false
       },
       {
-        label: this.translateService.instant('BUTTON.LOGIN'),
+        label: 'BUTTON.LOGIN',
         icon: "pi pi-sign-in",
         command: () => {
           this.redirectToSignIn();
@@ -162,17 +163,19 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
     this.isDarkMode = isDark;
     this.themeService.switchTheme(isDark ? this.darkThemeFile : this.lightThemeFile);
     if (!isInit) {
-      this.authService.updateUserFirestore([{
-        uid: this.coreAuthService.userC.uid,
-        setting: {
-          ...this.coreAuthService.userC.setting,
-          darkMode: isDark
-        }
-      }]).subscribe(res => {
-        if (res.isSuccess) {
+      if (this.authService.returnPermissionObj('SETTING', 'update')) {
+        this.authService.updateUserFirestore([{
+          uid: this.coreAuthService.userC.uid,
+          setting: {
+            ...this.coreAuthService.userC.setting,
+            darkMode: isDark
+          }
+        }]).subscribe(res => {
+          if (res.isSuccess) {
 
-        }
-      })
+          }
+        });
+      }
     }
     this.coreAuthService.getCurrentAuthUser().then(res => {
       this.currentUser = res;
@@ -183,20 +186,22 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
   ngOnInit() {
     this.menuItem = [
       {
-        label: 'Contact',
+        label: "COMMON.CONTACT",
         icon: '',
         tooltip: "COMMON.CONTACT",
         command: () => {
           this.router.navigate(["/contact"]);
-        }
+        },
+        visible: this.checkPermission('display', 'CONT', this.permission)
       },
       {
-        label: 'Company',
+        label: "COMMON.COMPANY",
         icon: '',
         tooltip: "COMMON.COMPANY",
         command: () => {
           this.router.navigate(["/company"]);
-        }
+        },
+        visible: this.checkPermission('display', 'COMP', this.permission)
       },
     ];
 
@@ -207,7 +212,7 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
 
     this.userMenuItem = [
       {
-        label: this.translateService.instant('BUTTON.LOGIN'),
+        label: 'BUTTON.LOGIN',
         icon: "pi pi-sign-in",
         command: () => {
           this.redirectToSignIn();

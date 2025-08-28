@@ -42,12 +42,19 @@
               *ngIf="col.field !== 'module'"
               class="tw-flex tw-justify-center"
             >
-              <p-inputSwitch
+              <!-- <p-inputSwitch
                 [ngModel]="rowData.permission[col.field].value"
                 (onChange)="
                   permissionSwitchOnChange(rowData, col.field, $event)
                 "
-              />
+              /> -->
+              <p-checkbox
+                [ngModel]="rowData.permission[col.field].value"
+                [binary]="true"
+                (onChange)="
+                  permissionSwitchOnChange(rowData, col.field, $event)
+                "
+              ></p-checkbox>
             </div>
           </td>
         </tr>
@@ -57,16 +64,16 @@
     <div
       class="tw-py-[var(--content-gap)] tw-flex tw-justify-between tw-w-full"
     >
-      <p-button
+      <app-base-button
         [label]="'BUTTON.CANCEL' | translate"
-        [outlined]="true"
-        (onClick)="initPermissionTable('', true)"
-      ></p-button>
-      <p-button
+        [severity]="'secondary'"
+        (onClick)="initPermissionTable(null)"
+      ></app-base-button>
+      <app-base-button
         [label]="'BUTTON.SAVE' | translate"
         (onClick)="submitPermission()"
         class="tw-ml-[var(--content-gap)]"
-      ></p-button>
+      ></app-base-button>
     </div>
   </div>
 
@@ -104,7 +111,7 @@
             ></app-base-input>
           </div>
 
-          <div class="tw-flex">
+          <div class="tw-flex tw-gap-[var(--content-gap)]">
             <!-- create tenant btn -->
             <!-- <p-button
               *ngIf="
@@ -123,31 +130,26 @@
             ></p-button> -->
 
             <!-- add usr -role btn -->
-            <p-button
-              *ngIf="
-                checkPermission(
-                  'create',
-                  'SETTING',
-                  permission,
-                  currentUser.roleId
-                )
-              "
-              [icon]="'pi pi-plus'"
-              [text]="true"
-              [pTooltip]="'COMMON.USER' | translate"
+            <app-base-button
               [label]="'COMMON.USER' | translate"
+              [iconName]="'pi pi-plus'"
+              [isTextStyle]="true"
+              *ngIf="checkPermission('create', 'SETTING', permission)"
+              [pTooltip]="'COMMON.USER' | translate"
+              [outlined]="true"
               (onClick)="isAddRoleDialogVisible = true"
-            ></p-button>
+            ></app-base-button>
 
             <!-- create user btn -->
-            <p-button
+            <app-base-button
               *ngIf="coreAuthService.userC.roleId === 1"
-              [icon]="'pi pi-plus'"
-              [text]="true"
-              [pTooltip]="'BUTTON.CREATE_USER' | translate"
               [label]="'BUTTON.CREATE_USER' | translate"
+              [iconName]="'pi pi-plus'"
+              [isTextStyle]="true"
+              [outlined]="true"
+              [pTooltip]="'BUTTON.CREATE_USER' | translate"
               (onClick)="isCreateUserDialogVisible = true"
-            ></p-button>
+            ></app-base-button>
           </div>
         </div>
       </ng-template>
@@ -235,7 +237,7 @@
     <div class="tw-flex tw-justify-between">
       <app-base-button
         [label]="'BUTTON.CANCEL' | translate"
-        [outlined]="true"
+        [severity]="'secondary'"
         (onClick)="initTeamRole()"
       ></app-base-button>
 
@@ -298,16 +300,16 @@
 
   <ng-template pTemplate="footer">
     <div class="tw-flex tw-justify-between">
-      <p-button
+      <app-base-button
         [label]="'BUTTON.CANCEL' | translate"
-        [outlined]="true"
+        [severity]="'secondary'"
         (onClick)="closeCreateUserDialog()"
-      ></p-button>
+      ></app-base-button>
 
-      <p-button
+      <app-base-button
         [label]="'BUTTON.CREATE' | translate"
         (onClick)="createUser()"
-      ></p-button>
+      ></app-base-button>
     </div>
   </ng-template>
 </p-dialog>

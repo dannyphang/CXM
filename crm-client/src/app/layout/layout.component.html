@@ -1,5 +1,6 @@
 <div magnetic class="h-screen">
   <app-header
+    *ngIf="langLoaded"
     [user]="user"
     [tenantList]="tenantList"
     [tenantOptionsList]="tenantOptionsList"

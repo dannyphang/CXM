@@ -58,16 +58,16 @@
     >
       <div class="tw-flex">
         <app-base-button
+          [label]="'BUTTON.CANCEL'"
+          class="tw-ml-[var(--content-gap)]"
+          [severity]="'secondary'"
+          (onClick)="cancelButton()"
+        ></app-base-button>
+        <app-base-button
           [label]="'BUTTON.SAVE'"
           styleClass=""
           class="tw-w-full"
           (onClick)="saveButton(module, contactProfile, companyProfile)"
-        ></app-base-button>
-        <app-base-button
-          [label]="'BUTTON.CANCEL'"
-          class="tw-ml-[var(--content-gap)]"
-          [outlined]="true"
-          (onClick)="cancelButton()"
         ></app-base-button>
       </div>
 

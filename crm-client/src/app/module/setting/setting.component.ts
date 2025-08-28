@@ -1,4 +1,4 @@
-import { Component, HostListener, SimpleChanges } from '@angular/core';
+import { Component, ElementRef, HostListener, SimpleChanges, ViewChild } from '@angular/core';
 import { MenuItem, MessageService } from 'primeng/api';
 import { BaseCoreAbstract } from '../../core/shared/base/base-core.abstract';
 import { TranslateService } from '@ngx-translate/core';
@@ -8,6 +8,7 @@ import { CommonService, WindowSizeDto } from '../../core/services/common.service
 import { Title } from '@angular/platform-browser';
 import { ActivatedRoute } from '@angular/router';
 import { CoreAuthService, UserDto } from '../../core/services/core-auth.service';
+import { Location } from '@angular/common';
 
 @Component({
   selector: 'app-setting',
@@ -15,11 +16,13 @@ import { CoreAuthService, UserDto } from '../../core/services/core-auth.service'
   styleUrl: './setting.component.scss'
 })
 export class SettingComponent extends BaseCoreAbstract {
+  @ViewChild('settingContainer', { static: false }) settingContainerRef!: ElementRef;
   permission: UserPermissionDto[] = [];
   module = 'SETTING';
   settingMenuItem: MenuItem[] = [];
   userC: UserDto;
   fragment: string;
+  activeSection: string = 'general'; // default section
 
   windowSize: WindowSizeDto = new WindowSizeDto();
 
@@ -35,27 +38,29 @@ export class SettingComponent extends BaseCoreAbstract {
     private commonService: CommonService,
     private titleService: Title,
     private route: ActivatedRoute,
-    private coreAuthService: CoreAuthService,
+    protected coreAuthService: CoreAuthService,
+    private location: Location,
   ) {
-    super();
+    super(coreAuthService);
     this.windowSize = this.commonService.windowSize;
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     this.userC = this.coreAuthService.userC;
     this.settingMenuItem = [
       {
-        label: this.translateService.instant('SETTING.GENERAL'),
+        label: 'SETTING.GENERAL',
         icon: '',
         command: () => {
           const element = document.getElementById('general');
           if (element) {
             element.scrollIntoView({ behavior: 'smooth', block: 'start' });
           }
-        }
+        },
+        visible: true,
       },
       {
-        label: this.translateService.instant('SETTING.TEAM_MANAGEMENT'),
+        label: 'SETTING.TEAM_MANAGEMENT',
         icon: '',
         command: () => {
           const element = document.getElementById('team');
@@ -63,20 +68,23 @@ export class SettingComponent extends BaseCoreAbstract {
             element.scrollIntoView({ behavior: 'smooth', block: 'start' });
           }
         },
-        visible: this.userC?.roleId === 1,
+        visible: this.userC?.roleId === 1 || this.returnPermissionObj('TEAM', 'display')
       },
       {
-        label: this.translateService.instant('SETTING.PROPERTY'),
+        label: 'SETTING.PROPERTY',
         icon: '',
         command: () => {
           const element = document.getElementById('property');
           if (element) {
             element.scrollIntoView({ behavior: 'smooth', block: 'start' });
           }
-        }
+        },
+        visible: this.userC?.roleId === 1 || this.returnPermissionObj('PROPERTY', 'display')
       },
     ];
-    this.permission = JSON.parse(this.userC.permission);
+    this.authService.getUserPermission(this.userC?.uid ?? '').then(permission => {
+      this.permission = permission;
+    })
     this.titleService.setTitle(this.translateService.instant('COMMON.SETTING'));
 
     this.route.fragment.subscribe((fragment: string | null) => {
@@ -94,12 +102,12 @@ export class SettingComponent extends BaseCoreAbstract {
   onScroll(event: any) {
     if (this.windowSize.desktop) {
       if (window.scrollY > 116) {
-        document.getElementById("setting_left")!.style.width = "280px";
+        // document.getElementById("setting_left")!.style.width = "280px";
         document.getElementById("setting_menu_panel")!.style.position = "fixed";
         document.getElementById("setting_menu_panel")!.style.top = "10px";
       }
       else {
-        document.getElementById("setting_left")!.style.width = "auto";
+        // document.getElementById("setting_left")!.style.width = "280px";
         document.getElementById("setting_menu_panel")!.style.position = "relative";
         document.getElementById("setting_menu_panel")!.style.top = "0";
       }
@@ -112,7 +120,50 @@ export class SettingComponent extends BaseCoreAbstract {
     this.windowSize = this.commonService.windowSize;
   }
 
+  ngAfterViewInit() {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const id = entry.target.id;
+            this.activeSection = id;
+            this.highlightMenuItem();
+            this.location.replaceState(this.location.path().split('#')[0] + `#${id}`);
+          }
+        });
+      },
+      {
+        root: this.settingContainerRef?.nativeElement,
+        threshold: 0.5,
+      }
+    );
+
+    const sectionIds = ['general', 'team', 'property'];
+    sectionIds.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) {
+        observer.observe(el);
+      }
+    });
+  }
+
+  highlightMenuItem() {
+    this.settingMenuItem = this.settingMenuItem.map(item => {
+      const idMap = {
+        [this.translateService.instant('SETTING.GENERAL')]: 'general',
+        [this.translateService.instant('SETTING.TEAM_MANAGEMENT')]: 'team',
+        [this.translateService.instant('SETTING.PROPERTY')]: 'property'
+      };
+
+      const sectionId = idMap[item.label];
+      return {
+        ...item,
+        styleClass: sectionId === this.activeSection ? 'active-menu-item' : ''
+      };
+    });
+  }
+
   returnPermissionObj(module: string, action: string): boolean {
-    return this.permission.find(p => p.module === module)?.permission[action];
+    return this.permission?.find(p => p.module === module)?.permission[action];
   }
 }

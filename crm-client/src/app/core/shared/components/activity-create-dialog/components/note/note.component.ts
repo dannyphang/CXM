@@ -53,10 +53,8 @@ export class NoteComponent {
     });
   }
 
-  countTextLength(text: any) {
-    this.ngZone.run(() => {
-      this.contentWordLength = text.textValue.length;
-    });
+  countTextLength(length: number) {
+    this.contentWordLength = length;
   }
 
   setAssociation() {
@@ -171,6 +169,7 @@ export class NoteComponent {
       activityModuleSubCode: this.activityModule.moduleSubCode,
       activityModuleId: this.activityModule.uid,
       activityContent: this.editorFormControl.value,
+      activityContentLength: this.contentWordLength,
       activityContactedIdList: [],
       activityDatetime: new Date(),
       activityDirectionId: null,

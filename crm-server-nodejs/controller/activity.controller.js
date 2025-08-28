@@ -139,13 +139,13 @@ router.put("/", async (req, res) => {
     }
 });
 
-// send email
-router.post("/email", async (req, res) => {
+// delete activity
+router.put("/delete", async (req, res) => {
     try {
         activityImp
-            .sendEmail({
-                tenantId: func.body(req).tenantId,
-                createActivity: func.body(req).data.createActivity,
+            .deleteActivity({
+                userId: func.body(req).userId,
+                activityList: func.body(req).data.updateActivityList,
             })
             .then((list) => {
                 res.status(200).json(func.responseModel({ data: list }));
@@ -171,5 +171,114 @@ router.post("/email", async (req, res) => {
         );
     }
 });
+
+// send email
+router.post("/email", async (req, res) => {
+    try {
+        activityImp
+            .sendEmail({
+                tenantId: func.body(req).tenantId,
+                createActivity: func.body(req).data.createActivity,
+                userId: func.body(req).userId,
+            })
+            .then((list) => {
+                res.status(200).json(func.responseModel({ data: list }));
+            })
+            .catch((error) => {
+                console.log("error", error);
+                API.createLog(error, req, res, 500, logModule);
+                res.status(500).json(
+                    func.responseModel({
+                        isSuccess: false,
+                        responseMessage: error,
+                    })
+                );
+            });
+    } catch (error) {
+        console.log("error", error);
+        API.createLog(error, req, res, 500, logModule);
+        res.status(500).json(
+            func.responseModel({
+                isSuccess: false,
+                responseMessage: error,
+            })
+        );
+    }
+});
+
+// create meeting
+router.post("/meeting", async (req, res) => {
+    try {
+        activityImp
+            .createMeeting({
+                tenantId: func.body(req).tenantId,
+                userId: func.body(req).userId,
+                createActivityObj: func.body(req).data.createActivity,
+                calendarEmail: func.body(req).data.calendarEmail,
+            })
+            .then((data) => {
+                res.status(200).json(
+                    func.responseModel({
+                        data: data,
+                        responseMessage: "Meeting created successfully",
+                    })
+                );
+            })
+            .catch((error) => {
+                console.log("error", error);
+                API.createLog(error, req, res, 500, logModule);
+                res.status(500).json(
+                    func.responseModel({
+                        isSuccess: false,
+                        responseMessage: error,
+                    })
+                );
+            });
+    } catch (error) {
+        console.log("error", error);
+        API.createLog(error, req, res, 500, logModule);
+        res.status(500).json(
+            func.responseModel({
+                isSuccess: false,
+                responseMessage: error,
+            })
+        );
+    }
+});
+
+// router.post("/search", async (req, res) => {
+//     try{
+//         const searchText = func.body(req).data.searchText;
+//         const tenantId = func.body(req).tenantId;
+//         activityImp
+//             .searchActivitiesText({
+//                 tenantId: tenantId,
+//                 searchText: searchText,
+//             })
+//             .then((list) => {
+//                 res.status(200).json(func.responseModel({ data: list }));
+//             })
+//             .catch((error) => {
+//                 console.log("error", error);
+//                 API.createLog(error, req, res, 500, logModule);
+//                 res.status(500).json(
+//                     func.responseModel({
+//                         isSuccess: false,
+//                         responseMessage: error,
+//                     })
+//                 );
+//             });
+//     }
+//     catch(error){
+//         console.log("error", error);
+//         API.createLog(error, req, res, 500, logModule);
+//         res.status(500).json(
+//             func.responseModel({
+//                 isSuccess: false,
+//                 responseMessage: error,
+//             })
+//         );
+//     }
+// });
 
 export default router;

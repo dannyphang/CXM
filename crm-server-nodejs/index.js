@@ -9,6 +9,10 @@ import propertyController from "./controller/property.controller.js";
 import activityController from "./controller/activity.controller.js";
 import attachmentController from "./controller/attachment.controller.js";
 import authController from "./controller/auth.controller.js";
+import generalController from "./controller/general.controller.js";
+import calendarController from "./controller/calendar.controller.js";
+import shortController from "./controller/short.controller.js";
+import bingoController from "./controller/bingo.controller.js";
 import cors from "cors";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
@@ -19,19 +23,16 @@ const __dirname = dirname(__filename);
 const app = express();
 // app.use(express.json());
 
-const port = process.env.PORT || 1113;
+const port = 1113;
 
 global.__basedir = __dirname;
 
 app.all("/*", function (req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Credentials", "true");
-  res.header(
-    "Access-Control-Allow-Headers",
-    "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers"
-  );
-  res.header("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS");
-  next();
+    res.header("Access-Control-Allow-Origin", "*");
+    res.header("Access-Control-Allow-Credentials", "true");
+    res.header("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
+    res.header("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS");
+    next();
 });
 
 // to resolve CORS issue
@@ -40,12 +41,12 @@ app.use(cors());
 // increase file limit
 app.use(express.json({ limit: 5000000000, type: "application/json" }));
 app.use(
-  express.urlencoded({
-    limit: 5000000000,
-    extended: true,
-    parameterLimit: 5000000000000000,
-    type: "application/json",
-  })
+    express.urlencoded({
+        limit: 5000000000,
+        extended: true,
+        parameterLimit: 5000000000000000,
+        type: "application/json",
+    })
 );
 
 app.use("/contact", contactController);
@@ -57,7 +58,11 @@ app.use("/attachment", attachmentController);
 app.use("/token", tokenController);
 app.use("/auth", authController);
 app.use("/location", locationController);
+app.use("/general", generalController);
+app.use("/calendar", calendarController);
+app.use("/short", shortController);
+app.use("/bingo", bingoController);
 
 app.listen(port, () => {
-  console.log(`server is running at port: ${port}... (${new Date()})`);
+    console.log(`server is running at port: ${port}... (${new Date()})`);
 });

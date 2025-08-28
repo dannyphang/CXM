@@ -1,0 +1,25 @@
+::ng-deep {
+  .p-editor-toolbar {
+    display: flex !important;
+    flex-wrap: wrap !important;
+  }
+
+  .ql-toolbar button {
+    display: block !important;
+  }
+
+  .ql-formats {
+    margin-right: 0px !important;
+    display: flex !important;
+    flex-wrap: wrap !important;
+    align-items: center;
+  }
+}
+
+.divider-div {
+  background-color: var(--surface-300);
+  width: 2px;
+  margin: 2px 10px;
+  display: flex;
+  height: 70%;
+}

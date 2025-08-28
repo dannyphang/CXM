@@ -5,17 +5,21 @@ import { AuthService } from '../../../../../services/auth.service';
 import { PropertyGroupDto, ContactDto, CompanyDto, CommonService, CreateAssociationDto } from '../../../../../services/common.service';
 import { FormConfig, OptionsModel, CONTROL_TYPE } from '../../../../../services/components.service';
 import { ToastService } from '../../../../../services/toast.service';
+import { UserPermissionDto } from '../../../../../services/core-http.service';
+import { BaseCoreAbstract } from '../../../../base/base-core.abstract';
+import { CoreAuthService } from '../../../../../services/core-auth.service';
 
 @Component({
   selector: 'app-association',
   templateUrl: './association.component.html',
   styleUrl: './association.component.scss'
 })
-export class AssociationComponent {
+export class AssociationComponent extends BaseCoreAbstract {
   @Input() propertiesList: PropertyGroupDto[] = [];
   @Input() module: 'CONT' | 'COMP' = 'CONT';
   @Input() contactProfile: ContactDto = new ContactDto();
   @Input() companyProfile: CompanyDto = new CompanyDto();
+  @Input() permission: UserPermissionDto[] = [];
   @Output() getProfileEmit: EventEmitter<any> = new EventEmitter();
 
   showAddAssoSidebar: boolean = false;
@@ -28,9 +32,10 @@ export class AssociationComponent {
     private commonService: CommonService,
     private activityService: ActivityService,
     private authService: AuthService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    private coreAuthService: CoreAuthService
   ) {
-
+    super(coreAuthService);
   }
 
   ngOnChanges(changes: SimpleChanges) {

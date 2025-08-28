@@ -2,7 +2,8 @@
   <ng-container [ngSwitch]="type">
     <ng-template [ngSwitchDefault]>
       <p-button
-        [outlined]="outlined"
+        [rounded]="rounded"
+        [outlined]="outlined || severity === 'secondary'"
         [type]="buttonType"
         [label]="isSpinning ? undefined : (label | translate)"
         [icon]="
@@ -12,11 +13,11 @@
         [iconPos]="rightIcon ? 'right' : 'left'"
         [class]="'button-item ' + buttonClass"
         [text]="isTextStyle"
-        [rounded]="rounded"
         [ngClass]="{
           'border-none': !outlined,
           'bg-red-400': color === 'red',
-          oneline: labelOneLine
+          oneline: labelOneLine,
+          'outline-hover': outlined || severity === 'secondary' || isTextStyle,
         }"
         [disabled]="disabled"
         (click)="click($event)"

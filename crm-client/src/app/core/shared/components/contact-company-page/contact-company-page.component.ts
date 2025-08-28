@@ -6,7 +6,7 @@ import * as ExcelJS from 'exceljs';
 import saveAs from 'file-saver';
 import { MenuItem, MessageService } from 'primeng/api';
 import { debounceTime, distinctUntilChanged, map, Observable, of } from 'rxjs';
-import { AuthService, CreateUserDto } from '../../../services/auth.service';
+import { AuthService, CreateUserDto, UpdateUserDto } from '../../../services/auth.service';
 import { CommonService, CompanyDto, ContactDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, PropertyLookupDto, UserCommonDto, WindowSizeDto } from '../../../services/common.service';
 import { BaseDataSourceActionEvent, CONTROL_TYPE, CONTROL_TYPE_CODE, FormConfig, OptionsModel } from '../../../services/components.service';
 import { ROW_PER_PAGE_DEFAULT, ROW_PER_PAGE_DEFAULT_LIST, EMPTY_VALUE_STRING, NUMBER_OF_EXCEL_INSERT_ROW, DOWNLOAD_IMPORT_PROFILE_TEMPLATE_FILE_NAME_XLSX, MAX_PANEL_LIST } from '../../constants/common.constants';
@@ -48,11 +48,6 @@ export class ContactCompanyPageComponent implements OnChanges {
   tabLabelArr: FormArray = this.formBuilder.array([]);
   closeDialogVisible: boolean = false;
   selectedPanel: number = -1;
-
-  canDownload: boolean = false;
-  canExport: boolean = false;
-  canDelete: boolean = false;
-  canCreate: boolean = false;
   //#endregion
 
   constructor(
@@ -60,7 +55,7 @@ export class ContactCompanyPageComponent implements OnChanges {
     private router: Router,
     private formBuilder: FormBuilder,
     private translateService: TranslateService,
-    private authService: AuthService,
+    public authService: AuthService,
     private toastService: ToastService,
     private coreService: CoreHttpService,
     private coreAuthService: CoreAuthService,
@@ -100,21 +95,6 @@ export class ContactCompanyPageComponent implements OnChanges {
 
     // assign active tab panel from userC
     this.getPanelListFromSetting();
-
-    Promise.all([]).then(_ => {
-      this.canDownload = this.authService.returnPermission(this.coreAuthService.userC.permission).find(p => p.module === this.module)?.permission.download ?? false;
-      this.canExport = this.authService.returnPermission(this.coreAuthService.userC.permission).find(p => p.module === this.module)?.permission.export ?? false;
-      this.canDelete = this.authService.returnPermission(this.coreAuthService.userC.permission).find(p => p.module === this.module)?.permission.remove ?? false;
-      this.canCreate = this.authService.returnPermission(this.coreAuthService.userC.permission).find(p => p.module === this.module)?.permission.create ?? false;
-
-      // this.getTabLabelArr.valueChanges.subscribe((value: any) => {
-      //   this.getTabLabelArr.controls.find((item: any) => item.value.index === this.activeTabPanel).valueChanges.subscribe((value: any) => {
-      //     this.getTabLabelArr.controls.find((item: any) => item.value.index === this.activeTabPanel).setValue(value, { emitEvent: false });
-      //     this.panelList.find(p => p.panelUid === this.activeTabPanel)!.headerLabel = value.tabLabel;
-      //   });
-      // });
-
-    });
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -255,7 +235,7 @@ export class ContactCompanyPageComponent implements OnChanges {
   }
 
   tabViewOnClose() {
-    if (this.authService.returnPermissionObj(this.module, 'update')) {
+    if (this.authService.returnPermissionObj("SETTING", 'update')) {
       this.updateUserfilterSetting([], true, this.panelList[this.selectedPanel].panelUid);
       this.updateUserColumnSetting(null, true, this.panelList[this.selectedPanel].panelUid);
       this.panelList = this.panelList.filter((p, index) => index !== this.selectedPanel);
@@ -263,7 +243,10 @@ export class ContactCompanyPageComponent implements OnChanges {
       this.closeDialogVisible = false;
     }
     else {
-      // TODO
+      this.toastService.addSingle({
+        message: this.translateService.instant('MESSAGE.PERMISSION_DENIED'),
+        severity: 'error'
+      });
     }
   }
 
@@ -273,8 +256,8 @@ export class ContactCompanyPageComponent implements OnChanges {
   }
 
   updateUserSetting(setting: SettingDto) {
-    if (this.authService.returnPermissionObj(this.module, 'update')) {
-      let updateUser: CreateUserDto = {
+    if (this.authService.returnPermissionObj('SETTING', 'update')) {
+      let updateUser: UpdateUserDto = {
         uid: this.coreAuthService.userC.uid,
         setting: setting
       };
@@ -293,7 +276,11 @@ export class ContactCompanyPageComponent implements OnChanges {
       });
     }
     else {
-      // TODO
+      console.log('Permission denied for updating user setting');
+      this.toastService.addSingle({
+        message: this.translateService.instant('MESSAGE.PERMISSION_DENIED'),
+        severity: 'error'
+      });
     }
   }
 
@@ -357,7 +344,7 @@ export class ContactCompanyPageComponent implements OnChanges {
       setting.tableFilter[this.module === "CONT" ? "contact" : "company"].propertyFilter = setting.tableFilter[this.module === "CONT" ? "contact" : "company"].propertyFilter.filter((item) => item.tabUid !== removeTabUid)
     }
 
-    let updateUser: CreateUserDto = {
+    let updateUser: UpdateUserDto = {
       uid: this.coreAuthService.userC.uid,
       setting: setting
     };
@@ -437,6 +424,12 @@ export class Filter {
   filterFieldControl: FormControl;
   conditionFieldControl: FormControl;
   mode: any;
+}
+
+export class FilterDto {
+  property: PropertiesDto;
+  filter: any | any[];
+  condition: string;
 }
 
 export class Panel {

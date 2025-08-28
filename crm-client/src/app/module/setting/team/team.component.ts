@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { AuthService, UpdateUserRoleDto } from '../../../core/services/auth.service';
 import { CONTROL_TYPE, FormConfig, OptionsModel } from '../../../core/services/components.service';
@@ -20,7 +20,7 @@ interface Column {
   templateUrl: './team.component.html',
   styleUrl: './team.component.scss'
 })
-export class TeamComponent extends BaseCoreAbstract {
+export class TeamComponent extends BaseCoreAbstract implements OnChanges {
   @Input() permission: UserPermissionDto[] = [];
 
   windowSize: WindowSizeDto = new WindowSizeDto();
@@ -52,8 +52,8 @@ export class TeamComponent extends BaseCoreAbstract {
       header: 'Display'
     },
     {
-      field: 'download',
-      header: 'Download'
+      field: 'import',
+      header: 'Import'
     },
     {
       field: 'export',
@@ -67,6 +67,7 @@ export class TeamComponent extends BaseCoreAbstract {
     permission: this.formBuilder.array([]),
   });
   updateUserList: UserDto[] = [];
+  updatePermissionList: UserPermissionDto[] = [];
   createTenantFormConfig: FormConfig[] = [];
   createTenantFormGroup: FormGroup = new FormGroup({
     tenantName: new FormControl("", Validators.required),
@@ -107,15 +108,15 @@ export class TeamComponent extends BaseCoreAbstract {
     private commonService: CommonService,
     private toastService: ToastService
   ) {
-    super();
+    super(coreAuthService);
     this.windowSize = this.commonService.windowSize;
   }
 
   ngOnInit() {
     this.currentUser = this.coreAuthService.userC;
 
-    this.selectedUserFormGroup.controls['user'].valueChanges.subscribe(val => {
-      this.initPermissionTable(val);
+    this.selectedUserFormGroup.controls['user'].valueChanges.subscribe(userUid => {
+      this.initPermissionTable(userUid);
     });
 
     this.authService.getAllRoles().subscribe(res => {
@@ -128,7 +129,6 @@ export class TeamComponent extends BaseCoreAbstract {
         })
 
         this.selectedUserFormGroup.controls['user'].setValue(this.coreAuthService.userC.uid);
-        this.initPermissionTable(this.coreAuthService.userC.uid);
       }
     })
 
@@ -152,32 +152,25 @@ export class TeamComponent extends BaseCoreAbstract {
     this.initCreateUserForm();
   }
 
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['permission'] && changes['permission'].currentValue) {
+      this.initPermissionTable(this.coreAuthService.userC.uid);
+    }
+  }
+
   get permissionArr(): FormArray {
     return this.selectedUserFormGroup.controls['permission'] as FormArray;
   }
 
-  initPermissionTable(user: string, isCancel: boolean = false) {
-    let userId = user;
-    if (isCancel) {
-      userId = this.selectedUserFormGroup.controls['user'].value;
-      this.authService.getAllUserByTenant(this.coreService.tenant.uid).subscribe(res => {
-        if (res.isSuccess) {
-          this.userList = res.data;
-          this.userListOptions = res.data.map(d => {
-            return {
-              label: `${d.displayName} (${d.email})`,
-              value: d.uid
-            }
-          });
-        }
+  initPermissionTable(userUid: string) {
+    this.authService.getUserPermission(userUid ? userUid : this.selectedUserFormGroup.controls['user'].value).then(permission => {
+      this.permission = permission;
+      this.selectedUserFormGroup.controls['permission'] = this.formBuilder.array([]);
+      let permissionObj = this.permission ?? [];
+
+      permissionObj.forEach(p => {
+        this.addPermissionArr(p.module, p.permission);
       });
-    }
-
-    this.selectedUserFormGroup.controls['permission'] = this.formBuilder.array([]);
-    let permissionObj = this.authService.returnPermission(this.userList.find(u => u.uid === userId)?.permission ?? '[]');
-
-    permissionObj.forEach(p => {
-      this.addPermissionArr(p.module, p.permission);
     });
   }
 
@@ -190,7 +183,7 @@ export class TeamComponent extends BaseCoreAbstract {
           remove: new FormControl(permi.remove),
           update: new FormControl(permi.update),
           display: new FormControl(permi.display),
-          download: new FormControl(permi.download),
+          import: new FormControl(permi.import),
           export: new FormControl(permi.export),
         }
       });
@@ -234,6 +227,14 @@ export class TeamComponent extends BaseCoreAbstract {
       default:
         return new FormControl();
     }
+  }
+
+  returnTeamPermission(rowData: any, col: Column) {
+    return rowData.permission[col.field];
+  }
+
+  returnTeamPermissionFormControl(rowData: any, col: Column): FormControl {
+    return (rowData.permission as FormGroup).controls[col.field] as FormControl;
   }
 
   checkUserEmail(team: any) {
@@ -293,11 +294,27 @@ export class TeamComponent extends BaseCoreAbstract {
   }
 
   submitPermission() {
-    this.authService.updateUserFirestore(this.updateUserList).subscribe(res => {
-      if (res.isSuccess) {
-        console.log(res)
+    this.authService.updateUserPermission(this.selectedUserFormGroup.controls['user'].value, this.updatePermissionList).subscribe({
+      next: res => {
+        if (res.isSuccess) {
+          this.toastService.addSingle({
+            message: 'Permission updated successfully',
+          });
+        }
+        else {
+          this.toastService.addSingle({
+            message: res.responseMessage,
+            severity: 'error'
+          });
+        }
+      },
+      error: error => {
+        this.toastService.addSingle({
+          message: error.error.message,
+          severity: 'error'
+        });
       }
-    })
+    });
   }
 
   returnSelectUserFormControl(): FormControl {
@@ -308,7 +325,6 @@ export class TeamComponent extends BaseCoreAbstract {
     rowData.permission[field as keyof PermissionObjDto].value = event.checked;
 
     let pArr: UserPermissionDto[] = [];
-
     this.permissionArr.value.forEach((p: any) => {
       pArr.push({
         module: p.module,
@@ -317,19 +333,13 @@ export class TeamComponent extends BaseCoreAbstract {
           remove: p.permission.remove.value ?? false,
           update: p.permission.update.value ?? false,
           display: p.permission.display.value ?? false,
-          download: p.permission.download.value ?? false,
+          import: p.permission.import.value ?? false,
           export: p.permission.export.value ?? false,
         }
       })
     });
 
-    if (this.updateUserList.find(u => u.uid === this.selectedUserFormGroup.controls['user'].value)) {
-      this.updateUserList.find(u => u.uid === this.selectedUserFormGroup.controls['user'].value)!.permission = JSON.stringify(pArr);
-    }
-    else {
-      this.userList.find(u => u.uid === this.selectedUserFormGroup.controls['user'].value)!.permission = JSON.stringify(pArr);
-      this.updateUserList.push(this.userList.find(u => u.uid === this.selectedUserFormGroup.controls['user'].value)!);
-    }
+    this.updatePermissionList = pArr;
   }
 
   initCreateTenantForm() {

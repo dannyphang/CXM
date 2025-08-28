@@ -13,12 +13,13 @@ const routes: Routes = [
       {
         path: '',
         loadChildren: () => import('./module/home/home.module').then(m => m.HomeModule),
+        canActivate: [AuthGuard],
         data: { breadcrumb: '', title: 'Home' }
       },
       {
         path: 'contact',
         loadChildren: () => import('./module/contact/contact.module').then(m => m.ContactModule),
-        canActivate: [AuthGuard, PermissionGuard],
+        canActivate: [PermissionGuard],
         data: {
           breadcrumb: 'Contact',
           title: 'Contact',
@@ -29,7 +30,7 @@ const routes: Routes = [
       {
         path: 'company',
         loadChildren: () => import('./module/company/company.module').then(m => m.CompanyModule),
-        canActivate: [AuthGuard, PermissionGuard],
+        canActivate: [PermissionGuard],
         data: {
           breadcrumb: 'Company',
           title: 'Company',
@@ -40,7 +41,7 @@ const routes: Routes = [
       {
         path: 'setting',
         loadChildren: () => import('./module/setting/setting.module').then(m => m.SettingModule),
-        canActivate: [AuthGuard, PermissionGuard],
+        canActivate: [PermissionGuard],
         data: {
           breadcrumb: 'Setting', title: 'Setting',
           action: 'display',
@@ -52,6 +53,14 @@ const routes: Routes = [
   {
     path: 'signin',
     loadChildren: () => import('./module/login/login.module').then(m => m.LoginModule),
+  },
+  {
+    path: 'short',
+    loadChildren: () => import('./module/short-url/short-url.module').then(m => m.ShortUrlModule),
+  },
+  {
+    path: 'bingo',
+    loadChildren: () => import('./module/bingo/bingo.module').then(m => m.BingoModule),
   },
   {
     path: 'callback',
