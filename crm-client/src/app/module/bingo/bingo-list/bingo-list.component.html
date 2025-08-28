@@ -1,0 +1,11 @@
+<div>
+  <div *ngFor="let bingo of bingoList" class="tw-flex">
+    <app-qr-code
+      [qrData]="bingo.uid"
+      class="tw-flex tw-p-[var(--content-gap)] tw-items-center"
+    ></app-qr-code>
+    <div class="tw-flex tw-p-[var(--content-gap)] tw-items-center">
+      {{ bingo.uid }}: {{ bingo.description }}
+    </div>
+  </div>
+</div>

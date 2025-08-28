@@ -286,5 +286,10 @@
     "USER_LIST": "User list",
     "PERMISSION_LIST": "Permission list",
     "CREATE_USER": "Create user"
+  },
+  "BINGO": {
+    "CAMERA_CLICKED": "Camera clicked",
+    "SCAN_SUCCESS": "Scan successful",
+    "SCAN_ERROR": "Scan error"
   }
 }

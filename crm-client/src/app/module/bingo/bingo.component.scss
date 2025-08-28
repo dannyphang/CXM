@@ -1,0 +1,72 @@
+::ng-deep {
+  .p-tabview-nav-content ul {
+    li {
+      width: 50%;
+
+      a {
+        justify-content: center;
+      }
+    }
+  }
+
+  .p-tabview-panels {
+    height: calc(100vh - 48.67px);
+    overflow: auto;
+  }
+}
+
+.action-div {
+  // position: absolute;
+  // bottom: var(--content-gap);
+  display: flex;
+  gap: var(--content-gap);
+  margin: auto;
+  border-radius: 50px;
+  border: 1px solid var(--gray-300);
+  padding: var(--content-gap-s) var(--content-gap-xxl);
+  justify-content: space-around;
+  width: 70%;
+}
+
+.qr-camera-div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.scanner {
+  aspect-ratio: 1/1;
+  width: 80%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+video {
+  width: 100%;
+  height: 100%;
+}
+
+.name-input-div {
+  display: flex;
+  gap: var(--content-gap-s);
+  padding-bottom: var(--content-gap);
+}
+
+.bingo-container {
+  display: grid;
+  width: 100%;
+}
+
+.bingo-box {
+  aspect-ratio: 1/1;
+  width: 20%;
+  border: 1px solid black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.bingo-done {
+  background-color: lightgreen;
+}
