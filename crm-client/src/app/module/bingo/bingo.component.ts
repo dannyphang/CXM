@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { BarcodeFormat } from '@zxing/library';
 import { ToastService } from '../../core/services/toast.service';
 import { FormControl, Validators } from '@angular/forms';
-import { BingoService } from '../../core/services/bingo.service';
+import { BingoDto, BingoService } from '../../core/services/bingo.service';
 
 @Component({
   selector: 'app-bingo',
@@ -12,15 +12,18 @@ import { BingoService } from '../../core/services/bingo.service';
 export class BingoComponent {
   allowedFormats = [BarcodeFormat.QR_CODE];
   scannerEnable: boolean = true;
-  scannedResult: string = '';
+  scannedResult: BingoDto;
   qrEnable: boolean = false;
   qrValue: string = 'e41d54d5-7d7e-44d7-bf11-afed772c6ef1';
   user: {
+    uid: string;
     name: string;
     bingo: any[];
     hiddenMission: string;
   }
   usernameFormControl: FormControl = new FormControl('', Validators.required);
+  currentDeviceList: MediaDeviceInfo[] = [];
+  currentDevice: MediaDeviceInfo | null = null;
 
   constructor(
     private toastService: ToastService,
@@ -29,129 +32,162 @@ export class BingoComponent {
 
   ngOnInit() {
     if (!this.user) {
-      this.user = {
-        name: null,
-        bingo: [
-          [
-            {
-              bingo: null,
-              done: false,
-            },
-            {
-              bingo: {
-                uid: '7d1cd330-5ffb-4c8b-9702-5aa765aa7a1b',
-                description: 'Find 2 people whose zodiac is the same as yours.',
-                category: 'FAST',
-                id: 3,
-              },
-              done: false,
-            },
-            {
-              bingo: null,
-              done: false,
-            },
-            {
-              bingo: null,
-              done: false,
-            },
-            {
-              bingo: null,
-              done: false,
-            },
-          ],
-          [
-            {
-              bingo: null,
-              done: false,
-            },
-            {
-              bingo: null,
-              done: false,
-            },
-            {
-              bingo: null,
-              done: false,
-            },
-            {
-              bingo: null,
-              done: false,
-            },
-            {
-              bingo: null,
-              done: false,
-            },
-          ],
-          [
-            {
-              bingo: null,
-              done: false,
-            },
-            {
-              bingo: null,
-              done: false,
-            },
-            {
-              bingo: null,
-              done: false,
-            },
-            {
-              bingo: null,
-              done: false,
-            },
-            {
-              bingo: null,
-              done: false,
-            },
-          ],
-          [
-            {
-              bingo: null,
-              done: false,
-            },
-            {
-              bingo: null,
-              done: false,
-            },
-            {
-              bingo: null,
-              done: false,
-            },
-            {
-              bingo: null,
-              done: false,
-            },
-            {
-              bingo: null,
-              done: false,
-            },
-          ],
-          [
-            {
-              bingo: null,
-              done: false,
-            },
-            {
-              bingo: null,
-              done: false,
-            },
-            {
-              bingo: null,
-              done: false,
-            },
-            {
-              bingo: null,
-              done: false,
-            },
-            {
-              bingo: null,
-              done: false,
-            },
-          ],
-        ],
-        hiddenMission: null
-      };
+      this.resetUser();
     }
-    this.onScanSuccess('e41d54d5-7d7e-44d7-bf11-afed772c6ef1')
+    // this.onScanSuccess('e41d54d5-7d7e-44d7-bf11-afed772c6ef1');
+    // this.getAllBingoData();
+  }
+
+  resetUser() {
+    this.user = {
+      uid: '',
+      name: null,
+      bingo: [
+        [
+          {
+            bingo: null,
+            done: false,
+          },
+          {
+            bingo: null,
+            done: false,
+          },
+          {
+            bingo: null,
+            done: false,
+          },
+          {
+            bingo: null,
+            done: false,
+          },
+          {
+            bingo: null,
+            done: false,
+          },
+        ],
+        [
+          {
+            bingo: null,
+            done: false,
+          },
+          {
+            bingo: null,
+            done: false,
+          },
+          {
+            bingo: null,
+            done: false,
+          },
+          {
+            bingo: null,
+            done: false,
+          },
+          {
+            bingo: null,
+            done: false,
+          },
+        ],
+        [
+          {
+            bingo: null,
+            done: false,
+          },
+          {
+            bingo: null,
+            done: false,
+          },
+          {
+            bingo: null,
+            done: false,
+          },
+          {
+            bingo: null,
+            done: false,
+          },
+          {
+            bingo: null,
+            done: false,
+          },
+        ],
+        [
+          {
+            bingo: null,
+            done: false,
+          },
+          {
+            bingo: null,
+            done: false,
+          },
+          {
+            bingo: null,
+            done: false,
+          },
+          {
+            bingo: null,
+            done: false,
+          },
+          {
+            bingo: null,
+            done: false,
+          },
+        ],
+        [
+          {
+            bingo: null,
+            done: false,
+          },
+          {
+            bingo: null,
+            done: false,
+          },
+          {
+            bingo: null,
+            done: false,
+          },
+          {
+            bingo: null,
+            done: false,
+          },
+          {
+            bingo: null,
+            done: false,
+          },
+        ],
+      ],
+      hiddenMission: null
+    };
+  }
+
+  getAllBingoData() {
+    this.bingoService.getBingoData().subscribe({
+      next: (res) => {
+        console.log('Bingo data:', res.data);
+        if (this.user.name) {
+          // randomly assign a hidden mission and a mission to the user 
+          if (res.isSuccess && res.data.length > 0) {
+            // assign a random hidden mission if not exist
+            if (!this.user.hiddenMission) {
+              if (res.data.length > 0) {
+                const randomIndex = Math.floor(Math.random() * res.data.length);
+                this.user.hiddenMission = res.data[randomIndex].uid;
+                console.log('Hidden mission assigned:', this.user.hiddenMission);
+              }
+            }
+            // assign a random mission if there is empty slot
+            const missions = res.data.filter(b => b.category === 'SPIRITUAL');
+            if (missions.length > 0) {
+              const randomIndex = Math.floor(Math.random() * missions.length);
+              this.assignBingoValue(missions[randomIndex]);
+              console.log('Mission assigned:', missions[randomIndex].uid);
+            }
+          }
+
+        }
+      },
+      error: (error) => {
+        console.error('Error fetching bingo data:', error);
+      }
+    });
   }
 
   onScanComplete(event: any) {
@@ -162,15 +198,14 @@ export class BingoComponent {
 
   onScanSuccess(qr: string) {
     console.log('Scan success:', qr);
-    this.scannedResult = qr;
     this.scannerEnable = false; // Disable scanner after successful scan
     this.bingoService.getBingoDataById(qr).subscribe({
       next: (res) => {
         console.log('Bingo data:', res);
+        this.scannedResult = res.data;
         if (res.isSuccess) {
           // check user.bingo which one is null and check if the res.data.uid is not exist in the user.bingo list, then randomly inside into the user.bingo list
           this.assignBingoValue(res.data);
-          console.log(this.user.bingo);
         }
       },
       error: (error) => {
@@ -193,6 +228,7 @@ export class BingoComponent {
     const alreadyExists = allCells.some(item => item.cell?.bingo?.uid === bingo.uid);
     if (alreadyExists) {
       console.log(`UID ${bingo.uid} already exists in bingo list.`);
+      this.toastService.addSingle({ severity: 'error', message: 'This Bingo already exists. Please find another one.' });
       return;
     }
 
@@ -216,6 +252,16 @@ export class BingoComponent {
       id: bingo.id,
     };
 
+    this.bingoService.updateUser(this.user).subscribe({
+      next: (res) => {
+        console.log(`User updated successfully: ${res.data.name}`);
+        this.user = res.data;
+      },
+      error: (error) => {
+        console.error('Error updating user:', error);
+      }
+    });
+
     console.log(`UID ${bingo.uid} assigned at row ${row}, col ${col}.`);
   }
 
@@ -228,6 +274,8 @@ export class BingoComponent {
     this.toastService.addSingle({ severity: 'info', message: 'BINGO.CAMERA_CLICKED' });
     this.scannerEnable = true;
     this.qrEnable = false;
+    this.currentDevice = this.currentDeviceList[0] || null;
+    console.log(this.currentDevice);
   }
 
   qrCodeClick() {
@@ -235,7 +283,51 @@ export class BingoComponent {
     this.qrEnable = true;
   }
 
-  getUser() {
+  cameraFound(device: MediaDeviceInfo[]) {
+    console.log('Cameras found:', device);
+    this.currentDeviceList = device;
+  }
 
+  onSubmit() {
+    if (this.usernameFormControl.valid) {
+      this.bingoService.getUser(this.usernameFormControl.value ?? '').subscribe({
+        next: (res) => {
+          // if user not found
+          if (!res.isSuccess) {
+            this.resetUser();
+
+            this.user.name = this.usernameFormControl.value;
+            this.bingoService.createUser(this.user).subscribe({
+              next: (res) => {
+                if (res.isSuccess) {
+                  this.toastService.addSingle({ severity: 'success', message: `User Created: ${this.user.name}` });
+                  this.user.uid = res.data.uid;
+                  this.getAllBingoData();
+                } else {
+                  this.toastService.addSingle({ severity: 'error', message: 'User Create Failed' });
+                }
+              },
+              error: (error) => {
+                console.error('Error creating user:', error);
+              }
+            });
+          }
+          else {
+            this.user = res.data;
+            this.toastService.addSingle({ severity: 'success', message: `User Loaded: ${this.user.name}` });
+          }
+        },
+        error: (error) => {
+          console.error('Error creating user:', error);
+        }
+      });
+    }
+  }
+
+  onBingoClick(item: {
+    bingo: BingoDto,
+    done: boolean
+  }) {
+    console.log('Bingo clicked:', item);
   }
 }

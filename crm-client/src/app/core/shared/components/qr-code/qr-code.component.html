@@ -9,10 +9,9 @@
     [elementType]="'canvas'"
     [imageSrc]="imageSrc"
   ></qrcode>
-  <div class="tw-flex tw-justify-center">
+  <div class="tw-flex tw-justify-center" *ngIf="showButton">
     <app-base-button
       [label]="buttonText"
-      *ngIf="showButton"
       (onClick)="downloadMyFile()"
     ></app-base-button>
   </div>

@@ -1,4 +1,5 @@
 <p-tabView class="">
+  <!-- bingo tab -->
   <p-tabPanel header="Bingo">
     <div class="name-input-div">
       <app-base-input
@@ -7,7 +8,11 @@
         [required]="true"
         class="tw-w-full"
       ></app-base-input>
-      <app-base-button [label]="'Submit'" [outlined]="true"></app-base-button>
+      <app-base-button
+        [label]="'Submit'"
+        [outlined]="true"
+        (onClick)="onSubmit()"
+      ></app-base-button>
     </div>
 
     <div class="bingo-container">
@@ -15,27 +20,38 @@
         *ngFor="let row of user.bingo; let i = index"
         class="tw-flex tw-justify-center"
       >
-        <div *ngFor="let item of row; let j = index" class="bingo-box">
+        <div
+          *ngFor="let item of row; let j = index"
+          class="bingo-box"
+          (click)="onBingoClick(item)"
+          [ngClass]="{ 'bingo-done': item.done }"
+        >
           <div>{{ item.bingo?.id }}</div>
         </div>
       </div>
     </div>
   </p-tabPanel>
 
+  <!-- qr tab -->
   <p-tabPanel header="QR">
     <div class="tw-grid tw-gap-[var(--content-gap)]">
       <div class="qr-camera-div">
         <zxing-scanner
           [enable]="scannerEnable"
+          [(device)]="currentDevice"
           [formats]="allowedFormats"
           (scanComplete)="onScanComplete($event)"
           (scanSuccess)="onScanSuccess($event)"
           (onScanError)="onScanError($event)"
+          (camerasFound)="cameraFound($event)"
           class="scanner"
           *ngIf="scannerEnable"
         ></zxing-scanner>
 
-        <app-qr-code *ngIf="qrEnable" [qrData]="qrValue"></app-qr-code>
+        <app-qr-code
+          *ngIf="qrEnable"
+          [qrData]="user.hiddenMission"
+        ></app-qr-code>
       </div>
 
       <div class="action-div tw-shadow">
@@ -53,7 +69,9 @@
         ></app-base-button>
       </div>
 
-      <div class="detail-div"></div>
+      <div class="detail-div" *ngIf="scannedResult">
+        <div>{{ scannedResult?.description }}</div>
+      </div>
     </div>
   </p-tabPanel>
 </p-tabView>
