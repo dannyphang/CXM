@@ -41,8 +41,6 @@ export class BingoComponent {
     if (!this.user) {
       this.resetUser();
     }
-    // this.onScanSuccess('e41d54d5-7d7e-44d7-bf11-afed772c6ef1');
-    // this.getAllBingoData();
     this.deviceFormControl.valueChanges.subscribe(value => {
       this.currentDevice = this.currentDeviceList.find(d => d.deviceId === value);
     })
@@ -207,6 +205,7 @@ export class BingoComponent {
   }
 
   onScanSuccess(qr: string) {
+    this.toastService.addSingle({ severity: 'info', message: 'Retrieving Bingo Data...', isLoading: true, key: 'loadingBingoData' });
     console.log('Scan success:', qr);
     this.scannerEnable = false; // Disable scanner after successful scan
     this.bingoService.getBingoDataById(qr).subscribe({
@@ -220,6 +219,10 @@ export class BingoComponent {
       },
       error: (error) => {
         console.error('Error fetching bingo data:', error);
+        this.toastService.addSingle({ severity: 'error', message: 'Bingo not found. Please try again or find Danny.' });
+      },
+      complete: () => {
+        this.toastService.clear('loadingBingoData');
       }
     });
   }
