@@ -3,6 +3,7 @@ import { BarcodeFormat } from '@zxing/library';
 import { ToastService } from '../../core/services/toast.service';
 import { FormControl, Validators } from '@angular/forms';
 import { BingoDto, BingoService } from '../../core/services/bingo.service';
+import { OptionsModel } from '../../core/services/components.service';
 
 @Component({
   selector: 'app-bingo',
@@ -22,8 +23,14 @@ export class BingoComponent {
     hiddenMission: string;
   }
   usernameFormControl: FormControl = new FormControl('', Validators.required);
+  deviceFormControl: FormControl = new FormControl('');
   currentDeviceList: MediaDeviceInfo[] = [];
   currentDevice: MediaDeviceInfo | null = null;
+  deviceOptions: OptionsModel[] = [];
+  selectedBingo: {
+    bingo: BingoDto;
+    done: boolean;
+  };
 
   constructor(
     private toastService: ToastService,
@@ -36,6 +43,9 @@ export class BingoComponent {
     }
     // this.onScanSuccess('e41d54d5-7d7e-44d7-bf11-afed772c6ef1');
     // this.getAllBingoData();
+    this.deviceFormControl.valueChanges.subscribe(value => {
+      this.currentDevice = this.currentDeviceList.find(d => d.deviceId === value);
+    })
   }
 
   resetUser() {
@@ -286,10 +296,17 @@ export class BingoComponent {
   cameraFound(device: MediaDeviceInfo[]) {
     console.log('Cameras found:', device);
     this.currentDeviceList = device;
+    this.deviceOptions = device.map(d => ({
+      value: d.deviceId,
+      label: d.label || `Camera ${d.deviceId}`
+    }));
   }
 
   onSubmit() {
     if (this.usernameFormControl.valid) {
+      // load toast
+      this.toastService.addSingle({ severity: 'info', message: 'Loading...', isLoading: true, key: 'loadingToast' });
+
       this.bingoService.getUser(this.usernameFormControl.value ?? '').subscribe({
         next: (res) => {
           // if user not found
@@ -297,6 +314,9 @@ export class BingoComponent {
             this.resetUser();
 
             this.user.name = this.usernameFormControl.value;
+
+            this.toastService.addSingle({ severity: 'info', message: 'Creating user...', isLoading: true, key: 'loadingCreate' });
+
             this.bingoService.createUser(this.user).subscribe({
               next: (res) => {
                 if (res.isSuccess) {
@@ -309,6 +329,9 @@ export class BingoComponent {
               },
               error: (error) => {
                 console.error('Error creating user:', error);
+              },
+              complete: () => {
+                this.toastService.clear('loadingCreate');
               }
             });
           }
@@ -319,6 +342,9 @@ export class BingoComponent {
         },
         error: (error) => {
           console.error('Error creating user:', error);
+        },
+        complete: () => {
+          this.toastService.clear('loadingToast');
         }
       });
     }
@@ -328,6 +354,50 @@ export class BingoComponent {
     bingo: BingoDto,
     done: boolean
   }) {
-    console.log('Bingo clicked:', item);
+    if (item?.bingo?.id) {
+      this.selectedBingo = item;
+    }
+  }
+
+  onComplete() {
+    if (this.selectedBingo) {
+      this.selectedBingo.done = true;
+      this.user.bingo = this.user.bingo.map(row => row.map(cell => {
+        if (cell.bingo?.id === this.selectedBingo.bingo?.id) {
+          return { ...cell, done: this.selectedBingo.done };
+        }
+        return cell;
+      }));
+      this.bingoService.updateUser(this.user).subscribe({
+        next: (res) => {
+          console.log(`User updated successfully: ${res.data.name}`);
+          this.user = res.data;
+        },
+        error: (error) => {
+          console.error('Error updating user:', error);
+        }
+      });
+    }
+  }
+
+  onCancel() {
+    if (this.selectedBingo) {
+      this.selectedBingo.done = false;
+      this.user.bingo = this.user.bingo.map(row => row.map(cell => {
+        if (cell.bingo?.id === this.selectedBingo.bingo?.id) {
+          return { ...cell, done: this.selectedBingo.done };
+        }
+        return cell;
+      }));
+      this.bingoService.updateUser(this.user).subscribe({
+        next: (res) => {
+          console.log(`User updated successfully: ${res.data.name}`);
+          this.user = res.data;
+        },
+        error: (error) => {
+          console.error('Error updating user:', error);
+        }
+      });
+    }
   }
 }
