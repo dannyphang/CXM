@@ -4,6 +4,7 @@ import { ToastService } from '../../core/services/toast.service';
 import { FormControl, Validators } from '@angular/forms';
 import { BingoDto, BingoService } from '../../core/services/bingo.service';
 import { OptionsModel } from '../../core/services/components.service';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-bingo',
@@ -35,7 +36,10 @@ export class BingoComponent {
   constructor(
     private toastService: ToastService,
     private bingoService: BingoService,
-  ) { }
+    private titleService: Title,
+  ) {
+    this.titleService.setTitle('Bingo');
+  }
 
   ngOnInit() {
     if (!this.user) {
