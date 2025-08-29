@@ -70,3 +70,35 @@ video {
 .bingo-done {
   background-color: lightgreen;
 }
+
+.selected-bingo {
+  padding: 4px;
+  border: 1px solid blue;
+  border-radius: var(--border-radius);
+  width: 80%;
+  aspect-ratio: 1 / 1;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+}
+
+.description-container {
+  gap: var(--content-gap-s);
+  padding: var(--content-gap);
+}
+
+.description-div {
+  display: grid;
+  gap: var(--content-gap-s);
+  padding: var(--content-gap) 0;
+  // grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  justify-content: center;
+  align-items: center;
+}
+
+.desc-div {
+  display: grid;
+  grid-template-columns: 28% 2% 70%;
+  align-items: center;
+  grid-template-areas: "desc-label desc-separator desc-value";
+}

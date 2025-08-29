@@ -7,6 +7,7 @@
         [fieldControl]="usernameFormControl"
         [required]="true"
         class="tw-w-full"
+        [autoFocus]="true"
       ></app-base-input>
       <app-base-button
         [label]="'Submit'"
@@ -24,9 +25,55 @@
           *ngFor="let item of row; let j = index"
           class="bingo-box"
           (click)="onBingoClick(item)"
-          [ngClass]="{ 'bingo-done': item.done }"
+          [ngClass]="{
+            'bingo-done': item.done,
+          }"
         >
-          <div>{{ item.bingo?.id }}</div>
+          <div
+            [ngClass]="{
+              'selected-bingo':
+                selectedBingo?.bingo?.id === item.bingo?.id &&
+                selectedBingo?.bingo.id
+            }"
+          >
+            {{ item.bingo?.id }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="description-container" *ngIf="selectedBingo">
+      <!-- buttons -->
+      <div
+        class="tw-flex tw-w-full tw-justify-center tw-gap-[var(--content-gap)]"
+      >
+        <app-base-button
+          label="complete"
+          (onClick)="onComplete()"
+          buttonStyleClass="tw-bg-green-500"
+        ></app-base-button>
+        <app-base-button
+          label="cancel"
+          (onClick)="onCancel()"
+          buttonStyleClass="tw-bg-red-500"
+        ></app-base-button>
+      </div>
+
+      <div class="description-div">
+        <div class="desc-div">
+          <div class="desc-label">ID</div>
+          <div class="desc-separator">:</div>
+          <div class="desc-value">{{ selectedBingo?.bingo?.id }}</div>
+        </div>
+        <div class="desc-div">
+          <div class="desc-label">Category</div>
+          <div class="desc-separator">:</div>
+          <div class="desc-value">{{ selectedBingo?.bingo?.category }}</div>
+        </div>
+        <div class="desc-div">
+          <div class="desc-label">Mission</div>
+          <div class="desc-separator">:</div>
+          <div class="desc-value">{{ selectedBingo?.bingo?.description }}</div>
         </div>
       </div>
     </div>
@@ -35,6 +82,12 @@
   <!-- qr tab -->
   <p-tabPanel header="QR">
     <div class="tw-grid tw-gap-[var(--content-gap)]">
+      <app-base-dropdown
+        [options]="deviceOptions"
+        [fieldControl]="deviceFormControl"
+        *ngIf="scannerEnable"
+      ></app-base-dropdown>
+
       <div class="qr-camera-div">
         <zxing-scanner
           [enable]="scannerEnable"
