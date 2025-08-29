@@ -1,8 +1,8 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 
-import { ShortUrlRoutingModule } from './short-url-routing.module';
-import { ShortUrlComponent } from './short-url.component';
+import { DashboardRoutingModule } from './dashboard-routing.module';
+import { DashboardComponent } from './dashboard.component';
 import { ComponentsModule } from '../../core/shared/components/components.module';
 import { CommonSharedModule } from '../../core/shared/modules/common-shared.module';
 import { MaterialModule } from '../../core/shared/modules/material.module';
@@ -11,15 +11,15 @@ import { PrimeNgModule } from '../../core/shared/modules/primeng.module';
 
 @NgModule({
   declarations: [
-    ShortUrlComponent
+    DashboardComponent
   ],
   imports: [
     CommonModule,
-    ShortUrlRoutingModule,
+    DashboardRoutingModule,
     CommonSharedModule,
+    ComponentsModule,
     MaterialModule,
-    PrimeNgModule,
-    ComponentsModule
+    PrimeNgModule
   ]
 })
-export class ShortUrlModule { }
+export class DashboardModule { }
