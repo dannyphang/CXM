@@ -9,16 +9,10 @@ const routes: Routes = [
     children: [
       {
         path: 'profile/:id',
-        pathMatch: 'full',
-        redirectTo: 'profile',
+        data: { breadcrumb: 'Profile', title: 'Profile' },
+        loadChildren: () => import('./profile/profile.module').then(m => m.ProfileModule)
       }
     ]
-  },
-  {
-    path: 'profile/:id',
-    data: { breadcrumb: 'Profile', title: 'Profile' },
-    loadChildren: () => import('./profile/profile.module').then(m => m.ProfileModule)
-
   }
 ];
 

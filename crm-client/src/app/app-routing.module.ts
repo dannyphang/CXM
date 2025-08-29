@@ -7,14 +7,14 @@ import { AuthGuard } from './core/shared/guard/auth.guard';
 
 const routes: Routes = [
   {
-    path: '',
+    path: 'crm',
     component: LayoutComponent,
     children: [
       {
         path: '',
-        loadChildren: () => import('./module/home/home.module').then(m => m.HomeModule),
+        loadChildren: () => import('./module/dashboard/dashboard.module').then(m => m.DashboardModule),
         canActivate: [AuthGuard],
-        data: { breadcrumb: '', title: 'Home' }
+        data: { breadcrumb: 'Dashboard', title: 'Dashboard' }
       },
       {
         path: 'contact',
@@ -49,6 +49,10 @@ const routes: Routes = [
         }
       }
     ]
+  },
+  {
+    path: '',
+    loadChildren: () => import('./module/home/home.module').then(m => m.HomeModule),
   },
   {
     path: 'signin',

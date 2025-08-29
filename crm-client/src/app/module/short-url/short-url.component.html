@@ -1,0 +1,17 @@
+<div class="short-container">
+  <div
+    class="tw-flex tw-gap-[var(--content-gap)] tw-w-full tw-items-center tw-justify-center tw-h-auto"
+  >
+    <app-base-input
+      [fieldControl]="shortFormControl"
+      class="tw-w-[80%]"
+    ></app-base-input>
+    <app-base-button
+      [label]="'Submit'"
+      (onClick)="shortenUrl()"
+    ></app-base-button>
+  </div>
+  <div class="" *ngIf="qrData">
+    <app-qr-code [qrData]="qrData?.shortUrl" [showButton]="true"></app-qr-code>
+  </div>
+</div>

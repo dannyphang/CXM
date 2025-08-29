@@ -42,6 +42,9 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
   avatarImage: string | null = this.DEFAULT_PROFILE_PIC_URL;
   tenantFormControl: FormControl = new FormControl("");
 
+  contactUrl: string = '/crm/contact';
+  companyUrl: string = '/crm/company';
+
   constructor(
     private router: Router,
     private authService: AuthService,
@@ -83,7 +86,7 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
           icon: '',
           tooltip: "COMMON.CONTACT",
           command: () => {
-            this.router.navigate(["/contact"]);
+            this.router.navigateByUrl(this.contactUrl);
           },
           visible: this.checkPermission('display', 'CONT', this.permission)
         },
@@ -92,7 +95,7 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
           icon: '',
           tooltip: "COMMON.COMPANY",
           command: () => {
-            this.router.navigate(["/company"]);
+            this.router.navigateByUrl(this.companyUrl);
           },
           visible: this.checkPermission('display', 'COMP', this.permission)
         },
@@ -190,7 +193,7 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
         icon: '',
         tooltip: "COMMON.CONTACT",
         command: () => {
-          this.router.navigate(["/contact"]);
+          this.router.navigate([this.contactUrl]);
         },
         visible: this.checkPermission('display', 'CONT', this.permission)
       },
@@ -199,7 +202,7 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
         icon: '',
         tooltip: "COMMON.COMPANY",
         command: () => {
-          this.router.navigate(["/company"]);
+          this.router.navigate([this.companyUrl]);
         },
         visible: this.checkPermission('display', 'COMP', this.permission)
       },

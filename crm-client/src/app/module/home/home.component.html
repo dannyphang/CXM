@@ -1,16 +1,25 @@
-<div class="tw-grid">
-  <!-- <app-calendar></app-calendar> -->
-  <app-qr-code
-    [qrData]="
-      'https://supabase.com/dashboard/project/thzgezxvmgekayxgxhzu/editor/18374'
-    "
-    [showButton]="true"
-    [buttonText]="'BUTTON.DOWNLOAD'"
-  ></app-qr-code>
-
-  <!-- <app-editor
-    [toolbarSetup]="{
-      video: true
-    }"
-  ></app-editor> -->
+<div class="tw-h-screen tw-w-screen tw-bg-gray-100">
+  <div class="button-group">
+    <app-base-button
+      [label]="'CRM'"
+      [outlined]="true"
+      (onClick)="navigateToCRM()"
+      [buttonStyleClass]="'tw-w-full tw-h-full'"
+      class="tw-h-full tw-px-[var(--content-gap)]"
+    ></app-base-button>
+    <app-base-button
+      [label]="'Shortener Link'"
+      [outlined]="true"
+      (onClick)="navigateToShortenerLink()"
+      [buttonStyleClass]="'tw-w-full tw-h-full'"
+      class="tw-h-full tw-px-[var(--content-gap)]"
+    ></app-base-button>
+    <app-base-button
+      [label]="'Bingo'"
+      [outlined]="true"
+      (onClick)="navigateToBingo()"
+      [buttonStyleClass]="'tw-w-full tw-h-full'"
+      class="tw-h-full tw-px-[var(--content-gap)]"
+    ></app-base-button>
+  </div>
 </div>

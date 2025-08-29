@@ -12,7 +12,7 @@ import { filter } from 'rxjs';
 export class BreadcrumbComponent {
   items: MenuItem[] = [];
   home: MenuItem = {
-    routerLink: '/',
+    routerLink: '/crm',
   };
   constructor(
     private router: Router,
@@ -43,7 +43,7 @@ export class BreadcrumbComponent {
           if (lastItem != routeSnapshot.data['title']) {
             lastItem = routeSnapshot.data['title'];
             url +=
-              '/' + routeSnapshot.url.map((segment) => segment.path).join('/');
+              '/crm/' + routeSnapshot.url.map((segment) => segment.path).join('/');
             this.items.push({
               label: this.translateService.instant(routeSnapshot.data['title']),
               routerLink: url,

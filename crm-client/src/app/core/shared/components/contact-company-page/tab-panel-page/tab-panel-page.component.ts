@@ -1307,8 +1307,6 @@ export class TabPanelPageComponent implements OnChanges {
   }
 
   toProfile(profile: ContactDto | CompanyDto) {
-    console.log(this.coreAuthService.userC);
-    console.log(this.authService.returnPermissionObj(this.module, 'display'));
     if (this.authService.returnPermissionObj(this.module, 'display')) {
       const navigationExtras: NavigationExtras = {
         state: {
@@ -1317,10 +1315,10 @@ export class TabPanelPageComponent implements OnChanges {
       };
 
       if (this.module === 'CONT') {
-        this.router.navigate(['contact/profile/' + profile.uid], navigationExtras);
+        this.router.navigate(['crm/contact/profile/' + profile.uid], navigationExtras);
       }
       else {
-        this.router.navigate(['company/profile/' + profile.uid], navigationExtras);
+        this.router.navigate(['crm/company/profile/' + profile.uid], navigationExtras);
       }
     }
   }
