@@ -1,9 +1,10 @@
-import { Component } from '@angular/core';
+import { Component, HostListener } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { ToastService } from '../../../core/services/toast.service';
 import { UrlShortenerDto, UrlShortenerService } from '../../../core/services/urlShortener.service';
 import { DATE_HOUR_MINUTES_UPPER_MERIDIEM, ROW_PER_PAGE_DEFAULT, ROW_PER_PAGE_DEFAULT_LIST } from '../../../core/shared/constants/common.constants';
 import { TableRowSelectEvent } from 'primeng/table';
+import { CommonService } from '../../../core/services/common.service';
 
 interface Column {
   field: string;
@@ -39,71 +40,64 @@ export class HomeComponent {
   qrCodeVisible: boolean = false;
   selectedUrl: UrlShortenerDto | null = null;
   selectedUrlTitle: string = '';
+  analyticsCols: Column[] = [];
   //#endregion
 
   constructor(
     private urlService: UrlShortenerService,
-    private toastService: ToastService
+    private toastService: ToastService,
+    public commonService: CommonService
   ) { }
 
   ngOnInit(): void {
     this.initRecentTable();
   }
 
-  shortenUrl() {
-    this.toastService.addSingle({
-      message: "Shortening URL...",
-      isLoading: true,
-      severity: 'info',
-      key: 'url-shortening-loading'
-    })
-    this.urlService.urlShortener({
-      url: this.shortFormControl.value,
-      expiry: this.expirationFormControl.value ? this.expirationInputFormControl.value : 7
-    }).subscribe({
-      next: res => {
-        this.qrData = res.data[0];
-        this.qrClick(this.qrData);
-        this.copyToClipboard(this.qrData.shortUrl);
-      },
-      error: err => {
-        console.error('Error shortening URL:', err);
-      },
-      complete: () => {
-        this.toastService.clear('url-shortening-loading');
-        this.toastService.addSingle({
-          message: "URL shortened successfully.",
-          severity: 'success',
-          key: 'url-shortening-success'
-        });
-        this.initRecentTable();
-      }
-    });
+  @HostListener('window:resize', ['$event'])
+  onResize() {
+    this.initRecentTable();
   }
 
   initRecentTable() {
-    this.recentTableCols = [
-      {
-        header: 'Short Link',
-        field: 'shortUrl',
-        width: '30%',
-      },
-      {
-        header: 'URL',
-        field: 'originalUrl',
-        width: '45%',
-      },
-      {
-        header: 'Total Clicks',
-        field: 'clicks',
-        width: '10%'
-      },
-      {
-        header: 'Actions',
-        field: 'actions',
-        width: '15%'
-      }
-    ]
+    if (this.commonService.windowSize.desktop) {
+      this.recentTableCols = [
+        {
+          header: 'Short Link',
+          field: 'shortUrl',
+          width: '30%',
+        },
+        {
+          header: 'URL',
+          field: 'originalUrl',
+          width: '40%',
+        },
+        {
+          header: 'Total Clicks',
+          field: 'clicks',
+          width: '15%',
+        },
+        {
+          header: 'Actions',
+          field: 'actions',
+          width: '15%',
+        }
+      ];
+
+    }
+    else {
+      this.recentTableCols = [
+        {
+          header: 'Short Link',
+          field: 'shortUrl',
+          width: this.commonService.windowSize.desktop ? '30%' : '40%',
+        },
+        {
+          header: 'URL',
+          field: 'originalUrl',
+          width: this.commonService.windowSize.desktop ? '30%' : '60%',
+        },
+      ]
+    }
 
     this.urlService.getAllUrl().subscribe({
       next: res => {
@@ -115,6 +109,39 @@ export class HomeComponent {
         console.error('Error fetching recent URLs:', err);
       }
     });
+  }
+
+  shortenUrl() {
+    if (this.shortFormControl.value) {
+      this.toastService.addSingle({
+        message: "Shortening URL...",
+        isLoading: true,
+        severity: 'info',
+        key: 'url-shortening-loading'
+      })
+      this.urlService.urlShortener({
+        url: this.shortFormControl.value,
+        expiry: this.expirationFormControl.value ? this.expirationInputFormControl.value : 7
+      }).subscribe({
+        next: res => {
+          this.qrData = res.data[0];
+          this.qrClick(this.qrData);
+          this.copyToClipboard(this.qrData.shortUrl);
+        },
+        error: err => {
+          console.error('Error shortening URL:', err);
+        },
+        complete: () => {
+          this.toastService.clear('url-shortening-loading');
+          this.toastService.addSingle({
+            message: "URL shortened successfully.",
+            severity: 'success',
+            key: 'url-shortening-success'
+          });
+          this.initRecentTable();
+        }
+      });
+    }
   }
 
   returnClicks(uid: string): number {
@@ -267,12 +294,14 @@ export class HomeComponent {
     this.selectedUrl = event.data;
     this.qrCodeVisible = true;
     this.getTitle();
+    this.initAnalyticsTable();
   }
 
   qrClick(rowData: any) {
     this.selectedUrl = rowData;
     this.qrCodeVisible = true;
     this.getTitle();
+    this.initAnalyticsTable();
   }
 
   getTitle() {
@@ -286,7 +315,21 @@ export class HomeComponent {
     });
   }
 
+  initAnalyticsTable() {
+    this.analyticsCols = [
+      { field: 'createdDate', header: 'Date', width: '30%' },
+      { field: 'ipAddress', header: 'IP Address', width: '40%' },
+      { field: 'device', header: 'Device', width: '30%' }
+    ];
+  }
+
   returnDate(date: any): Date {
     return new Date(date);
+  }
+
+  returnExpiryDate(date: any, expiry: number): Date {
+    const expiryDate = new Date(date);
+    expiryDate.setDate(expiryDate.getDate() + expiry);
+    return expiryDate;
   }
 }

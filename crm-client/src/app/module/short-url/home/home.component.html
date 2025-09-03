@@ -112,6 +112,7 @@
                   (onClick)="copyToClipboard(rowData.shortUrl)"
                 ></app-base-button>
                 <app-base-button
+                  *ngIf="commonService.windowSize.desktop"
                   [iconName]="'pi pi-qrcode'"
                   [rounded]="true"
                   [isTextStyle]="true"
@@ -135,11 +136,20 @@
 <p-dialog
   [(visible)]="qrCodeVisible"
   (onHide)="selectedUrl = null; selectedUrlTitle = ''"
-  [style]="{ width: '80%' }"
+  [style]="{
+    width: commonService.windowSize.desktop ? '80%' : '100%',
+    height: commonService.windowSize.desktop ? 'auto' : '100%'
+  }"
   [modal]="true"
   [dismissableMask]="true"
 >
   <div *ngIf="selectedUrl" class="qr-dialog-container">
+    <div class="qr-div">
+      <app-qr-code
+        [qrData]="selectedUrl.shortUrl"
+        [showButton]="true"
+      ></app-qr-code>
+    </div>
     <div class="url-detail-form-div">
       <div class="url-detail-row">
         <div class="url-label">Title</div>
@@ -169,14 +179,68 @@
       <div class="url-detail-row">
         <div class="url-label">Expiry date</div>
         <div class="url-seperator">:</div>
-        <div class="url-value">{{ selectedUrl.expiry }}</div>
+        <div class="url-value">
+          {{
+            returnExpiryDate(selectedUrl.createdDate, selectedUrl.expiry)
+              | date : DATE_HOUR_MINUTES_UPPER_MERIDIEM
+          }}
+        </div>
       </div>
     </div>
-    <div class="qr-div">
-      <app-qr-code
-        [qrData]="selectedUrl.shortUrl"
-        [showButton]="true"
-      ></app-qr-code>
+    <div class="url-detail-list-div">
+      <p-table
+        [columns]="analyticsCols"
+        [value]="selectedUrl.analytics"
+        [paginator]="true"
+        [rows]="ROW_PER_PAGE_DEFAULT"
+        [rowsPerPageOptions]="ROW_PER_PAGE_DEFAULT_LIST"
+        [tableStyle]="{ width: '100%', 'table-layout': 'fixed' }"
+      >
+        <ng-template pTemplate="header" let-columns>
+          <tr>
+            <th
+              *ngFor="let col of columns"
+              class="table-header"
+              [style]="{ width: col.width }"
+            >
+              {{ col.header }}
+            </th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-rowData let-columns="columns">
+          <tr [pSelectableRow]="rowData">
+            <td
+              *ngFor="let col of columns"
+              class=""
+              [pTooltip]="rowData[col.field]"
+            >
+              <div [ngSwitch]="col.field">
+                <!-- date column -->
+                <div *ngSwitchCase="'createdDate'">
+                  {{
+                    returnDate(rowData.createdDate)
+                      | date : DATE_HOUR_MINUTES_UPPER_MERIDIEM
+                  }}
+                </div>
+
+                <!-- other column -->
+                <div *ngSwitchDefault class="row-value">
+                  {{ rowData[col.field] }}
+                </div>
+              </div>
+            </td>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="3">
+              <h2 class="tw-flex tw-justify-center">No clicks yet.</h2>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
     </div>
   </div>
 </p-dialog>
