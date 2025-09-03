@@ -1,6 +1,8 @@
-<div class="tw-flex">
+<div class="tw-flex tw-gap-[var(--content-gap)]">
   <p-inputSwitch
     (onChange)="inputSwitchOnClick()"
     [formControl]="fieldControl"
   ></p-inputSwitch>
+
+  <app-base-label [label]="label" *ngIf="label"></app-base-label>
 </div>

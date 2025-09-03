@@ -5,6 +5,14 @@ import { Location } from '@angular/common';
 import { FormControl } from '@angular/forms';
 import { UrlShortenerDto, UrlShortenerService } from '../../core/services/urlShortener.service';
 import { ToastService } from '../../core/services/toast.service';
+import { ROW_PER_PAGE_DEFAULT, ROW_PER_PAGE_DEFAULT_LIST } from '../../core/shared/constants/common.constants';
+import { Legend } from 'chart.js';
+
+interface Column {
+  field: string;
+  header: string;
+  width?: string;
+}
 
 @Component({
   selector: 'app-short-url',
@@ -13,20 +21,18 @@ import { ToastService } from '../../core/services/toast.service';
 })
 export class ShortUrlComponent {
   shortCode: string | null = null;
-  shortFormControl: FormControl = new FormControl('');
-  qrData: UrlShortenerDto | null = null;
 
   constructor(
     private route: ActivatedRoute,
+    private router: Router,
     private urlService: UrlShortenerService,
-    private toastService: ToastService
   ) { }
 
-  ngOnInit(): void {
+  ngOnInit() {
     this.route.paramMap.subscribe(params => {
       this.shortCode = params.get('id');
-      if (this.shortCode) {
-        console.log('Short code:', this.shortCode);
+      console.log('Short code from URL:', this.shortCode);
+      if (this.shortCode && this.shortCode !== 'home') {
         this.urlService.getUrlShortener(this.shortCode).subscribe({
           next: res => {
             window.location.href = res.data.originalUrl; // Redirect to the original URL
@@ -36,27 +42,12 @@ export class ShortUrlComponent {
           }
         });
       }
-    });
-  }
-
-  shortenUrl() {
-    this.toastService.addSingle({
-      message: "Shortening URL...",
-      isLoading: true,
-      severity: 'info',
-      key: 'url-shortening-loading'
-    })
-    this.urlService.urlShortener(this.shortFormControl.value).subscribe({
-      next: res => {
-        this.qrData = res.data[0];
-        console.log('Shortened URL:', this.qrData);
-      },
-      error: err => {
-        console.error('Error shortening URL:', err);
-      },
-      complete: () => {
-        this.toastService.clear('url-shortening-loading');
+      if (this.shortCode === 'home') {
+        console.log('Navigating to home');
+        this.router.navigate(['/short/home']);
       }
     });
+
+
   }
 }

@@ -1,0 +1,182 @@
+<div class="dash-container">
+  <!-- create -->
+  <div class="create-div">
+    <app-base-label [label]="'Create short link'"></app-base-label>
+    <div class="create-input-div">
+      <app-base-input
+        [fieldControl]="shortFormControl"
+        [placeholder]="'Enter the URL'"
+        class="tw-w-full"
+      ></app-base-input>
+      <app-base-button
+        [label]="'Shorten'"
+        (onClick)="shortenUrl()"
+        [outlined]="true"
+      ></app-base-button>
+    </div>
+    <div class="expiry-div">
+      <app-input-switch
+        [label]="'Activate expiration'"
+        [fieldControl]="expirationFormControl"
+        class="expiration-switch"
+      ></app-input-switch>
+      <app-base-input
+        *ngIf="expirationFormControl.value"
+        [fieldControl]="expirationInputFormControl"
+        [placeholder]="'Enter expiration date (days)'"
+        mode="number"
+        [onlyNumber]="true"
+        [minFractionDigits]="0"
+        [maxFractionDigits]="0"
+        class="expiration-input"
+        [suffix]="'days'"
+      ></app-base-input>
+    </div>
+  </div>
+
+  <!-- click -->
+  <div class="click-div">
+    <app-base-label [label]="'Total clicks'"></app-base-label>
+    <h2>{{ returnTotalClicks() }}</h2>
+    <p-chart
+      [type]="'line'"
+      [data]="clickData"
+      [options]="clickOption"
+      class="tw-block tw-h-full"
+      [width]="'100%'"
+      [height]="'50%'"
+    ></p-chart>
+  </div>
+
+  <!-- device -->
+  <div class="device-div">
+    <app-base-label [label]="'Devices'"></app-base-label>
+    <p-chart
+      [type]="'doughnut'"
+      [data]="deviceData"
+      [options]="deviceOption"
+      class="tw-block tw-h-full"
+      [width]="'100%'"
+      [height]="'80%'"
+    ></p-chart>
+  </div>
+
+  <!-- recent -->
+  <div class="recent-div">
+    <h2>Recent short links</h2>
+    <p-table
+      [columns]="recentTableCols"
+      [value]="recentData"
+      [paginator]="true"
+      [rows]="ROW_PER_PAGE_DEFAULT"
+      [rowsPerPageOptions]="ROW_PER_PAGE_DEFAULT_LIST"
+      [tableStyle]="{ width: '100%', 'table-layout': 'fixed' }"
+      selectionMode="single"
+      [(selection)]="selectedUrl"
+      (onRowSelect)="onRowSelect($event)"
+    >
+      <ng-template pTemplate="header" let-columns>
+        <tr>
+          <th
+            *ngFor="let col of columns"
+            class="table-header"
+            [style]="{ width: col.width }"
+          >
+            {{ col.header }}
+          </th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-rowData let-columns="columns">
+        <tr [pSelectableRow]="rowData">
+          <td
+            *ngFor="let col of columns"
+            class=""
+            [pTooltip]="rowData[col.field]"
+          >
+            <div [ngSwitch]="col.field">
+              <!-- clicks column -->
+              <div *ngSwitchCase="'clicks'">
+                {{ returnClicks(rowData.uid) }}
+              </div>
+
+              <!-- actions column -->
+              <div
+                *ngSwitchCase="'actions'"
+                class="tw-flex tw-gap-[var(--content-gap-xs)]"
+              >
+                <app-base-button
+                  [iconName]="'pi pi-copy'"
+                  [rounded]="true"
+                  [isTextStyle]="true"
+                  [pTooltip]="'Copy Shorten URL'"
+                  (onClick)="copyToClipboard(rowData.shortUrl)"
+                ></app-base-button>
+                <app-base-button
+                  [iconName]="'pi pi-qrcode'"
+                  [rounded]="true"
+                  [isTextStyle]="true"
+                  [pTooltip]="'Show QR Code'"
+                  (onClick)="qrClick(rowData)"
+                ></app-base-button>
+              </div>
+
+              <!-- other column -->
+              <div *ngSwitchDefault class="row-value">
+                {{ rowData[col.field] }}
+              </div>
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
+<p-dialog
+  [(visible)]="qrCodeVisible"
+  (onHide)="selectedUrl = null; selectedUrlTitle = ''"
+  [style]="{ width: '80%' }"
+  [modal]="true"
+  [dismissableMask]="true"
+>
+  <div *ngIf="selectedUrl" class="qr-dialog-container">
+    <div class="url-detail-form-div">
+      <div class="url-detail-row">
+        <div class="url-label">Title</div>
+        <div class="url-seperator">:</div>
+        <div class="url-value">{{ selectedUrlTitle }}</div>
+      </div>
+      <div class="url-detail-row">
+        <div class="url-label">URL</div>
+        <div class="url-seperator">:</div>
+        <div class="url-value">{{ selectedUrl.originalUrl }}</div>
+      </div>
+      <div class="url-detail-row">
+        <div class="url-label">Short link</div>
+        <div class="url-seperator">:</div>
+        <div class="url-value">{{ selectedUrl.shortUrl }}</div>
+      </div>
+      <div class="url-detail-row">
+        <div class="url-label">Created date</div>
+        <div class="url-seperator">:</div>
+        <div class="url-value">
+          {{
+            returnDate(selectedUrl.createdDate)
+              | date : DATE_HOUR_MINUTES_UPPER_MERIDIEM
+          }}
+        </div>
+      </div>
+      <div class="url-detail-row">
+        <div class="url-label">Expiry date</div>
+        <div class="url-seperator">:</div>
+        <div class="url-value">{{ selectedUrl.expiry }}</div>
+      </div>
+    </div>
+    <div class="qr-div">
+      <app-qr-code
+        [qrData]="selectedUrl.shortUrl"
+        [showButton]="true"
+      ></app-qr-code>
+    </div>
+  </div>
+</p-dialog>

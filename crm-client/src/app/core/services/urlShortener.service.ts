@@ -13,15 +13,29 @@ export class UrlShortenerService {
     ) {
     }
 
-    urlShortener(url: string): Observable<ResponseModel<UrlShortenerDto[]>> {
-        return this.coreService.post<UrlShortenerDto[]>('short', { url }).pipe();
+    urlShortener(url: {
+        url: string,
+        expiry?: number
+    }): Observable<ResponseModel<UrlShortenerDto[]>> {
+        return this.coreService.post<UrlShortenerDto[]>('short', { url: url.url, expiry: url.expiry }).pipe();
     }
 
     getUrlShortener(path: string): Observable<ResponseModel<any>> {
         let headers = {
             'path': path
         }
-        return this.coreService.get<any>('short/', { headers: headers }).pipe();
+        return this.coreService.get<any>('short/url/', { headers: headers }).pipe();
+    }
+
+    getAllUrl(): Observable<ResponseModel<UrlShortenerDto[]>> {
+        return this.coreService.get<UrlShortenerDto[]>('short/all/').pipe();
+    }
+
+    getTitle(url: string): Observable<ResponseModel<string>> {
+        let headers = {
+            'url': url
+        }
+        return this.coreService.get<string>('short/title/', { headers: headers }).pipe();
     }
 }
 
@@ -32,4 +46,16 @@ export class UrlShortenerDto extends BasedDto {
     id: number;
     uid: string;
     path: string;
+    title: string;
+    tags: string[];
+    analytics: UrlAnalyticsDto[];
+}
+
+export class UrlAnalyticsDto extends BasedDto {
+    urlUid: string;
+    uid: string;
+    id: number;
+    ipAddress: string;
+    device: string;
+    country: string;
 }

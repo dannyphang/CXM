@@ -1,16 +1,17 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormControl } from '@angular/forms';
+import { BaseFieldControlComponent } from '../base-field-control/base-field-control';
 
 @Component({
   selector: 'app-input-switch',
   templateUrl: './input-switch.component.html',
   styleUrl: './input-switch.component.scss'
 })
-export class InputSwitchComponent {
+export class InputSwitchComponent extends BaseFieldControlComponent {
   @Output() switchUpdate: EventEmitter<any> = new EventEmitter<any>();
-  @Input() fieldControl: FormControl = new FormControl(false);
-  constructor() {
 
+  constructor() {
+    super();
   }
 
   inputSwitchOnClick() {

@@ -36,6 +36,7 @@
     "@zxing/ngx-scanner": "^20.0.0",
     "angularx-qrcode": "^17.0.1",
     "blobity": "^0.2.3",
+    "chart.js": "^4.5.0",
     "date-fns": "^4.1.0",
     "dayjs": "^1.11.11",
     "dotenv": "^16.4.5",

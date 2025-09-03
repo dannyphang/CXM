@@ -23,7 +23,7 @@ export class HomeComponent {
   }
 
   navigateToShortenerLink() {
-    this.router.navigate(['/short']);
+    this.router.navigate(['/short/home']);
   }
 
   navigateToCRM() {
