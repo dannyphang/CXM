@@ -4,6 +4,7 @@ import * as cheerio from "cheerio";
 
 const shortTable = "shortenUrl";
 const analyticsTable = "shortenUrlAnalytics";
+import * as config from "../configuration/config.js";
 
 function createShortUrl({ url }) {
     return new Promise(async (resolve, reject) => {
@@ -56,7 +57,12 @@ function createShortUrlAnalytics({ url }) {
 function getAllUrl() {
     return new Promise(async (resolve, reject) => {
         try {
-            const { data, error } = await supabase.from(shortTable).select("*").eq("statusId", 1).order("modifiedDate", { ascending: false });
+            const { data, error } = await supabase
+                .from(shortTable)
+                .select("*")
+                .eq("statusId", 1)
+                .or(config.default.environment === "Production" ? "isDev.eq.false" : "isDev.eq.true, isDev.eq.false")
+                .order("modifiedDate", { ascending: false });
 
             if (error) {
                 reject(error);
