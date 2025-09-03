@@ -46,8 +46,7 @@ export class UrlShortenerDto extends BasedDto {
     id: number;
     uid: string;
     path: string;
-    title: string;
-    tags: string[];
+    isDev: boolean;
     analytics: UrlAnalyticsDto[];
 }
 
