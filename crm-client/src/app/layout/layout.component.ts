@@ -37,7 +37,6 @@ export class LayoutComponent {
   }
 
   async ngOnInit() {
-    this.onResize();
 
     // this.initBlobity(true);
     this.user = this.coreAuthService.userC;
@@ -94,11 +93,6 @@ export class LayoutComponent {
 
     this.langLoaded = true;
     await this.calendarService.getCalendarEvent(this.coreAuthService.userC.setting?.calendarEmail, this.coreAuthService.userC.setting?.calendarId);
-  }
-
-  @HostListener('window:resize', ['$event'])
-  onResize() {
-    this.commonService.updateWindowSize();
   }
 
   @HostListener('window:beforeunload')
