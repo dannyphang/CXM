@@ -4,6 +4,7 @@ import { LayoutComponent } from './layout/layout.component';
 import { Error404Component } from './layout/error-404/error-404.component';
 import { PermissionGuard } from './core/shared/guard/permission.guard';
 import { AuthGuard } from './core/shared/guard/auth.guard';
+import { ShortUrlComponent } from './module/short-url/short-url.component';
 
 const routes: Routes = [
   {
@@ -63,6 +64,10 @@ const routes: Routes = [
     loadChildren: () => import('./module/short-url/short-url.module').then(m => m.ShortUrlModule),
   },
   {
+    path: 'su/:id',
+    component: ShortUrlComponent,
+  },
+  {
     path: 'bingo',
     loadChildren: () => import('./module/bingo/bingo.module').then(m => m.BingoModule),
   },
@@ -70,15 +75,15 @@ const routes: Routes = [
     path: 'callback',
     loadChildren: () => import('./module/callback/callback.module').then(m => m.CallbackModule),
   },
-  {
-    path: 'pagenotfound',
-    component: Error404Component
-  },
-  {
-    path: '**',
-    redirectTo: '/pagenotfound',
-    pathMatch: 'full'
-  }
+  // {
+  //   path: 'pagenotfound',
+  //   component: Error404Component
+  // },
+  // {
+  //   path: '**',
+  //   redirectTo: '/pagenotfound',
+  //   pathMatch: 'full'
+  // }
 ];
 
 @NgModule({

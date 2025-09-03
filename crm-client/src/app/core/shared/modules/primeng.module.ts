@@ -46,6 +46,7 @@ import { TreeSelectModule } from 'primeng/treeselect';
 import { ChipsModule } from 'primeng/chips';
 import { MessagesModule } from 'primeng/messages';
 import { ColorPickerModule } from 'primeng/colorpicker';
+import { ChartModule } from 'primeng/chart';
 
 import { MessageService as PrimeNGMessage } from 'primeng/api';
 
@@ -98,6 +99,7 @@ const PRIMENG_MODULES = [
     ChipsModule,
     MessagesModule,
     ColorPickerModule,
+    ChartModule,
 ]
 
 @NgModule({

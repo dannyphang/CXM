@@ -16,12 +16,13 @@ import bingoController from "./controller/bingo.controller.js";
 import cors from "cors";
 import { fileURLToPath } from "url";
 import { dirname } from "path";
+import useragent from "express-useragent";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 const app = express();
-// app.use(express.json());
+app.use(useragent.express());
 
 const port = 1113;
 
