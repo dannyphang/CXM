@@ -11,7 +11,7 @@
       *ngIf="propUpdateList"
       class="tw-flex tw-flex-wrap tw-items-center tw-m-[15px]"
     >
-      <div class="tw-flex">
+      <div class="tw-flex tw-gap-[var(--content-gap)]">
         <app-base-button
           [label]="'BUTTON.SAVE'"
           styleClass=""
@@ -20,8 +20,8 @@
         ></app-base-button>
         <app-base-button
           [label]="'BUTTON.CANCEL'"
-          class="tw-ml-[15px]"
-          [outlined]="true"
+          class=""
+          [severity]="'secondary'"
           (onClick)="cancelButton()"
         ></app-base-button>
       </div>
@@ -92,8 +92,9 @@
   <div class="tw-bg-[var(--primary-color-text)]">
     <!-- avatar, username -->
     <div
-      class="left-top-area tw-p-[var(--content-gap)] tw-border-x tw-border-t tw-border-b-0 tw-border-[var(--primary-color)] tw-border-solid"
+      class="left-top-area tw-p-[var(--content-gap)] tw-border tw-border-[var(--primary-color)] tw-border-solid"
     >
+      <!-- avatar -->
       <div
         class="avatar-div"
         (mouseenter)="
@@ -155,15 +156,13 @@
               ? companyProfile?.companyName
               : ''
           "
-          [labelStyle]="
-            'tw-text-ellipsis tw-overflow-hidden profile-name-label'
-          "
+          [labelStyle]="'text-hidden-dots profile-name-label'"
         ></app-base-label>
 
         <!-- email -->
         <div class="email-div tw-grid">
           <a
-            class="email-text tw-text-ellipsis tw-overflow-hidden tw-content-center tw-cursor-pointer"
+            class="email-text text-hidden-dots tw-content-center tw-cursor-pointer"
             (click)="
               copyEmailToClipboard(
                 module === 'CONT'
@@ -196,9 +195,7 @@
     </div>
 
     <!-- action buttons -->
-    <div
-      class="action-btn-div tw-flex tw-flex-wrap tw-w-full tw-justify-between tw-p-[var(--content-gap)] tw-border-solid tw-border-[var(--primary-color)] tw-border-x tw-border-t-0 tw-border-b"
-    >
+    <!-- <div class="action-btn-div">
       <app-base-button
         *ngIf="checkPermission('create', module, permission)"
         [iconName]="'pi pi-file-edit'"
@@ -264,7 +261,7 @@
         "
         pTooltip="More"
       />
-    </div>
+    </div> -->
   </div>
 
   <!-- property form -->
@@ -281,7 +278,7 @@
         [iconPos]="'start'"
         [isExpand]="true"
       >
-        <div acc-panel-header>
+        <div acc-panel-header class="text-hidden-dots">
           {{ propertyGroup.moduleName }}
         </div>
         <div acc-panel-body class="panel-content-div">

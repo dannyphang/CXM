@@ -1,10 +1,14 @@
 :host ::ng-deep {
   .activity-tab {
+    height: calc(100vh - 240px);
+    overflow-y: hidden;
+    display: block;
+
     .p-tabview-panels {
       padding-left: 0;
       padding-right: 0;
       padding-bottom: 0;
-      height: calc(100vh - 265px);
+      height: calc(100vh - 295px);
       overflow-y: auto;
     }
   }
@@ -12,6 +16,7 @@
   .middle-profile-tabView {
     .p-tabview-panels {
       padding-bottom: 0px;
+      // height: calc(100vh - 185px);
     }
   }
 }

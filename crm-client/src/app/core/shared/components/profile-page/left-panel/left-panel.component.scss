@@ -29,6 +29,8 @@
 
   .profile-name-label {
     display: block !important;
+    padding: 2px;
+    border-radius: var(--border-radius);
   }
 
   .profile-panel-div {
@@ -59,9 +61,25 @@
 
 .panel-content-div {
   overflow-y: auto;
-  height: calc(100vh - 350px);
+  height: calc(100vh - 305px);
 }
 
+.email-text {
+  padding: 2px;
+  border-radius: var(--border-radius);
+}
 .email-text:hover {
-  // background-color: var(--text-color-secondary);
+  background-color: var(--primary-100);
+}
+
+.action-btn-div {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  padding: var(--content-gap);
+  border-style: solid;
+  border-color: var(--primary-color);
+  border-width: 0 1px 1px 1px;
+  gap: var(--content-gap);
+  overflow-x: auto;
 }

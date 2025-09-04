@@ -41,10 +41,10 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
 
         // navigate to setting page
         if (this.module === 'CONT') {
-          this.router.navigate(['contact/profile/' + this.contactProfile.uid + '/allProperties'], navigationExtras);
+          this.router.navigate(['crm/contact/profile/' + this.contactProfile.uid + '/allProperties'], navigationExtras);
         }
         else {
-          this.router.navigate(['company/profile/' + this.companyProfile.uid + '/allProperties'], navigationExtras);
+          this.router.navigate(['crm/company/profile/' + this.companyProfile.uid + '/allProperties'], navigationExtras);
         }
       }
     }
@@ -68,6 +68,13 @@ export class LeftPanelComponent extends BasePropertyAbstract implements OnChange
 
   ) {
     super(formBuilder, commonService, toastService, authService, translateService, coreAuthService);
+  }
+
+  // Don’t forget cleanup
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.controlSubs.forEach(s => s.unsubscribe());
   }
 
   ngOnChanges(changes: SimpleChanges): void {

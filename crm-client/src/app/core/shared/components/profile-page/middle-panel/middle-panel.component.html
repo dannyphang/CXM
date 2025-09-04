@@ -1,6 +1,12 @@
-<div class="tw-w-full">
-  <p-tabView class="middle-profile-tabView tw-w-full">
-    <p-tabPanel [header]="'ACTIVITY.ACTIVITIES' | translate">
+<div class="tw-w-full tw-h-full">
+  <p-tabView
+    class="middle-profile-tabView tw-w-full tw-block tw-h-full"
+    [styleClass]="'tw-h-full'"
+  >
+    <p-tabPanel
+      [header]="'ACTIVITY.ACTIVITIES' | translate"
+      class="profile-middle-tab-panel"
+    >
       <div class="tw-flex tw-justify-between">
         <div class="tw-flex tw-items-center tw-gap-[var(--content-gap)]">
           <app-base-input

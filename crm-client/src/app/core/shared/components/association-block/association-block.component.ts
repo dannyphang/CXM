@@ -64,10 +64,10 @@ export class AssociationBlockComponent {
     };
 
     if (this.module === 'CONT') {
-      this.router.navigate(['company/profile/' + this.companyProfile.uid], navigationExtras);
+      this.router.navigate(['crm/company/profile/' + this.companyProfile.uid], navigationExtras);
     }
     else {
-      this.router.navigate(['contact/profile/' + this.contactProfile.uid], navigationExtras);
+      this.router.navigate(['crm/contact/profile/' + this.contactProfile.uid], navigationExtras);
     }
   }
 

@@ -54,10 +54,7 @@
 }
 
 .row-value {
-  display: block;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  display: block !important;
   // width: 50%;
 }
 

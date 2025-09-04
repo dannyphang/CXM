@@ -32,7 +32,7 @@ export class BreadcrumbComponent {
   buildBreadCrumbs() {
     this.items = [];
     let currentRoute = this.activatedRoute.root.children[0] as ActivatedRoute | null,
-      url = '';
+      url = '/crm';
     let lastItem = '';
     do {
       const childrenRoutes = currentRoute?.children;
@@ -43,7 +43,7 @@ export class BreadcrumbComponent {
           if (lastItem != routeSnapshot.data['title']) {
             lastItem = routeSnapshot.data['title'];
             url +=
-              '/crm/' + routeSnapshot.url.map((segment) => segment.path).join('/');
+              '/' + routeSnapshot.url.map((segment) => segment.path).join('/');
             this.items.push({
               label: this.translateService.instant(routeSnapshot.data['title']),
               routerLink: url,

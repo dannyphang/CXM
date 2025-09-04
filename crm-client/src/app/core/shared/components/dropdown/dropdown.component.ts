@@ -56,7 +56,7 @@ export class BaseDropdownComponent
     }
 
     if (this.disabled) {
-      this.fieldControl.disable()
+      this.fieldControl.disable({ emitEvent: false });
     }
   }
 

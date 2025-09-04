@@ -60,11 +60,14 @@ export class ContactCompanyPageComponent implements OnChanges {
     private coreService: CoreHttpService,
     private coreAuthService: CoreAuthService,
   ) {
-    if (this.router.url === '/contact') {
+    if (this.router.url === '/crm/contact') {
       this.module = 'CONT';
     }
-    else {
+    else if (this.router.url === '/crm/company') {
       this.module = 'COMP';
+    }
+    else {
+      console.error(this.router.url)
     }
     this.windowSize = this.commonService.windowSize;
   }

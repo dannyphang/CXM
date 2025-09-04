@@ -43,6 +43,13 @@ export class AllPropertiesPageComponent extends BasePropertyAbstract implements 
     this.windowSize = this.commonService.windowSize;
   }
 
+  // Don’t forget cleanup
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
+    this.controlSubs.forEach(s => s.unsubscribe());
+  }
+
   @HostListener('window:resize', ['$event'])
   onResize() {
     this.commonService.updateWindowSize();

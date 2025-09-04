@@ -104,7 +104,7 @@ export class TabPanelPageComponent implements OnChanges {
       if (this.module === 'CONT') {
         this.getContact();
       }
-      else {
+      else if (this.module === 'COMP') {
         this.getCompany();
       }
       this.initCreateFormConfig();

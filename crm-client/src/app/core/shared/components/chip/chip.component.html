@@ -2,7 +2,7 @@
   [label]="label"
   [removable]="removable"
   styleClass="chip-box"
-  class="tw-flex tw-text-ellipsis tw-overflow-hidden"
+  class="tw-flex text-hidden-dots"
   (onRemove)="onRemove()"
   *ngIf="!downloadable"
 ></p-chip>
@@ -10,7 +10,7 @@
   [label]="label"
   [removable]="removable"
   styleClass="chip-box"
-  class="tw-flex tw-text-ellipsis tw-overflow-hidden"
+  class="tw-flex text-hidden-dots"
   (onRemove)="onRemove()"
   *ngIf="downloadable"
   (click)="previewFileClick()"

@@ -138,7 +138,7 @@ export class RoleDto extends BasedDto {
     roleId: number;
     roleName: string;
     roleCode: string;
-    permission: string;
+    description: string;
 }
 
 export class LanguageDto extends BasedDto {

@@ -74,3 +74,9 @@ a {
   background-color: var(--highlight-bg);
   color: var(--highlight-text-color);
 }
+
+.text-hidden-dots {
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}

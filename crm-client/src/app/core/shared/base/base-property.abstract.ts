@@ -1,5 +1,5 @@
 import { FormGroup, FormControl, FormBuilder } from "@angular/forms";
-import { debounceTime, distinctUntilChanged, map, Observable, of } from "rxjs";
+import { debounceTime, distinctUntilChanged, map, Observable, of, skip, Subject, Subscription, takeUntil } from "rxjs";
 import { CommonService, CompanyDto, ContactDto, profileUpdateDto, PropertiesDto, PropertyDataDto, PropertyGroupDto, PropertyLookupDto, UpdateCompanyDto, UpdateContactDto, UserCommonDto } from "../../services/common.service";
 import { FormConfig, CONTROL_TYPE, CONTROL_TYPE_CODE, OptionsModel } from "../../services/components.service";
 import { BaseCoreAbstract } from "./base-core.abstract";
@@ -21,6 +21,9 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
     propertyConfig: any[] = [];
     tempPropertyConfigNumber: any = {};
     propertyDisplayList: any[] = [];
+
+    destroy$ = new Subject<void>();   // class field
+    controlSubs: Subscription[] = []; // optional if not using takeUntil
 
     constructor(
         protected formBuilder: FormBuilder,
@@ -46,9 +49,10 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
             let formsConfig: FormConfig[] = [];
             item.propertiesList.forEach(prop => {
                 let propProfileValue = this.returnProfileValue(prop, module, contactProfile, companyProfile);
-                let control = new FormControl({ value: propProfileValue ? propProfileValue : this.commonService.returnControlTypeEmptyValue(prop), disabled: !this.checkPermission('update', module, permission) || !prop.isEditable });
+                let control = new FormControl({ value: null, disabled: !this.checkPermission('update', module, permission) || !prop.isEditable });
+                control.setValue(propProfileValue ? propProfileValue : this.commonService.returnControlTypeEmptyValue(prop), { emitEvent: false });
 
-                this.profileFormGroup.addControl(prop.propertyCode, control);
+                this.profileFormGroup.addControl(prop.propertyCode, control, { emitEvent: false });
 
                 let forms: FormConfig = {
                     id: prop.uid,
@@ -376,32 +380,27 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
 
     checkFormValueChange(propertyList: PropertyGroupDto[]) {
         // check fieldcontrol update value
-        this.profileFormGroup.valueChanges.pipe(
-            debounceTime(2000),
-            distinctUntilChanged()
-        ).subscribe(changedValue => {
-            console.log(propertyList)
-            propertyList.forEach(item => {
-                item.propertiesList.forEach(prop => {
-                    this.profileFormGroup.controls[prop.propertyCode].valueChanges.pipe(
-                        debounceTime(2000),
-                        distinctUntilChanged()
-                    ).forEach(value => {
-                        this.showFormUpdateSidebar = true;
+        propertyList.forEach(item => {
+            item.propertiesList.forEach(prop => {
+                this.profileFormGroup.controls[prop.propertyCode].valueChanges.pipe(
+                    debounceTime(2000),
+                    // distinctUntilChanged()
+                ).forEach(value => {
+                    this.showFormUpdateSidebar = true;
+                    console.log(prop.propertyCode)
 
-                        let profileUpdateObj: profileUpdateDto = {
-                            property: prop,
-                            value: value
-                        };
+                    let profileUpdateObj: profileUpdateDto = {
+                        property: prop,
+                        value: value
+                    };
 
-                        // add to the list if not exist else replace the value
-                        if (!this.propUpdateList.find(item => item.property === prop)) {
-                            this.propUpdateList.push(profileUpdateObj);
-                        }
-                        else {
-                            this.propUpdateList.find(item => item.property === prop)!.value = value;
-                        }
-                    });
+                    // add to the list if not exist else replace the value
+                    if (!this.propUpdateList.find(item => item.property === prop)) {
+                        this.propUpdateList.push(profileUpdateObj);
+                    }
+                    else {
+                        this.propUpdateList.find(item => item.property === prop)!.value = value;
+                    }
                 });
             });
         });

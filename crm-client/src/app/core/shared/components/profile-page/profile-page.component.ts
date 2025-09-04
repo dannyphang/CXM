@@ -18,9 +18,9 @@ import { CoreAuthService } from '../../../services/core-auth.service';
 })
 export class ProfilePageComponent implements OnChanges {
   @Input() module: 'CONT' | 'COMP' = 'CONT';
-  @Input() propertiesList: PropertyGroupDto[] = [];
   @Input() profileUid: string = '';
   permission: UserPermissionDto[] = [];
+  propertiesList: PropertyGroupDto[] = [];
 
   windowSize: WindowSizeDto = new WindowSizeDto();
 
@@ -53,7 +53,6 @@ export class ProfilePageComponent implements OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-
     if (changes['module'] && changes['module'].currentValue) {
       if (this.module === "CONT") {
         this.getContact();
