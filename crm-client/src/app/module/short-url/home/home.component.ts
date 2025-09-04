@@ -5,6 +5,7 @@ import { UrlShortenerDto, UrlShortenerService } from '../../../core/services/url
 import { DATE_HOUR_MINUTES_UPPER_MERIDIEM, ROW_PER_PAGE_DEFAULT, ROW_PER_PAGE_DEFAULT_LIST } from '../../../core/shared/constants/common.constants';
 import { TableRowSelectEvent } from 'primeng/table';
 import { CommonService } from '../../../core/services/common.service';
+import { Title } from '@angular/platform-browser';
 
 interface Column {
   field: string;
@@ -46,8 +47,11 @@ export class HomeComponent {
   constructor(
     private urlService: UrlShortenerService,
     private toastService: ToastService,
-    public commonService: CommonService
-  ) { }
+    public commonService: CommonService,
+    private titleService: Title
+  ) {
+    this.titleService.setTitle('Short URL');
+  }
 
   ngOnInit(): void {
     this.initRecentTable();

@@ -112,7 +112,7 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
         label: 'HEADER.SETTING',
         icon: 'pi pi-cog',
         command: () => {
-          this.router.navigate(['/setting']);
+          this.router.navigate(['/crm/setting']);
         }
       },
       {
@@ -133,8 +133,7 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
               this.commonService.setLanguage('zh');
             }
           },
-        ]
-
+        ],
       },
       {
         separator: true

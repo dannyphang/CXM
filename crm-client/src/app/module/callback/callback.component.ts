@@ -24,7 +24,7 @@ export class CallbackComponent {
       }
       else if (params.token) {
         console.log(window.location.origin)
-        window.location.href = `${window.location.origin}/dashboard`;
+        window.location.href = `${window.location.origin}/crm`;
       }
     }).catch((error) => {
       console.error('Error getting URL parameters:', error);

@@ -7,6 +7,7 @@ import { CommonService } from '../../core/services/common.service';
 import { AuthService } from '../../core/services/auth.service';
 import { ToastService } from '../../core/services/toast.service';
 import { Router } from '@angular/router';
+import { Title } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-home',
@@ -15,8 +16,11 @@ import { Router } from '@angular/router';
 })
 export class HomeComponent {
   constructor(
-    private router: Router
-  ) { }
+    private router: Router,
+    private titleService: Title
+  ) {
+    this.titleService.setTitle('CRM');
+  }
 
   navigateToBingo() {
     this.router.navigate(['/bingo']);

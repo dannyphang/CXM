@@ -7,6 +7,7 @@ import { UrlShortenerDto, UrlShortenerService } from '../../core/services/urlSho
 import { ToastService } from '../../core/services/toast.service';
 import { ROW_PER_PAGE_DEFAULT, ROW_PER_PAGE_DEFAULT_LIST } from '../../core/shared/constants/common.constants';
 import { Legend } from 'chart.js';
+import { Title } from '@angular/platform-browser';
 
 interface Column {
   field: string;
@@ -26,7 +27,10 @@ export class ShortUrlComponent {
     private route: ActivatedRoute,
     private router: Router,
     private urlService: UrlShortenerService,
-  ) { }
+    private titleService: Title
+  ) {
+    this.titleService.setTitle('Short URL');
+  }
 
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
