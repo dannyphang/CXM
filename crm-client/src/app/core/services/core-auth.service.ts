@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
 import apiConfig from "../../../environments/apiConfig";
 import { HttpClient } from "@angular/common/http";
-import { ResponseModel, UserPermissionDto } from "./core-http.service";
+import { ResponseModel, RoleDto, UserPermissionDto } from "./core-http.service";
 import { ToastService } from "./toast.service";
 import { Observable } from "rxjs";
 
@@ -10,6 +10,8 @@ export class CoreAuthService {
     private AUTH_URL = apiConfig.authUrl;
     userC: UserDto;
     permission: UserPermissionDto[] = [];
+    roleList: RoleDto[] = [];
+
     JWT_TOKEN: string = '';
 
     constructor(
@@ -39,6 +41,14 @@ export class CoreAuthService {
 
     get userPermission() {
         return this.permission;
+    }
+
+    set roles(roleList: RoleDto[]) {
+        this.roleList = roleList;
+    }
+
+    get roles() {
+        return this.roleList;
     }
 
     buildHeader(option?: AuthHttpOption) {

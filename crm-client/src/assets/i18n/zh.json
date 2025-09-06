@@ -83,7 +83,8 @@
     "CONNECT_EMAIL_FAILED": "连接邮箱失败，请检查您的邮箱设置。",
     "PERMISSION_DENIED": "您没有执行此操作的权限。",
     "UPDATING": "正在更新...",
-    "SAVING": "正在保存..."
+    "SAVING": "正在保存...",
+    "LOADING": "正在加载..."
   },
   "BUTTON": {
     "SAVE": "保存",

@@ -144,7 +144,7 @@
               <app-base-button
                 *ngIf="
                   isIncludedActivity(activityTab, 'LOG') &&
-                  checkPermission('create', module, permission)
+                  checkPermission('create', module)
                 "
                 [outlined]="true"
                 [label]="returnLogActivityLable(activityTab)"
@@ -155,7 +155,7 @@
               <app-base-button
                 *ngIf="
                   isIncludedActivity(activityTab, 'CREATE') &&
-                  checkPermission('create', module, permission)
+                  checkPermission('create', module)
                 "
                 [label]="returnCreateActivityLable(activityTab)"
                 (onClick)="activityCreateButtonOnClick(activityTab)"

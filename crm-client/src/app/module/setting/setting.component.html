@@ -11,7 +11,7 @@
     <div
       class="team-content"
       id="team"
-      *ngIf="returnPermissionObj('TEAM', 'display')"
+      *ngIf="checkRolePermission(userC?.roleId, 'user')"
     >
       <p-divider></p-divider>
       <app-team [permission]="permission"></app-team>
@@ -20,10 +20,13 @@
     <div
       class="property-content"
       id="property"
-      *ngIf="returnPermissionObj('PROPERTY', 'display')"
+      *ngIf="
+        checkRolePermission(userC?.roleId, 'module-crud') ||
+        checkPermission('display', 'PROPERTY')
+      "
     >
       <p-divider></p-divider>
-      <app-setting-property [permission]="permission"></app-setting-property>
+      <app-setting-property></app-setting-property>
     </div>
   </div>
 

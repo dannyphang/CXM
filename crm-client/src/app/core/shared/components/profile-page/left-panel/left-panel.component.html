@@ -60,7 +60,7 @@
         (onClick)="imageUploader.click()"
         class=""
         [pTooltip]="'BUTTON.ATTACH_FILE' | translate"
-        *ngIf="checkPermission('update', module, permission)"
+        *ngIf="checkPermission('update', module)"
       ></app-base-button>
 
       <app-chip
@@ -73,7 +73,7 @@
       <app-base-button
         [label]="'BUTTON.UPLOAD' | translate"
         (onClick)="imageFileUploadBtn()"
-        *ngIf="checkPermission('update', module, permission)"
+        *ngIf="checkPermission('update', module)"
       ></app-base-button>
     </div>
   </div>
@@ -98,7 +98,7 @@
       <div
         class="avatar-div"
         (mouseenter)="
-          checkPermission('update', module, permission)
+          checkPermission('update', module)
             ? (isAvatarEdit = true)
             : (isAvatarEdit = false)
         "
@@ -108,7 +108,7 @@
           [iconName]="'pi pi-file-edit'"
           [buttonStyleClass]="'tw-w-[80px] tw-h-[80px] avatar-edit'"
           [rounded]="true"
-          *ngIf="isAvatarEdit && checkPermission('update', module, permission)"
+          *ngIf="isAvatarEdit && checkPermission('update', module)"
           [isTextStyle]="true"
           (onClick)="editPic()"
           [pTooltip]="'PROFILE.AVATAR_EDIT' | translate"

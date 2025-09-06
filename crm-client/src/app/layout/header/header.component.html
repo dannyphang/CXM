@@ -24,7 +24,7 @@
         </a>
       </ng-template>
       <ng-template pTemplate="end">
-        <div class="tw-flex">
+        <div class="tw-flex tw-gap-[var(--content-gap)]">
           <app-base-input
             [iconRightStyle]="'pi pi-search'"
             [placeholder]="'INPUT.SEARCH' | translate"
@@ -45,7 +45,7 @@
           <app-base-button
             [iconName]="isDarkMode ? 'pi pi-moon' : 'pi pi-sun'"
             [outlined]="true"
-            class="tw-ml-[var(--content-gap)]"
+            class=""
             (onClick)="updateThemeMode(!isDarkMode, false)"
           ></app-base-button>
 
@@ -53,7 +53,7 @@
             [fieldControl]="tenantFormControl"
             [options]="tenantOptionsList"
             [showClear]="false"
-            class="tw-ml-[var(--content-gap)]"
+            class=""
             styleClass="tw-w-[auto]"
             (onItemSelected)="onTenantChange()"
           ></app-base-dropdown>

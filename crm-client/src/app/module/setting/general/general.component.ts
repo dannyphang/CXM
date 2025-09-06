@@ -8,6 +8,6 @@ import { UserPermissionDto } from '../../../core/services/core-http.service';
 })
 export class GeneralComponent {
   @Input() permission: UserPermissionDto[] = [];
-  @Input() module: string;
+  @Input() module: 'CONT' | 'COMP' | 'SETTING';
 
 }

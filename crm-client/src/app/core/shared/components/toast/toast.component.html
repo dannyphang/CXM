@@ -1,31 +1,27 @@
 <div class="toast-container top-right">
-  <p-messages
-    *ngFor="let toast of toastList"
-    [ngClass]="{
-      'toast-enter': !hasEntered(toast.key),
-      'toast-enter-active': hasEntered(toast.key),
-      'toast-leave': isClosing(toast.key),
-      'toast-leave-active': isClosing(toast.key)
-    }"
-    severity="{{ toast.severity }}"
+  <div
+    *ngFor="let toast of toastList; trackBy: trackByKey"
+    class="toast-wrapper"
+    @fadeSlide
   >
-    <ng-template pTemplate="content">
-      <div class="toast-div tw-flex">
-        <div class="message-div tw-gap-[var(--content-gap)] tw-flex">
-          <div class="tw-grid tw-items-center">
-            <span [class]="toast.icon"></span>
+    <p-messages [severity]="toast.severity">
+      <ng-template pTemplate="content">
+        <div class="toast-div tw-flex">
+          <div class="message-div tw-gap-[var(--content-gap)] tw-flex">
+            <div class="tw-grid tw-items-center">
+              <span [class]="toast.icon"></span>
+            </div>
+            <div>{{ toast.message }}</div>
           </div>
-          <div>{{ toast.message }}</div>
+          <div class="close-icon tw-flex tw-items-center">
+            <i
+              class="pi pi-times"
+              (click)="removeToast(toast.key)"
+              style="cursor: pointer"
+            ></i>
+          </div>
         </div>
-
-        <div class="close-icon tw-flex tw-items-center">
-          <i
-            class="pi pi-times"
-            (click)="removeToast(toast.key)"
-            style="cursor: pointer"
-          ></i>
-        </div>
-      </div>
-    </ng-template>
-  </p-messages>
+      </ng-template>
+    </p-messages>
+  </div>
 </div>

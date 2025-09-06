@@ -22,7 +22,7 @@ import { CalendarService } from '../../../core/services/calendar.service';
 })
 export class CreateComponent extends BaseCoreAbstract {
   @Input() permission: UserPermissionDto[] = [];
-  @Input() module: string;
+  @Input() module: 'CONT' | 'COMP' | 'SETTING' = 'SETTING';
   userProfile: UserDto;
   createFormConfig: FormConfig[] = [];
   createFormGroup = new FormGroup({
@@ -309,7 +309,7 @@ export class CreateComponent extends BaseCoreAbstract {
   }
 
   imageFileUploadBtn() {
-    if (this.checkPermission('update', this.module, this.permission)) {
+    if (this.checkPermission('update', this.module)) {
       if (this.profileImg !== DEFAULT_PROFILE_PIC_URL && this.profilePhotoFile) {
         this.storageService.uploadImage(this.profilePhotoFile, "Image/User/").then(url => {
           this.profileImg = url;
@@ -367,7 +367,7 @@ export class CreateComponent extends BaseCoreAbstract {
   }
 
   update() {
-    if (this.checkPermission('update', this.module, this.permission)) {
+    if (this.checkPermission('update', this.module)) {
       if (this.createFormGroup.controls['password'].value && this.createFormGroup.controls['confirm_password'].value) {
         if (this.createFormGroup.controls['password'].value === this.createFormGroup.controls['confirm_password'].value) {
           this.authService.updateUserAuthPassword(this.createFormGroup.controls['password'].value, this.userProfile.authUid).subscribe(res => {

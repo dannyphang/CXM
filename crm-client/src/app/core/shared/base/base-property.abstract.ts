@@ -40,7 +40,7 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
     /**  
       initial property form
     **/
-    initProfileFormConfig(propertyList: PropertyGroupDto[], module: 'CONT' | 'COMP', contactProfile: ContactDto, companyProfile: CompanyDto, isLeftPanel: boolean, permission: UserPermissionDto[]) {
+    initProfileFormConfig(propertyList: PropertyGroupDto[], module: 'CONT' | 'COMP', contactProfile: ContactDto, companyProfile: CompanyDto, isLeftPanel: boolean) {
         let propCount = 0;
 
         this.profileFormGroup = this.formBuilder.group({});
@@ -49,7 +49,7 @@ export abstract class BasePropertyAbstract extends BaseCoreAbstract {
             let formsConfig: FormConfig[] = [];
             item.propertiesList.forEach(prop => {
                 let propProfileValue = this.returnProfileValue(prop, module, contactProfile, companyProfile);
-                let control = new FormControl({ value: null, disabled: !this.checkPermission('update', module, permission) || !prop.isEditable });
+                let control = new FormControl({ value: null, disabled: !this.checkPermission('update', module) || !prop.isEditable });
                 control.setValue(propProfileValue ? propProfileValue : this.commonService.returnControlTypeEmptyValue(prop), { emitEvent: false });
 
                 this.profileFormGroup.addControl(prop.propertyCode, control, { emitEvent: false });

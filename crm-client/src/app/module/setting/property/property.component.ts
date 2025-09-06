@@ -24,7 +24,7 @@ interface Column {
   styleUrl: './property.component.scss'
 })
 export class PropertyComponent extends BaseCoreAbstract {
-  @Input() permission: UserPermissionDto[] = [];
+  // @Input() permission: UserPermissionDto[] = [];
   roleId: number = 0;
   ROW_PER_PAGE_DEFAULT = ROW_PER_PAGE_DEFAULT;
   ROW_PER_PAGE_DEFAULT_LIST = ROW_PER_PAGE_DEFAULT_LIST;
@@ -701,7 +701,7 @@ export class PropertyComponent extends BaseCoreAbstract {
   }
 
   delete() {
-    if (this.checkPermission('remove', this.moduleFormControl.value, this.permission)) {
+    if (this.checkPermission('remove', this.moduleFormControl.value)) {
       if (this.selectedProperty.find(p => p.isSystem)) {
         this.toastService.addSingle({
           message: "MESSAGE.CANNOT_DELETE_SYSTEM_PROPERTY",
@@ -854,7 +854,7 @@ export class PropertyComponent extends BaseCoreAbstract {
   }
 
   edit() {
-    if (this.checkPermission('update', this.moduleFormControl.value, this.permission)) {
+    if (this.checkPermission('update', this.moduleFormControl.value)) {
       if (this.editable) {
         this.propertyDetailFormGroup.markAllAsTouched();
         if (this.propertyDetailFormGroup.valid) {

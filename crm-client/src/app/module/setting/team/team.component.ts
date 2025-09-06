@@ -2,13 +2,15 @@ import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
 import { FormArray, FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { AuthService, UpdateUserRoleDto } from '../../../core/services/auth.service';
 import { CONTROL_TYPE, FormConfig, OptionsModel } from '../../../core/services/components.service';
-import { CoreHttpService, PermissionObjDto, UserPermissionDto } from '../../../core/services/core-http.service';
+import { CoreHttpService, PermissionObjDto, RoleDto, UserPermissionDto } from '../../../core/services/core-http.service';
 import { BaseCoreAbstract } from '../../../core/shared/base/base-core.abstract';
 import { ROW_PER_PAGE_DEFAULT, ROW_PER_PAGE_DEFAULT_LIST } from '../../../core/shared/constants/common.constants';
 import { MessageService } from 'primeng/api';
 import { CoreAuthService, UserDto } from '../../../core/services/core-auth.service';
 import { CommonService, WindowSizeDto } from '../../../core/services/common.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { map } from 'rxjs/internal/operators/map';
+import { Observable, of } from 'rxjs';
 
 interface Column {
   field: string;
@@ -28,6 +30,7 @@ export class TeamComponent extends BaseCoreAbstract implements OnChanges {
   ROW_PER_PAGE_DEFAULT = ROW_PER_PAGE_DEFAULT;
   ROW_PER_PAGE_DEFAULT_LIST = ROW_PER_PAGE_DEFAULT_LIST;
   teamFormArr: FormArray = this.formBuilder.array([]);
+  roleList: RoleDto[] = [];
   roleOptions: OptionsModel[] = [];
 
   tableConfig: Column[] = [
@@ -62,8 +65,10 @@ export class TeamComponent extends BaseCoreAbstract implements OnChanges {
   ];
   userList: UserDto[] = [];
   userListOptions: OptionsModel[] = [];
-  selectedUserFormGroup: FormGroup = new FormGroup({
+  tenantListOptions: OptionsModel[] = [];
+  selectedUserFormGroup = new FormGroup({
     user: new FormControl(""),
+    tenant: new FormControl(""),
     permission: this.formBuilder.array([]),
   });
   updateUserList: UserDto[] = [];
@@ -99,6 +104,7 @@ export class TeamComponent extends BaseCoreAbstract implements OnChanges {
     email: new FormControl("", Validators.required),
     password: new FormControl("", Validators.required),
   });
+  permissionTableHeaderFormConfig: FormConfig[] = [];
 
   constructor(
     private formBuilder: FormBuilder,
@@ -106,7 +112,7 @@ export class TeamComponent extends BaseCoreAbstract implements OnChanges {
     private coreService: CoreHttpService,
     protected coreAuthService: CoreAuthService,
     private commonService: CommonService,
-    private toastService: ToastService
+    private toastService: ToastService,
   ) {
     super(coreAuthService);
     this.windowSize = this.commonService.windowSize;
@@ -119,33 +125,52 @@ export class TeamComponent extends BaseCoreAbstract implements OnChanges {
       this.initPermissionTable(userUid);
     });
 
-    this.authService.getAllRoles().subscribe(res => {
-      if (res.isSuccess) {
-        this.roleOptions = res.data.map(r => {
-          return {
-            label: r.roleName,
-            value: r.roleId
-          }
-        })
+    // this.authService.getAllRoles().subscribe(res => {
+    //   if (res.isSuccess) {
+    //     this.roleList = res.data;
+    //     this.roleOptions = res.data.map(r => {
+    //       return {
+    //         label: r.roleName,
+    //         value: r.roleId
+    //       }
+    //     })
 
-        this.selectedUserFormGroup.controls['user'].setValue(this.coreAuthService.userC.uid);
+    //     this.selectedUserFormGroup.controls['user'].setValue(this.coreAuthService.userC.uid);
+    //   }
+    // })
+    this.roleList = this.coreAuthService.roleList;
+    this.roleOptions = this.coreAuthService.roleList.map(r => {
+      return {
+        label: r.roleName,
+        value: r.roleId
       }
     })
+    this.selectedUserFormGroup.controls['user'].setValue(this.coreAuthService.userC.uid);
 
     if (this.coreService.tenant) {
-      this.authService.getAllUserByTenant(this.coreService.tenant.uid).subscribe(res => {
-        if (res.isSuccess) {
-          this.userList = res.data;
-          this.userListOptions = res.data.map(d => {
-            return {
-              label: `${d.displayName} (${d.email})`,
-              value: d.uid
-            }
-          });
-          this.selectedUserFormGroup.controls['user'].setValue(this.coreAuthService.userC.uid)
+      this.selectedUserFormGroup.controls.tenant.setValue(this.coreService.tenant?.uid ?? "", { emitEvent: false });
+
+      this.authService.getAllUserByTenant(this.coreService.tenant.uid).subscribe({
+        next: res => {
+          if (res.isSuccess) {
+            this.userList = res.data;
+            this.userListOptions = res.data.map(d => {
+              return {
+                label: `${d.displayName} (${d.email})`,
+                value: d.uid
+              }
+            });
+            this.selectedUserFormGroup.controls['user'].setValue(this.coreAuthService.userC.uid)
+          }
+        },
+        error: err => {
+          console.log(err)
+        },
+        complete: () => {
+          this.initPermissionFormConfig();
         }
       });
-    }
+    };
 
     this.initTeamRole();
     this.initCreateTenantForm();
@@ -198,6 +223,67 @@ export class TeamComponent extends BaseCoreAbstract implements OnChanges {
     this.isAddRoleDialogVisible = false;
     this.teamFormArr = this.formBuilder.array([]);
     this.addTeamFormArr();
+  }
+
+  initPermissionFormConfig() {
+    this.coreService.getTenantsByUserId(this.coreAuthService.userC.uid).subscribe({
+      next: res => {
+        if (res.isSuccess && this.checkRolePermission(this.coreAuthService.userC.roleId, 'platform')) {
+          this.tenantListOptions = res.data.map(d => {
+            return {
+              label: d.tenantName,
+              value: d.uid
+            }
+          });
+        }
+      },
+      error: error => {
+        this.toastService.addSingle({
+          message: error.message,
+          severity: 'error'
+        });
+      },
+      complete: () => {
+        if (this.checkRolePermission(this.coreAuthService.userC.roleId, 'platform')) {
+          this.permissionTableHeaderFormConfig = [
+            {
+              id: 'TENANT',
+              type: CONTROL_TYPE.Dropdown,
+              fieldControl: this.selectedUserFormGroup.controls.tenant,
+              layoutDefine: {
+                row: 0,
+                column: 0,
+                colSpan: 4
+              },
+              options: this.tenantListOptions,
+            },
+            {
+              type: CONTROL_TYPE.Dropdown,
+              fieldControl: this.selectedUserFormGroup.controls.user,
+              layoutDefine: {
+                row: 0,
+                column: 1,
+              },
+              dataSourceDependOn: this.checkRolePermission(this.coreAuthService.userC.roleId, 'platform') ? ['TENANT'] : [],
+              dataSourceAction: () => of(this.userListOptions),
+            },
+          ];
+        }
+        else if (this.checkRolePermission(this.coreAuthService.userC.roleId, 'user')) {
+          this.permissionTableHeaderFormConfig = [
+            {
+              type: CONTROL_TYPE.Dropdown,
+              fieldControl: this.selectedUserFormGroup.controls.user,
+              layoutDefine: {
+                row: 0,
+                column: 1,
+              },
+              options: this.userListOptions,
+            },
+          ];
+        }
+      }
+    });
   }
 
   addTeamFormArr() {
@@ -273,24 +359,41 @@ export class TeamComponent extends BaseCoreAbstract implements OnChanges {
   }
 
   submitTeam() {
-    console.log(this.teamFormArr.value)
-    let updateList: UpdateUserRoleDto[] = this.teamFormArr.value.map((i: {
-      email: string,
-      role: number
-    }) => {
-      return {
-        email: i.email,
-        roleId: i.role,
-        modifiedBy: this.coreAuthService.userC.uid,
-        tenantId: this.coreService.tenant.uid
-      }
-    });
+    if (this.checkRolePermission(this.coreAuthService.userC.roleId, 'user')) {
+      let updateList: UpdateUserRoleDto[] = this.teamFormArr.value.map((i: {
+        email: string,
+        role: number
+      }) => {
+        return {
+          email: i.email,
+          roleId: i.role,
+          modifiedBy: this.coreAuthService.userC.uid,
+          tenantId: this.selectedUserFormGroup.controls.tenant.value
+        }
+      });
 
-    this.authService.setUserRoleAndTenant(updateList).subscribe(res => {
-      if (res.isSuccess) {
-        console.log(res.data);
-      }
-    })
+      this.authService.setUserRoleAndTenant(updateList).subscribe({
+        next: res => {
+          if (res.isSuccess) {
+            this.toastService.addSingle({
+              message: res.responseMessage,
+            });
+          }
+        },
+        error: error => {
+          this.toastService.addSingle({
+            message: error,
+            severity: 'error'
+          });
+        }
+      })
+    }
+    else {
+      this.toastService.addSingle({
+        message: 'MESSAGE.PERMISSION_DENIED',
+        severity: 'error'
+      })
+    }
   }
 
   submitPermission() {
@@ -315,10 +418,6 @@ export class TeamComponent extends BaseCoreAbstract implements OnChanges {
         });
       }
     });
-  }
-
-  returnSelectUserFormControl(): FormControl {
-    return this.selectedUserFormGroup.controls['user'] as FormControl;
   }
 
   permissionSwitchOnChange(rowData: any, field: string, event: any) {

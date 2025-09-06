@@ -1,55 +1,41 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { MessageModel } from '../../../services/core-http.service';
 import { ToastService } from '../../../services/toast.service';
-import { trigger, state, style, transition, animate } from '@angular/animations';
+import { trigger, style, transition, animate } from '@angular/animations';
 
 @Component({
   selector: 'app-toast',
   templateUrl: './toast.component.html',
   styleUrls: ['./toast.component.scss'],
+  animations: [
+    trigger('fadeSlide', [
+      // appear
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(-8px)' }),
+        animate('200ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+      ]),
+      // disappear
+      transition(':leave', [
+        animate('250ms ease-in', style({ opacity: 0, transform: 'translateY(-6px)' }))
+      ]),
+    ])
+  ]
 })
-export class ToastComponent implements OnInit, AfterViewInit {
+export class ToastComponent implements OnInit {
   toastList: MessageModel[] = [];
-  enteredToasts = new Set<string>();
-  closingToasts = new Set<string>();
 
   constructor(private toastService: ToastService) { }
 
   ngOnInit() {
-    this.toastService.toastList$.subscribe((list) => {
+    this.toastService.toastList$.subscribe(list => {
       this.toastList = list;
-
-      // Mark new toasts as entered to trigger entrance animation
-      list.forEach((toast) => {
-        if (!this.enteredToasts.has(toast.key)) {
-          setTimeout(() => this.enteredToasts.add(toast.key), 10);
-        }
-      });
-    });
-  }
-
-  ngAfterViewInit() {
-    // Optional: ensure initial animations apply smoothly
-    setTimeout(() => {
-      this.toastList.forEach((t) => this.enteredToasts.add(t.key));
     });
   }
 
   removeToast(key: string) {
-    this.closingToasts.add(key);
-
-    setTimeout(() => {
-      this.toastService.clear(key);
-      this.closingToasts.delete(key);
-      this.enteredToasts.delete(key);
-    }, 300); // Match animation duration
+    // Just remove it; the wrapper's :leave animation will run before DOM removal
+    this.toastService.clear(key);
   }
 
-  isClosing(key: string): boolean {
-    return this.closingToasts.has(key);
-  }
-
-  hasEntered(key: string): boolean {
-    return this.enteredToasts.has(key);
-  }
+  trackByKey = (_: number, t: MessageModel) => t.key;
 }

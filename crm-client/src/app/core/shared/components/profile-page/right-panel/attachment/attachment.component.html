@@ -22,7 +22,7 @@
 
       <!-- add attachment -->
       <app-base-button
-        *ngIf="checkPermission('create', module, permission)"
+        *ngIf="checkPermission('create', module)"
         [isTextStyle]="true"
         [label]="'BUTTON.ADD' | translate"
         [rightIcon]="false"

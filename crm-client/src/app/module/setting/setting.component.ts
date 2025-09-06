@@ -18,7 +18,7 @@ import { Location } from '@angular/common';
 export class SettingComponent extends BaseCoreAbstract {
   @ViewChild('settingContainer', { static: false }) settingContainerRef!: ElementRef;
   permission: UserPermissionDto[] = [];
-  module = 'SETTING';
+  module: 'CONT' | 'COMP' | 'SETTING' = 'SETTING';
   settingMenuItem: MenuItem[] = [];
   userC: UserDto;
   fragment: string;
@@ -68,7 +68,7 @@ export class SettingComponent extends BaseCoreAbstract {
             element.scrollIntoView({ behavior: 'smooth', block: 'start' });
           }
         },
-        visible: this.userC?.roleId === 1 || this.returnPermissionObj('TEAM', 'display')
+        visible: this.checkRolePermission(this.userC?.roleId ?? 0, 'user')
       },
       {
         label: 'SETTING.PROPERTY',
@@ -79,7 +79,7 @@ export class SettingComponent extends BaseCoreAbstract {
             element.scrollIntoView({ behavior: 'smooth', block: 'start' });
           }
         },
-        visible: this.userC?.roleId === 1 || this.returnPermissionObj('PROPERTY', 'display')
+        visible: this.checkRolePermission(this.userC?.roleId ?? 0, 'module-crud') || this.checkPermission('display', 'PROPERTY')
       },
     ];
     this.authService.getUserPermission(this.userC?.uid ?? '').then(permission => {
@@ -161,9 +161,5 @@ export class SettingComponent extends BaseCoreAbstract {
         styleClass: sectionId === this.activeSection ? 'active-menu-item' : ''
       };
     });
-  }
-
-  returnPermissionObj(module: string, action: string): boolean {
-    return this.permission?.find(p => p.module === module)?.permission[action];
   }
 }

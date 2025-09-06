@@ -67,7 +67,7 @@ export class AllPropertiesPageComponent extends BasePropertyAbstract implements 
               value: c.uid
             }
           });
-          this.initProfileFormConfig(this.propertyList, this.module, this.contactProfile, this.companyProfile, false, this.permission);
+          this.initProfileFormConfig(this.propertyList, this.module, this.contactProfile, this.companyProfile, false);
           this.checkFormValueChange(this.propertyList);
         }
         else {

@@ -9,7 +9,7 @@ import { User } from 'firebase/auth';
 import { TranslateService } from '@ngx-translate/core';
 import { CommonService } from '../../core/services/common.service';
 import { OptionsModel } from '../../core/services/components.service';
-import { TenantDto, UserPermissionDto, CoreHttpService } from '../../core/services/core-http.service';
+import { TenantDto, UserPermissionDto, CoreHttpService, RoleDto } from '../../core/services/core-http.service';
 import { ThemeService } from '../../core/services/theme.service';
 import { ToastService } from '../../core/services/toast.service';
 import { BaseCoreAbstract } from '../../core/shared/base/base-core.abstract';
@@ -41,6 +41,8 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
   DEFAULT_PROFILE_PIC_URL = DEFAULT_PROFILE_PIC_URL;
   avatarImage: string | null = this.DEFAULT_PROFILE_PIC_URL;
   tenantFormControl: FormControl = new FormControl("");
+  isShowTenantList: boolean = false;
+  roleList: RoleDto[] = [];
 
   contactUrl: string = '/crm/contact';
   companyUrl: string = '/crm/company';
@@ -76,6 +78,16 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
 
       this.initAvatarMenu();// update theme
       this.updateThemeMode(this.user.setting.darkMode ?? false, true);
+
+      // // check platform role to show tenant list
+      // this.authService.getAllRoles().subscribe({
+      //   next: res => {
+      //     if (res.isSuccess) {
+      //       this.roleList = res.data;
+      // this.isShowTenantList = this.checkRolePermission(this.roleList, this.user.roleId, 'platform');
+      //     }
+      //   }
+      // });
     }
 
     if (changes['permission'] && changes['permission'].currentValue) {
@@ -88,7 +100,7 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
           command: () => {
             this.router.navigateByUrl(this.contactUrl);
           },
-          visible: this.checkPermission('display', 'CONT', this.permission)
+          visible: this.checkPermission('display', 'CONT')
         },
         {
           label: "COMMON.COMPANY",
@@ -97,7 +109,7 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
           command: () => {
             this.router.navigateByUrl(this.companyUrl);
           },
-          visible: this.checkPermission('display', 'COMP', this.permission)
+          visible: this.checkPermission('display', 'COMP')
         },
       ];
     }
@@ -194,7 +206,7 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
         command: () => {
           this.router.navigate([this.contactUrl]);
         },
-        visible: this.checkPermission('display', 'CONT', this.permission)
+        visible: this.checkPermission('display', 'CONT')
       },
       {
         label: "COMMON.COMPANY",
@@ -203,7 +215,7 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
         command: () => {
           this.router.navigate([this.companyUrl]);
         },
-        visible: this.checkPermission('display', 'COMP', this.permission)
+        visible: this.checkPermission('display', 'COMP')
       },
     ];
 

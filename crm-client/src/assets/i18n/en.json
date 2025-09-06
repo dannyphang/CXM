@@ -83,7 +83,8 @@
     "CONNECT_EMAIL_FAILED": "Failed to connect email. Please check your email settings.",
     "PERMISSION_DENIED": "You do not have permission to perform this action.",
     "UPDATING": "Updating...",
-    "SAVING": "Saving..."
+    "SAVING": "Saving...",
+    "LOADING": "Loading..."
   },
   "BUTTON": {
     "SAVE": "Save",

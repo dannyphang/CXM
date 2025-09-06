@@ -8,6 +8,7 @@ import { Auth, getAuth, onAuthStateChanged, User } from "firebase/auth";
 import { ToastService } from "./toast.service";
 import { UserDto, BasedDto, CoreAuthService } from "./core-auth.service";
 import { NumberValueAccessor } from "@angular/forms";
+import { ex } from "@fullcalendar/core/internal-common";
 
 @Injectable()
 export class CoreHttpService {
@@ -139,6 +140,12 @@ export class RoleDto extends BasedDto {
     roleName: string;
     roleCode: string;
     description: string;
+    permissionControl: permissionControlDto[];
+}
+
+export class permissionControlDto {
+    control: string;
+    permission: boolean;
 }
 
 export class LanguageDto extends BasedDto {
