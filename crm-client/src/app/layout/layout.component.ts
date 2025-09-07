@@ -19,7 +19,6 @@ export class LayoutComponent {
   user: UserDto;
   tenantList: TenantDto[] = [];
   tenantOptionsList: OptionsModel[] = [];
-  permission: UserPermissionDto[] = [];
   langLoaded = false;
 
   constructor(
@@ -45,7 +44,6 @@ export class LayoutComponent {
     }
 
     // get permission
-    this.permission = this.coreAuthService.permission;
     this.user.permission = this.coreAuthService.permission;
 
     // get language

@@ -505,11 +505,8 @@ function updatePermission({ userId, tenantId, userUid, permissionList }) {
           };
 
           constant.USER_PERMISSION_FIELD.forEach((field) => {
-            console.log("field", field);
             p[field] = permission.permission[field];
           });
-
-          console.log(p);
           return authRepo.updatePermission({ permission: p });
         })
       );

@@ -4,7 +4,7 @@ export const LoginMode = {
     ForgotPassword: 'FORGOTPASSWORD',
 }
 
-export const PERMISSION_LIST = ["CONT", "COMP", "TEAM", "SETTING", "PROPERTY"] as const;
+export const PERMISSION_LIST = ["CONT", "COMP", "SETTING", "PROPERTY"] as const;
 export type PermissionTypeList = typeof PERMISSION_LIST[number];
 
 export const ROW_PER_PAGE_DEFAULT = 10;

@@ -11,7 +11,7 @@
     <p-table
       #dt
       [columns]="tableConfig"
-      [value]="selectedUserFormGroup.controls['permission'].value"
+      [value]="selectedUserFormGroup.controls.permission.value"
       [resizableColumns]="true"
       [reorderableColumns]="true"
       [rowHover]="true"
@@ -41,17 +41,15 @@
               *ngIf="col.field !== 'module'"
               class="tw-flex tw-justify-center"
             >
-              <!-- <p-inputSwitch
-                [ngModel]="rowData.permission[col.field].value"
-                (onChange)="
-                  permissionSwitchOnChange(rowData, col.field, $event)
-                "
-              /> -->
               <p-checkbox
                 [ngModel]="rowData.permission[col.field].value"
                 [binary]="true"
                 (onChange)="
                   permissionSwitchOnChange(rowData, col.field, $event)
+                "
+                [disabled]="
+                  authCoreService.userC.uid ===
+                  selectedUserFormGroup.controls.user.value
                 "
               ></p-checkbox>
             </div>
@@ -165,6 +163,7 @@
           </th>
         </tr>
       </ng-template>
+
       <ng-template pTemplate="body" let-rowData let-columns="columns">
         <tr>
           <td>

@@ -26,7 +26,7 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
   @Input() user: UserDto;
   @Input() tenantList: TenantDto[] = [];
   @Input() tenantOptionsList: OptionsModel[] = [];
-  @Input() permission: UserPermissionDto[] = [];
+  // @Input() permission: UserPermissionDto[] = [];
 
   isDarkMode: boolean = false;
   darkThemeFile: string = "aura-dark-blue.css";
@@ -90,29 +90,9 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
       // });
     }
 
-    if (changes['permission'] && changes['permission'].currentValue) {
-      console.log("Permission changed", this.permission);
-      this.menuItem = [
-        {
-          label: "COMMON.CONTACT",
-          icon: '',
-          tooltip: "COMMON.CONTACT",
-          command: () => {
-            this.router.navigateByUrl(this.contactUrl);
-          },
-          visible: this.checkPermission('display', 'CONT')
-        },
-        {
-          label: "COMMON.COMPANY",
-          icon: '',
-          tooltip: "COMMON.COMPANY",
-          command: () => {
-            this.router.navigateByUrl(this.companyUrl);
-          },
-          visible: this.checkPermission('display', 'COMP')
-        },
-      ];
-    }
+    // if (changes['permission'] && changes['permission'].currentValue) {
+    //   console.log("Permission changed", this.permission);
+    // }
   }
 
   initAvatarMenu() {
@@ -204,7 +184,7 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
         icon: '',
         tooltip: "COMMON.CONTACT",
         command: () => {
-          this.router.navigate([this.contactUrl]);
+          this.router.navigateByUrl(this.contactUrl);
         },
         visible: this.checkPermission('display', 'CONT')
       },
@@ -213,7 +193,7 @@ export class HeaderComponent extends BaseCoreAbstract implements OnChanges {
         icon: '',
         tooltip: "COMMON.COMPANY",
         command: () => {
-          this.router.navigate([this.companyUrl]);
+          this.router.navigateByUrl(this.companyUrl);
         },
         visible: this.checkPermission('display', 'COMP')
       },

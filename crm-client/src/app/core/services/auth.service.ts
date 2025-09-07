@@ -150,11 +150,11 @@ export class AuthService {
         return this.coreService.put<any>('auth/userRole/update', { updateList }).pipe();
     }
 
-    getUserPermission(uid: string): Promise<UserPermissionDto[]> {
+    getUserPermission(uid: string, tenantId?: string): Promise<UserPermissionDto[]> {
         return new Promise((resolve, reject) => {
             this.coreService.get<UserPermissionDto[]>('auth/permission/' + uid, {
                 headers: {
-                    'tenantId': this.coreService.tenant?.uid,
+                    'tenantUid': tenantId ?? this.coreService.tenant?.uid,
                 }
             }).pipe().subscribe({
                 next: res => {
@@ -200,8 +200,12 @@ export class AuthService {
         return this.coreService.post<any>('auth/user/sentVerifyEmail', { user }).pipe();
     }
 
-    updateUserPermission(uid: string, permission: UserPermissionDto[]): Observable<ResponseModel<any>> {
-        return this.coreService.put<any>('auth/permission', { userUid: uid, permission: permission }).pipe();
+    createUserPermission(uid: string, permission: UserPermissionDto[], tenantId: string): Observable<ResponseModel<any>> {
+        return this.coreService.post<any>('auth/permission', { userUid: uid, permission: permission, tenantId: tenantId }).pipe();
+    }
+
+    updateUserPermission(uid: string, permission: UserPermissionDto[], tenantId?: string): Observable<ResponseModel<any>> {
+        return this.coreService.put<any>('auth/permission', { userUid: uid, permission: permission, tenantId: tenantId ?? null }).pipe();
     }
 }
 

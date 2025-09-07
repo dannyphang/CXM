@@ -4,7 +4,7 @@ import { AuthService, UpdateUserRoleDto } from '../../../core/services/auth.serv
 import { CONTROL_TYPE, FormConfig, OptionsModel } from '../../../core/services/components.service';
 import { CoreHttpService, PermissionObjDto, RoleDto, UserPermissionDto } from '../../../core/services/core-http.service';
 import { BaseCoreAbstract } from '../../../core/shared/base/base-core.abstract';
-import { ROW_PER_PAGE_DEFAULT, ROW_PER_PAGE_DEFAULT_LIST } from '../../../core/shared/constants/common.constants';
+import { PERMISSION_LIST, ROW_PER_PAGE_DEFAULT, ROW_PER_PAGE_DEFAULT_LIST } from '../../../core/shared/constants/common.constants';
 import { MessageService } from 'primeng/api';
 import { CoreAuthService, UserDto } from '../../../core/services/core-auth.service';
 import { CommonService, WindowSizeDto } from '../../../core/services/common.service';
@@ -23,12 +23,11 @@ interface Column {
   styleUrl: './team.component.scss'
 })
 export class TeamComponent extends BaseCoreAbstract implements OnChanges {
-  @Input() permission: UserPermissionDto[] = [];
-
   windowSize: WindowSizeDto = new WindowSizeDto();
 
   ROW_PER_PAGE_DEFAULT = ROW_PER_PAGE_DEFAULT;
   ROW_PER_PAGE_DEFAULT_LIST = ROW_PER_PAGE_DEFAULT_LIST;
+  PERMISSION_LIST = PERMISSION_LIST;
   teamFormArr: FormArray = this.formBuilder.array([]);
   roleList: RoleDto[] = [];
   roleOptions: OptionsModel[] = [];
@@ -121,23 +120,15 @@ export class TeamComponent extends BaseCoreAbstract implements OnChanges {
   ngOnInit() {
     this.currentUser = this.coreAuthService.userC;
 
-    this.selectedUserFormGroup.controls['user'].valueChanges.subscribe(userUid => {
+    this.selectedUserFormGroup.controls.user.valueChanges.subscribe(userUid => {
       this.initPermissionTable(userUid);
     });
 
-    // this.authService.getAllRoles().subscribe(res => {
-    //   if (res.isSuccess) {
-    //     this.roleList = res.data;
-    //     this.roleOptions = res.data.map(r => {
-    //       return {
-    //         label: r.roleName,
-    //         value: r.roleId
-    //       }
-    //     })
+    this.selectedUserFormGroup.controls.tenant.valueChanges.subscribe(tenantUid => {
+      this.selectedUserFormGroup.controls.user.setValue(this.userListOptions[0].value, { emitEvent: false });
+      this.initPermissionTable(this.selectedUserFormGroup.controls.user.value);
+    });
 
-    //     this.selectedUserFormGroup.controls['user'].setValue(this.coreAuthService.userC.uid);
-    //   }
-    // })
     this.roleList = this.coreAuthService.roleList;
     this.roleOptions = this.coreAuthService.roleList.map(r => {
       return {
@@ -150,7 +141,7 @@ export class TeamComponent extends BaseCoreAbstract implements OnChanges {
     if (this.coreService.tenant) {
       this.selectedUserFormGroup.controls.tenant.setValue(this.coreService.tenant?.uid ?? "", { emitEvent: false });
 
-      this.authService.getAllUserByTenant(this.coreService.tenant.uid).subscribe({
+      this.authService.getAllUserByTenant(this.selectedUserFormGroup.controls.tenant.value).subscribe({
         next: res => {
           if (res.isSuccess) {
             this.userList = res.data;
@@ -178,9 +169,7 @@ export class TeamComponent extends BaseCoreAbstract implements OnChanges {
   }
 
   ngOnChanges(changes: SimpleChanges) {
-    if (changes['permission'] && changes['permission'].currentValue) {
-      this.initPermissionTable(this.coreAuthService.userC.uid);
-    }
+
   }
 
   get permissionArr(): FormArray {
@@ -188,35 +177,36 @@ export class TeamComponent extends BaseCoreAbstract implements OnChanges {
   }
 
   initPermissionTable(userUid: string) {
-    this.authService.getUserPermission(userUid ? userUid : this.selectedUserFormGroup.controls['user'].value).then(permission => {
-      this.permission = permission;
+    this.authService.getUserPermission(
+      userUid ? userUid : this.selectedUserFormGroup.controls.user.value,
+      this.selectedUserFormGroup.controls.tenant.value
+    ).then(permission => {
       this.selectedUserFormGroup.controls['permission'] = this.formBuilder.array([]);
-      let permissionObj = this.permission ?? [];
 
-      permissionObj.forEach(p => {
-        this.addPermissionArr(p.module, p.permission);
+      this.PERMISSION_LIST.forEach(p => {
+        this.addPermissionArr(p, permission.find((per: UserPermissionDto) => per.module === p)?.permission);
+      });
+    }).catch(err => {
+      this.permissionArr.clear();
+      this.PERMISSION_LIST.forEach(p => {
+        this.addPermissionArr(p);
       });
     });
   }
 
-  addPermissionArr(module: string, permi: PermissionObjDto) {
-    if (permi) {
-      let permissionForm = this.formBuilder.group({
-        module: new FormControl(module),
-        permission: {
-          create: new FormControl(permi.create),
-          remove: new FormControl(permi.remove),
-          update: new FormControl(permi.update),
-          display: new FormControl(permi.display),
-          import: new FormControl(permi.import),
-          export: new FormControl(permi.export),
-        }
-      });
-      this.permissionArr.push(permissionForm);
-    }
-    else {
-      console.log(permi)
-    }
+  addPermissionArr(module: string, permi?: PermissionObjDto) {
+    let permissionForm = this.formBuilder.group({
+      module: new FormControl(module),
+      permission: {
+        create: new FormControl(permi?.create ?? false),
+        remove: new FormControl(permi?.remove ?? false),
+        update: new FormControl(permi?.update ?? false),
+        display: new FormControl(permi?.display ?? false),
+        import: new FormControl(permi?.import ?? false),
+        export: new FormControl(permi?.export ?? false),
+      }
+    });
+    this.permissionArr.push(permissionForm);
   }
 
   initTeamRole() {
@@ -264,8 +254,24 @@ export class TeamComponent extends BaseCoreAbstract implements OnChanges {
                 row: 0,
                 column: 1,
               },
-              dataSourceDependOn: this.checkRolePermission(this.coreAuthService.userC.roleId, 'platform') ? ['TENANT'] : [],
-              dataSourceAction: () => of(this.userListOptions),
+              dataSourceDependOn: ['TENANT'],
+              dataSourceAction: () => {
+                return this.authService.getAllUserByTenant(this.selectedUserFormGroup.controls.tenant.value)
+                  .pipe(
+                    map(res => {
+                      if (res.isSuccess) {
+                        this.userList = res.data;
+                        this.userListOptions = res.data.map(d => {
+                          return {
+                            label: `${d.displayName} (${d.email})`,
+                            value: d.uid
+                          }
+                        });
+                      }
+                      return this.userListOptions;
+                    })
+                  );
+              },
             },
           ];
         }
@@ -313,10 +319,6 @@ export class TeamComponent extends BaseCoreAbstract implements OnChanges {
       default:
         return new FormControl();
     }
-  }
-
-  returnTeamPermission(rowData: any, col: Column) {
-    return rowData.permission[col.field];
   }
 
   returnTeamPermissionFormControl(rowData: any, col: Column): FormControl {
@@ -397,7 +399,7 @@ export class TeamComponent extends BaseCoreAbstract implements OnChanges {
   }
 
   submitPermission() {
-    this.authService.updateUserPermission(this.selectedUserFormGroup.controls['user'].value, this.updatePermissionList).subscribe({
+    this.authService.updateUserPermission(this.selectedUserFormGroup.controls['user'].value, this.updatePermissionList, this.selectedUserFormGroup.controls.tenant.value).subscribe({
       next: res => {
         if (res.isSuccess) {
           this.toastService.addSingle({
@@ -413,7 +415,7 @@ export class TeamComponent extends BaseCoreAbstract implements OnChanges {
       },
       error: error => {
         this.toastService.addSingle({
-          message: error.error.message,
+          message: error,
           severity: 'error'
         });
       }
@@ -499,10 +501,6 @@ export class TeamComponent extends BaseCoreAbstract implements OnChanges {
 
   closeCreateUserDialog() {
     this.isCreateUserDialogVisible = false;
-    this.resetCreateUserForm();
-  }
-
-  resetCreateUserForm() {
     this.createUserFormGroup.reset({ emitEvent: false });
   }
 
