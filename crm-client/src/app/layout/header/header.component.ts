@@ -5,7 +5,6 @@ import { Router } from '@angular/router';
 import { MenuItem, MessageService } from 'primeng/api';
 import { debounceTime, distinctUntilChanged } from 'rxjs';
 import { AuthService } from '../../core/services/auth.service';
-import { User } from 'firebase/auth';
 import { TranslateService } from '@ngx-translate/core';
 import { CommonService } from '../../core/services/common.service';
 import { OptionsModel } from '../../core/services/components.service';
