@@ -127,7 +127,7 @@ export class HomeComponent {
       })
       this.urlService.urlShortener({
         url: this.shortFormControl.value,
-        expiry: this.expirationFormControl.value ? this.expirationInputFormControl.value : 7,
+        expiry: this.expirationFormControl.value ? this.expirationInputFormControl.value : null,
         password: this.passwordFormControl.value ? this.passwordInputFormControl.value : null
       }).subscribe({
         next: res => {
