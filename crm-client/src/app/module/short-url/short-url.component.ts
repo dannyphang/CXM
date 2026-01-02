@@ -25,6 +25,7 @@ export class ShortUrlComponent {
   isPasswordRequired: boolean = false;
   passwordFormControl: FormControl = new FormControl('');
   urlData: UrlShortenerDto;
+  submitted: boolean = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -63,6 +64,7 @@ export class ShortUrlComponent {
   }
 
   submitPassword() {
+    this.submitted = true;
     this.urlService.checkUrlPassword(this.urlData.uid, this.passwordFormControl.value).subscribe({
       next: res => {
         if (res.data) {
