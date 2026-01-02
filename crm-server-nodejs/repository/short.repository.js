@@ -38,6 +38,22 @@ function getShortUrl({ path }) {
     });
 }
 
+function getShortUrlByUid({ uid }) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            const { data, error } = await supabase.from(shortTable).select("*").eq("uid", uid).eq("statusId", 1).single();
+
+            if (error) {
+                reject(error);
+            } else {
+                resolve(data);
+            }
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
 function createShortUrlAnalytics({ url }) {
     return new Promise(async (resolve, reject) => {
         try {
@@ -108,20 +124,4 @@ function getTitle({ url }) {
     });
 }
 
-function checkUrlPassword({ uid, password }) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const { data, error } = await supabase.from(shortTable).select("password").eq("uid", uid).eq("statusId", 1).single();
-
-            if (error) {
-                reject(error);
-            } else {
-                resolve(data);
-            }
-        } catch (error) {
-            reject(error);
-        }
-    });
-}
-
-export { createShortUrl, getShortUrl, getAllUrl, getAnalyticsUrl, createShortUrlAnalytics, getTitle, checkUrlPassword };
+export { createShortUrl, getShortUrl, getShortUrlByUid, getAllUrl, getAnalyticsUrl, createShortUrlAnalytics, getTitle };
