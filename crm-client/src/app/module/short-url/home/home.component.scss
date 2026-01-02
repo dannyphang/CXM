@@ -26,11 +26,17 @@
 
 .expiry-div {
   display: grid;
+  gap: var(--content-gap);
+}
+
+.expiry-content-div {
+  display: grid;
   grid-template-areas: "expiration-switch expiration-input";
   gap: var(--content-gap);
-  grid-template-columns: auto 1fr;
+  grid-template-columns: 3fr 2fr;
   height: fit-content;
   align-items: center;
+  width: 100%;
 }
 
 .click-div {

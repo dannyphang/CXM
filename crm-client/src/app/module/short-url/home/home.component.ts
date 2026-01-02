@@ -22,6 +22,8 @@ export class HomeComponent {
   shortFormControl: FormControl = new FormControl('');
   expirationFormControl: FormControl = new FormControl(false);
   expirationInputFormControl: FormControl = new FormControl(7);
+  passwordFormControl: FormControl = new FormControl(false);
+  passwordInputFormControl: FormControl = new FormControl('');
   qrData: UrlShortenerDto | null = null;
 
   //#region chart
@@ -125,7 +127,8 @@ export class HomeComponent {
       })
       this.urlService.urlShortener({
         url: this.shortFormControl.value,
-        expiry: this.expirationFormControl.value ? this.expirationInputFormControl.value : 7
+        expiry: this.expirationFormControl.value ? this.expirationInputFormControl.value : 7,
+        password: this.passwordFormControl.value ? this.passwordInputFormControl.value : null
       }).subscribe({
         next: res => {
           this.qrData = res.data[0];

@@ -15,22 +15,38 @@
       ></app-base-button>
     </div>
     <div class="expiry-div">
-      <app-input-switch
-        [label]="'Activate expiration'"
-        [fieldControl]="expirationFormControl"
-        class="expiration-switch"
-      ></app-input-switch>
-      <app-base-input
-        *ngIf="expirationFormControl.value"
-        [fieldControl]="expirationInputFormControl"
-        [placeholder]="'Enter expiration date (days)'"
-        mode="number"
-        [onlyNumber]="true"
-        [minFractionDigits]="0"
-        [maxFractionDigits]="0"
-        class="expiration-input"
-        [suffix]="'days'"
-      ></app-base-input>
+      <div class="expiry-content-div">
+        <app-input-switch
+          [label]="'Expiration'"
+          [fieldControl]="expirationFormControl"
+          class="expiration-switch"
+        ></app-input-switch>
+        <app-base-input
+          *ngIf="expirationFormControl.value"
+          [fieldControl]="expirationInputFormControl"
+          [placeholder]="'Enter expiration date (days)'"
+          mode="number"
+          [onlyNumber]="true"
+          [minFractionDigits]="0"
+          [maxFractionDigits]="0"
+          class="expiration-input"
+          [suffix]="'days'"
+        ></app-base-input>
+      </div>
+      <div class="expiry-content-div">
+        <app-input-switch
+          [label]="'Password'"
+          [fieldControl]="passwordFormControl"
+          class="expiration-switch"
+        ></app-input-switch>
+        <app-base-input
+          *ngIf="passwordFormControl.value"
+          [fieldControl]="passwordInputFormControl"
+          [placeholder]="'Enter password'"
+          type="password"
+          class="expiration-input"
+        ></app-base-input>
+      </div>
     </div>
   </div>
 
