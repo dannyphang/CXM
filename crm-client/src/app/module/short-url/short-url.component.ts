@@ -30,7 +30,8 @@ export class ShortUrlComponent {
     private route: ActivatedRoute,
     private router: Router,
     private urlService: UrlShortenerService,
-    private titleService: Title
+    private titleService: Title,
+    private toastService: ToastService,
   ) {
     this.titleService.setTitle('Short URL');
   }
@@ -67,7 +68,10 @@ export class ShortUrlComponent {
         if (res.data) {
           window.location.href = this.urlData.originalUrl; // Redirect to the original URL
         } else {
-          alert('Incorrect password. Please try again.');
+          this.toastService.addSingle({
+            severity: 'error',
+            message: 'Incorrect password. Please try again.'
+          });
         }
       }
     });
