@@ -21,11 +21,11 @@ export class UrlShortenerService {
         return this.coreService.post<UrlShortenerDto[]>('short', { url: url.url, expiry: url.expiry, password: url.password }).pipe();
     }
 
-    getUrlShortener(path: string): Observable<ResponseModel<any>> {
+    getUrlShortener(path: string): Observable<ResponseModel<UrlShortenerDto>> {
         let headers = {
             'path': path
         }
-        return this.coreService.get<any>('short/url/', { headers: headers }).pipe();
+        return this.coreService.get<UrlShortenerDto>('short/url/', { headers: headers }).pipe();
     }
 
     getAllUrl(): Observable<ResponseModel<UrlShortenerDto[]>> {
@@ -38,12 +38,21 @@ export class UrlShortenerService {
         }
         return this.coreService.get<string>('short/title/', { headers: headers }).pipe();
     }
+
+    checkUrlPassword(uid: string, password: string): Observable<ResponseModel<boolean>> {
+        let headers = {
+            'uid': uid,
+            'password': password
+        }
+        return this.coreService.get<boolean>('short/check-password/', { headers: headers }).pipe();
+    }
 }
 
 export class UrlShortenerDto extends BasedDto {
     originalUrl: string;
     shortUrl: string;
     expiry: number;
+    password: string | null;
     id: number;
     uid: string;
     path: string;

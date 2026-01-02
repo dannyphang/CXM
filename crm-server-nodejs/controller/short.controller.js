@@ -133,4 +133,37 @@ router.get("/title", async (req, res) => {
     }
 });
 
+// check password URL
+router.get("/check-password", async (req, res) => {
+    try {
+        const uid = func.body(req).headers.uid;
+        const password = func.body(req).headers.password;
+
+        shortImp
+            .checkUrlPassword({ uid: uid, password: password })
+            .then((isMatch) => {
+                res.status(200).json(func.responseModel({ data: isMatch }));
+            })
+            .catch((error) => {
+                console.log("error", error);
+                API.createLog(error, req, res, 500, logModule);
+                res.status(500).json(
+                    func.responseModel({
+                        isSuccess: false,
+                        responseMessage: error,
+                    })
+                );
+            });
+    } catch (error) {
+        console.log("error", error);
+        API.createLog(error, req, res, 500, logModule);
+        res.status(500).json(
+            func.responseModel({
+                isSuccess: false,
+                responseMessage: error,
+            })
+        );
+    }
+});
+
 export default router;

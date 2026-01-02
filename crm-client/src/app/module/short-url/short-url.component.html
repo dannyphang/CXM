@@ -1,3 +1,18 @@
 <div class="tw-flex tw-justify-center tw-items-center tw-h-screen">
-  <p-progressSpinner ariaLabel="loading" />
+  <p-progressSpinner ariaLabel="loading" *ngIf="!isPasswordRequired" />
+
+  <div *ngIf="isPasswordRequired">
+    <app-base-input
+      [fieldControl]="passwordFormControl"
+      [placeholder]="'Enter password to access the URL'"
+      type="password"
+      class="tw-w-1/3"
+    ></app-base-input>
+    <app-base-button
+      [label]="'Submit'"
+      (onClick)="submitPassword()"
+      [outlined]="true"
+      class="tw-ml-4"
+    ></app-base-button>
+  </div>
 </div>

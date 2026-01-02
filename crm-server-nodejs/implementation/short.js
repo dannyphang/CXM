@@ -103,4 +103,27 @@ function getTitle({ url }) {
     });
 }
 
-export { createShortenUrl, getShortenUrl, getAllUrl, getTitle };
+function checkUrlPassword({ uid, password }) {
+    return new Promise(async (resolve, reject) => {
+        try {
+            shortRepo
+                .getShortUrlByUid({ uid: uid })
+                .then(async (res) => {
+                    if (!res.password) {
+                        return resolve(true);
+                    }   
+                    const isMatch = await bcrypt.compare(password, res.password);
+                    if (isMatch) {
+                        resolve(true);
+                    } else {
+                        resolve(false);
+                    }
+                })
+                .catch((error) => reject(error));
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+export { createShortenUrl, getShortenUrl, getAllUrl, getTitle, checkUrlPassword };

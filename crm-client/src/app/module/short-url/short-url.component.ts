@@ -22,6 +22,9 @@ interface Column {
 })
 export class ShortUrlComponent {
   shortCode: string | null = null;
+  isPasswordRequired: boolean = false;
+  passwordFormControl: FormControl = new FormControl('');
+  urlData: UrlShortenerDto;
 
   constructor(
     private route: ActivatedRoute,
@@ -39,6 +42,11 @@ export class ShortUrlComponent {
       if (this.shortCode && this.shortCode !== 'home') {
         this.urlService.getUrlShortener(this.shortCode).subscribe({
           next: res => {
+            this.urlData = res.data;
+            if (res.data.password) {
+              this.isPasswordRequired = true;
+              return;
+            }
             window.location.href = res.data.originalUrl; // Redirect to the original URL
           },
           error: err => {
@@ -51,7 +59,17 @@ export class ShortUrlComponent {
         this.router.navigate(['/short/home']);
       }
     });
+  }
 
-
+  submitPassword() {
+    this.urlService.checkUrlPassword(this.urlData.uid, this.passwordFormControl.value).subscribe({
+      next: res => {
+        if (res.data) {
+          window.location.href = this.urlData.originalUrl; // Redirect to the original URL
+        } else {
+          alert('Incorrect password. Please try again.');
+        }
+      }
+    });
   }
 }
