@@ -31,6 +31,18 @@
         class="expiration-input"
         [suffix]="'days'"
       ></app-base-input>
+      <app-input-switch
+        [label]="'Password'"
+        [fieldControl]="passwordFormControl"
+        class="expiration-switch"
+      ></app-input-switch>
+      <app-base-input
+        *ngIf="passwordFormControl.value"
+        [fieldControl]="passwordInputFormControl"
+        [placeholder]="'Enter password'"
+        type="password"
+        class="expiration-input"
+      ></app-base-input>
     </div>
   </div>
 

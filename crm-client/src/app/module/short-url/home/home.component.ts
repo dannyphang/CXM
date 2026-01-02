@@ -22,6 +22,8 @@ export class HomeComponent {
   shortFormControl: FormControl = new FormControl('');
   expirationFormControl: FormControl = new FormControl(false);
   expirationInputFormControl: FormControl = new FormControl(7);
+  passwordFormControl: FormControl = new FormControl(false);
+  passwordInputFormControl: FormControl = new FormControl('');
   qrData: UrlShortenerDto | null = null;
 
   //#region chart
