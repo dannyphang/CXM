@@ -2,21 +2,20 @@ import * as shortRepo from "../repository/short.repository.js";
 import * as func from "../shared/function.js";
 import * as envConfig from "../configuration/envConfig.js";
 import * as constant from "../shared/constant.js";
-import bcrypt from "bcryptjs";
 
-function createShortenUrl({ url, expiry, password }) {
-    return new Promise(async (resolve, reject) => {
+function createShortenUrl({ url, expiry }) {
+    return new Promise((resolve, reject) => {
         try {
-            const salt = await bcrypt.genSalt(10);
-            const hashedPassword = await bcrypt.hash(password, salt);
-
             let obj = {
                 originalUrl: url,
-                shortUrl: `${envConfig.clientUrl}/su/${obj.path}`,
-                path: func.generateRandomString(10),
+                shortUrl: "",
+                path: "",
                 expiry: expiry,
-                password: hashedPassword || null,
             };
+
+            // generate a random short 10 alphanumeric string
+            obj.path = func.generateRandomString(10);
+            obj.shortUrl = `${envConfig.clientUrl}/su/${obj.path}`;
 
             shortRepo
                 .createShortUrl({ url: obj })
