@@ -14,8 +14,9 @@ router.post("/", async (req, res) => {
     try {
         const url = func.body(req).data.url;
         const expiry = func.body(req).data.expiry;
+        const password = func.body(req).data.password;
         shortImp
-            .createShortenUrl({ url: url, expiry: expiry })
+            .createShortenUrl({ url: url, expiry: expiry, password: password })
             .then((shortUrl) => {
                 res.status(200).json(func.responseModel({ data: shortUrl }));
             })

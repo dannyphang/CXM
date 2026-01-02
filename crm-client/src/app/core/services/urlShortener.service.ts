@@ -15,9 +15,10 @@ export class UrlShortenerService {
 
     urlShortener(url: {
         url: string,
-        expiry?: number
+        expiry?: number,
+        password?: string
     }): Observable<ResponseModel<UrlShortenerDto[]>> {
-        return this.coreService.post<UrlShortenerDto[]>('short', { url: url.url, expiry: url.expiry }).pipe();
+        return this.coreService.post<UrlShortenerDto[]>('short', { url: url.url, expiry: url.expiry, password: url.password }).pipe();
     }
 
     getUrlShortener(path: string): Observable<ResponseModel<any>> {
