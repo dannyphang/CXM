@@ -2,8 +2,12 @@
   <p-progressSpinner ariaLabel="loading" *ngIf="!isPasswordRequired" />
 
   <p-blockUI [blocked]="!isPasswordRequired" [autoZIndex]="0">
-    <div *ngIf="isPasswordRequired" class="tw-flex tw-w-1/2 tw-z-[1]">
+    <div
+      *ngIf="isPasswordRequired"
+      class="tw-flex tw-w-1/2 tw-z-[1] tw-items-center tw-justify-center"
+    >
       <app-base-input
+        [label]="'Password'"
         [fieldControl]="passwordFormControl"
         [placeholder]="'Enter password to access the URL'"
         type="password"
