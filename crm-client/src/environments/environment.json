@@ -7,7 +7,7 @@
     "authClient": "http://localhost:1118"
   },
   "server": {
-    "client": "https://www.cxi.onl",
+    "client": "https://www.uniwise.dev",
     "base": "https://crm-six-mauve.vercel.app",
     "auth": "https://jwt-authentication-fawn.vercel.app",
     "log": "https://log-five-theta.vercel.app",
